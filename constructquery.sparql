@@ -1,0 +1,10 @@
+CONSTRUCT {
+?x a dbo:Film.
+?x dbo:starring ?y.
+?y dbo:birthPlace ?z.
+} WHERE {
+?x a dbo:Film.
+?x dbo:starring ?y.
+?y dbo:birthPlace ?z.
+?z dbp:country "California"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>
+}
