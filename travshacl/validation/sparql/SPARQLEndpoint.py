@@ -22,7 +22,6 @@ class SPARQLEndpoint:
             if format == 'JSON':
                 self.endpoint.setReturnFormat(JSON)
             result = self.endpoint.query().convert()
-            print(result)
             return result
 
     instance = None

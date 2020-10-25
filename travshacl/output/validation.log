@@ -9,3 +9,154 @@ PREFIX yago:<http://dbpedia.org/class/yago/>
 PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX :<http://example.org/>
 SELECT ?x WHERE {?x a dbo:Film}
+elapsed: 642.24658203125 ms
+Retrieving (initial) targets ...
+Targets retrieved.
+Number of targets:
+10000
+
+********************************
+Starting validation at depth: 0
+Evaluating queries for shape MovieShape
+
+Evaluating query:
+PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbr:<http://dbpedia.org/resource/>
+PREFIX yago:<http://dbpedia.org/class/yago/>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX :<http://example.org/>
+SELECT DISTINCT ?x, ?p_14 WHERE {
+?x a dbo:Film. {
+SELECT DISTINCT ?x, ?p_14 WHERE {
+
+?x dbo:starring ?p_14.
+{
+SELECT DISTINCT ?x WHERE {
+?x dbo:writer ?p_8.
+?x dbo:musicComposer ?p_9.
+?x dbo:director ?p_10.
+?x dbo:imdbId ?p_11.
+}
+}}}} ORDER BY ?x
+elapsed: 1797.845458984375 ms
+
+Number of solution mappings: 10000
+
+Grounding rules ... 
+elapsed: 759.49560546875 ms
+
+
+Evaluating query:
+PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbr:<http://dbpedia.org/resource/>
+PREFIX yago:<http://dbpedia.org/class/yago/>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX :<http://example.org/>
+SELECT DISTINCT ?x WHERE {
+?x a dbo:Film. {
+SELECT DISTINCT ?x WHERE {
+
+?x dbo:imdbId ?p_12.
+?x dbo:imdbId ?p_13.
+FILTER(
+?p_12 != ?p_13)
+{
+SELECT DISTINCT ?x WHERE {
+?x dbo:writer ?p_8.
+?x dbo:musicComposer ?p_9.
+?x dbo:director ?p_10.
+?x dbo:imdbId ?p_11.
+}
+}}}} ORDER BY ?x
+elapsed: 115.31689453125 ms
+
+Number of solution mappings: 86
+
+Grounding rules ... 
+elapsed: 5.499267578125 ms
+
+Starting saturation ...
+saturation ...
+elapsed: 0.00146484375 ms
+
+Valid targets: 0
+Invalid targets: 11
+Remaining targets: 9989
+
+********************************
+Starting validation at depth: 1
+Evaluating queries for shape ActorShape
+
+Evaluating query:
+PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbr:<http://dbpedia.org/resource/>
+PREFIX yago:<http://dbpedia.org/class/yago/>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX :<http://example.org/>
+SELECT DISTINCT ?x, ?p_0 WHERE {
+
+?x dbo:birthPlace ?p_0.
+{
+SELECT DISTINCT ?x WHERE {
+?x dbo:activeYearsStartYear ?p_1.
+?x dbo:occupation dbr:Actor.
+?x dbo:imdbId ?p_3.
+?x ^dbo:starring ?p_4.
+}
+}} ORDER BY ?x
+elapsed: 514.397705078125 ms
+
+Number of solution mappings: 2805
+
+Grounding rules ... 
+elapsed: 186.89697265625 ms
+
+Starting saturation ...
+saturation ...
+elapsed: 0.002197265625 ms
+
+Valid targets: 0
+Invalid targets: 11
+Remaining targets: 9989
+
+********************************
+Starting validation at depth: 2
+Evaluating queries for shape LocationShape
+
+Evaluating query:
+PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dbo:<http://dbpedia.org/ontology/>
+PREFIX dbr:<http://dbpedia.org/resource/>
+PREFIX yago:<http://dbpedia.org/class/yago/>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX :<http://example.org/>
+SELECT DISTINCT ?x WHERE {
+?x dbo:country ?p_5.
+?x dbo:leaderTitle ?p_6.
+?x dbo:populationDensity ?p_7.
+}
+ ORDER BY ?x
+elapsed: 656.955078125 ms
+
+Number of solution mappings: 10000
+
+Grounding rules ... 
+elapsed: 354.37158203125 ms
+
+Starting saturation ...
+Remaining targets: 245
+Remaining targets: 0
+saturation ...
+elapsed: 527.809326171875 ms
+
+Valid targets: 8
+Invalid targets: 9992
+Remaining targets: 0
+Maximal (initial) number or rules in memory: 0

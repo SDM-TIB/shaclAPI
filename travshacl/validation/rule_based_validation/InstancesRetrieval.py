@@ -28,7 +28,6 @@ class InstancesRetrieval:
         #queue = Queue()
         #contactSource(self.endpointURL, query, queue, 16384, 10000)
         #bindings = [b for b in self.get_target_bindings(queue)]
-
         bindings = self.endpoint.runQuery(
             shape.getId(),
             query,
