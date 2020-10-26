@@ -5,17 +5,5 @@ PREFIX dbr:<http://dbpedia.org/resource/>
 PREFIX yago:<http://dbpedia.org/class/yago/>
 PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX :<http://example.org/>
-SELECT DISTINCT ?p_14, ?x WHERE {
-?x a dbo:Film. {
-SELECT DISTINCT ?p_14, ?x WHERE {
-
-?x dbo:starring ?p_14.
-{
-SELECT DISTINCT ?x WHERE {
-?x dbo:writer ?p_8.
-?x dbo:musicComposer ?p_9.
-?x dbo:director ?p_10.
-?x dbo:imdbId ?p_11.
-}
-}}}} ORDER BY ?x
+SELECT ?x WHERE {?x a dbo:Film}
 
