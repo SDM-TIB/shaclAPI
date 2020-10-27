@@ -3,28 +3,41 @@ from flask import Flask, request, Response
 from app.subgraph import Subgraph
 from app.query import Query
 import json
+import app.globals as globals
+import logging
+from app.utils import printSet
 
 app = Flask(__name__)
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 @app.route("/endpoint", methods=['GET','POST'])
 def endpoint():
     #Preprocessing of the Query
     if request.method == 'POST':
-        printArgs(request.form)
+        #printArgs(request.form)
         query = Query(request.form['query'])
     if request.method == 'GET':
-        printArgs(request.args)
+        #printArgs(request.args)
         query = Query(request.args['query'])
 
+    print("Query: " + str(query.getSPARQL()))
+
     query_triples = query.extract_triples()
-    print("Number of triples: " + str(len(query_triples)))
-    print("Triples: " + str(query_triples))
+    print("Number of triples in actual query: " + str(len(query_triples)))
+    #print("Triples: " + str(query_triples))
 
     #Get the internal subgraph
     subgraph = Subgraph()
 
     #Query the internal subgraph
     result = subgraph.query(query.getSPARQL())
+    print("Number of triples seen: " + str(len(globals.seen_triples)))
+    print("Triples seen: ")
+    printSet(globals.seen_triples)
+
+    #print(dir(query.algebra()))
+    print("-----------------------------------------------------------------")
     return Response(result.serialize(encoding='utf-8',format='json'), mimetype='application/json')
 
 @app.route("/constructQuery", methods=['POST'])
@@ -32,7 +45,7 @@ def setInitialSubgraph():
     subgraph = Subgraph()
     if subgraph.extendWithConstructQuery(request.form['query']):
         return "done\n"
-    else: 
+    else:
         return "An Error with the query occured!"
 
 def printArgs(args):
@@ -48,4 +61,3 @@ def printArgs(args):
 #    result = endpoint.query().convert()
 #    print(result)
 #    return XMLResultParser.parse(result.toxml(encoding='utf-8'))
-

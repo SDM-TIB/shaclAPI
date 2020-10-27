@@ -1,4 +1,6 @@
 from rdflib.plugins import sparql
+import app.globals as globals
+from app.utils import printSet
 
 class Query:
 
@@ -6,10 +8,12 @@ class Query:
         self.query = in_query.replace(",","")
 
     def extract_triples(self):
-        print(self.query)
         parsed_query = sparql.processor.prepareQuery(self.query)
-        return self.__extract_triples_rekursion(parsed_query.__dict__)
-        
+        list_of_triples = self.__extract_triples_rekursion(parsed_query.__dict__)
+        print("Intersection: ")
+        printSet(globals.seen_triples.intersection(set(list_of_triples)))
+        globals.seen_triples = globals.seen_triples.union(set(list_of_triples))
+        return list_of_triples
 
     def __extract_triples_rekursion(self,alg_dict):
         result = []
@@ -25,6 +29,9 @@ class Query:
                     result = result + v
                 #print(result)
         return result
-    
+
     def getSPARQL(self):
         return self.query
+
+    def algebra(self):
+        return sparql.processor.prepareQuery(self.query)
