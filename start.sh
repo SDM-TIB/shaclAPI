@@ -1,3 +1,3 @@
 #!/bin/bash
-export FLASK_APP=api.py
+export FLASK_APP=run.py
 flask run
