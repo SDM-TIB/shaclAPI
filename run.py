@@ -3,9 +3,9 @@ from flask import Flask, request, Response
 from app.subgraph import Subgraph
 from app.query import Query
 import json
-import app.globals as globals
 import logging
 from app.utils import printSet
+from app.tripleStore import TripleStore
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
@@ -21,20 +21,21 @@ def endpoint():
         #printArgs(request.args)
         query = Query(request.args['query'])
 
-    print("Query: " + str(query.getSPARQL()))
+    #print("Query: " + str(query.getSPARQL()))
 
     query_triples = query.extract_triples()
-    print("Number of triples in actual query: " + str(len(query_triples)))
-    #print("Triples: " + str(query_triples))
+    #print("Number of triples in actual query: " + str(len(query_triples)))
 
-    #Get the internal subgraph
-    subgraph = Subgraph()
+    print("Intersection: ")
+    printSet(TripleStore().intersection(query_triples))
+
+    TripleStore().add(query_triples)
 
     #Query the internal subgraph
-    result = subgraph.query(query.getSPARQL())
-    print("Number of triples seen: " + str(len(globals.seen_triples)))
+    result = Subgraph().query(query.parsed_query)
+    print("Number of triples seen: " + str(len(TripleStore())))
     print("Triples seen: ")
-    printSet(globals.seen_triples)
+    print(TripleStore())
 
     #print(dir(query.algebra()))
     print("-----------------------------------------------------------------")
@@ -53,11 +54,3 @@ def printArgs(args):
         print('------------------' + str(k) + '------------------\n')
         print(v)
         print('\n')
-
-
-#from rdflib.plugins.sparql.results.xmlresults import XMLResultParser
-#def query_external_endpoint(query):
-#    endpoint.setQuery(query)
-#    result = endpoint.query().convert()
-#    print(result)
-#    return XMLResultParser.parse(result.toxml(encoding='utf-8'))

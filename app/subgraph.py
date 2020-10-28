@@ -1,5 +1,6 @@
 import app.globals as globals
 from rdflib.plugins.serializers.nquads import NQuadsSerializer
+from rdflib import ConjunctiveGraph
 
 class Subgraph:
     def extendWithConstructQuery(self,query):
