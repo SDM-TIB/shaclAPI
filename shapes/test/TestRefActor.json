@@ -1,0 +1,10 @@
+{
+	"name": "TestRefActor",
+	"constraintDef": {
+		"conjunctions": [
+			[ 	
+				{ "path": "dbo:arbitraryPath", "min": 1, "shape":"ActorShape" }
+			]
+		]
+	}
+}

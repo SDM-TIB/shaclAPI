@@ -1,0 +1,10 @@
+{
+	"name": "TestRefMovie",
+	"constraintDef": {
+		"conjunctions": [
+			[ 	
+				{ "path": "dbo:arbitraryPath", "min": 1, "shape":"MovieShape" }
+			]
+		]
+	}
+}
