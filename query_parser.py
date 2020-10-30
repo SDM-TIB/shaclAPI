@@ -38,7 +38,7 @@ def computeEdges(shapes, targetShape):
     return dependencies, reverse_dependencies
 
 def reduce_shape_network(shape_dir, query, graphTraversal):
-	shapes = ShapeParser().parseShapesFromDir(args.d, 'JSON', False, 256, False)
+	shapes = ShapeParser().parseShapesFromDir(shape_dir, 'JSON', False, 256, False)
 	#Identify target shape (shape[i] = targetShape)
 	for i, s in enumerate(shapes):
 		if s.targetDef == query['targetClass']:
@@ -54,17 +54,18 @@ def reduce_shape_network(shape_dir, query, graphTraversal):
 	involvedShapes = GraphTraversal(graphTraversal).traverse_graph(*computeEdges(shapes, shapes[i].getId()), shapes[i].getId())
 	return [s for s in shapes if s.id in involvedShapes]
 
-parser = argparse.ArgumentParser(description='SHACL Constraint Validation over a SPARQL Endpoint')
-parser.add_argument('-d', metavar='schemaDir', type=str, default=None,
-                        help='Directory containing shapes')
-parser.add_argument(dest='graphTraversal', type=str, default='DFS', choices=['BFS', 'DFS'],
-                        help='The algorithm used for graph traversal (BFS / DFS)')
-parser.add_argument('query', metavar='query', type=str, default=None,
-                        help='Name of the directory where results of validation will be saved')
-args = parser.parse_args()
-query = parse_query(args.query)
-if args.graphTraversal == 'DFS':
-	graphTraversal = GraphTraversal.DFS
-else:
-	graphTraversal = GraphTraversal.BFS
-print([s.id for s in reduce_shape_network(args.d, query, graphTraversal)])
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description='SHACL Constraint Validation over a SPARQL Endpoint')
+	parser.add_argument('-d', metavar='schemaDir', type=str, default=None,
+	                        help='Directory containing shapes')
+	parser.add_argument(dest='graphTraversal', type=str, default='DFS', choices=['BFS', 'DFS'],
+	                        help='The algorithm used for graph traversal (BFS / DFS)')
+	parser.add_argument('query', metavar='query', type=str, default=None,
+	                        help='Name of the directory where results of validation will be saved')
+	args = parser.parse_args()
+	query = parse_query(args.query)
+	if args.graphTraversal == 'DFS':
+		graphTraversal = GraphTraversal.DFS
+	else:
+		graphTraversal = GraphTraversal.BFS
+	print([s.id for s in reduce_shape_network(args.d, query, graphTraversal)])

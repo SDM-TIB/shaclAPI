@@ -5,3 +5,4 @@ from SPARQLWrapper import SPARQLWrapper
 subgraph = ConjunctiveGraph()
 endpoint = SPARQLWrapper('http://dbpedia.org/sparql')
 seen_triples = set()
+shape_network = None

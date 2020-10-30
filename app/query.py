@@ -23,3 +23,6 @@ class Query:
 
     def getSPARQL(self):
         return self.query
+    
+    def __str__(self):
+        return self.query

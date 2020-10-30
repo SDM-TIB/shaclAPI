@@ -6,6 +6,15 @@ import json
 import logging
 from app.utils import printSet
 from app.tripleStore import TripleStore
+from app.triple import setOfTriplesFromList
+from query_parser import parse_query, reduce_shape_network
+import app.globals as globals
+import sys
+
+sys.path.append('./travshacl')
+from travshacl.validation.core.GraphTraversal import GraphTraversal
+sys.path.remove('./travshacl')
+
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
@@ -21,16 +30,23 @@ def endpoint():
         #printArgs(request.args)
         query = Query(request.args['query'])
 
-    #print("Query: " + str(query.getSPARQL()))
+    print("Query: ")
+    print(str(query) + '\n')
 
-    query_triples = query.extract_triples()
+    query_triples = setOfTriplesFromList(query.extract_triples())
     #print("Number of triples in actual query: " + str(len(query_triples)))
 
     print("Intersection: ")
     printSet(TripleStore().intersection(query_triples))
 
-    TripleStore().add(query_triples)
+    print("Construct Query: ")
+    construct_query = TripleStore().construct_query(query_triples)
+    print(str(construct_query) + '\n')
 
+    if construct_query != None:
+        Subgraph().extendWithConstructQuery(construct_query)
+
+    TripleStore().add(query_triples)
     #Query the internal subgraph
     result = Subgraph().query(query.parsed_query)
     print("Number of triples seen: " + str(len(TripleStore())))
@@ -45,9 +61,33 @@ def endpoint():
 def setInitialSubgraph():
     subgraph = Subgraph()
     if subgraph.extendWithConstructQuery(request.form['query']):
-        return "done\n"
+        return "Done (/constructQuery)\n"
     else:
         return "An Error with the query occured!"
+
+@app.route("/go", methods=['POST'])
+def run():
+    TripleStore().clear()
+    Subgraph().clear()
+
+    query = Query(request.form['query'])
+    parsed_query = parse_query(str(query))
+    #Step 1 + 2
+    globals.shape_network = reduce_shape_network(request.form['shape_dir'],parsed_query,GraphTraversal.DFS)
+
+    query_triples = setOfTriplesFromList(query.extract_triples())
+    
+    #Create Local Subgraph from given Query
+    construct_query = TripleStore().construct_query(query_triples)
+    Subgraph().extendWithConstructQuery(construct_query)
+
+    #And store queried triples
+    TripleStore().add(query_triples)
+    return "Done (/go)"
+    
+
+
+
 
 def printArgs(args):
     for k,v in args.items():
