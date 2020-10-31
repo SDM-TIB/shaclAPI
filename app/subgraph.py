@@ -3,6 +3,13 @@ from rdflib.plugins.serializers.nquads import NQuadsSerializer
 from rdflib import ConjunctiveGraph
 import time
 
+'''
+Representation of a local Subgraph.
+The Subgraph is extended by the execution of construct queries over a given sparql endpoint.
+Furthermore the Subgraph is queried every time travshacl needs information.
+
+travshacl <--> Subgraph (local) <--> SPARQL Endpoint (web)
+'''
 
 class Subgraph:
     def extendWithConstructQuery(self,query_string):

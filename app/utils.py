@@ -5,5 +5,3 @@ def printSet(input):
         print(str(elem))
     if len(input) == 0:
         print("-")
-        
-
