@@ -10,11 +10,13 @@ from app.triple import setOfTriplesFromList
 from query_parser import parse_query, reduce_shape_network
 import app.globals as globals
 import sys
+import rdflib
 
 sys.path.append('./travshacl')
 from travshacl.validation.core.GraphTraversal import GraphTraversal
 sys.path.remove('./travshacl')
 
+from app.shapeGraph import ShapeGraph
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
@@ -71,9 +73,17 @@ def run():
     Subgraph().clear()
 
     query = Query(request.form['query'])
-    parsed_query = parse_query(str(query))
+    print('starshaped Query: ')
+    print(query)
+
+    #Set Prefixes of the ShapeGraph
+    globals.namespaceStorage = query.parsed_query.prologue.namespace_manager
+    ShapeGraph().setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
+    
     #Step 1 + 2
-    globals.shape_network = reduce_shape_network(request.form['shape_dir'],parsed_query,GraphTraversal.DFS)
+    parsed_query = parse_query(str(query))
+    shapes = reduce_shape_network(request.form['shape_dir'],parsed_query,GraphTraversal.DFS)
+    ShapeGraph().constructAndSetGraphFromShapes(shapes)
 
     query_triples = setOfTriplesFromList(query.extract_triples())
     
