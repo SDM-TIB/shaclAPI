@@ -35,21 +35,27 @@ def endpoint():
     print("Query: ")
     print(str(query) + '\n')
 
+    #Extract Triples of the given Query to identify the mentioned Shape (?x)
     query_triples = setOfTriplesFromList(query.extract_triples())
-    #print("Number of triples in actual query: " + str(len(query_triples)))
 
-    print("Intersection: ")
-    printSet(TripleStore().intersection(query_triples))
+    possible_shapes = set()
+    for row in ShapeGraph().queryTriples(query_triples):
+        possible_shapes.add(ShapeGraph().uriRefToShape(row[0]))
+    
+    #TODO: Match variables in triples to internal variables
 
-    print("Construct Query: ")
+    #Construction of a new construct Query to update the internal subgraph
     construct_query = TripleStore().construct_query(query_triples)
+    
+    print("Construct Query: ")
     print(str(construct_query) + '\n')
 
     if construct_query != None:
         Subgraph().extendWithConstructQuery(construct_query)
 
     TripleStore().add(query_triples)
-    #Query the internal subgraph
+
+    #Query the internal subgraph with the given input query
     result = Subgraph().query(query.parsed_query)
     print("Number of triples seen: " + str(len(TripleStore())))
     print("Triples seen: ")
@@ -67,32 +73,44 @@ def setInitialSubgraph():
     else:
         return "An Error with the query occured!"
 
+@app.route("/queryShapeGraph", methods = ['POST'])
+def queryShapeGraph():
+    query = Query(request.form['query'])
+    result = ShapeGraph().query(query.parsed_query)
+    for row in result:
+        print(row)
+    return "Done"
+    
+
 @app.route("/go", methods=['POST'])
 def run():
     TripleStore().clear()
     Subgraph().clear()
 
+    #Read Input Query
     query = Query(request.form['query'])
-    print('starshaped Query: ')
-    print(query)
 
     #Set Prefixes of the ShapeGraph
-    globals.namespaceStorage = query.parsed_query.prologue.namespace_manager
     ShapeGraph().setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
     
     #Step 1 + 2
     parsed_query = parse_query(str(query))
     shapes = reduce_shape_network(request.form['shape_dir'],parsed_query,GraphTraversal.DFS)
-    ShapeGraph().constructAndSetGraphFromShapes(shapes)
 
-    query_triples = setOfTriplesFromList(query.extract_triples())
+    #Create Dictionary to get a shape from a shape_id
+    globals.shapes = {s.id: s for s in shapes}
+
+    #Initalize the ShapeGraph with the given Shapes (including some duplicate elimination)
+    ShapeGraph().constructAndSetGraphFromShapes(shapes)
     
-    #Create Local Subgraph from given Query
+    #Extract query_triples of the input query to construct a query such that the our Subgraph can be initalized
+    query_triples = setOfTriplesFromList(query.extract_triples())
     construct_query = TripleStore().construct_query(query_triples)
     Subgraph().extendWithConstructQuery(construct_query)
 
     #And store queried triples
     TripleStore().add(query_triples)
+
     return "Done (/go)"
     
 

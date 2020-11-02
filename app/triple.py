@@ -15,7 +15,7 @@ class Triple():
         return self.subject == other.subject and self.predicat == other.predicat #and self.object == other.object #ignoring Triples with different objects
     
     def __hash__(self):
-        return hash(str(self))
+        return hash(str((str(self.subject.n3()),str(self.predicat.n3()))))
 
 def setOfTriplesFromList(liste):
     result = set()

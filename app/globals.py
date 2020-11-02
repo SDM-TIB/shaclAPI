@@ -1,4 +1,4 @@
-from rdflib import ConjunctiveGraph
+from rdflib import ConjunctiveGraph, Namespace
 from SPARQLWrapper import SPARQLWrapper
 from rdflib.namespace import NamespaceManager
 from rdflib.graph import Graph
@@ -11,12 +11,14 @@ subgraph = ConjunctiveGraph()
 #Used by tripleStore.py
 seen_triples = set()
 
-namespaceManager = None
-
 #Used by shapeGraph.py
 shapeGraph = ConjunctiveGraph()
+namespaces = dict()
+shapeNamespace = Namespace("http://example.org/shapes/")
+
 
 #Used by subgraph.py - TODO: needs to be set properly in run.py
 endpoint = SPARQLWrapper('http://dbpedia.org/sparql')
 
 
+shapes = dict()
