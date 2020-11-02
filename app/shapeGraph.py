@@ -75,9 +75,9 @@ class ShapeGraph:
         extended_term = str(globals.namespaces[term[:index]]) + term[index+1:]
         return extended_term
     
-    def uriRefToShape(self, uri):
+    def uriRefToShapeId(self, uri):
         index = str(uri).rfind("shapes/")
-        return globals.shapes[str(uri)[index + 7:]]
+        return str(uri)[index + 7:]
 
     def clear(self):
         globals.shapeGraph = ConjunctiveGraph()

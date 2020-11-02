@@ -22,3 +22,5 @@ endpoint = SPARQLWrapper('http://dbpedia.org/sparql')
 
 
 shapes = dict()
+referrd_by = dict()
+shape_to_var = dict()

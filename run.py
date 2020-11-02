@@ -40,12 +40,45 @@ def endpoint():
 
     possible_shapes = set()
     for row in ShapeGraph().queryTriples(query_triples):
-        possible_shapes.add(ShapeGraph().uriRefToShape(row[0]))
+        possible_shapes.add(ShapeGraph().uriRefToShapeId(row[0]))
     
-    #TODO: Match variables in triples to internal variables
+    print('Possible Shapes:')
+    print(possible_shapes)
+    assert(len(possible_shapes) == 1)
 
+
+    s_id = list(possible_shapes)[0]
+    print('s_id: ' + s_id)
+    print(globals.referred_by)
+    if s_id in globals.referred_by:
+        for referrer in globals.referred_by[s_id]:
+            print('Referred by ' + s_id + ' : ' + str(referrer))
+            print('Content of Shape_to_Var: ' + str(globals.shape_to_var))
+            if referrer['shape'] in globals.shape_to_var:
+                subject_list = globals.shape_to_var[referrer['shape']]
+                predicat = rdflib.term.URIRef(ShapeGraph().extend(referrer['pred']))
+                matching_vars = []
+                print("Triples seen: ")
+                print(TripleStore())
+                for s in subject_list:           
+                    matching_vars = matching_vars + TripleStore().getObjectsWith(s,predicat)
+                print('Matching var : ' + str(matching_vars))
+                globals.shape_to_var[s_id] = matching_vars
+    new_triples = set()
+    print('shape_to_var :' + str(globals.shape_to_var[s_id]))
+    for triple in query_triples:
+        for var in globals.shape_to_var[s_id]:
+            result_triple = triple.replaceX(var)
+            new_triples.add(result_triple)
+
+    print('New Triples :')
+    for triple in new_triples:
+        print(triple)
+        
+    #TODO: Set Initial ?x to SeedShape    
+    #TODO: What is with multiple matching vars?
     #Construction of a new construct Query to update the internal subgraph
-    construct_query = TripleStore().construct_query(query_triples)
+    construct_query = TripleStore().construct_query(new_triples)
     
     print("Construct Query: ")
     print(str(construct_query) + '\n')
@@ -53,7 +86,7 @@ def endpoint():
     if construct_query != None:
         Subgraph().extendWithConstructQuery(construct_query)
 
-    TripleStore().add(query_triples)
+    TripleStore().add(new_triples)
 
     #Query the internal subgraph with the given input query
     result = Subgraph().query(query.parsed_query)
@@ -86,6 +119,7 @@ def queryShapeGraph():
 def run():
     TripleStore().clear()
     Subgraph().clear()
+    globals.referred_by = dict()
 
     #Read Input Query
     query = Query(request.form['query'])
@@ -102,6 +136,20 @@ def run():
 
     #Initalize the ShapeGraph with the given Shapes (including some duplicate elimination)
     ShapeGraph().constructAndSetGraphFromShapes(shapes)
+    
+
+    for s in shapes:
+        for obj,pred in s.referencedShapes.items():
+            if not obj in globals.referred_by:
+                globals.referred_by[obj] = []
+            globals.referred_by[obj].append({'shape': s.id, 'pred': pred})
+    print(globals.referred_by)
+
+    s_ids = [s.id for s in shapes]
+    for s_id in s_ids:
+        if s_id not in globals.referred_by:
+            #Then it's probably the seed shape!
+            globals.shape_to_var[s_id] = [rdflib.term.Variable('x')]
     
     #Extract query_triples of the input query to construct a query such that the our Subgraph can be initalized
     query_triples = setOfTriplesFromList(query.extract_triples())
