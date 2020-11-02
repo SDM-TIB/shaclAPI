@@ -1,5 +1,10 @@
 from rdflib.plugins import sparql
 
+'''
+Representation of a query.
+Using the rdflib each query is parsed into a algebra term.
+The Algebra Term is used to extract triples and used when executing a query over a local ConjunctivGraph.
+'''
 class Query:
 
     def __init__(self,in_query):
@@ -20,9 +25,6 @@ class Query:
                 if k == 'triples':
                     result = result + v
         return result
-
-    def getSPARQL(self):
-        return self.query
     
     def __str__(self):
         return self.query

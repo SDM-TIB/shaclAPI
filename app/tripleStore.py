@@ -15,6 +15,16 @@ class TripleStore():
     def getTriples(self):
         return globals.seen_triples
     
+    def getObjectsWith(self, sub, pred):
+        result = []
+        print(sub.n3(), pred.n3())
+        for triple in globals.seen_triples:
+            print(triple.subject.n3(), triple.predicat.n3())
+            if triple.predicat.n3() == pred.n3() and triple.subject.n3() == sub.n3():
+                result = result + [triple.object]
+        return result
+
+    
     def __len__(self):
         return len(globals.seen_triples)
 
