@@ -5,8 +5,6 @@ from rdflib import BNode
 from rdflib.plugins.sparql.results.graph import GraphResultParser
 import re
 
-
-
 class ShapeGraph:
     def constructAndSetGraphFromShapes(self, shapes):
         namespaceURI = term.URIRef(str(globals.shapeNamespace))
@@ -18,9 +16,6 @@ class ShapeGraph:
             self.addReferencesToGraph(s, globals.shapeNamespace[str(s.id)])
         for s in shapes:
             self.addConstraintsToGraph(s, globals.shapeNamespace[str(s.id)])
-                
-        #for triple in globals.shapeGraph.triples((None,None,None)):
-        #    print(triple)
 
     def addReferencesToGraph(self, shape, targetNode):
         for obj,pred in shape.referencedShapes.items():
@@ -35,6 +30,7 @@ class ShapeGraph:
                 objNode = BNode()
             if constraint.path.startswith('^'):
                 new_triple = (objNode,term.URIRef(self.extend(constraint.path[1:])), targetNode)
+                print('INVERTED CONSTRAINT PATH: ' + str(self.extend(constraint.path[1:])))
             else:
                 new_triple = (targetNode,term.URIRef(self.extend(constraint.path)), objNode)
             self.addTripleToShapeGraph(new_triple)
@@ -49,15 +45,14 @@ class ShapeGraph:
             globals.shapeGraph.add(new_triple)
             print("Triple ADDED: " + str(new_triple))
 
-
     def queryTriples(self, triples):
         query = 'SELECT ?x WHERE {\n'
         for triple in triples:
             query = query + triple.n3() + '\n'
         query = query + '}'
 
-        print('ShapeGraph Query:')
-        print(query)
+        #print('ShapeGraph Query:')
+        #print(query)
 
         return globals.shapeGraph.query(query)
 
@@ -65,7 +60,6 @@ class ShapeGraph:
         return globals.shapeGraph.query(query)
 
     def setPrefixes(self, namespace):
-        #print([ i for i in namespace])
         for name in namespace:
             globals.shapeGraph.bind(name[0],name[1])
         globals.namespaces = {key: value for (key,value) in [i for i in globals.shapeGraph.namespaces()]}

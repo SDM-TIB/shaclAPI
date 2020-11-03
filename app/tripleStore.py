@@ -17,9 +17,7 @@ class TripleStore():
     
     def getObjectsWith(self, sub, pred):
         result = []
-        print(sub.n3(), pred.n3())
         for triple in globals.seen_triples:
-            print(triple.subject.n3(), triple.predicat.n3())
             if triple.predicat.n3() == pred.n3() and triple.subject.n3() == sub.n3():
                 result = result + [triple.object]
         return result
@@ -40,7 +38,7 @@ class TripleStore():
             return None
         query = 'CONSTRUCT { \n'
         for triple in not_seen_triples:
-            query = query + triple.n3() + '\n'
+                query = query + triple.n3() + '\n'
         query = query + '} WHERE { \n'
         for triple in self.getTriples().union(new_triples):
             query = query + triple.n3() + '\n'

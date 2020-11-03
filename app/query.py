@@ -2,7 +2,7 @@ from rdflib.plugins import sparql
 
 '''
 Representation of a query.
-Using the rdflib each query is parsed into a algebra term.
+Using the rdflib each query is parsed into an algebra term.
 The Algebra Term is used to extract triples and used when executing a query over a local ConjunctivGraph.
 '''
 class Query:
