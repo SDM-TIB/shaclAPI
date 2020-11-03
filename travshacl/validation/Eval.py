@@ -39,7 +39,7 @@ class Eval:
         SHACL2SPARQLorder = args.s2s
         self.network = ShapeNetwork(schemaDir, self.shapeFormat, args.endpoint, self.graphTraversal, self.task,
                                     self.parseHeuristics(args.heuristics), useSelectiveQueries, maxSplitSize,
-                                    self.outputDir, ORDERBYinQueries, SHACL2SPARQLorder, workInParallel)
+                                    self.outputDir, ORDERBYinQueries, SHACL2SPARQLorder, workInParallel, args.query, args.targetDef)
 
         report = self.network.validate()  # run the evaluation of the SHACL constraints over the specified endpoint
         print("Report:", report)

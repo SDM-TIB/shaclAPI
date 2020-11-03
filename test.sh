@@ -10,4 +10,4 @@ QUERY=$(<query.sparql)
 
 curl -X POST -H "Accept:application/sparql-results+json" -d "query=$QUERY" -d "shape_dir=./shapes/3" http://127.0.0.1:5000/go 
 python3 travshacl/main.py -d ./shapes/3 -a http://localhost:5000/endpoint ./output/ BFS --heuristics TARGET IN BIG --orderby --selective
-python3 query_parser.py -d ./shapes/3 DFS "query=$QUERY"
+#python3 travshacl/main.py -d ./shapes/3 -a http://dbpedia.org/sparql ./output/ BFS --heuristics TARGET IN BIG --orderby --selective --query "$QUERY" --targetDef MovieShape

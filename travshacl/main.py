@@ -44,6 +44,12 @@ if __name__ == '__main__':
     parser.add_argument("--s2s", action='store_true', default=False,
                         help="Use SHACL2SPARQL evaluation order to validate", required=False)
 
+    parser.add_argument("--query", metavar='query', default=None,
+                        help="Query for subgraph validation", required=False)
+
+    parser.add_argument("--targetDef", metavar='targetDef', default=None,
+                        help="targetDef for subgraph validation", required=False)
+
     args = parser.parse_args()
 
     Eval(args)
