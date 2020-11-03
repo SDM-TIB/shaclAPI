@@ -2,7 +2,10 @@ import app.globals as globals
 from app.utils import printSet
 
 class TripleStore():
-
+    '''
+    TripleStore can be seen as a Storage for Triples of rdflib.term Representations.
+    Furthermore TripleStore is able to create CONSTRUCT Queries given a new Set of Triples to extend the Subgraph.
+    '''
     def add(self, new_triples):
         globals.seen_triples = globals.seen_triples.union(set(new_triples))
 
@@ -17,9 +20,7 @@ class TripleStore():
     
     def getObjectsWith(self, sub, pred):
         result = []
-        print(sub.n3(), pred.n3())
         for triple in globals.seen_triples:
-            print(triple.subject.n3(), triple.predicat.n3())
             if triple.predicat.n3() == pred.n3() and triple.subject.n3() == sub.n3():
                 result = result + [triple.object]
         return result
@@ -40,7 +41,7 @@ class TripleStore():
             return None
         query = 'CONSTRUCT { \n'
         for triple in not_seen_triples:
-            query = query + triple.n3() + '\n'
+                query = query + triple.n3() + '\n'
         query = query + '} WHERE { \n'
         for triple in self.getTriples().union(new_triples):
             query = query + triple.n3() + '\n'

@@ -89,10 +89,12 @@ def endpoint():
     print("Number of triples seen: " + str(len(TripleStore())))
     print("Triples seen: ")
     print(TripleStore())
-
+    print("Converting to json")
+    print(len(result))
+    json = result.serialize(encoding='utf-8',format='json')
     #print(dir(query.algebra()))
     print("-----------------------------------------------------------------")
-    return Response(result.serialize(encoding='utf-8',format='json'), mimetype='application/json')
+    return Response(json, mimetype='application/json')
 
 @app.route("/constructQuery", methods=['POST'])
 def setInitialSubgraph():
