@@ -7,7 +7,7 @@ The Algebra Term is used to extract triples and used when executing a query over
 '''
 class Query:
 
-    def __init__(self,in_query):
+    def __init__(self,in_query: str):
         self.query = in_query.replace(",","")
         self.parsed_query = sparql.processor.prepareQuery(self.query)
 
@@ -16,9 +16,9 @@ class Query:
         list_of_triples = self.__extract_triples_rekursion(self.parsed_query.algebra)
         return list_of_triples
 
-    def __extract_triples_rekursion(self,alg_dict):
+    def __extract_triples_rekursion(self, algebra: dict):
         result = []
-        for k,v in alg_dict.items():
+        for k,v in algebra.items():
             if isinstance(v, dict):
                 result = result + self.__extract_triples_rekursion(v)
             else:

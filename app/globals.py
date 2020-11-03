@@ -1,4 +1,4 @@
-from rdflib import ConjunctiveGraph, Namespace
+from rdflib import Graph, Namespace
 from SPARQLWrapper import SPARQLWrapper
 from rdflib.namespace import NamespaceManager
 from rdflib.graph import Graph
@@ -6,13 +6,13 @@ from rdflib.graph import Graph
 #Here is the place to store global Variables with Data needed for more then one Request.
 
 #Used by subgraph.py
-subgraph = ConjunctiveGraph()
+subgraph = Graph()
 
 #Used by tripleStore.py
 seen_triples = set()
 
 #Used by shapeGraph.py
-shapeGraph = ConjunctiveGraph()
+shapeGraph = Graph()
 namespaces = dict()
 shapeNamespace = Namespace("http://example.org/shapes/")
 

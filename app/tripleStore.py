@@ -2,7 +2,10 @@ import app.globals as globals
 from app.utils import printSet
 
 class TripleStore():
-
+    '''
+    TripleStore can be seen as a Storage for Triples of rdflib.term Representations.
+    Furthermore TripleStore is able to create CONSTRUCT Queries given a new Set of Triples to extend the Subgraph.
+    '''
     def add(self, new_triples):
         globals.seen_triples = globals.seen_triples.union(set(new_triples))
 

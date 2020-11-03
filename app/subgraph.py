@@ -1,6 +1,6 @@
 import app.globals as globals
 from rdflib.plugins.serializers.nquads import NQuadsSerializer
-from rdflib import ConjunctiveGraph
+from rdflib import Graph
 import time
 
 '''
@@ -29,7 +29,7 @@ class Subgraph:
         return globals.subgraph.query(query)
     
     def clear(self):
-        globals.subgraph = ConjunctiveGraph()
+        globals.subgraph = Graph()
 
 #-------------------I/O Functions-------------------
     def writeToFile(self):
@@ -37,7 +37,7 @@ class Subgraph:
             NQuadsSerializer(globals.subgraph).serialize(f)
 
     def readFromFile(self):
-        g = ConjunctiveGraph()
+        g = Graph()
         with open("graph.nquads", "rb") as f:
             g.parse(f, format="nquads")
             globals.subgraph = g
