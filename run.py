@@ -44,10 +44,13 @@ def endpoint():
     
     print('Possible Shapes:')
     print(possible_shapes)
+
     assert(len(possible_shapes) == 1)
 
-
     s_id = list(possible_shapes)[0]
+    if len(globals.shape_to_var) == 0:
+        globals.shape_to_var[s_id] = [rdflib.term.Variable('x')]
+
     print('s_id: ' + s_id)
     print(globals.referred_by)
     if s_id in globals.referred_by:
@@ -75,7 +78,6 @@ def endpoint():
     for triple in new_triples:
         print(triple)
         
-    #TODO: Set Initial ?x to SeedShape    
     #TODO: What is with multiple matching vars?
     #Construction of a new construct Query to update the internal subgraph
     construct_query = TripleStore().construct_query(new_triples)
@@ -145,11 +147,6 @@ def run():
             globals.referred_by[obj].append({'shape': s.id, 'pred': pred})
     print(globals.referred_by)
 
-    s_ids = [s.id for s in shapes]
-    for s_id in s_ids:
-        if s_id not in globals.referred_by:
-            #Then it's probably the seed shape!
-            globals.shape_to_var[s_id] = [rdflib.term.Variable('x')]
     
     #Extract query_triples of the input query to construct a query such that the our Subgraph can be initalized
     query_triples = setOfTriplesFromList(query.extract_triples())
