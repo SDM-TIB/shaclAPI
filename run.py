@@ -126,6 +126,7 @@ def run():
             - targetShape
     '''
     task_string = request.form['task']
+    task = None
     if task_string == 'g':
         task = ValidationTask.GRAPH_VALIDATION
     elif task_string == 's':
@@ -138,6 +139,8 @@ def run():
         task = ValidationTask.ALL_INSTANCES
     else:
         return "Provide a valid Task String \{g,s,t,v,a\}"
+    
+    print(str(task))
     
     traversal_strategie_string = request.form['traversalStrategie']
     if traversal_strategie_string == "DFS":
@@ -167,7 +170,7 @@ def run():
 
     internal_endpoint = "http://localhost:5000/endpoint"
 
-    query = request.form['query']
+    query_string = request.form['query']
 
     targetShape = request.form['targetShape']
     globals.targetShape = targetShape
@@ -176,14 +179,14 @@ def run():
 
     network = ShapeNetwork(schema_directory, config['shapeFormat'], internal_endpoint, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query, targetShape)
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query_string, targetShape)
     
     TripleStore().clear()
     Subgraph().clear()
     globals.referred_by = dict()
 
     #Read Input Query
-    query = Query(query)
+    query = Query(query_string)
 
     #Set Prefixes of the ShapeGraph
     ShapeGraph().setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
