@@ -14,7 +14,7 @@ import random
 class ShapeNetwork:
 
     def __init__(self, schemaDir, schemaFormat, endpointURL, graphTraversal, validationTask, heuristics,
-                 useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, query=None, targetShape=None, workInParallel=False):
+                 useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, workInParallel=False, query=None, targetShape=None):
         if query and targetShape:
             self.shapes = ReducedShapeParser(query, targetShape).parseShapesFromDir(schemaDir, schemaFormat,
                                                         useSelectiveQueries, maxSplitSize, ORDERBYinQueries)

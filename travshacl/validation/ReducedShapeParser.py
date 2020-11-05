@@ -5,6 +5,7 @@ from validation.core.GraphTraversal import GraphTraversal
 class ReducedShapeParser(ShapeParser):
 	def __init__(self, query, targetShape):
 		super().__init__()
+		self.queryString = query
 		self.query = self.parseQuery(query, targetShape)
 		self.targetShape = targetShape
 		self.currentShape = None
@@ -12,7 +13,8 @@ class ReducedShapeParser(ShapeParser):
 	def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
 		shapes = super().parseShapesFromDir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
 		involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
-		return [s for s in shapes if s.getId() in involvedShapes]
+		shapes = [s for s in shapes if s.getId() in involvedShapes]
+		return shapes
 
 	def parseQuery(self, query, targetShape):
 		query_rep = []
