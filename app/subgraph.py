@@ -2,6 +2,7 @@ import app.globals as globals
 from rdflib.plugins.serializers.nquads import NQuadsSerializer
 from rdflib import Graph
 import time
+from app.triple import Triple
 
 '''
 Representation of a local Subgraph.
@@ -22,7 +23,13 @@ class Subgraph:
             print("Execution took " + str(end-start) + 's')
         except Exception:
             return False
-        globals.subgraph = globals.subgraph + new_data_graph    
+        print("Neue Daten: \n")
+        self.writeToFile(new_data_graph)
+        print("Alte Daten: \n")
+        self.writeToFile(globals.subgraph)
+        globals.subgraph = globals.subgraph + new_data_graph
+        print("Merged Daten: \n")
+        self.writeToFile(globals.subgraph)
         return True
     
     def query(self,query):
@@ -32,9 +39,11 @@ class Subgraph:
         globals.subgraph = Graph()
 
 #-------------------I/O Functions-------------------
-    def writeToFile(self):
-        with open("graph.nquads", "wb") as f:
-            NQuadsSerializer(globals.subgraph).serialize(f)
+    def writeToFile(self, graph):
+        for s, p , o in graph.triples((None,None,None)):
+            print(Triple(s, p, o))
+        #with open("graph.nquads", "wb") as f:
+        #    NQuadsSerializer(graph).serialize(f)
 
     def readFromFile(self):
         g = Graph()
