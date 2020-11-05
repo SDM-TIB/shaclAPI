@@ -123,8 +123,7 @@ def run():
             - schemaDir
             - heuristic
             - query
-            - targetDef
-
+            - targetShape
     '''
     task_string = request.form['task']
     if task_string == 'g':
@@ -169,7 +168,6 @@ def run():
     internal_endpoint = "http://localhost:5000/endpoint"
 
     query = request.form['query']
-    globals.query = query
 
     targetShape = request.form['targetShape']
     globals.targetShape = targetShape
@@ -179,18 +177,13 @@ def run():
     network = ShapeNetwork(schema_directory, config['shapeFormat'], internal_endpoint, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
                             config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query, targetShape)
-    report = network.validate()  # run the evaluation of the SHACL constraints over the specified endpoint
-
-    return report
-
-
-def initalizeAPI(shapes):
+    
     TripleStore().clear()
     Subgraph().clear()
     globals.referred_by = dict()
 
     #Read Input Query
-    query = Query(globals.query)#TODO: extract Query
+    query = Query(query)
 
     #Set Prefixes of the ShapeGraph
     ShapeGraph().setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
@@ -198,13 +191,13 @@ def initalizeAPI(shapes):
     #Step 1 + 2 integrated into travshacl
 
     #Create Dictionary to get a shape from a shape_id
-    globals.shapes = {s.id: s for s in shapes}
+    globals.shapes = {s.id: s for s in network.shapes}
 
     #Initalize the ShapeGraph with the given Shapes (including some duplicate elimination)
-    ShapeGraph().constructAndSetGraphFromShapes(shapes)
+    ShapeGraph().constructAndSetGraphFromShapes(network.shapes)
     
 
-    for s in shapes:
+    for s in network.shapes:
         for obj,pred in s.referencedShapes.items():
             if not obj in globals.referred_by:
                 globals.referred_by[obj] = []
@@ -220,6 +213,12 @@ def initalizeAPI(shapes):
     #And store queried triples
     TripleStore().add(query_triples)
 
+    report = network.validate()  # run the evaluation of the SHACL constraints over the specified endpoint
+    return report
+
+
+def initalizeAPI():
+    
     return "Done (/go)"
     
 

@@ -23,13 +23,13 @@ class Subgraph:
             print("Execution took " + str(end-start) + 's')
         except Exception:
             return False
-        print("Neue Daten: \n")
-        self.writeToFile(new_data_graph)
-        print("Alte Daten: \n")
-        self.writeToFile(globals.subgraph)
-        globals.subgraph = globals.subgraph + new_data_graph
-        print("Merged Daten: \n")
-        self.writeToFile(globals.subgraph)
+        #print("Neue Daten: \n")
+        #self.writeToFile(new_data_graph)
+        #print("Alte Daten: \n")
+        #self.writeToFile(globals.subgraph)
+        #globals.subgraph = globals.subgraph + new_data_graph
+        #print("Merged Daten: \n")
+        #self.writeToFile(globals.subgraph)
         return True
     
     def query(self,query):

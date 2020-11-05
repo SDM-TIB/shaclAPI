@@ -24,5 +24,4 @@ endpoint = None
 shapes = dict()
 referrd_by = dict()
 shape_to_var = dict()
-query = None
 targetShape = None
