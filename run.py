@@ -7,14 +7,8 @@ import logging
 from app.utils import printSet
 from app.tripleStore import TripleStore
 from app.triple import setOfTriplesFromList
-from query_parser import parse_query, reduce_shape_network
 import app.globals as globals
-import sys
 import rdflib
-
-sys.path.append('./travshacl')
-from travshacl.validation.core.GraphTraversal import GraphTraversal
-sys.path.remove('./travshacl')
 
 from app.shapeGraph import ShapeGraph
 
@@ -131,9 +125,7 @@ def run():
     #Set Prefixes of the ShapeGraph
     ShapeGraph().setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
     
-    #Step 1 + 2
-    parsed_query = parse_query(str(query))
-    shapes = reduce_shape_network(request.form['shape_dir'],parsed_query,GraphTraversal.DFS)
+    #Step 1 + 2 integrated into travshacl
 
     #Create Dictionary to get a shape from a shape_id
     globals.shapes = {s.id: s for s in shapes}
