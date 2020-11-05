@@ -27,7 +27,7 @@ class Subgraph:
         #self.writeToFile(new_data_graph)
         #print("Alte Daten: \n")
         #self.writeToFile(globals.subgraph)
-        #globals.subgraph = globals.subgraph + new_data_graph
+        globals.subgraph = globals.subgraph + new_data_graph
         #print("Merged Daten: \n")
         #self.writeToFile(globals.subgraph)
         return True
