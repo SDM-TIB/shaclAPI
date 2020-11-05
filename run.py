@@ -1,15 +1,23 @@
 from flask import Flask, request, Response
+import rdflib
+import sys
+import os
+import json
+import logging
+from SPARQLWrapper import SPARQLWrapper
+
+sys.path.append('./travshacl')
+from travshacl.validation.ShapeNetwork import ShapeNetwork
+from travshacl.validation.core.ValidationTask import ValidationTask
+from travshacl.validation.core.GraphTraversal import GraphTraversal
+sys.path.remove('./travshacl')
 
 from app.subgraph import Subgraph
 from app.query import Query
-import json
-import logging
 from app.utils import printSet
 from app.tripleStore import TripleStore
 from app.triple import setOfTriplesFromList
 import app.globals as globals
-import rdflib
-
 from app.shapeGraph import ShapeGraph
 
 app = Flask(__name__)
@@ -96,14 +104,6 @@ def endpoint():
     print("-----------------------------------------------------------------")
     return Response(json, mimetype='application/json')
 
-@app.route("/constructQuery", methods=['POST'])
-def setInitialSubgraph():
-    subgraph = Subgraph()
-    if subgraph.extendWithConstructQuery(request.form['query']):
-        return "Done (/constructQuery)\n"
-    else:
-        return "An Error with the query occured!"
-
 @app.route("/queryShapeGraph", methods = ['POST'])
 def queryShapeGraph():
     query = Query(request.form['query'])
@@ -112,15 +112,85 @@ def queryShapeGraph():
         print(row)
     return "Done"
     
-
 @app.route("/go", methods=['POST'])
 def run():
+    '''
+    Go Route: Here we replace the main.py and Eval.py of travshacl.
+    Arguments:
+        POST:
+            - task
+            - traversalStrategie
+            - schemaDir
+            - heuristic
+            - query
+            - targetDef
+
+    '''
+    task_string = request.form['task']
+    if task_string == 'g':
+        task = ValidationTask.GRAPH_VALIDATION
+    elif task_string == 's':
+        task = ValidationTask.SHAPE_VALIDATION
+    elif task_string == 't':
+        task = ValidationTask.INSTANCES_VALID
+    elif task_string == 'v':
+        task = ValidationTask.INSTANCES_VIOLATION
+    elif task_string == 'a':
+        task = ValidationTask.ALL_INSTANCES
+    else:
+        return "Provide a valid Task String \{g,s,t,v,a\}"
+    
+    traversal_strategie_string = request.form['traversalStrategie']
+    if traversal_strategie_string == "DFS":
+        traversal_strategie = GraphTraversal.DFS
+    elif traversal_strategie_string == "BFS":
+        traversal_strategie = GraphTraversal.BFS
+    else:
+        return "Provide a valid traversal strategie string \{DFS,BFS\}"
+
+    schema_directory = request.form['schemaDir']
+    path = os.getcwd()
+    os.makedirs(path + '/' + schema_directory, exist_ok=True)
+    
+    heuristics_string = request.form['heuristic']
+    heuristics = parseHeuristics(heuristics_string)
+
+    with open("config.json") as json_config_file:
+        config = json.load(json_config_file)
+    print(config['outputDirectory'])
+    print(config['shapeFormat'])
+    print(config['workInParallel'])
+    print(config['useSelectiveQueries'])
+    print(config['maxSplit'])
+    print(config['ORDERBYinQueries'])
+    print(config['SHACL2SPARQLorder'])
+    print(config['external_endpoint'])
+
+    internal_endpoint = "http://localhost:5000/endpoint"
+
+    query = request.form['query']
+    globals.query = query
+
+    targetShape = request.form['targetShape']
+    globals.targetShape = targetShape
+
+    globals.endpoint = SPARQLWrapper(config['external_endpoint'])
+
+    network = ShapeNetwork(schema_directory, config['shapeFormat'], internal_endpoint, traversal_strategie, task,
+                            heuristics, config['useSelectiveQueries'], config['maxSplit'],
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query, targetShape)
+    report = network.validate()  # run the evaluation of the SHACL constraints over the specified endpoint
+
+    return report
+
+
+def initalizeAPI(shapes):
     TripleStore().clear()
     Subgraph().clear()
     globals.referred_by = dict()
 
     #Read Input Query
-    query = Query(request.form['query'])
+    query = Query(globals.query)#TODO: extract Query
 
     #Set Prefixes of the ShapeGraph
     ShapeGraph().setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
@@ -154,7 +224,29 @@ def run():
     
 
 
+def parseHeuristics(input):
+    heuristics = {}
+    if not input:
+        return heuristics
+    if 'TARGET' in input:
+        heuristics['target'] = True
+    else:
+        heuristics['target'] = False
 
+    if 'IN' in input:
+        heuristics['degree'] = 'in'
+    elif 'OUT' in input:
+        heuristics['degree'] = 'out'
+    else:
+        heuristics['degree'] = False
+        
+    if 'SMALL' in input:
+        heuristics['properties'] = 'small'
+    elif 'BIG' in input:
+        heuristics['properties'] = 'big'
+    else:
+        heuristics['properties'] = False
+    return heuristics
 
 def printArgs(args):
     for k,v in args.items():

@@ -18,9 +18,11 @@ shapeNamespace = Namespace("http://example.org/shapes/")
 
 
 #Used by subgraph.py - TODO: needs to be set properly in run.py
-endpoint = SPARQLWrapper('http://dbpedia.org/sparql')
+endpoint = None
 
 
 shapes = dict()
 referrd_by = dict()
 shape_to_var = dict()
+query = None
+targetShape = None

@@ -1,0 +1,10 @@
+{
+    "external_endpoint":"http://dbpedia.org/sparql",
+    "outputDirectory":"./output/",
+    "shapeFormat":"JSON",
+    "workInParallel":"False",
+    "useSelectiveQueries":"True",
+    "maxSplit":"256",
+    "ORDERBYinQueries":"True",
+    "SHACL2SPARQLorder":"False"
+}
