@@ -11,3 +11,6 @@ class ValidationTask(Enum):
     INSTANCES_VALID = "report the valid instances"
     INSTANCES_VIOLATION = "report the instances that violate at least one constraint"
     ALL_INSTANCES = "report all instances: the valid ones and the ones that violate at least one constraint"
+
+    def __eq__(self,other):
+        return str(self) == str(other)
