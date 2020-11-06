@@ -5,5 +5,8 @@ PREFIX dbr:<http://dbpedia.org/resource/>
 PREFIX yago:<http://dbpedia.org/class/yago/>
 PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX :<http://example.org/>
-SELECT ?x WHERE {?x a dbo:Film}
+SELECT ?x WHERE {
+    ?x a dbo:Film. 
+    ?x dbo:starring ?p
+}
 
