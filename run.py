@@ -6,7 +6,7 @@ import logging
 from SPARQLWrapper import SPARQLWrapper
 
 sys.path.append('./travshacl')
-from travshacl.validation.ShapeNetwork import ShapeNetwork
+from travshacl.reduction.ReducedShapeNetwork import ReducedShapeNetwork
 from travshacl.validation.core.GraphTraversal import GraphTraversal
 sys.path.remove('./travshacl')
 
@@ -152,7 +152,7 @@ def run():
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)
 
     # Step 1 and 2 are executed by ReducedShapeParser
-    globals.network = ShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
+    globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
                             config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query_string, globals.targetShape)
 
