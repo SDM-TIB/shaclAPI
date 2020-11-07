@@ -3,7 +3,6 @@ __author__ = "Philipp D. Rohde"
 
 from validation.core.ValidationTask import ValidationTask
 from validation.ShapeParser import ShapeParser
-from validation.ReducedShapeParser import ReducedShapeParser
 from validation.sparql.SPARQLEndpoint import SPARQLEndpoint
 from validation.utils.SourceDescription import SourceDescription
 from validation.utils import fileManagement
@@ -14,12 +13,8 @@ import random
 class ShapeNetwork:
 
     def __init__(self, schemaDir, schemaFormat, endpointURL, graphTraversal, validationTask, heuristics,
-                 useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, workInParallel=False, query=None, targetShape=None):
-        if query and targetShape:
-            self.shapes = ReducedShapeParser(query, targetShape).parseShapesFromDir(schemaDir, schemaFormat,
-                                                        useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
-        else:
-            self.shapes = ShapeParser().parseShapesFromDir(schemaDir, schemaFormat,
+                 useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, workInParallel=False):
+        self.shapes = ShapeParser().parseShapesFromDir(schemaDir, schemaFormat,
                                                            useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         self.shapesDict = {shape.getId(): shape for shape in self.shapes}
         self.endpointURL = endpointURL
