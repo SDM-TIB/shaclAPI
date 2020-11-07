@@ -9,7 +9,7 @@ from rdflib.graph import Graph
 subgraph = Graph()
 
 #Used by tripleStore.py
-seen_triples = set()
+tripleStorage = dict()
 
 #Used by shapeGraph.py
 shapeGraph = Graph()
@@ -20,8 +20,8 @@ shapeNamespace = Namespace("http://example.org/shapes/")
 #Used by subgraph.py - TODO: needs to be set properly in run.py
 endpoint = None
 
-
-shapes = dict()
+network = None
 referrd_by = dict()
 shape_to_var = dict()
 targetShape = None
+
