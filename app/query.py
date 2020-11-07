@@ -1,4 +1,5 @@
 from rdflib.plugins import sparql
+from app.triple import Triple
 
 '''
 Representation of a query.
@@ -10,6 +11,7 @@ class Query:
     def __init__(self,in_query: str):
         self.query = in_query.replace(",","")
         self.parsed_query = sparql.processor.prepareQuery(self.query)
+        self.triples = [Triple(*t) for t in self.extract_triples()]
 
     def extract_triples(self):
         #Call Rekursion

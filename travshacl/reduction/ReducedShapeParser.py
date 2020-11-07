@@ -5,8 +5,7 @@ from validation.core.GraphTraversal import GraphTraversal
 class ReducedShapeParser(ShapeParser):
 	def __init__(self, query, targetShape):
 		super().__init__()
-		self.queryString = query
-		self.query = self.parseQuery(query, targetShape)
+		self.query = query
 		self.targetShape = targetShape
 		self.currentShape = None
 
@@ -16,37 +15,20 @@ class ReducedShapeParser(ShapeParser):
 		shapes = [s for s in shapes if s.getId() in involvedShapes]
 		return shapes
 
-	def parseQuery(self, query, targetShape):
-		query_rep = []
-		targetVar = re.findall(r"SELECT (\?[^[]) WHERE", query)[0]
-		#Starting with { select everything until last . and ending with }
-		where = re.findall(r"\{([^[]*.)[^[]*\}", query)[0]
-		#Select everything from \n or \t until . and split it on ' '
-		triples = re.findall(r"([^ \t\n]+) ([^ ]+) ([^.\n\}]+)", where)
-		for s, p, o in triples:
-			if s == targetVar:
-				if p.startswith('^'):
-					constraint = {
-						'path': p[1:],
-						'shape': targetShape,
-					}
-					query_rep.append(constraint)
-				constraint = {
-					'path': p
-				}
-				query_rep.append(constraint)
-		return query_rep
-
 	def parseConstraints(self, array, targetDef, constraintsId):
 		self.currentShape = constraintsId[:-3]
 		return [c for c in super().parseConstraints(array, targetDef, constraintsId) if c]
 
 	def parseConstraint(self, varGenerator, obj, id, targetDef):
 		if self.targetShape == self.currentShape:
-			if not len([p for p in self.query if p['path'] == obj.get('path')]):
+			path_ind = obj.get('path').rfind(':')+1
+			path_name = obj.get('path')[path_ind:]	#Remove prefixes, paths are considered as unique!!!
+			if not [t for t in self.query.triples if t.predicat.endswith(path_name)]:
 				return None
 		elif obj.get('shape') == self.targetShape:
-			if not len([p for p in self.query if p['path'] == obj.get('path')]):
+			path_ind = obj.get('path').rfind(':')+1
+			path_name = obj.get('path')[path_ind:]	#Remove prefixes, paths are considered as unique!!!
+			if not [t for t in self.query.triples if t.predicat.endswith(path_name)]:
 				return None
 		return super().parseConstraint(varGenerator, obj, id, targetDef)
 
@@ -58,10 +40,12 @@ class ReducedShapeParser(ShapeParser):
 			if shape:
 				#Reference from or to targetShape
 				if shape == self.targetShape or self.currentShape == self.targetShape:
-					if 0 < len([p for p in self.query if p['path'] == path]):
+					path_ind = path.rfind(':')+1
+					path_name = path[path_ind:]	#Remove prefixes, paths are considered as unique!!!
+					if [t for t in self.query.triples if t.predicat.endswith(path_name)]:
 						references[shape] = path
-			elif shape:
-				references[shape] = path
+				else:
+					references[shape] = path
 		return references
 
 	def computeReducedEdges(self, shapes):

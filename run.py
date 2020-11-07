@@ -150,13 +150,13 @@ def run():
     globals.endpoint = SPARQLWrapper(config['external_endpoint'])
 
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)
+    
+    query = Query(query_string)
 
     # Step 1 and 2 are executed by ReducedShapeParser
     globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query_string, globals.targetShape)
-
-    query = Query(query_string)
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query, globals.targetShape)
 
     # Setup of the ShapeGraph
     ShapeGraph.setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
