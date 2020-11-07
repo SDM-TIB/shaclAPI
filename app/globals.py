@@ -17,7 +17,7 @@ namespaces = dict()
 shapeNamespace = Namespace("http://example.org/shapes/")
 
 
-#Used by subgraph.py - TODO: needs to be set properly in run.py
+#Used by subgraph.py
 endpoint = None
 
 network = None
