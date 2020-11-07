@@ -156,7 +156,7 @@ def run():
     # Step 1 and 2 are executed by ReducedShapeParser
     globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], config['workInParallel'], query, globals.targetShape)
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], query, globals.targetShape, config['workInParallel'])
 
     # Setup of the ShapeGraph
     ShapeGraph.setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())

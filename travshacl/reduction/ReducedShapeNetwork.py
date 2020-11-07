@@ -4,7 +4,7 @@ from validation.sparql.SPARQLEndpoint import SPARQLEndpoint
 
 class ReducedShapeNetwork(ShapeNetwork):
 	def __init__(self, schemaDir, schemaFormat, endpointURL, graphTraversal, validationTask, heuristics,
-				 useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, query, targetShape, workInParallel=False,):
+				 useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, query, targetShape, workInParallel=False):
 		self.shapes = ReducedShapeParser(query, targetShape).parseShapesFromDir(schemaDir, schemaFormat,
 														useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
 		self.shapesDict = {shape.getId(): shape for shape in self.shapes}
