@@ -80,9 +80,3 @@ class ShapeGraph:
     def clear(self):
         globals.shapeGraph = Graph()
         globals.namespaces = dict()
-
-
-    #def addUnseenVariablesToGraph(self, triples):
-    #    for triple in triples:
-    #        self.addTripleToShapeGraph((triple.subject,triple.predicat, triple.object))
-    #        print("Triple ADDED: " + str((triple.subject,triple.predicat, triple.object)))

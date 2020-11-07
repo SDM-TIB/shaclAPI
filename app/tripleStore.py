@@ -25,7 +25,6 @@ class TripleStore():
                 result = result + [triple.object]
         return result
 
-    
     def __len__(self):
         return len(globals.seen_triples)
 

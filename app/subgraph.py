@@ -23,13 +23,7 @@ class Subgraph:
             print("Execution took " + str(end-start) + 's')
         except Exception:
             return False
-        #print("Neue Daten: \n")
-        #self.writeToFile(new_data_graph)
-        #print("Alte Daten: \n")
-        #self.writeToFile(globals.subgraph)
         globals.subgraph = globals.subgraph + new_data_graph
-        #print("Merged Daten: \n")
-        #self.writeToFile(globals.subgraph)
         return True
     
     def query(self,query):
@@ -38,7 +32,10 @@ class Subgraph:
     def clear(self):
         globals.subgraph = Graph()
 
-#-------------------I/O Functions-------------------
+    #-------------------I/O Functions-------------------
+    '''
+    TODO: Warum funktioniert das Speichern und Laden des Subgraphen nicht mehr?
+    '''
     def writeToFile(self, graph):
         for s, p , o in graph.triples((None,None,None)):
             print(Triple(s, p, o))

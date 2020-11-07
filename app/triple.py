@@ -13,8 +13,14 @@ class Triple():
         self.object = o
 
     def __str__(self) -> str:
+        '''
+        Returns a String Representation of the Triple
+        '''
         return str((str(self.subject.n3()),str(self.predicat.n3()),str(self.object.n3())))
 
+    '''
+    Here we assume that a Triple equals another one iff the subject and the predicat is the same, this way we are ignoring different referring Object Variables in the Triple Store
+    '''
     def __eq__(self, other) -> bool:
         return self.subject == other.subject and self.predicat == other.predicat
     

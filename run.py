@@ -37,29 +37,30 @@ def endpoint():
     print("Query: ")
     print(str(query) + '\n')
 
-    #Extract Triples of the given Query to identify the mentioned Shape (?x)
+    #Extract Triples of the given Query to identify the mentioned Shape (?x --> s_id)
     query_triples = setOfTriplesFromList(query.extract_triples())
-
     possible_shapes = set()
     for row in ShapeGraph().queryTriples(query_triples):
         possible_shapes.add(ShapeGraph().uriRefToShapeId(row[0]))
-    
     print('Possible Shapes:')
     print(possible_shapes)
-
     assert(len(possible_shapes) == 1)
-
     s_id = list(possible_shapes)[0]
+    print('s_id: ' + s_id)
+
+
+    #TODO: Not assume Target Shape = Seed Shape
     if len(globals.shape_to_var) == 0:
         globals.shape_to_var[s_id] = [rdflib.term.Variable('x')]
 
-    print('s_id: ' + s_id)
-    print(globals.referred_by)
+    #Wenn sich andere Shapes s_i auf die aktuelle Shape s_id bezieht...
     if s_id in globals.referred_by:
         for referrer in globals.referred_by[s_id]:
-            print('Referred by ' + s_id + ' : ' + str(referrer))
+            print('Referred by ' + str(referrer))
             print('Content of Shape_to_Var: ' + str(globals.shape_to_var))
+            #Wenn die s_i schon eine Variable für s_id zugeordnet haben ...
             if referrer['shape'] in globals.shape_to_var:
+                #dann ersetze jedes Vorkommen von ?x durch die jeweils vorkommenden Variable
                 subject_list = globals.shape_to_var[referrer['shape']]
                 predicat = rdflib.term.URIRef(ShapeGraph().extend(referrer['pred']))
                 matching_vars = []
@@ -69,6 +70,7 @@ def endpoint():
                     matching_vars = matching_vars + TripleStore().getObjectsWith(s,predicat)
                 print('Matching var : ' + str(matching_vars))
                 globals.shape_to_var[s_id] = matching_vars
+    #Ersetzen der Variable ?x durch die in shape_to_var bestimmte, hier kann sich der Pfad aufteilen, sodass s_id Tripel öfter auftachen
     new_triples = set()
     print('shape_to_var :' + str(globals.shape_to_var[s_id]))
     for triple in query_triples:
@@ -80,7 +82,6 @@ def endpoint():
     for triple in new_triples:
         print(triple)
         
-    #TODO: What is with multiple matching vars?
     #Construction of a new construct Query to update the internal subgraph
     construct_query = TripleStore().construct_query(new_triples)
     
@@ -218,12 +219,6 @@ def run():
 
     report = network.validate()  # run the evaluation of the SHACL constraints over the specified endpoint
     return report
-
-
-def initalizeAPI():
-    
-    return "Done (/go)"
-    
 
 
 def parseHeuristics(input):
