@@ -182,9 +182,6 @@ def run():
     report = globals.network.validate()  
     return report
 
-
-
-
 def printArgs(args):
     for k,v in args.items():
         print('------------------' + str(k) + '------------------\n')

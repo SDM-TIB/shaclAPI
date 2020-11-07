@@ -37,7 +37,7 @@ def addConstraintsToGraph(shape: Shape, targetNode: term.URIRef):
             objNode = BNode()
         if constraint.path.startswith('^'):
             new_triple = (objNode,term.URIRef(extend(constraint.path[1:])), targetNode)
-            print('INVERTED CONSTRAINT PATH: ' + str(extend(constraint.path[1:])))
+            #print('INVERTED CONSTRAINT PATH: ' + str(extend(constraint.path[1:])))
         else:
             new_triple = (targetNode,term.URIRef(extend(constraint.path)), objNode)
         addTripleToShapeGraph(new_triple)
@@ -50,7 +50,7 @@ def addTargetDefinitionToGraph(shape: Shape, targetNode: term.URIRef):
 def addTripleToShapeGraph(new_triple: tuple):
     if (not (new_triple[0],new_triple[1],None) in globals.shapeGraph) and (not (None, new_triple[1], new_triple[2]) in globals.shapeGraph):
         globals.shapeGraph.add(new_triple)
-        print("Triple ADDED: " + str(new_triple))
+        #print("Triple ADDED: " + str(new_triple))
 
 def queryTriples(triples: List[Triple]):
     query = 'SELECT ?x WHERE {\n'
