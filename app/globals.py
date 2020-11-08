@@ -8,6 +8,7 @@ from rdflib.plugins.memory import IOMemory
 
 #Used by subgraph.py
 subgraphStore = IOMemory()
+graphs = []
 subgraph = Graph(store=subgraphStore)
 
 #Used by tripleStore.py
