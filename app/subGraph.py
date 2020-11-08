@@ -1,6 +1,6 @@
 import app.globals as globals
 from rdflib.plugins.serializers.nquads import NQuadsSerializer
-from rdflib import Graph
+from rdflib import ConjunctiveGraph
 import time
 from app.triple import Triple
 
@@ -18,7 +18,7 @@ def extendWithConstructQuery(query_string):
     len_of_last_result = ROW_LIMIT_PER_QUERY
     triples_queried = 0
     while len_of_last_result >= ROW_LIMIT_PER_QUERY:
-        new_query_string = query_string + ' ORDER BY ?x LIMIT ' + str(ROW_LIMIT_PER_QUERY) + ' OFFSET ' + str(triples_queried)
+        new_query_string = query_string + ' LIMIT ' + str(ROW_LIMIT_PER_QUERY) + ' OFFSET ' + str(triples_queried)
         globals.endpoint.setQuery(new_query_string)
         print(new_query_string)
         try:
@@ -44,7 +44,7 @@ def query(query):
     return globals.subgraph.query(query)
 
 def clear():
-    globals.subgraph = Graph()
+    globals.subgraph = ConjunctiveGraph(store=globals.subgraphStore)
 
 #-------------------I/O Functions-------------------
 '''
@@ -57,7 +57,7 @@ def writeToFile(graph):
     #    NQuadsSerializer(graph).serialize(f)
 
 def readFromFile():
-    g = Graph()
+    g = ConjunctiveGraph()
     with open("graph.nquads", "rb") as f:
         g.parse(f, format="nquads")
         globals.subgraph = g

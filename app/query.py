@@ -1,5 +1,7 @@
 from rdflib.plugins import sparql
-from app.triple import Triple
+from app.triple import Triple, setOfTriplesFromList
+from app.tripleStore import TripleStore
+from app.tripleStore import n3OfTripleSet
 
 '''
 Representation of a query.
@@ -14,7 +16,6 @@ class Query:
         self.triples = [Triple(*t) for t in self.extract_triples()]
 
     def extract_triples(self):
-        #Call Rekursion
         list_of_triples = self.__extract_triples_rekursion(self.parsed_query.algebra)
         return list_of_triples
 
@@ -30,3 +31,11 @@ class Query:
     
     def __str__(self):
         return self.query
+
+def constructQueryStringFrom(targetShape, initial_query, path, shape_id):
+    if targetShape != shape_id:
+        where_clause = n3OfTripleSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(setOfTriplesFromList(initial_query.extract_triples())))
+        query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + '}'
+    else:
+        query = 'CONSTRUCT {\n' + TripleStore(targetShape).n3() + '} WHERE {\n' + n3OfTripleSet(TripleStore(targetShape).getTriples().union(setOfTriplesFromList(initial_query.extract_triples()))) + '}'
+    return query

@@ -2,6 +2,7 @@ from flask import Flask, request, Response
 import rdflib
 import sys
 import os
+import time
 import logging
 from SPARQLWrapper import SPARQLWrapper
 
@@ -12,11 +13,15 @@ sys.path.remove('./travshacl')
 
 import app.subGraph as SubGraph
 from app.query import Query
+from app.query import constructQueryStringFrom
 from app.utils import printSet
 from app.tripleStore import TripleStore
+from app.tripleStore import tripleStoreFromShape
 from app.triple import setOfTriplesFromList
 import app.globals as globals
 import app.shapeGraph as ShapeGraph
+import app.path as Path
+import app.variableStore as VariableStore
 
 import arg_eval_utils as Eval
 import config_parser as Configs
@@ -50,60 +55,25 @@ def endpoint():
     s_id = list(possible_shapes)[0]
     print('s_id: ' + s_id)
 
+    if globals.shape_queried[s_id] == False:
+        # Extract Pathes from the Target Shape to the identified Shape
+        paths = Path.computePathsToTargetShape(s_id,[])
+        print('Paths: ' + str(paths))
 
-    # TODO: Not assume Target Shape = Seed Shape
-    if len(globals.shape_to_var) == 0:
-        globals.shape_to_var[s_id] = [rdflib.term.Variable('x')]
-
-    # Wenn sich andere Shapes s_i auf die aktuelle Shape s_id bezieht...
-    if s_id in globals.referred_by:
-        for referrer in globals.referred_by[s_id]:
-            print('Referred by ' + str(referrer))
-            print('Content of Shape_to_Var: ' + str(globals.shape_to_var))
-            # Wenn die s_i schon eine Variable für s_id zugeordnet haben ...
-            if referrer['shape'] in globals.shape_to_var:
-                # dann ersetze jedes Vorkommen von ?x durch die jeweils vorkommenden Variable
-                subject_list = globals.shape_to_var[referrer['shape']]
-                predicat = rdflib.term.URIRef(ShapeGraph.extend(referrer['pred']))
-                matching_vars = []
-                print("Triples seen: ")
-                print(TripleStore('seen_triples'))
-                for s in subject_list:           
-                    matching_vars = matching_vars + TripleStore('seen_triples').getObjectsWith(s,predicat)
-                print('Matching var : ' + str(matching_vars))
-                globals.shape_to_var[s_id] = matching_vars
-    # Ersetzen der Variable ?x durch die in shape_to_var bestimmte, hier kann sich der Pfad aufteilen, sodass s_id Tripel öfter auftachen
-    new_triples = set()
-    print('shape_to_var :' + str(globals.shape_to_var[s_id]))
-    for triple in query_triples:
-        for var in globals.shape_to_var[s_id]:
-            result_triple = triple.replaceX(var)
-            new_triples.add(result_triple)
-
-    print('New Triples :')
-    for triple in new_triples:
-        print(triple)
-        
-    # Construction of a new construct Query to update the internal subgraph
-    construct_query = TripleStore('seen_triples').construct_query(new_triples)
-    
-    print("Construct Query: ")
-    print(str(construct_query) + '\n')
-
-    if construct_query != None:
-        SubGraph.extendWithConstructQuery(construct_query)
-
-    TripleStore('seen_triples').add(new_triples)
+        for path in paths:
+            construct_query = constructQueryStringFrom(globals.targetShape,globals.initial_query,path,s_id)
+            print("Construct Query: ")
+            print(str(construct_query) + '\n')
+            SubGraph.extendWithConstructQuery(construct_query)
+        globals.shape_queried[s_id] == True
 
     # Query the internal subgraph with the given input query
+    print("Query Subgraph:")
+    start = time.time()
     result = SubGraph.query(query.parsed_query)
-    print("Number of triples seen: " + str(len(TripleStore('seen_triples'))))
-    print("Triples seen: ")
-    print(TripleStore('seen_triples'))
-    print("Converting to json")
-    print(len(result))
     json = result.serialize(encoding='utf-8',format='json')
-    # print(dir(query.algebra()))
+    end = time.time()
+    print("Execution took " + str(end - start))
     print("-----------------------------------------------------------------")
     return Response(json, mimetype='application/json')
 
@@ -129,7 +99,6 @@ def run():
             - targetShape
     '''
     # Clear Globals
-    TripleStore('seen_triples').clear()
     SubGraph.clear()
     ShapeGraph.clear()
     globals.referred_by = dict()
@@ -151,18 +120,18 @@ def run():
 
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)
     
-    query = Query(query_string)
+    globals.initial_query = Query(query_string)
 
     # Step 1 and 2 are executed by ReducedShapeParser
     globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], query, globals.targetShape, config['workInParallel'])
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], globals.initial_query, globals.targetShape, config['workInParallel'])
 
     # Setup of the ShapeGraph
-    ShapeGraph.setPrefixes(query.parsed_query.prologue.namespace_manager.namespaces())
+    ShapeGraph.setPrefixes(globals.initial_query.parsed_query.prologue.namespace_manager.namespaces())
     ShapeGraph.constructAndSetGraphFromShapes(globals.network.shapes)
     
-    # Construct globals.referred_by Dictionary
+    # Construct globals.referred_by Dictionary (used to build Paths to Target Shapes)
     for s in globals.network.shapes:
         for obj,pred in s.referencedShapes.items():
             if not obj in globals.referred_by:
@@ -170,13 +139,21 @@ def run():
             globals.referred_by[obj].append({'shape': s.id, 'pred': pred})
     print('Referred by Dictionary: ' + str(globals.referred_by))
 
-    # Extract query_triples of the input query to construct a query such that the our Subgraph can be initalized
-    query_triples = setOfTriplesFromList(query.extract_triples())
-    construct_query = TripleStore('seen_triples').construct_query(query_triples)
-    SubGraph.extendWithConstructQuery(construct_query)
+    # Set a Variable for each Shape
+    VariableStore.setShapeVariables(globals.targetShape, globals.network.shapes)
+    print(globals.shape_to_var)
 
-    # And store queried triples
-    TripleStore('seen_triples').add(query_triples)
+    # Build TripleStores for each Shape
+    for s in globals.network.shapes:
+        tripleStoreFromShape(s)
+        printSet(TripleStore(s.id).getTriples())
+
+    for s in globals.network.shapes:
+        globals.shape_queried[s.id] = False
+    
+    # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized
+    SubGraph.extendWithConstructQuery(constructQueryStringFrom(globals.targetShape,globals.initial_query,[],globals.targetShape))
+    globals.shape_queried[globals.targetShape] = True
 
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = globals.network.validate()  

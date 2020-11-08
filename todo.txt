@@ -1,7 +1,2 @@
-- Evaluate Path from Target Shape to actual Shape
-- Add whole shapes not unseen triples
-- Set Variables properly (new ones!) <-> überschneidungen mit Target Query (star shape query)
 - Order by term with right variable
-
 - Parse Initial Star Shaped Query correctly into CONSTRUCT Query e.g. ORDER BY, LIMIT, OFFSET Terms
- --> DISTINCT isn't working correctly with ReducedShapeParser

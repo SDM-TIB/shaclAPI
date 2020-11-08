@@ -1,5 +1,6 @@
 import app.globals as globals
 from app.triple import Triple
+from app.utils import extend
 from rdflib import Graph
 from rdflib import term
 from rdflib import BNode
@@ -66,11 +67,6 @@ def setPrefixes(namespace):
     for name in namespace:
         globals.shapeGraph.bind(name[0],name[1])
     globals.namespaces = {key: value for (key,value) in [i for i in globals.shapeGraph.namespaces()]}
-
-def extend(term):
-    index = term.rfind(":")
-    extended_term = str(globals.namespaces[term[:index]]) + term[index+1:]
-    return extended_term
 
 def uriRefToShapeId(uri):
     index = str(uri).rfind("shapes/")
