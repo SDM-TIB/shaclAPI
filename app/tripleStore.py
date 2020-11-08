@@ -17,6 +17,9 @@ class TripleStore():
     def add(self, new_triples):
         globals.tripleStorage[self.name] = globals.tripleStorage[self.name].union(set(new_triples))
 
+    def remove(self, triple):
+        globals.tripleStorage[self.name].remove(triple)
+
     def intersection(self, with_triples):
         return globals.tripleStorage[self.name].intersection(set(with_triples))
     
@@ -26,11 +29,11 @@ class TripleStore():
     def getTriples(self):
         return globals.tripleStorage[self.name]
     
-    def getObjectsWith(self, sub, pred):
+    def getTriplesWith(self, sub, pred):
         result = []
         for triple in globals.tripleStorage[self.name]:
             if triple.predicat.n3() == pred.n3() and triple.subject.n3() == sub.n3():
-                result = result + [triple.object]
+                result = result + [triple]
         return result
 
     def __len__(self):

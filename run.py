@@ -22,6 +22,7 @@ import app.globals as globals
 import app.shapeGraph as ShapeGraph
 import app.path as Path
 import app.variableStore as VariableStore
+from rdflib import term
 
 import arg_eval_utils as Eval
 import config_parser as Configs
@@ -147,6 +148,16 @@ def run():
     for s in globals.network.shapes:
         tripleStoreFromShape(s)
         printSet(TripleStore(s.id).getTriples())
+    
+    # Replace Triples from the TripleStore(target_Shape) which got ressources by the initial query
+    initial_query_triples = list(setOfTriplesFromList(globals.initial_query.extract_triples()))
+    for query_triple in initial_query_triples:
+        if isinstance(query_triple.object, term.URIRef):
+            triple_to_remove = TripleStore(globals.targetShape).getTriplesWith(query_triple.subject, query_triple.predicat)
+            for store_triple in triple_to_remove:
+                TripleStore(globals.targetShape).remove(store_triple)
+                TripleStore(globals.targetShape).add([query_triple])
+
 
     for s in globals.network.shapes:
         globals.shape_queried[s.id] = False

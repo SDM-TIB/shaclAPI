@@ -2,6 +2,7 @@ from rdflib.plugins import sparql
 from app.triple import Triple, setOfTriplesFromList
 from app.tripleStore import TripleStore
 from app.tripleStore import n3OfTripleSet
+from rdflib import term
 
 '''
 Representation of a query.
