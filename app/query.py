@@ -33,10 +33,10 @@ class Query:
     def __str__(self):
         return self.query
 
-def constructQueryStringFrom(targetShape, initial_query, path, shape_id):
+def constructQueryStringFrom(targetShape, initial_query_triples, path, shape_id):
     if targetShape != shape_id:
-        where_clause = n3OfTripleSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(setOfTriplesFromList(initial_query.extract_triples())))
+        where_clause = n3OfTripleSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(initial_query_triples))
         query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + '}'
     else:
-        query = 'CONSTRUCT {\n' + TripleStore(targetShape).n3() + '} WHERE {\n' + n3OfTripleSet(TripleStore(targetShape).getTriples().union(setOfTriplesFromList(initial_query.extract_triples()))) + '}'
+        query = 'CONSTRUCT {\n' + n3OfTripleSet(TripleStore(targetShape).getTriples().union(initial_query_triples)) + '} WHERE {\n' + n3OfTripleSet(TripleStore(targetShape).getTriples().union(initial_query_triples)) + '}'
     return query

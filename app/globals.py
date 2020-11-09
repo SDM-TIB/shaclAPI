@@ -1,4 +1,4 @@
-from rdflib import Graph, Namespace
+from rdflib import Graph, Namespace, ConjunctiveGraph
 from SPARQLWrapper import SPARQLWrapper
 from rdflib.namespace import NamespaceManager
 from rdflib.graph import Graph
@@ -9,7 +9,7 @@ from rdflib.plugins.memory import IOMemory
 #Used by subgraph.py
 subgraphStore = IOMemory()
 graphs = []
-subgraph = Graph(store=subgraphStore)
+subgraph = ConjunctiveGraph(store=subgraphStore)
 
 #Used by tripleStore.py
 tripleStorage = dict()
@@ -31,5 +31,5 @@ shape_queried = dict()
 #Used By variableStore
 shape_to_var = dict()
 
-initial_query = None
+initial_query_triples = None
 

@@ -62,7 +62,7 @@ def endpoint():
         print('Paths: ' + str(paths))
 
         for path in paths:
-            construct_query = constructQueryStringFrom(globals.targetShape,globals.initial_query,path,s_id)
+            construct_query = constructQueryStringFrom(globals.targetShape,globals.initial_query_triples,path,s_id)
             print("Construct Query: ")
             print(str(construct_query) + '\n')
             SubGraph.extendWithConstructQuery(construct_query)
@@ -121,15 +121,15 @@ def run():
 
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)
     
-    globals.initial_query = Query(query_string)
+    initial_query = Query(query_string)
 
     # Step 1 and 2 are executed by ReducedShapeParser
     globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], globals.initial_query, globals.targetShape, config['workInParallel'])
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShape, config['workInParallel'])
 
     # Setup of the ShapeGraph
-    ShapeGraph.setPrefixes(globals.initial_query.parsed_query.prologue.namespace_manager.namespaces())
+    ShapeGraph.setPrefixes(initial_query.parsed_query.prologue.namespace_manager.namespaces())
     ShapeGraph.constructAndSetGraphFromShapes(globals.network.shapes)
     
     # Construct globals.referred_by Dictionary (used to build Paths to Target Shapes)
@@ -144,26 +144,25 @@ def run():
     VariableStore.setShapeVariables(globals.targetShape, globals.network.shapes)
     print(globals.shape_to_var)
 
+    print('-------------------Triples used for Construct Queries-------------------')
     # Build TripleStores for each Shape
     for s in globals.network.shapes:
         tripleStoreFromShape(s)
+        print(s.id)
         printSet(TripleStore(s.id).getTriples())
     
-    # Replace Triples from the TripleStore(target_Shape) which got ressources by the initial query
-    initial_query_triples = list(setOfTriplesFromList(globals.initial_query.extract_triples()))
-    for query_triple in initial_query_triples:
-        if isinstance(query_triple.object, term.URIRef):
-            triple_to_remove = TripleStore(globals.targetShape).getTriplesWith(query_triple.subject, query_triple.predicat)
-            for store_triple in triple_to_remove:
-                TripleStore(globals.targetShape).remove(store_triple)
-                TripleStore(globals.targetShape).add([query_triple])
-
+    globals.initial_query_triples = list(setOfTriplesFromList(initial_query.extract_triples()))
+    for query_triple in globals.initial_query_triples.copy():
+        if not isinstance(query_triple.object, term.URIRef):
+            globals.initial_query_triples.remove(query_triple)
+    print('Initial Query')
+    printSet(globals.initial_query_triples)
 
     for s in globals.network.shapes:
         globals.shape_queried[s.id] = False
     
     # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized
-    SubGraph.extendWithConstructQuery(constructQueryStringFrom(globals.targetShape,globals.initial_query,[],globals.targetShape))
+    SubGraph.extendWithConstructQuery(constructQueryStringFrom(globals.targetShape,globals.initial_query_triples,[],globals.targetShape))
     globals.shape_queried[globals.targetShape] = True
 
     # Run the evaluation of the SHACL constraints over the specified endpoint

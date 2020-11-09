@@ -22,10 +22,10 @@ class Triple():
     Here we assume that a Triple equals another one iff the subject and the predicat is the same, this way we are ignoring different referring Object Variables in the Triple Store
     '''
     def __eq__(self, other) -> bool:
-        return self.subject == other.subject and self.predicat == other.predicat
+        return self.subject == other.subject and self.predicat == other.predicat and type(self.object) == type(other.object)
     
     def __hash__(self):
-        return hash(str((str(self.subject.n3()),str(self.predicat.n3()))))
+        return hash(str((str(self.subject.n3()),str(self.predicat.n3()),type(str(self.object.n3())))))
     
     def n3(self) -> str:
         if self.predicat.n3().startswith('^'):

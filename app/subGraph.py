@@ -30,10 +30,11 @@ def extendWithConstructQuery(query_string):
             end = time.time()
             print("Execution took " + str(end-start) + 's')
         except Exception:
+            print("Stopping Quering the External Graph because of an Error!")
             return False
         len_of_last_result = count(new_data_graph)
         print(len_of_last_result)
-        len_of_last_result = 2 # Just query 10000 results and not more --> comment out to query all
+        #len_of_last_result = 2 # Just query 10000 results and not more --> comment out to query all
         triples_queried = triples_queried + len_of_last_result
         globals.subgraph = globals.subgraph + new_data_graph
         #globals.graphs.append(new_data_graph)
@@ -50,8 +51,8 @@ def query(query):
     #return ConjunctiveGraph(store=globals.subgraphStore).query(query)
 
 def clear():
-    globals.subgraph = ConjunctiveGraph(store=globals.subgraphStore)
     globals.subgraphStore = IOMemory()
+    globals.subgraph = ConjunctiveGraph(store=globals.subgraphStore)
 
 #-------------------I/O Functions-------------------
 '''

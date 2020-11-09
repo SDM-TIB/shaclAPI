@@ -7,7 +7,7 @@ PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX :<http://example.org/>
 SELECT ?x WHERE {
     ?x a dbo:Film. 
-    ?x dbo:starring ?p.
+    ?x dbo:starring <http://dbpedia.org/resource/Lesley_Ann_Warren>.
     ?x dbo:imdbId ?p_2.
 }
 
