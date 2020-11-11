@@ -51,7 +51,7 @@ def addTargetDefinitionToGraph(shape: Shape, targetNode: term.URIRef):
 def addTripleToShapeGraph(new_triple: tuple):
     if (not (new_triple[0],new_triple[1],None) in globals.shapeGraph) and (not (None, new_triple[1], new_triple[2]) in globals.shapeGraph):
         globals.shapeGraph.add(new_triple)
-        #print("Triple ADDED: " + str(new_triple))
+        print("Triple ADDED: " + str(new_triple))
 
 def queryTriples(triples: List[Triple]):
     query = 'SELECT ?x WHERE {\n'

@@ -1,2 +1,3 @@
 - Order by term with right variable
 - Parse Initial Star Shaped Query correctly into CONSTRUCT Query e.g. ORDER BY, LIMIT, OFFSET Terms
+- Autoretrieve Namespaces
