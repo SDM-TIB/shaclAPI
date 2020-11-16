@@ -12,7 +12,7 @@ from travshacl.validation.Shape import Shape
 from typing import List
 
 def constructAndSetGraphFromShapes(shapes: List[Shape]):
-
+    print("\n------------------- Setting up ShapeGraph -------------------")
     namespaceURI = term.URIRef(str(globals.shapeNamespace))
 
     globals.namespaces['shapes'] = namespaceURI
@@ -38,7 +38,6 @@ def addConstraintsToGraph(shape: Shape, targetNode: term.URIRef):
             objNode = BNode()
         if constraint.path.startswith('^'):
             new_triple = (objNode,term.URIRef(extend(constraint.path[1:])), targetNode)
-            #print('INVERTED CONSTRAINT PATH: ' + str(extend(constraint.path[1:])))
         else:
             new_triple = (targetNode,term.URIRef(extend(constraint.path)), objNode)
         addTripleToShapeGraph(new_triple)

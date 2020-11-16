@@ -1,29 +1,28 @@
 from flask import Flask, request, Response
+from SPARQLWrapper import SPARQLWrapper
+from rdflib import term
+
 import rdflib
 import sys
 import os
 import time
 import logging
-from SPARQLWrapper import SPARQLWrapper
+
 
 sys.path.append('./travshacl')
 from travshacl.reduction.ReducedShapeNetwork import ReducedShapeNetwork
 from travshacl.validation.core.GraphTraversal import GraphTraversal
 sys.path.remove('./travshacl')
 
-import app.subGraph as SubGraph
-from app.query import Query
-from app.query import constructQueryStringFrom
-from app.utils import printSet
-from app.tripleStore import TripleStore
-from app.tripleStore import tripleStoreFromShape
+from app.query import Query, constructQueryStringFrom
+from app.utils import printSet, pathToString
+from app.tripleStore import TripleStore, tripleStoreFromShape
 from app.triple import setOfTriplesFromList
+import app.subGraph as SubGraph
 import app.globals as globals
 import app.shapeGraph as ShapeGraph
 import app.path as Path
 import app.variableStore as VariableStore
-from rdflib import term
-
 import arg_eval_utils as Eval
 import config_parser as Configs
 
@@ -34,15 +33,14 @@ log.disabled = True
 INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
 @app.route("/endpoint", methods=['GET','POST'])
 def endpoint():
+    print('-------------------SPARQL Endpoint Request-------------------')
     # Preprocessing of the Query
     if request.method == 'POST':
-        # printArgs(request.form)
         query = Query(request.form['query'])
     if request.method == 'GET':
-        # printArgs(request.args)
         query = Query(request.args['query'])
 
-    print("Query: ")
+    print("Received Query: ")
     print(str(query) + '\n')
 
     # Extract Triples of the given Query to identify the mentioned Shape (?x --> s_id)
@@ -50,23 +48,23 @@ def endpoint():
     possible_shapes = set()
     for row in ShapeGraph.queryTriples(query_triples):
         possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
-    print('Possible Shapes:')
-    print(possible_shapes)
+    
     assert(len(possible_shapes) == 1)
     s_id = list(possible_shapes)[0]
-    print('s_id: ' + s_id)
+
+    print('The Query referres to {}'.format(s_id))
 
     if globals.shape_queried[s_id] == False:
         # Extract Pathes from the Target Shape to the identified Shape
         paths = Path.computePathsToTargetShape(s_id,[])
-        print('Paths: ' + str(paths))
+        print('Paths: ' + pathToString(paths))
 
         for path in paths:
             construct_query = constructQueryStringFrom(globals.targetShape,globals.initial_query_triples,path,s_id)
-            print("Construct Query: ")
-            print(str(construct_query) + '\n')
+            #print("Construct Query: ")
+            #print(str(construct_query) + '\n')
             SubGraph.extendWithConstructQuery(construct_query)
-        globals.shape_queried[s_id] == True
+        globals.shape_queried[s_id] = True
 
     # Query the internal subgraph with the given input query
     print("Query Subgraph:")
@@ -74,8 +72,9 @@ def endpoint():
     result = SubGraph.query(query.parsed_query)
     json = result.serialize(encoding='utf-8',format='json')
     end = time.time()
-    print("Execution took " + str(end - start))
-    print("-----------------------------------------------------------------")
+    print("Execution took " + str((end - start)*1000) + ' ms')
+    print('--------------------------------------')
+
     return Response(json, mimetype='application/json')
 
 @app.route("/queryShapeGraph", methods = ['POST'])
@@ -103,7 +102,6 @@ def run():
     SubGraph.clear()
     ShapeGraph.clear()
     globals.referred_by = dict()
-    globals.referrd_by = dict()
     globals.shape_to_var = dict()
     globals.targetShape = None
 
@@ -138,13 +136,13 @@ def run():
             if not obj in globals.referred_by:
                 globals.referred_by[obj] = []
             globals.referred_by[obj].append({'shape': s.id, 'pred': pred})
-    print('Referred by Dictionary: ' + str(globals.referred_by))
+    print('\nReferred by Dictionary: ' + str(globals.referred_by))
 
     # Set a Variable for each Shape
     VariableStore.setShapeVariables(globals.targetShape, globals.network.shapes)
-    print(globals.shape_to_var)
+    print('\nVariables to Shape Mapping: ' + str(globals.shape_to_var))
 
-    print('-------------------Triples used for Construct Queries-------------------')
+    print('\n-------------------Triples used for Construct Queries-------------------')
     # Build TripleStores for each Shape
     for s in globals.network.shapes:
         tripleStoreFromShape(s)
@@ -155,7 +153,7 @@ def run():
     for query_triple in globals.initial_query_triples.copy():
         if not isinstance(query_triple.object, term.URIRef):
             globals.initial_query_triples.remove(query_triple)
-    print('Initial Query')
+    print('Initial Query Triples')
     printSet(globals.initial_query_triples)
 
     for s in globals.network.shapes:
@@ -168,9 +166,3 @@ def run():
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = globals.network.validate()  
     return report
-
-def printArgs(args):
-    for k,v in args.items():
-        print('------------------' + str(k) + '------------------\n')
-        print(v)
-        print('\n')
