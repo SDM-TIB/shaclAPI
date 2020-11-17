@@ -33,7 +33,7 @@ log.disabled = True
 INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
 @app.route("/endpoint", methods=['GET','POST'])
 def endpoint():
-    print('-------------------SPARQL Endpoint Request-------------------')
+    print('\033[92m-------------------SPARQL Endpoint Request-------------------\033[00m')
     # Preprocessing of the Query
     if request.method == 'POST':
         query = Query(request.form['query'])
@@ -41,7 +41,7 @@ def endpoint():
         query = Query(request.args['query'])
 
     print("Received Query: ")
-    print(str(query) + '\n')
+    print('\033[02m' + str(query) + '\033[0m\n')
 
     # Extract Triples of the given Query to identify the mentioned Shape (?x --> s_id)
     query_triples = setOfTriplesFromList(query.extract_triples())
@@ -73,7 +73,7 @@ def endpoint():
     json = result.serialize(encoding='utf-8',format='json')
     end = time.time()
     print("Execution took " + str((end - start)*1000) + ' ms')
-    print('--------------------------------------')
+    print('\033[92m-------------------------------------------------------------\033[00m')
 
     return Response(json, mimetype='application/json')
 

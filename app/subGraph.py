@@ -17,28 +17,28 @@ travshacl <--> Subgraph (local) <--> SPARQL Endpoint (web)
 ROW_LIMIT_PER_QUERY = 10000
 
 def extendWithConstructQuery(query_string):
-    print('-------------------Extending Subgraph-------------------')
+    print('\033[94m-------------------Extending Subgraph-------------------\033[00m')
     len_of_last_result = ROW_LIMIT_PER_QUERY
     triples_queried = 0
     while len_of_last_result >= ROW_LIMIT_PER_QUERY:
         new_query_string = query_string + 'ORDER BY ASC(?x) LIMIT ' + str(ROW_LIMIT_PER_QUERY) + ' OFFSET ' + str(triples_queried)
         globals.endpoint.setQuery(new_query_string)
         try:
-            print("Executing Construct Query: ")
-            print(new_query_string + '\n')
+            print("\033[01mExecuting Construct Query: \033[0m")
+            print('\033[02m' + new_query_string + '\033[0m\n')
             start = time.time()
             new_data_graph = globals.endpoint.query().convert()
             end = time.time()
-            print("Execution took " + str((end-start)*1000) + ' ms')
+            print("\033[01mExecution took " + str((end-start)*1000) + ' ms \033[0m')
         except Exception:
             print("Stopping Quering the External Graph because of an Error!")
             return False
         len_of_last_result = count(new_data_graph)
-        print("Got {} result triples".format(len_of_last_result))
+        print("\033[01mGot {} result triples \033[0m".format(len_of_last_result))
         #len_of_last_result = 2 # Just query 10000 results and not more --> comment out to query all
         triples_queried = triples_queried + len_of_last_result
         globals.subgraph = globals.subgraph + new_data_graph
-    print('--------------------------------------')
+    print('\033[94m-------------------------------------------------------------\033[00m')
     return True
 
 def count(graph):
