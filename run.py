@@ -14,10 +14,9 @@ from travshacl.reduction.ReducedShapeNetwork import ReducedShapeNetwork
 from travshacl.validation.core.GraphTraversal import GraphTraversal
 sys.path.remove('./travshacl')
 
-from app.query import Query, constructQueryStringFrom
+from app.query import Query
 from app.utils import printSet, pathToString
-from app.tripleStore import TripleStore, tripleStoreFromShape
-from app.triple import setOfTriplesFromList
+from app.tripleStore import TripleStore
 import app.subGraph as SubGraph
 import app.globals as globals
 import app.shapeGraph as ShapeGraph
@@ -44,7 +43,7 @@ def endpoint():
     print('\033[02m' + str(query) + '\033[0m\n')
 
     # Extract Triples of the given Query to identify the mentioned Shape (?x --> s_id)
-    query_triples = setOfTriplesFromList(query.extract_triples())
+    query_triples = query.triples
     possible_shapes = set()
     for row in ShapeGraph.queryTriples(query_triples):
         possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
@@ -60,7 +59,7 @@ def endpoint():
         print('Paths: ' + pathToString(paths))
 
         for path in paths:
-            construct_query = constructQueryStringFrom(globals.targetShape,globals.initial_query_triples,path,s_id)
+            construct_query = Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,path,s_id)
             #print("Construct Query: ")
             #print(str(construct_query) + '\n')
             SubGraph.extendWithConstructQuery(construct_query)
@@ -69,7 +68,7 @@ def endpoint():
     # Query the internal subgraph with the given input query
     print("Query Subgraph:")
     start = time.time()
-    result = SubGraph.query(query.parsed_query)
+    result = SubGraph.query(query, s_id)
     json = result.serialize(encoding='utf-8',format='json')
     end = time.time()
     print("Execution took " + str((end - start)*1000) + ' ms')
@@ -145,11 +144,11 @@ def run():
     print('\n-------------------Triples used for Construct Queries-------------------')
     # Build TripleStores for each Shape
     for s in globals.network.shapes:
-        tripleStoreFromShape(s)
+        TripleStore.fromShape(s)
         print(s.id)
         printSet(TripleStore(s.id).getTriples())
     
-    globals.initial_query_triples = list(setOfTriplesFromList(initial_query.extract_triples()))
+    globals.initial_query_triples = initial_query.triples
     for query_triple in globals.initial_query_triples.copy():
         if not isinstance(query_triple.object, term.URIRef):
             globals.initial_query_triples.remove(query_triple)
@@ -160,7 +159,7 @@ def run():
         globals.shape_queried[s.id] = False
     
     # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized
-    SubGraph.extendWithConstructQuery(constructQueryStringFrom(globals.targetShape,globals.initial_query_triples,[],globals.targetShape))
+    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,[],globals.targetShape))
     globals.shape_queried[globals.targetShape] = True
 
     # Run the evaluation of the SHACL constraints over the specified endpoint

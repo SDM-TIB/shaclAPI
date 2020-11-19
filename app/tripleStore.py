@@ -54,32 +54,34 @@ class TripleStore():
     def clear(self):
         globals.tripleStorage[self.name] = set()
 
-def tripleStoreFromShape(shape):
-    store = TripleStore(shape.id)
-    constraint_triple_set = set()
-    #for obj,pred in shape.referencedShapes.items():
-    #    constraint_triple_set.add(Triple(globals.shape_to_var[shape.id], term.URIRef(extend(pred)), globals.shape_to_var[obj]))
+    @classmethod
+    def fromShape(self,shape):
+        store = self(shape.id)
+        store.clear()
 
-    for constraint, i in zip(shape.constraints, range(len(shape.constraints))):
-        if constraint.value != None:
-            objNode = term.URIRef(extend(constraint.value))
-        elif constraint.shapeRef != None:
-            objNode = globals.shape_to_var[constraint.shapeRef]
-        else:
-            objNode  = term.Variable('c_' + str(i) + globals.shape_to_var[shape.id])
+        constraint_triple_set = set()
 
-        if constraint.path.startswith('^'):
-            constraint_triple_set.add(Triple(objNode,term.URIRef(extend(constraint.path[1:])), globals.shape_to_var[shape.id]))
-        else:
-           constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef(extend(constraint.path)), objNode))
+        for constraint, i in zip(shape.constraints, range(len(shape.constraints))):
+            if constraint.value != None:
+                objNode = term.URIRef(extend(constraint.value))
+            elif constraint.shapeRef != None:
+                objNode = globals.shape_to_var[constraint.shapeRef]
+            else:
+                objNode  = term.Variable('c_' + str(i) + globals.shape_to_var[shape.id])
 
-    if shape.targetDef != None:
-        constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), term.URIRef(extend(shape.targetDef))))
-    store.add(constraint_triple_set)    
+            if constraint.path.startswith('^'):
+                constraint_triple_set.add(Triple(objNode,term.URIRef(extend(constraint.path[1:])), globals.shape_to_var[shape.id]))
+            else:
+                constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef(extend(constraint.path)), objNode))
 
+        if shape.targetDef != None:
+            constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), term.URIRef(extend(shape.targetDef))))
+        store.add(constraint_triple_set)
+        return store 
 
-def n3OfTripleSet(triple_set):
-    store = TripleStore('temp')
-    store.clear()
-    store.add(triple_set)
-    return store.n3()
+    @classmethod
+    def fromSet(self,triple_set, name = 'temp'):
+        store = self(name)
+        store.clear()
+        store.add(triple_set)
+        return store

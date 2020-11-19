@@ -1,7 +1,6 @@
 from rdflib.plugins import sparql
-from app.triple import Triple, setOfTriplesFromList
+from app.triple import Triple
 from app.tripleStore import TripleStore
-from app.tripleStore import n3OfTripleSet
 from rdflib import term
 
 '''
@@ -13,8 +12,14 @@ class Query:
 
     def __init__(self,in_query: str):
         self.query = in_query.replace(",","")
-        self.parsed_query = sparql.processor.prepareQuery(self.query)
-        self.triples = [Triple(*t) for t in self.extract_triples()]
+
+    @property
+    def parsed_query(self):
+        return sparql.processor.prepareQuery(self.query)
+    
+    @property
+    def triples(self):
+        return [Triple(*t) for t in self.extract_triples()]
 
     def extract_triples(self):
         list_of_triples = self.__extract_triples_rekursion(self.parsed_query.algebra)
@@ -33,10 +38,11 @@ class Query:
     def __str__(self):
         return self.query
 
-def constructQueryStringFrom(targetShape, initial_query_triples, path, shape_id):
-    if targetShape != shape_id:
-        where_clause = n3OfTripleSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(initial_query_triples))
-        query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + '}'
-    else:
-        query = 'CONSTRUCT {\n' + n3OfTripleSet(TripleStore(targetShape).getTriples().union(initial_query_triples)) + '} WHERE {\n' + n3OfTripleSet(TripleStore(targetShape).getTriples().union(initial_query_triples)) + '}'
-    return query
+    @classmethod
+    def constructQueryFrom(self,targetShape, initial_query_triples, path, shape_id):
+        if targetShape != shape_id:
+            where_clause = TripleStore.fromSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(initial_query_triples)).n3()
+            query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + '}'
+        else:
+            query = 'CONSTRUCT {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + '} WHERE {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + '}'
+        return self(query)

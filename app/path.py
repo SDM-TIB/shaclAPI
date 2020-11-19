@@ -3,8 +3,6 @@ from app.triple import Triple
 from rdflib.term import URIRef
 from app.utils import extend
 
-#TODO: Annahme: Graph ist zusammenhängend!
-
 def computePathsToTargetShape(shape_id, path):
     if globals.targetShape == shape_id:
         return [path]

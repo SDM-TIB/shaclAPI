@@ -42,9 +42,3 @@ class Triple():
         if str(self.object.n3()) == '?x':
             new_triple = Triple(self.subject,self.predicat, var)
         return new_triple
-
-def setOfTriplesFromList(liste: list(Triple)):
-    result = set()
-    for triple in liste:
-        result.add(Triple(triple[0],triple[1],triple[2]))
-    return result

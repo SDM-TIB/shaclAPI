@@ -16,12 +16,12 @@ travshacl <--> Subgraph (local) <--> SPARQL Endpoint (web)
 
 ROW_LIMIT_PER_QUERY = 10000
 
-def extendWithConstructQuery(query_string):
+def extendWithConstructQuery(query):
     print('\033[94m-------------------Extending Subgraph-------------------\033[00m')
     len_of_last_result = ROW_LIMIT_PER_QUERY
     triples_queried = 0
     while len_of_last_result >= ROW_LIMIT_PER_QUERY:
-        new_query_string = query_string + 'ORDER BY ASC(?x) LIMIT ' + str(ROW_LIMIT_PER_QUERY) + ' OFFSET ' + str(triples_queried)
+        new_query_string = str(query) + 'ORDER BY ASC(?x) LIMIT ' + str(ROW_LIMIT_PER_QUERY) + ' OFFSET ' + str(triples_queried)
         globals.endpoint.setQuery(new_query_string)
         try:
             print("\033[01mExecuting Construct Query: \033[0m")
@@ -47,17 +47,16 @@ def count(graph):
         result = result + 1
     return result
 
-def query(query):
-    return globals.subgraph.query(query)
+def query(query, shape):
+    #triples = query.triples
+    return globals.subgraph.query(query.parsed_query)
 
 def clear():
     globals.subgraphStore = IOMemory()
     globals.subgraph = ConjunctiveGraph(store=globals.subgraphStore)
 
 #-------------------I/O Functions-------------------
-'''
-TODO: Warum funktioniert das Speichern und Laden des Subgraphen nicht mehr?
-'''
+
 def writeToFile(graph):
     with open("graph.nquads", "wb") as f:
         NQuadsSerializer(graph).serialize(f)
