@@ -60,20 +60,33 @@ class Query:
         with open(path,'w') as f:
             json.dump(str(self.parsed_query.algebra),f, indent=1)
     
-    def hasNoFilter(self):
-        return self.__hasNoFilter(self.parsed_query.algebra)
+    def getFilter(self):
+        return self.__getFilter(self.parsed_query.algebra)
 
-    def __hasNoFilter(self,algebra: dict):
-        result = True
+    def __getFilter(self,algebra: dict):
+        result = None
         for k,v in algebra.items():
             if isinstance(v, CompValue) and v.name == 'Filter':
-                return False
+                return v['expr']
             elif isinstance(v, CompValue):
-                result = result and self.__hasNoFilter(v)
+                subresult = self.__getFilter(v)
+                if subresult != None:
+                    result = subresult 
         return result
     
     def simplify(self):
-        if self.hasNoFilter():
+        expr = self.getFilter()
+        if expr:
+            query_string = 'SELECT DISTINCT ' 
+            for var in self.queriedVars:
+                query_string = query_string + var.n3() + ' '
+            query_string = query_string + 'WHERE {\n'
+            for triple in self.triples:
+                query_string = query_string + triple.n3() + '\n'
+            query_string = query_string + 'FILTER('+ expr['expr'].n3() + ' ' + expr['op'] + ' '+ expr['other'].n3() + ')\n'
+            query_string = query_string + '} ORDER BY ?x'
+            return Query(query_string)
+        else:
             query_string = 'SELECT DISTINCT ' 
             for var in self.queriedVars:
                 query_string = query_string + var.n3() + ' '
@@ -82,8 +95,6 @@ class Query:
                 query_string = query_string + triple.n3() + '\n'
             query_string = query_string + '} ORDER BY ?x'
             return Query(query_string)
-        else:
-            return self
 
 
     @classmethod
