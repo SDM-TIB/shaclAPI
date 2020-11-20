@@ -5,7 +5,6 @@ import time
 from app.triple import Triple
 from rdflib.plugins.memory import IOMemory
 
-
 '''
 Representation of a local Subgraph.
 The Subgraph is extended by the execution of construct queries over a given sparql endpoint.
@@ -47,9 +46,11 @@ def count(graph):
         result = result + 1
     return result
 
-def query(query, shape):
-    #triples = query.triples
-    return globals.subgraph.query(query.parsed_query)
+def query(query):
+    simplified_query = query.simplify()
+    print('Executed Query:')
+    print('\033[02m' + str(simplified_query.query) + '\033[0m\n')
+    return globals.subgraph.query(simplified_query.query)
 
 def clear():
     globals.subgraphStore = IOMemory()

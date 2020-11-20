@@ -68,7 +68,7 @@ def endpoint():
     # Query the internal subgraph with the given input query
     print("Query Subgraph:")
     start = time.time()
-    result = SubGraph.query(query, s_id)
+    result = SubGraph.query(query)
     json = result.serialize(encoding='utf-8',format='json')
     end = time.time()
     print("Execution took " + str((end - start)*1000) + ' ms')
