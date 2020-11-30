@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+__author__ = "Monica Figuera"
+
 from validation.sparql.SPARQLEndpoint import SPARQLEndpoint
 from validation.core.Literal import Literal
 import time
@@ -28,6 +31,7 @@ class InstancesRetrieval:
         #queue = Queue()
         #contactSource(self.endpointURL, query, queue, 16384, 10000)
         #bindings = [b for b in self.get_target_bindings(queue)]
+
         bindings = self.endpoint.runQuery(
             shape.getId(),
             query,
@@ -186,11 +190,15 @@ class InstancesRetrieval:
         if inst_type == "valid" or inst_type == "all":
             target_literals = self.get_valid_targets(
                 shape, "valid",   prev_val_list, prev_inv_list, prev_eval_shape_name)
+            self.log_output.write("\nNumber of targets: " + str(len(target_literals)))
+
         if inst_type == "violated" or inst_type == "all":
             inv_target_literals = self.get_invalid_targets(
                 shape, "invalid", prev_val_list, prev_inv_list, prev_eval_shape_name)
+            self.log_output.write("\nNumber of targets: " + str(len(inv_target_literals)))
 
         shape.setRemainingTargetsCount(len(target_literals))
+
         return target_literals, inv_target_literals
 
 ################################################

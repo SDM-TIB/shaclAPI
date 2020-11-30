@@ -50,8 +50,6 @@ class Eval:
 
     def parseHeuristics(self, input):
         heuristics = {}
-        if not input:
-            return heuristics
         if 'TARGET' in input:
             heuristics['target'] = True
         else:

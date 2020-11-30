@@ -7,6 +7,7 @@ import sys
 import os
 import time
 import logging
+import json
 
 
 sys.path.append('./travshacl')
@@ -69,12 +70,12 @@ def endpoint():
     print("Query Subgraph:")
     start = time.time()
     result = SubGraph.query(query)
-    json = result.serialize(encoding='utf-8',format='json')
+    jsonResult = result.serialize(encoding='utf-8',format='json')
     end = time.time()
     print("Execution took " + str((end - start)*1000) + ' ms')
     print('\033[92m-------------------------------------------------------------\033[00m')
 
-    return Response(json, mimetype='application/json')
+    return Response(jsonResult, mimetype='application/json')
 
 @app.route("/queryShapeGraph", methods = ['POST'])
 def queryShapeGraph():
@@ -164,5 +165,8 @@ def run():
     globals.shape_queried[globals.targetShape] = True
 
     # Run the evaluation of the SHACL constraints over the specified endpoint
-    report = globals.network.validate()  
-    return report
+    report = globals.network.validate()
+    valid = {"validTargets":[]}
+    for literal in report[globals.targetShape]["valid_instances"]:
+        valid["validTargets"].append(literal.arg)
+    return Response(json.dumps(valid), mimetype='application/json')

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+__author__ = "Monica Figuera"
+
 from validation.core.RulePattern import RulePattern
 from validation.core.Literal import Literal
 from validation.core.Query import Query
@@ -142,7 +144,7 @@ class QueryBuilder:
         return "datatype(?" + variable + ") = " + datatype
 
     def getSparql(self, includePrefixes, isSubQuery):  # assuming optional graph
-        if isSubQuery:  # creating the subquery
+        if isSubQuery:  # creating subquery
             return self.getQuery(False)
 
         prefixes = getPrefixString() if includePrefixes else ''
@@ -200,8 +202,8 @@ class QueryBuilder:
             return ""
 
         return "\nFILTER(\n" + \
-                (self.filters[0] if len(self.filters) == 1 else " AND\n".join(self.filters)
-                ) + ")"
+                (self.filters[0] if len(self.filters) == 1 else " AND\n".join(self.filters)) + \
+               ")"
 
     def addCardinalityFilter(self, variables):
         for i in range(0, len(variables)):
@@ -214,7 +216,7 @@ class QueryBuilder:
         if isinstance(c, Constraint):
             path = c.path
 
-            if c.getValue() is not None:        # means there is a existing reference to another shape
+            if c.getValue() is not None:        # if there is a existing reference to another shape
                 self.addTriple(path, c.getValue())
                 return
 
