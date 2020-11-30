@@ -25,12 +25,12 @@ def constructAndSetGraphFromShapes(shapes: List[Shape]):
     for s in shapes:
         addConstraintsToGraph(s, globals.shapeNamespace[str(s.id)])
 
-def addReferencesToGraph(shape: Shape, targetNode: term.URIRef):
+def addReferencesToGraph(shape: Shape, targetNode: term.URIRef): #intershape constraints
     for obj,pred in shape.referencedShapes.items():
         new_triple = (targetNode,term.URIRef(extend(pred)), globals.shapeNamespace[obj])
         addTripleToShapeGraph(new_triple)
 
-def addConstraintsToGraph(shape: Shape, targetNode: term.URIRef):
+def addConstraintsToGraph(shape: Shape, targetNode: term.URIRef): #intrashape constraints
     for constraint in shape.constraints:
         if constraint.value != None:
             objNode = term.URIRef(extend(constraint.value))

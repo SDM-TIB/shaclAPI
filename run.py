@@ -148,6 +148,7 @@ def run():
         print(s.id)
         printSet(TripleStore(s.id).getTriples())
     
+    # Extract all the triples which are limiting the target shape by adding additional references to Objects.
     globals.initial_query_triples = initial_query.triples
     for query_triple in globals.initial_query_triples.copy():
         if not isinstance(query_triple.object, term.URIRef):
