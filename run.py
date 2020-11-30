@@ -166,7 +166,10 @@ def run():
 
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = globals.network.validate()
-    valid = {"validTargets":[]}
-    for literal in report[globals.targetShape]["valid_instances"]:
-        valid["validTargets"].append(literal.arg)
+    valid = {"validTargets":[], "invalidTargets":[]}
+    for s in report:
+        if report[s].get("valid_instances"):
+            valid["validTargets"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred == globals.targetShape])
+        if report[s].get("invalid_instances"):
+            valid["invalidTargets"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred == globals.targetShape])
     return Response(json.dumps(valid), mimetype='application/json')
