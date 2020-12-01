@@ -28,6 +28,7 @@ class Shape:
         self.predicates = []
 
         self.referencedShapes = referencedShapes
+        self.parentShapes = set()
         self.queriesWithVALUES = {}
         self.queriesWithFILTER_NOT_IN = {}  # complement of VALUES
         self.bindings = set()
@@ -197,3 +198,9 @@ class Shape:
 
     def setRemainingTargetsCount(self, remainingTargets):
         self.remainingTargetsCount = remainingTargets
+
+    def addParentShape(self, parentName):
+        return self.parentShapes.add(parentName)
+
+    def getParentShapes(self):
+        return self.parentShapes

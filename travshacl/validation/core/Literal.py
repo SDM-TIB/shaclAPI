@@ -5,7 +5,7 @@ class Literal:
         self.pred = pred
         self.arg = arg
         self.isPos = isPos
-        
+
     def __repr__(self):
         sign = "" if self.isPos else "!"
         return sign + self.pred + "(" + self.arg + ")"
