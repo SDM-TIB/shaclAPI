@@ -114,7 +114,7 @@ def run():
     globals.targetShape = request.form['targetShape']
 
     # Parse Config File
-    if request.form['config']:
+    if "config" in request.form.keys():
         config = Configs.read_and_check_config(request.form['config'])
     else:
         config = Configs.read_and_check_config('config.json')
