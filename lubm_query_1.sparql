@@ -1,6 +1,0 @@
-PREFIX ub: <http://swat.cse.lehigh.edu/onto/univ-bench.owl#>
-SELECT ?pname ?uni WHERE {
-  ?prof ub:name ?pname .
-  ?prof ub:doctoralDegreeFrom ?uni .
-}
-
