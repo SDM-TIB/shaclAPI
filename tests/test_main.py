@@ -33,4 +33,10 @@ def test_run(file):
     #testingUtils.writeTest('tests/test_definitions/lubm1.json', response.json(), query,testingUtils.TestType.ONLY_VALID)
 
 
-
+#def test_createTest():
+#    testingUtils.testFromExecution(file='tests/test_definitions/dbpedia1.json',
+#                                    query_file='query.sparql',
+#                                    test_type= testingUtils.TestType.ONLY_VALID,
+#                                    config= 'tests/configs/dbpedia_config.json', 
+#                                    schemaDir='./shapes/3',
+#                                    targetShape='MovieShape')

@@ -5,7 +5,7 @@
     "heuristic": "TARGET IN BIG",
     "query": "PREFIX ub: <http://swat.cse.lehigh.edu/onto/univ-bench.owl#>\nSELECT ?pname ?uni WHERE {\n  ?prof ub:name ?pname .\n  ?prof ub:doctoralDegreeFrom ?uni .\n}\n\n",
     "targetShape": "FullProfessor",
-    "config": "tests/config.json",
+    "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [
             [

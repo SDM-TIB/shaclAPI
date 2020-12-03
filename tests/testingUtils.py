@@ -1,5 +1,8 @@
 import json
 from enum import Enum
+import requests
+
+FLASK_ENDPOINT='http://localhost:5000/'
 
 DEFAULT_PARAMS={
     "task":"a",
@@ -15,6 +18,18 @@ class TestType(str,Enum):
     ONLY_VALID = 'valid'
     ONLY_INVALID = 'invalid'
     BOTH = 'both'
+
+def testFromExecution(file, query_file, test_type, config, **args):
+    with open(query_file, 'r') as q:
+        query = q.read()
+    PARAMS = DEFAULT_PARAMS.copy()
+    PARAMS.update({"query":query, "config":config})
+    PARAMS.update(args)
+    print(PARAMS)
+    response = requests.post(FLASK_ENDPOINT + 'go', data=PARAMS)
+    json_response = response.json()
+    writeTest(file,json_response, query, test_type, config=config)
+
 
 def writeTest(file, response, query,test_type, **args):
     if test_type == TestType.ONLY_VALID:

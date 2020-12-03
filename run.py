@@ -104,6 +104,7 @@ def run():
     globals.referred_by = dict()
     globals.shape_to_var = dict()
     globals.targetShape = None
+    globals.endpoint = None
 
     # Parse POST Arguments
     task = Eval.parse_task_string(request.form['task'])    
@@ -114,10 +115,13 @@ def run():
     globals.targetShape = request.form['targetShape']
 
     # Parse Config File
-    if "config" in request.form.keys():
+    if 'config' in request.form:
         config = Configs.read_and_check_config(request.form['config'])
+        print("Using Custom Config: {}".format(request.form['config']))
     else:
+        print("Using default config File!!")
         config = Configs.read_and_check_config('config.json')
+    print(config)
     globals.endpoint = SPARQLWrapper(config['external_endpoint'])
 
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)

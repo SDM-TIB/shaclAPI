@@ -1,4 +1,9 @@
 #!/bin/bash
+
+python run.py > server.log 2>&1 &
+
+sleep 1s
+
 QUERY=$(<query.sparql)
 
 #python3 travshacl/main.py -d ./shapes/3 -a http://dbpedia.org/sparql ./output/ BFS --heuristics TARGET IN BIG --orderby --selective --query "$QUERY" --targetDef MovieShape
@@ -8,3 +13,5 @@ curl -X POST -H "Accept:application/sparql-results+json" -d "task=a" -d "travers
 #python3 travshacl/main.py -d ./shapes/3 -a http://localhost:5000/endpoint ./output/ BFS --heuristics TARGET IN BIG --orderby --selective
 
 python -m pytest
+
+pkill -f python
