@@ -28,7 +28,7 @@ def testFromExecution(file, query_file, test_type, config, **args):
     print(PARAMS)
     response = requests.post(FLASK_ENDPOINT + 'go', data=PARAMS)
     json_response = response.json()
-    writeTest(file,json_response, query, test_type, config=config)
+    writeTest(file,json_response, query, test_type, config=config, **args)
 
 
 def writeTest(file, response, query,test_type, **args):

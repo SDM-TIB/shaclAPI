@@ -17,7 +17,7 @@ def test_api_up():
 #    result = requests.get(config['external_endpoint'])
 #    assert result.ok == True
 
-@pytest.mark.parametrize("file", ['lubm1.json','lubm2.json'])
+@pytest.mark.parametrize("file", ['lubm1.json','lubm2.json','dbpedia1.json'])
 def test_run(file):
     test = testingUtils.executeTest(os.path.join(TESTS_DIR, file))
     PARAMS = test[0]

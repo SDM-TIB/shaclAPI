@@ -1,0 +1,46 @@
+{
+    "task": "a",
+    "traversalStrategie": "DFS",
+    "schemaDir": "./shapes/3",
+    "heuristic": "TARGET IN BIG",
+    "query": "PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>\nPREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX dbo:<http://dbpedia.org/ontology/>\nPREFIX dbr:<http://dbpedia.org/resource/>\nPREFIX dbp:<http://dbpedia.org/property/>\nPREFIX yago:<http://dbpedia.org/class/yago/>\nPREFIX foaf:<http://xmlns.com/foaf/0.1/>\nPREFIX :<http://example.org/>\nSELECT ?x WHERE {\n    ?x a dbo:Film. \n    ?x dbo:starring ?varnameistegal.\n    ?x dbo:imdbId ?p_2.\n    ?x dbp:studio dbr:Walt_Disney_Pictures\n}\n\n",
+    "targetShape": "MovieShape",
+    "config": "tests/configs/dbpedia_config.json",
+    "result": {
+        "validTargets": [
+            [
+                "http://dbpedia.org/resource/Tonka_(film)",
+                "LocationShape"
+            ],
+            [
+                "http://dbpedia.org/resource/Davy_Crockett,_King_of_the_Wild_Frontier",
+                "LocationShape"
+            ],
+            [
+                "http://dbpedia.org/resource/The_Fighting_Prince_of_Donegal",
+                "LocationShape"
+            ],
+            [
+                "http://dbpedia.org/resource/The_One_and_Only,_Genuine,_Original_Family_Band",
+                "LocationShape"
+            ],
+            [
+                "http://dbpedia.org/resource/The_Happiest_Millionaire",
+                "LocationShape"
+            ],
+            [
+                "http://dbpedia.org/resource/Recess:_School's_Out",
+                "LocationShape"
+            ],
+            [
+                "http://dbpedia.org/resource/Davy_Crockett_and_the_River_Pirates",
+                "LocationShape"
+            ],
+            [
+                "http://dbpedia.org/resource/Westward_Ho_the_Wagons!",
+                "LocationShape"
+            ]
+        ]
+    },
+    "test_type": "valid"
+}
