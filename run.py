@@ -114,7 +114,10 @@ def run():
     globals.targetShape = request.form['targetShape']
 
     # Parse Config File
-    config = Configs.read_and_check_config('config.json')
+    if "config" in request.form.keys():
+        config = Configs.read_and_check_config(request.form['config'])
+    else:
+        config = Configs.read_and_check_config('config.json')
     globals.endpoint = SPARQLWrapper(config['external_endpoint'])
 
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)
@@ -173,3 +176,10 @@ def run():
         if report[s].get("invalid_instances"):
             valid["invalidTargets"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred == globals.targetShape])
     return Response(json.dumps(valid), mimetype='application/json')
+
+@app.route("/", methods=['GET'])
+def hello_world():
+    return "Hello World"
+
+if __name__ == '__main__':
+    app.run(debug=True)

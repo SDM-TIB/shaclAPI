@@ -1,0 +1,42 @@
+{
+    "task": "a",
+    "traversalStrategie": "DFS",
+    "schemaDir": "shapes/lubm",
+    "heuristic": "TARGET IN BIG",
+    "query": "PREFIX ub: <http://swat.cse.lehigh.edu/onto/univ-bench.owl#>\nSELECT ?pname ?uni WHERE {\n  ?prof ub:name ?pname .\n  ?prof ub:doctoralDegreeFrom ?uni .\n}\n\n",
+    "targetShape": "FullProfessor",
+    "config": "tests/config.json",
+    "result": {
+        "validTargets": [
+            [
+                "http://www.Department9.University5.edu/FullProfessor4",
+                "FullProfessor"
+            ],
+            [
+                "http://www.Department10.University6.edu/FullProfessor4",
+                "FullProfessor"
+            ],
+            [
+                "http://www.Department16.University6.edu/FullProfessor5",
+                "FullProfessor"
+            ],
+            [
+                "http://www.Department4.University6.edu/FullProfessor6",
+                "FullProfessor"
+            ],
+            [
+                "http://www.Department4.University6.edu/FullProfessor1",
+                "FullProfessor"
+            ],
+            [
+                "http://www.Department11.University6.edu/FullProfessor7",
+                "FullProfessor"
+            ],
+            [
+                "http://www.Department10.University4.edu/FullProfessor8",
+                "FullProfessor"
+            ]
+        ]
+    },
+    "test_type": "valid"
+}
