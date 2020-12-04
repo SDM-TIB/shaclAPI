@@ -21,6 +21,16 @@ SELECT ?p ?c (COUNT(?p) AS ?pc) {
   FILTER(?c != owl:Class)
 } GROUP BY ?p ?c
 
+#4 Find Literals
+PREFIX ub: <http://swat.cse.lehigh.edu/onto/univ-bench.owl#>
+SELECT ?p (COUNT(?p) AS ?rc)
+    WHERE {
+        ?s ?p ?o .
+        ?s a ub:class .
+        FILTER(isLiteral(?o))
+      }
+GROUP BY ?p
+
 
 ub:AssociateProfessor - 1791
     - ub:worksFor ub:Department - 1791
@@ -29,6 +39,10 @@ ub:AssociateProfessor - 1791
     - ub:mastersDegreeFrom ub:University - 1791
     - ub:undergraduateDegreeFrom ub:University - 1791
     - ub:teacherOf ub:Course - 2707
+    + ub:researchInterest - 1791
+    + ub:name - 1791
+    + ub:telephone - 1791
+    + ub:emailAddress - 1791
 
 ub:AssistantProfessor - 1438
     - ub:worksFor ub:Department  - 1438
@@ -37,11 +51,16 @@ ub:AssistantProfessor - 1438
     - ub:mastersDegreeFrom ub:University - 1438
     - ub:undergraduateDegreeFrom ub:University - 1438
     - ub:teacherOf ub:Course - 2154
+    + ub:researchInterest - 1438
+    + ub:name - 1438
+    + ub:telephone - 1438
+    + ub:emailAddress - 1438
 
 ub:Course - 8126
 
 ub:Department - 149
     - ub:subOrganizationOf ub:University - 149
+    + ub:name - 149
 
 ub:FullProfessor - 1267
     - ub:worksFor ub:Department - 1267
@@ -51,8 +70,13 @@ ub:FullProfessor - 1267
     - ub:headOf ub:Department - 149
     - ub:undergraduateDegreeFrom ub:University - 1267
     - ub:teacherOf ub:Course - 1913
+    + ub:researchInterest - 1267
+    + ub:name - 1267
+    + ub:telephone - 1267
+    + ub:emailAddress - 1267
 
 ub:GraduateCourse - 8008
+    + ub:name - 8008
 
 ub:GraduateStudent - 18869
     - ub:advisor ub:AssociateProfessor - 6226
@@ -62,6 +86,9 @@ ub:GraduateStudent - 18869
     - ub:teachingAssistantOf ub:Course - 4156
     - ub:undergraduateDegreeFrom ub:University - 18869
     - ub:memberOf ub:Department - 18869
+    + ub:name - 18869
+    + ub:telephone - 18869
+    + ub:emailAddress - 18869
 
 ub:Lecturer - 892
     - ub:worksFor ub:Department - 892
@@ -70,6 +97,9 @@ ub:Lecturer - 892
     - ub:mastersDegreeFrom ub:University - 892
     - ub:undergraduateDegreeFrom ub:University - 892
     - ub:teacherOf ub:Course - 1352
+    + ub:name - 892
+    + ub:telephone - 892
+    + ub:emailAddress - 892
 
 ub:Publication - 60342
     - ub:publicationAuthor ub:ResearchAssistant - 13665
@@ -79,6 +109,7 @@ ub:Publication - 60342
     - ub:publicationAuthor ub:AssociateProfessor - 25066
     - ub:publicationAuthor ub:AssistantProfessor - 10850
     - ub:publicationAuthor ub:FullProfessor - 22180
+    + ub:name - 60342
 
 ub:ResearchAssistant - 5454
     - ub:advisor ub:AssociateProfessor - 1776
@@ -87,6 +118,9 @@ ub:ResearchAssistant - 5454
     - ub:takesCourse ub:GraduateCourse - 10844
     - ub:undergraduateDegreeFrom ub:University - 5454
     - ub:memberOf ub:Department - 5454
+    + ub:name - 5454
+    + ub:telephone - 5454
+    + ub:emailAddress - 5454
 
 ub:ResearchGroup - 2233
     - ub:subOrganizationOf ub:Department - 2233
@@ -99,6 +133,9 @@ ub:TeachingAssistant - 4156
     - ub:teachingAssistantOf ub:Course - 4156
     - ub:undergraduateDegreeFrom ub:University - 4156
     - ub:memberOf ub:Department - 4156
+    + ub:name - 4156
+    + ub:telephone - 4156
+    + ub:emailAddress - 4156
 
 ub:UndergraduateStudent - 59437
     - ub:advisor ub:AssociateProfessor - 3904
@@ -106,5 +143,9 @@ ub:UndergraduateStudent - 59437
     - ub:advisor ub:FullProfessor - 3997
     - ub:takesCourse ub:Course - 178533
     - ub:memberOf ub:Department - 59437
+    + ub:telephone - 59437
+    + ub:name - 59437
+    + ub:emailAddress - 59437
 
 ub:University - 1000
+    - ub:name - 8
