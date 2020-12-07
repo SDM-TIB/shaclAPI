@@ -1,0 +1,16 @@
+{
+	"name": "Person",
+	"targetDef": {
+		"query":"SELECT ?x WHERE {?x a test:person}",
+		"class": "test:person"
+	},
+	"constraintDef":{
+		"conjunctions":[
+			[
+				{ "path": "test:member_of", "min": 1, "shape": "Family"},
+				{ "path": "test:age", "min": 1},
+				{ "path": "test:age", "max": 1}
+			]
+		]
+	}
+}

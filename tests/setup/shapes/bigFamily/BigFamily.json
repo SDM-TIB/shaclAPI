@@ -1,0 +1,15 @@
+{
+	"name": "BigFamily",
+	"targetDef": {
+		"query":"SELECT ?x WHERE {?x a test:family}",
+		"class": "test:family"
+	},
+	"constraintDef":{
+		"conjunctions":[
+			[
+				{ "path": "^test:member_of", "min": 3},
+				{ "path": "^test:member_of", "max": 5}
+			]
+		]
+	}
+}

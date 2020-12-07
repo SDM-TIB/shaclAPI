@@ -14,13 +14,14 @@ class Query:
 
     def __init__(self,in_query: str):
         self.query = in_query.replace(",","")
+        self.query = self.query.replace("AND", "&&")
         self.__parsed_query = None
         self.__triples = None
 
     @property
     def parsed_query(self):
         if self.__parsed_query == None:
-            self.__parsed_query = self.__parsed_query = sparql.processor.prepareQuery(self.query)
+            self.__parsed_query = sparql.processor.prepareQuery(self.query)
         return self.__parsed_query
     
     @property
@@ -60,42 +61,69 @@ class Query:
         with open(path,'w') as f:
             json.dump(str(self.parsed_query.algebra),f, indent=1)
     
+    # this won't work if the query contains more then one filter
     def getFilter(self):
-        return self.__getFilter(self.parsed_query.algebra)
+        parsed_algebra = self.parsed_query.algebra
+        result_filter = self.__getFilter(parsed_algebra)
+        return result_filter[0]
+     
 
     def __getFilter(self,algebra: dict):
-        result = None
+        result = list()
+        count = 0
         for k,v in algebra.items():
             if isinstance(v, CompValue) and v.name == 'Filter':
-                return v['expr']
+                result = result + [self.__expressionFromFilter(v['expr'])]
+                count = count + 1
+                rek_result = self.__getFilter(v)
+                result = result + rek_result[0]
+                count = count + rek_result[1]
             elif isinstance(v, CompValue):
-                subresult = self.__getFilter(v)
-                if subresult != None:
-                    result = subresult 
+                rek_result = self.__getFilter(v)
+                result = result + rek_result[0]
+                count = count + rek_result[1]
+        return (result,count)
+    
+    def __expressionFromFilter(self, filter_expr):
+        result = list()
+        if isinstance(filter_expr, CompValue) and filter_expr.name == 'RelationalExpression':
+            result.append((filter_expr['expr'], filter_expr['op'], filter_expr['other']))
+        elif isinstance(filter_expr, CompValue) and 'ConditionalAndExpression' in filter_expr.name:
+            result = result + self.__expressionFromFilter(filter_expr['expr'])
+            for expr in filter_expr['other']:
+                result = result + self.__expressionFromFilter(expr)
+        else:
+            return []
         return result
     
     def simplify(self):
         expr = self.getFilter()
-        if expr:
+        print(expr)
+        if len(expr) == 0:
             query_string = 'SELECT DISTINCT ' 
             for var in self.queriedVars:
                 query_string = query_string + var.n3() + ' '
             query_string = query_string + 'WHERE {\n'
             for triple in self.triples:
                 query_string = query_string + triple.n3() + '\n'
-            query_string = query_string + 'FILTER('+ expr['expr'].n3() + ' ' + expr['op'] + ' '+ expr['other'].n3() + ')\n'
+            query_string = query_string + '} ORDER BY ?x'
+            return Query(query_string)
+        elif len(expr) == 1:
+            query_string = 'SELECT DISTINCT ' 
+            for var in self.queriedVars:
+                query_string = query_string + var.n3() + ' '
+            query_string = query_string + 'WHERE {\n'
+            for triple in self.triples:
+                query_string = query_string + triple.n3() + '\n'
+            filter_term = ''
+            for triple in expr[0]:
+                filter_term = filter_term + triple[0].n3() + ' ' + triple[1] + ' '+ triple[2].n3() + ' && '
+            filter_term = filter_term[:-3]
+            query_string = query_string + 'FILTER( '+ filter_term + ' )\n'
             query_string = query_string + '} ORDER BY ?x'
             return Query(query_string)
         else:
-            query_string = 'SELECT DISTINCT ' 
-            for var in self.queriedVars:
-                query_string = query_string + var.n3() + ' '
-            query_string = query_string + 'WHERE {\n'
-            for triple in self.triples:
-                query_string = query_string + triple.n3() + '\n'
-            query_string = query_string + '} ORDER BY ?x'
-            return Query(query_string)
-
+            return self            
 
     @classmethod
     def constructQueryFrom(self,targetShape, initial_query_triples, path, shape_id):
