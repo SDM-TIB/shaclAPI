@@ -17,7 +17,7 @@ def test_api_up():
 #    result = requests.get(config['external_endpoint'])
 #    assert result.ok == True
 
-@pytest.mark.parametrize("file", ['dbpedia1.json', 'test1.json', 'test2.json'])
+@pytest.mark.parametrize("file", ['dbpedia1.json', 'test1.json', 'test3.json'])
 def test_run(file):
     test = testingUtils.executeTest(os.path.join(TESTS_DIR, file))
     PARAMS = test[0]
@@ -34,9 +34,9 @@ def test_run(file):
 
 
 #def test_createTest():
-#    testingUtils.testFromExecution(file='tests/test_definitions/test2.json',
+#    testingUtils.testFromExecution(file='tests/test_definitions/test4.json',
 #                                    query_file='query.sparql',
 #                                    test_type= testingUtils.TestType.BOTH,
 #                                    config= 'tests/configs/lubm_config.json', 
-#                                   schemaDir='./tests/setup/shapes/bigFamily',
+#                                    schemaDir='./tests/setup/shapes/smallFamily',
 #                                    targetShape='Person')

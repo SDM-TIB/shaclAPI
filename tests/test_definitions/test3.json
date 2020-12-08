@@ -1,0 +1,13 @@
+{
+    "task": "a",
+    "traversalStrategie": "DFS",
+    "schemaDir": "./tests/setup/shapes/smallFamily",
+    "heuristic": "TARGET IN BIG",
+    "query": "PREFIX test:<http://example.org/testGraph/class#>\nSELECT ?x WHERE {\n        ?x a test:person.\n        ?x test:age ?age.\n        ?x test:member_of ?family. }",
+    "targetShape": "Person",
+    "config": "tests/configs/lubm_config.json",
+    "result": {
+        "validTargets": []
+    },
+    "test_type": "valid"
+}

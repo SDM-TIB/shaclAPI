@@ -98,7 +98,6 @@ class Query:
     
     def simplify(self):
         expr = self.getFilter()
-        print(expr)
         if len(expr) == 0:
             query_string = 'SELECT DISTINCT ' 
             for var in self.queriedVars:

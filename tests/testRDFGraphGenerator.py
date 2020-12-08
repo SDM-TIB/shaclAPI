@@ -51,7 +51,6 @@ def fillUp(set_input, soll):
 # Data
 families = fillUp(set([names.get_last_name() for i in range(NUMBER_OF_FAMILIES)]), NUMBER_OF_FAMILIES)
 persons = fillUp(set([names.get_first_name() for i in range(AVERAGE_PERSONS_PER_FAMILIY*NUMBER_OF_FAMILIES)]), AVERAGE_PERSONS_PER_FAMILIY* NUMBER_OF_FAMILIES)
-orte = set(['Barsinghausen','Gehrden', 'Hannover', 'Wennigsen'])
 
 print('Created {} families! '.format(len(families)))
 print('Created {} person! '.format(len(persons)))
