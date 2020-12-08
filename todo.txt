@@ -1,5 +1,5 @@
 - Parse Initial Star Shaped Query correctly into CONSTRUCT Query e.g. ORDER BY, LIMIT, OFFSET Terms
 - Autoretrieve Namespaces
-- What is with Filter in star shape queries?
+- What is with Filter in star shape queries? --> They are allowed: TODO: Change
 - more then one filter --> slow down
 - PrefixHandling: --> Example Prefixes extracted from the star shaped query should be added to the SPARQLPrefixHandler
