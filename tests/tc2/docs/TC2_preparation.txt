@@ -1,0 +1,70 @@
+TC1:
+A --> B --> C --> D
+\----------------/^
+
+#classA:
+#valid
+nodeA0; refersTo nodeB0; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA1; refersTo nodeB0; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA2; refersTo nodeB0; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA3; refersTo nodeB0; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA4; refersTo nodeB0; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+#refersTo D and Literal
+nodeA5; refersTo nodeB1; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA6; refersTo nodeB1; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA7; refersTo nodeB1; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA8; refersTo nodeB1; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+nodeA9; refersTo nodeB1; refersTo nodeD0; hasLiteral 'valid_value'; a classA
+#refersTo D
+nodeA10; refersTo nodeB1; refersTo nodeD0; a classA
+nodeA11; refersTo nodeB1; refersTo nodeD0; a classA
+nodeA12; refersTo nodeB1; refersTo nodeD0; a classA
+nodeA13; refersTo nodeB1; refersTo nodeD0; a classA
+nodeA14; refersTo nodeB1; refersTo nodeD0; a classA
+#non-valid
+nodeA15; a classA
+nodeA16; a classA
+nodeA17; a classA
+nodeA18; a classA
+nodeA19; a classA
+
+#classB:
+#valid
+nodeB0; pathTo nodeC0; a classB
+#non-valid
+nodeB1; a classB
+
+#classC
+#valid
+nodeC0; pathTo nodeD0; a classC
+
+#classD
+#valid
+nodeD0; hasLiteral 'valid_value'; a classD
+
+Shapes:
+#  Shape Name     # Target Class        # Constraints                             #
+# --------------- # ------------------- # --------------------------------------  # 
+# A               # test:classA         # test:hasLiteral -- min: 1               # 
+#                 #                     # test:refersTo -- min: 1 shape: B        #
+#                 #                     # test:refersTo -- min: 1 shape: D        #
+# ------------------------------------------------------------------------------- #
+# B               # test:classB         # test:refersTo -- min: 1 shape: C        #
+# ------------------------------------------------------------------------------- #
+# C               # test:classC         # test:refersTo -- min: 1 shape: D        #
+# ------------------------------------------------------------------------------- #
+# D               # test:classD         # test:hasLiteral -- min: 1               #
+
+Tests(Target: ShapeA):
+#  Test Name  # Valid/Invalid   # Involved Constraints                    #
+# ----------- # ----------------# --------------------------------------  # 
+# test1       #  5/15           # test:hasLiteral -- min: 1               # 
+#             #                 # test:refersTo -- min: 1 shape: B        #
+#             #                 # test:refersTo -- min: 1 shape: D        #
+#             #                 # a classA                                #
+# test2       # 10/10           # test:hasLiteral -- min: 1               # 
+#             #                 # test:refersTo -- min: 1 shape: D        #
+#             #                 # a classA                                #
+# test3       # 15/ 5           # test:refersTo -- min: 1 shape: D        # 
+#             #                 # a classA                                #
+# test4       # 20/ 0           # a classA                                #
