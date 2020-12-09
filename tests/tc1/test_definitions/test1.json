@@ -1,7 +1,7 @@
 {
     "task": "a",
     "traversalStrategie": "DFS",
-    "schemaDir": "./tests/setup/shapes/bigFamily",
+    "schemaDir": "./tests/tc1/shapes/bigFamily",
     "heuristic": "TARGET IN BIG",
     "query": "PREFIX test:<http://example.org/testGraph/class#>\nSELECT ?x WHERE {\n        ?x a test:person.\n        ?x test:age ?age }",
     "targetShape": "Person",
