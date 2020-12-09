@@ -3,91 +3,91 @@
     "traversalStrategie": "DFS",
     "schemaDir": "./tests/tc2/shapes",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test:<http://example.org/testGraph#>\nSELECT ?x WHERE {\n?x a test:classA.\n?x test:refersTo ?y.\n?y a test:classD\n}",
+    "query": "PREFIX test2:<http://example.org/testGraph2#>\nSELECT ?x WHERE {\n?x a test2:classA.\n?x test2:refersTo ?y.\n?y a test2:classD\n}",
     "targetShape": "ShapeA",
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [
             [
-                "http://example.org/testGraph/nodeA_0",
+                "http://example.org/testGraph2/nodeA_0",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_1",
+                "http://example.org/testGraph2/nodeA_1",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_2",
+                "http://example.org/testGraph2/nodeA_2",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_3",
+                "http://example.org/testGraph2/nodeA_3",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_4",
+                "http://example.org/testGraph2/nodeA_4",
                 "ShapeA"
             ]
        ],
         "invalidTargets": [
             [
-                "http://example.org/testGraph/nodeA_5",
+                "http://example.org/testGraph2/nodeA_5",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_6",
+                "http://example.org/testGraph2/nodeA_6",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_7",
+                "http://example.org/testGraph2/nodeA_7",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_8",
+                "http://example.org/testGraph2/nodeA_8",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_9",
+                "http://example.org/testGraph2/nodeA_9",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_10",
+                "http://example.org/testGraph2/nodeA_10",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_11",
+                "http://example.org/testGraph2/nodeA_11",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_12",
+                "http://example.org/testGraph2/nodeA_12",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_13",
+                "http://example.org/testGraph2/nodeA_13",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_14",
+                "http://example.org/testGraph2/nodeA_14",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_15",
+                "http://example.org/testGraph2/nodeA_15",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_16",
+                "http://example.org/testGraph2/nodeA_16",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_17",
+                "http://example.org/testGraph2/nodeA_17",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_18",
+                "http://example.org/testGraph2/nodeA_18",
                 "ShapeA"
             ],
             [
-                "http://example.org/testGraph/nodeA_19",
+                "http://example.org/testGraph2/nodeA_19",
                 "ShapeA"
             ]
         ]

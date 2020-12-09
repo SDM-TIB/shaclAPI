@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 prefixes = {
     "ub": "<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>",
-    "test": "<http://example.org/testGraph#>",
+    "test1": "<http://example.org/testGraph1#>",
+    "test2": "<http://example.org/testGraph2#>",
+    "test3": "<http://example.org/testGraph3#>",
+    "test4": "<http://example.org/testGraph4#>",
     "rdf": "<http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
     "dbo": "<http://dbpedia.org/ontology/>",
     "dbr": "<http://dbpedia.org/resource/>",

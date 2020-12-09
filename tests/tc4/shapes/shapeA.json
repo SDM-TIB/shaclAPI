@@ -1,13 +1,13 @@
 {
 	"name": "ShapeA",
 	"targetDef": {
-		"query":"SELECT ?x WHERE {?x a test:classA}",
-		"class": "test:classA"
+		"query":"SELECT ?x WHERE {?x a test4:classA}",
+		"class": "test4:classA"
 	},
 	"constraintDef":{
 		"conjunctions":[
 			[
-                { "path": "test:^refersTo", "min": 2, "shape": "ShapeB"}
+                { "path": "test4:^refersTo", "min": 2, "shape": "ShapeB"}
 			]
 		]
 	}
