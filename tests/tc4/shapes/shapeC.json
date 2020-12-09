@@ -1,0 +1,13 @@
+{
+	"name": "ShapeC",
+	"targetDef": {
+		"query":"SELECT ?x WHERE {?x a test:classC}",
+		"class": "test:classC"
+	},
+	"constraintDef":{
+		"conjunctions":[
+			[
+			]
+		]
+	}
+}

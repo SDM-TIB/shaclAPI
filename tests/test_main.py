@@ -6,8 +6,9 @@ import pytest
 import os
 
 FLASK_ENDPOINT='http://localhost:5000/'
-TESTS_DIR = 'tests/test_definitions'
+#TESTS_DIR = 'tests/test_definitions'
 #TESTS_DIR = 'tests/tc2/test_definitions'
+TESTS_DIR = 'tests/tc4/test_definitions'
 
 def test_api_up():
     result = requests.get(FLASK_ENDPOINT)
@@ -19,7 +20,8 @@ def test_api_up():
 #    assert result.ok == True
 
 #@pytest.mark.parametrize("file", ['test1.json', 'test2.json', 'test3.json', 'test4.json'])
-@pytest.mark.parametrize("file", ['dbpedia1.json', 'test1.json', 'test3.json'])
+@pytest.mark.parametrize("file", ['test1.json', 'test2.json', 'test3.json'])
+#@pytest.mark.parametrize("file", ['dbpedia1.json', 'test1.json', 'test3.json'])
 def test_run(file):
     test = testingUtils.executeTest(os.path.join(TESTS_DIR, file))
     PARAMS = test[0]

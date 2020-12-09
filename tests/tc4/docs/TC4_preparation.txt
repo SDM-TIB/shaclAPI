@@ -1,0 +1,58 @@
+TC4:
+(A is targetShape)
+A <-- B <-- C
+
+#classA:
+#valid
+nodeA0; ^refersTo nodeB0; ^refersTo nodeB1; nonShapeLiteral; a classA; 
+nodeA1; ^refersTo nodeB0; ^refersTo nodeB1; nonShapeLiteral; a classA
+nodeA2; ^refersTo nodeB0; ^refersTo nodeB1; nonShapeLiteral; a classA
+nodeA3; ^refersTo nodeB0; ^refersTo nodeB1; nonShapeLiteral; a classA
+nodeA4; ^refersTo nodeB0; ^refersTo nodeB1; nonShapeLiteral; a classA
+nodeA5; ^refersTo nodeB0; ^refersTo nodeB1; a classA
+nodeA6; ^refersTo nodeB0; ^refersTo nodeB1; a classA
+nodeA7; ^refersTo nodeB0; ^refersTo nodeB1; a classA
+nodeA8; ^refersTo nodeB0; ^refersTo nodeB1; a classA
+nodeA9; ^refersTo nodeB0; ^refersTo nodeB1; a classA
+#^refersTo B (B2 is non-valid)
+nodeA10; ^refersTo nodeB2; ^refersTo nodeB1; nonShapeLiteral; a classA
+nodeA11; ^refersTo nodeB2; ^refersTo nodeB1; nonShapeLiteral; a classA
+nodeA12; ^refersTo nodeB2; ^refersTo nodeB1; a classA
+nodeA13; ^refersTo nodeB2; ^refersTo nodeB1; a classA
+nodeA14; ^refersTo nodeB2; ^refersTo nodeB1; a classA
+#non-valid
+nodeA15; a classA
+nodeA16; a classA
+nodeA17; a classA
+nodeA18; a classA
+nodeA19; a classA
+
+#classB:
+#valid
+nodeB0; refersTo nodeA[0-9]; refersTo nodeC0; a classB
+nodeB1; refersTo nodeA[0-14]; refersTo nodeC0; a classB
+#non-valid
+nodeB2; refersTo nodeA[10-14]; a classB
+
+#classC
+#valid
+nodeC0; a classC
+
+Shapes:
+#  Shape Name     # Target Class        # Constraints                               #
+# --------------- # ------------------- # --------------------------------------    # 
+# A               # test:classA         # test:^refersTo -- min: 2 shape: B         # 
+# -------------------------------------------------------------------------------   #
+# B               # test:classB         # test:refersTo -- min: 1, max: 20 shape: A #
+#                 #                     # test:refersTo -- min: 1 shape: C          #
+# -------------------------------------------------------------------------------   #
+# C               # test:classC         #                                           #
+
+Tests(Target: ShapeA):
+#  Test Name  # Valid/Invalid   # Involved Constraints                    #
+# ----------- # ----------------# --------------------------------------- # 
+# test1       # 10/10           # test:^refersTo -- min: 2 shape: B       # 
+#             #                 # a classA                                #
+# test2       #  7/13           # test:nonShapeLiteral                    # 
+#             #                 # a classA                                #
+# test3       # 20/ 0           # a classA                                #
