@@ -1,6 +1,8 @@
-PREFIX test:<http://example.org/testGraph/class#>
+PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>\nPREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX dbo:<http://dbpedia.org/ontology/>\nPREFIX dbr:<http://dbpedia.org/resource/>\nPREFIX dbp:<http://dbpedia.org/property/>\nPREFIX yago:<http://dbpedia.org/class/yago/>\nPREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX :<http://example.org/>
 SELECT ?x WHERE {
-            ?x a test:person.
-            ?x test:age ?age.
-            ?x test:member_of ?family. 
+    ?x a dbo:Film.
+    ?x dbo:starring ?varnameistegal.
+    ?x dbo:imdbId ?p_2.
+    ?x dbp:studio dbr:Walt_Disney_Pictures
 }
