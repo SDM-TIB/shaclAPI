@@ -1,94 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF
-  xmlns:test="http://example.org/testGraph/#"
+  xmlns:test="http://example.org/testGraph#"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 >
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_5">
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_4">
     <test:refersTo>
-      <test:classB rdf:about="http://example.org/testGraph/nodeB_1"/>
-    </test:refersTo>
-    <test:refersTo>
-      <test:classD rdf:about="http://example.org/testGraph/nodeD_0">
+      <test:classD rdf:about="http://example.org/testGraph#nodeD_0">
         <test:hasLiteral>valid_value</test:hasLiteral>
       </test:classD>
     </test:refersTo>
-    <test:hasLiteral>valid_value</test:hasLiteral>
-  </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_1">
     <test:refersTo>
-      <test:classB rdf:about="http://example.org/testGraph/nodeB_0">
-        <test:refersTo rdf:resource="http://example.org/testGraph/nodeC_0"/>
+      <test:classB rdf:about="http://example.org/testGraph#nodeB_0">
+        <test:refersTo rdf:resource="http://example.org/testGraph#nodeC_0"/>
       </test:classB>
     </test:refersTo>
     <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_8">
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_5">
     <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo>
+      <test:classB rdf:about="http://example.org/testGraph#nodeB_1"/>
+    </test:refersTo>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_9">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_9">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
+    <test:hasLiteral>valid_value</test:hasLiteral>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+  </test:classA>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_19"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_7">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
+    <test:hasLiteral>valid_value</test:hasLiteral>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+  </test:classA>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_3">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_0"/>
     <test:hasLiteral>valid_value</test:hasLiteral>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_10">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_10">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_11">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
-  </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_3">
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_6">
     <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_0"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_6">
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_12">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
+  </test:classA>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_1">
     <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_0"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_2">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_2">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_0"/>
     <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_0"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_12">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
-  </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_15"/>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_13">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
-  </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_7">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_16"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_0">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_0"/>
     <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_14">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_1"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_14">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_4">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_8">
     <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_0">
-    <test:hasLiteral>valid_value</test:hasLiteral>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeB_0"/>
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_13">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
   </test:classA>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_16"/>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_17"/>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_19"/>
-  <test:classA rdf:about="http://example.org/testGraph/nodeA_18"/>
-  <test:classC rdf:about="http://example.org/testGraph/nodeC_0">
-    <test:refersTo rdf:resource="http://example.org/testGraph/nodeD_0"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_17"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_11">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeB_1"/>
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
+  </test:classA>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_15"/>
+  <test:classA rdf:about="http://example.org/testGraph#nodeA_18"/>
+  <test:classC rdf:about="http://example.org/testGraph#nodeC_0">
+    <test:refersTo rdf:resource="http://example.org/testGraph#nodeD_0"/>
   </test:classC>
 </rdf:RDF>

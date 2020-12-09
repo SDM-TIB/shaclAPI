@@ -1,7 +1,7 @@
 from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal
 from rdflib.namespace import RDF, OWL
 
-NAMESPACE = Namespace("http://example.org/testGraph/#") 
+NAMESPACE = Namespace("http://example.org/testGraph#") 
 
 graph = ConjunctiveGraph()
 graph.bind('test', NAMESPACE)
