@@ -4,11 +4,15 @@ import json
 from tests import testingUtils
 import pytest
 import os
+import itertools
 
 FLASK_ENDPOINT='http://localhost:5000/'
-#TESTS_DIR = 'tests/test_definitions'
-#TESTS_DIR = 'tests/tc2/test_definitions'
-TESTS_DIR = 'tests/tc4/test_definitions'
+TESTS_DIRS = [
+    './tests/tc1/test_definitions',
+    './tests/tc2/test_definitions',
+    './tests/tc3/test_definitions',
+    './tests/tc4/test_definitions'
+]
 
 def test_api_up():
     result = requests.get(FLASK_ENDPOINT)
@@ -19,11 +23,15 @@ def test_api_up():
 #    result = requests.get(config['external_endpoint'])
 #    assert result.ok == True
 
-#@pytest.mark.parametrize("file", ['test1.json', 'test2.json', 'test3.json', 'test4.json'])
-@pytest.mark.parametrize("file", ['test1.json', 'test2.json', 'test3.json'])
-#@pytest.mark.parametrize("file", ['dbpedia1.json', 'test1.json', 'test3.json'])
+#files creates the cross-join of all dir-file-combinations.
+#Which are reduced afterwards. Not efficient, but easy...
+files = [os.path.join(*x) for x in itertools.product(TESTS_DIRS, ['test1.json', 'test2.json', 'test3.json', 'test4.json'])]
+files = [f for f in files if os.path.exists(f)]
+@pytest.mark.parametrize("file", files)
 def test_run(file):
-    test = testingUtils.executeTest(os.path.join(TESTS_DIR, file))
+    if not os.path.exists(file):
+        return
+    test = testingUtils.executeTest(file)
     PARAMS = test[0]
     test_type = test[0]['test_type']
     del PARAMS['test_type']
@@ -35,7 +43,6 @@ def test_run(file):
         del json_response['validTargets']
     assert set(json_response) == set(test[1])
     #testingUtils.writeTest('tests/test_definitions/lubm1.json', response.json(), query,testingUtils.TestType.ONLY_VALID)
-
 
 #def test_createTest():
 #    testingUtils.testFromExecution(file='tests/test_definitions/test4.json',
