@@ -42,7 +42,6 @@ BIG_FAMILY_SIZE = 6
 SMALL_FAMILY_SIZE = 2 
 
 def fillUp(set_input, soll):
-    ist = len(set_input)
     result = set_input.copy()
     while len(result) < soll:
         result.add(random.choice(list(set_input)) + '_' + str(random.randint(1,100)))
@@ -95,5 +94,4 @@ for i in range(int(NUMBER_OF_FAMILIES/8)):
 # Rest are Singles --> here Singles don't belong to a Family
 
 # Save Graph to file
-with open("tests/setup/TestData/families2.owl", "wb") as f:
-    f.write(graph.serialize(format='pretty-xml'))
+graph.serialize(destination='tests/tc1/data/tc1_testgraph.owl' ,format='pretty-xml')
