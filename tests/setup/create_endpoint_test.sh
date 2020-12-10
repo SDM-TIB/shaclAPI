@@ -1,8 +1,8 @@
 #!/bin/bash
-if [ $# -gt 1 ]; then
-    path="$(pwd)/TestData"
-else
+if [ $# -gt 0 ]; then
     path=$1
+else
+    path="$(pwd)/TestData"
 fi
 sudo docker stop test_graph
 sudo docker rm test_graph
