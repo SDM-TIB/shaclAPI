@@ -51,8 +51,11 @@ Shapes:
 Tests(Target: ShapeA):
 #  Test Name  # Valid/Invalid   # Involved Constraints                    #
 # ----------- # ----------------# --------------------------------------- # 
-# test1       # 10/10           # test:^refersTo -- min: 2 shape: B       # 
+# test1       # 10/ 5           # test:^refersTo -- min: 2 shape: B       # 
 #             #                 # a classA                                #
-# test2       #  7/13           # test:nonShapeLiteral                    # 
+# test2       #  7/ 0           # test:nonShapeLiteral                    # 
 #             #                 # a classA                                #
 # test3       # 20/ 0           # a classA                                #
+# test4       # 10/ 5           # test:refersTo -- min: 2 shape: A        # 
+#             #                 # a classA                                #
+#             #                 # Same as test1 but with inverted path    #

@@ -8,8 +8,8 @@
 		"conjunctions":[
 			[
 				{ "path": "test2:hasLiteral", "min": 1},
-                { "path": "test2:refersTo", "min": 1, "shape": "ShapeB"},
-                { "path": "test2:refersTo", "min": 1, "shape": "ShapeD"}
+                { "path": "test2:refersToB", "min": 1, "shape": "ShapeB"},
+                { "path": "test2:refersToD", "min": 1, "shape": "ShapeD"}
 			]
 		]
 	}

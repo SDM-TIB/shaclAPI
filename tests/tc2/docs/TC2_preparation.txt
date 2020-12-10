@@ -58,13 +58,14 @@ Shapes:
 Tests(Target: ShapeA):
 #  Test Name  # Valid/Invalid   # Involved Constraints                    #
 # ----------- # ----------------# --------------------------------------  # 
-# test1       #  5/15           # test:hasLiteral -- min: 1               # 
+# test1       #  5/ 5           # test:hasLiteral -- min: 1               # 
 #             #                 # test:refersTo -- min: 1 shape: B        #
 #             #                 # test:refersTo -- min: 1 shape: D        #
 #             #                 # a classA                                #
-# test2       # 10/10           # test:hasLiteral -- min: 1               # 
+# test2       # 10/ 0           # test:hasLiteral -- min: 1               # 
 #             #                 # test:refersTo -- min: 1 shape: D        #
 #             #                 # a classA                                #
-# test3       # 15/ 5           # test:refersTo -- min: 1 shape: D        # 
+# test3       # 15/ 0           # test:refersTo -- min: 1 shape: B        # 
 #             #                 # a classA                                #
 # test4       # 20/ 0           # a classA                                #
+# test5       #  5/ 5           # Same as test1, but not a star-shaped query

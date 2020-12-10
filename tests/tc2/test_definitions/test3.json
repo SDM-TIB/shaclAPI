@@ -3,7 +3,7 @@
     "traversalStrategie": "DFS",
     "schemaDir": "./tests/tc2/shapes",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test2:<http://example.org/testGraph2#>\nSELECT ?x WHERE {\n?x a test2:classA.\n?x test2:refersTo ?y.\n?y a test2:classD\n}",
+    "query": "PREFIX test2:<http://example.org/testGraph2#>\nSELECT ?x WHERE {\n?x a test2:classA.\n?x test2:refersToB ?b\n}",
     "targetShape": "ShapeA",
     "config": "tests/configs/lubm_config.json",
     "result": {
@@ -68,26 +68,6 @@
             ],
             [
                 "http://example.org/testGraph2#nodeA_14",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_15",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_16",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_17",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_18",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_19",
                 "ShapeA"
             ]
         ]
