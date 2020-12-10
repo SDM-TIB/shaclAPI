@@ -4,7 +4,7 @@
     "shapeFormat":"JSON",
     "workInParallel": false,
     "useSelectiveQueries": true,
-    "maxSplit":"256",
+    "maxSplit": 256,
     "ORDERBYinQueries":true,
     "SHACL2SPARQLorder":false
 }

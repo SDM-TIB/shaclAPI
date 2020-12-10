@@ -3,12 +3,8 @@
 - more then one filter --> slow down
 - PrefixHandling: --> Example Prefixes extracted from the star shaped query should be added to the SPARQLPrefixHandler
 
-- Causes Simplification Error (1 Filter without != =)
-
-SELECT DISTINCT ?x WHERE {
-?x test2:refersTo ?inst.
-?x a test2:classA.
-FILTER (?inst NOT IN ( <http://example.org/testGraph2#nodeB_1> )). }
-
-
 - Allow all kind of FILTER's in star shaped queries.
+
+- What to do with not uniquly identifiable possible shape given an incoming query.
+
+

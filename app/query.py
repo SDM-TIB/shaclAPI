@@ -4,6 +4,7 @@ from app.tripleStore import TripleStore
 from rdflib import term
 import json
 from rdflib.plugins.sparql.parserutils import CompValue
+import re
 
 '''
 Representation of a query.
@@ -13,7 +14,15 @@ The Algebra Term is used to extract triples and used when executing a query over
 class Query:
 
     def __init__(self,in_query: str):
-        self.query = in_query.replace(",","")
+        idx = re.finditer('\?\S+,',in_query) # Only remove , separating vars
+        idx = list(idx)
+        last_idx = 0
+        self.query = ''
+        for match in idx:
+            comma_index = match.end()
+            self.query = self.query + in_query[last_idx : comma_index - 1]
+            last_idx = comma_index
+        self.query = self.query + in_query[last_idx:]
         self.query = self.query.replace("AND", "&&")
         self.__parsed_query = None
         self.__triples = None
@@ -116,6 +125,8 @@ class Query:
                 query_string = query_string + triple.n3() + '\n'
             filter_term = ''
             for triple in expr[0]:
+                if not triple[1] in ['!=','=']:
+                    return self
                 filter_term = filter_term + triple[0].n3() + ' ' + triple[1] + ' '+ triple[2].n3() + ' && '
             filter_term = filter_term[:-3]
             query_string = query_string + 'FILTER( '+ filter_term + ' )\n'
