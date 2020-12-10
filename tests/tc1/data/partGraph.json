@@ -1,0 +1,40 @@
+{
+    "namespace": "http://example.org/testGraph1#",
+    "bind": "test1",
+    "classes": {
+        "classA": {
+            "nodeAmount": 21,
+            "has": {
+                "nonshape_value": {
+                    "nonshape_value": [0, 1, 2, 3, 4, 5, 6, 7, 8 ,9,10,11,12,13,14,15,16,17,18]
+                },
+                "nonshape_value2": {
+                    "nonshape_value2": [11,12,13,14,15,16,17,18]
+                }
+            },
+            "belongsTo": {
+                "nodeE": {
+                    "0": [0,1,2,3,7,8],
+                    "1": [6],
+                    "2": [4,5,11,12],
+                    "3": [9,10],
+                    "4": [19,20],
+                    "5": [13,14,16,17],
+                    "6": [15,18]
+                }
+
+            }
+        },
+        "classE": {
+            "nodeAmount": 7,
+            "has": {
+                "nonshape_value1":{
+                    "nonshape_value1": [0,2,3,4,5,6]
+                },
+                "nonshape_value2":{
+                    "nonshape_value2": [0,2,4,6]
+                }
+            }
+        }
+    }
+}

@@ -7,7 +7,7 @@
 	"constraintDef":{
 		"conjunctions":[
 			[
-                { "path": "test4:^refersTo", "min": 2, "shape": "ShapeB"}
+                { "path": "^test4:refersTo", "min": 2, "shape": "ShapeB"}
 			]
 		]
 	}
