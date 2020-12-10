@@ -1,0 +1,47 @@
+{
+    "namespace": "http://example.org/testGraph3#",
+    "bind": "test3",
+    "classes": {
+        "classA": {
+            "nodeAmount": 3,
+            "alpha": {
+                "nodeC": {
+                    "0":[0],
+                    "1":[0,1],
+                    "2":[2]
+                }
+            },
+            "beta": {
+                "literal": {
+                    "literal":[0,2]
+                }
+            }
+        },
+        "classC": {
+            "nodeAmount": 3,
+            "alpha": {
+                "nodeD":{
+                    "0":[0,2],
+                    "1":[1],
+                    "2":[2]
+                }
+
+            }
+        },
+        "classD": {
+            "nodeAmount": 3,
+            "alpha":{
+                "nodeA":{
+                    "0":[0],
+                    "1":[1],
+                    "2":[2]
+                }
+            },
+            "beta":{
+                "literal": {
+                    "literal":[1,2]
+                }
+            }
+        }
+    }
+}
