@@ -47,10 +47,10 @@ def count(graph):
     return result
 
 def query(query):
-    simplified_query = query.simplify()
-    print('Executed Query:')
-    print('\033[02m' + str(simplified_query.query) + '\033[0m\n')
-    return globals.subgraph.query(simplified_query.query)
+    #simplified_query = query.simplify()
+    #print('Executed Query:')
+    #print('\033[02m' + str(simplified_query.query) + '\033[0m\n')
+    return globals.subgraph.query(query.parsed_query)
 
 def clear():
     globals.subgraphStore = IOMemory()

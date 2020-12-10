@@ -25,23 +25,25 @@
                 "ShapeA"
             ],
             [
+                "http://example.org/testGraph1#nodeA_7",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_8",
+                "ShapeA"
+            ],
+            [
                 "http://example.org/testGraph1#nodeA_4",
                 "ShapeA"
             ],
             [
                 "http://example.org/testGraph1#nodeA_5",
                 "ShapeA"
-            ],
+            ]
+       ],
+        "invalidTargets": [
             [
                 "http://example.org/testGraph1#nodeA_6",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph1#nodeA_7",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph1#nodeA_8",
                 "ShapeA"
             ],
             [
@@ -51,9 +53,7 @@
             [
                 "http://example.org/testGraph1#nodeA_10",
                 "ShapeA"
-            ]
-       ],
-        "invalidTargets": [
+            ],
             [
                 "http://example.org/testGraph1#nodeA_11",
                 "ShapeA"

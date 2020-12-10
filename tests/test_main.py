@@ -25,7 +25,7 @@ def test_api_up():
 
 #files creates the cross-join of all dir-file-combinations.
 #Which are reduced afterwards. Not efficient, but easy...
-files = [os.path.join(*x) for x in itertools.product(TESTS_DIRS, ['test1.json', 'test2.json', 'test3.json', 'test4.json', 'test5.json'])]
+files = [os.path.join(*x) for x in itertools.product(TESTS_DIRS, ['test1.json', 'test2.json', 'test3.json', 'test4.json', 'test5.json','test6.json','test7.json', 'test8.json','test9.json'])]
 files = [f for f in files if os.path.exists(f)]
 @pytest.mark.parametrize("file", files)
 def test_run(file):

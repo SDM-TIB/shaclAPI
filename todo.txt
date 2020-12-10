@@ -3,8 +3,8 @@
 - more then one filter --> slow down
 - PrefixHandling: --> Example Prefixes extracted from the star shaped query should be added to the SPARQLPrefixHandler
 
-- Allow all kind of FILTER's in star shaped queries.
+- Allow all kind of FILTER's in star shaped queries. (tc1/test3)
+- What to do with not unique identifiable shape given an incoming query?
 
-- What to do with not uniquly identifiable possible shape given an incoming query.
-
+- We only validate/invalidate the instances given by the star shaped query --> Option to return the rest of the instances as invalid?
 
