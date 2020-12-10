@@ -37,60 +37,7 @@
                 "ShapeA"
             ]
        ],
-        "invalidTargets": [
-            [
-                "http://example.org/testGraph4#nodeA_5",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_6",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_7",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_8",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_9",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_12",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_13",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_14",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_15",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_16",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_17",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_18",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph4#nodeA_19",
-                "ShapeA"
-            ]
-        ]
+        "invalidTargets": []
     },
     "test_type": "both"
 }

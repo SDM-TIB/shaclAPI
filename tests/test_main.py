@@ -2,7 +2,7 @@ import requests
 import config_parser as Configs
 import json
 from tests import testingUtils
-import pytest
+import pytest, warnings
 import os
 import itertools
 
@@ -25,7 +25,7 @@ def test_api_up():
 
 #files creates the cross-join of all dir-file-combinations.
 #Which are reduced afterwards. Not efficient, but easy...
-files = [os.path.join(*x) for x in itertools.product(TESTS_DIRS, ['test1.json', 'test2.json', 'test3.json', 'test4.json'])]
+files = [os.path.join(*x) for x in itertools.product(TESTS_DIRS, ['test1.json', 'test2.json', 'test3.json', 'test4.json', 'test5.json'])]
 files = [f for f in files if os.path.exists(f)]
 @pytest.mark.parametrize("file", files)
 def test_run(file):
@@ -40,11 +40,17 @@ def test_run(file):
     print(json_response.keys())
     print(test[1].keys())
     for key in test[1].keys():
-        json_set_of_tuples = set([(item[0], item[1]) for item in json_response[key]])
-        test_set_of_tuples = set([(item[0], item[1]) for item in test[1][key]])
-        assert json_set_of_tuples == test_set_of_tuples
-   
-   
+        json_set_of_tuples = sorted([(item[0], item[1]) for item in json_response[key]], key=lambda x: x[0])
+        test_set_of_tuples = sorted([(item[0], item[1]) for item in test[1][key]], key=lambda x: x[0])
+
+        if len(json_set_of_tuples) != 0 and len(test_set_of_tuples) != 0:
+            json_set_of_targets, json_set_of_shapes = zip(*json_set_of_tuples)
+            test_set_of_targets, test_set_of_shapes = zip(*test_set_of_tuples)
+            assert json_set_of_targets == test_set_of_targets
+            if json_set_of_shapes != test_set_of_shapes:
+                differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
+                warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
+        assert len(json_set_of_tuples) == len(test_set_of_tuples)  
    
    
     #testingUtils.writeTest('tests/test_definitions/lubm1.json', response.json(), query,testingUtils.TestType.ONLY_VALID)
