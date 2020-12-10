@@ -33,15 +33,20 @@ def test_run(file):
         return
     test = testingUtils.executeTest(file)
     PARAMS = test[0]
-    test_type = test[0]['test_type']
-    del PARAMS['test_type']
+    if 'test_type' in PARAMS:
+        del PARAMS['test_type']
     response = requests.post(FLASK_ENDPOINT + 'go', data=PARAMS)
     json_response = response.json()
-    if test_type == testingUtils.TestType.ONLY_VALID:
-        del json_response['invalidTargets']
-    elif test_type == testingUtils.TestType.ONLY_INVALID:
-        del json_response['validTargets']
-    assert set(json_response) == set(test[1])
+    print(json_response.keys())
+    print(test[1].keys())
+    for key in test[1].keys():
+        json_set_of_tuples = set([(item[0], item[1]) for item in json_response[key]])
+        test_set_of_tuples = set([(item[0], item[1]) for item in test[1][key]])
+        assert json_set_of_tuples == test_set_of_tuples
+   
+   
+   
+   
     #testingUtils.writeTest('tests/test_definitions/lubm1.json', response.json(), query,testingUtils.TestType.ONLY_VALID)
 
 #def test_createTest():

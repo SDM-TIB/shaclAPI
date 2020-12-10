@@ -39,7 +39,7 @@ def writeTest(file, response, query,test_type, **args):
     else:
         pass
     
-    given_test_params = {"result": response, "query": query, "test_type": test_type}
+    given_test_params = {"result": response, "query": query}
     given_test_params.update(args)
     global DEFAULT_PARAMS
     test = DEFAULT_PARAMS.copy()
