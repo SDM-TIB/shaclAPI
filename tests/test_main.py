@@ -27,6 +27,7 @@ def test_api_up():
 #Which are reduced afterwards. Not efficient, but easy...
 files = [os.path.join(*x) for x in itertools.product(TESTS_DIRS, ['test1.json', 'test2.json', 'test3.json', 'test4.json', 'test5.json','test6.json','test7.json', 'test8.json','test9.json'])]
 files = [f for f in files if os.path.exists(f)]
+files = ['./tests/tc2/test_definitions/test2.json']
 @pytest.mark.parametrize("file", files)
 def test_run(file):
     if not os.path.exists(file):
@@ -39,6 +40,7 @@ def test_run(file):
     json_response = response.json()
     print(json_response.keys())
     print(test[1].keys())
+    print(json_response["advancedValid"])
     for key in test[1].keys():
         json_set_of_tuples = sorted([(item[0], item[1]) for item in json_response[key]], key=lambda x: x[0])
         test_set_of_tuples = sorted([(item[0], item[1]) for item in test[1][key]], key=lambda x: x[0])

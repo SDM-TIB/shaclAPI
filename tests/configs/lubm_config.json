@@ -6,5 +6,6 @@
     "useSelectiveQueries": true,
     "maxSplit": 256,
     "ORDERBYinQueries":true,
-    "SHACL2SPARQLorder":false
+    "SHACL2SPARQLorder":false,
+    "advancedOutput":true
 }

@@ -106,6 +106,7 @@ def run():
     globals.targetShape = None
     globals.endpoint = None
     globals.filter_clause = ''
+    globals.ADVANCED_OUTPUT = False
 
     # Parse POST Arguments
     task = Eval.parse_task_string(request.form['task'])    
@@ -123,6 +124,9 @@ def run():
         print("Using default config File!!")
         config = Configs.read_and_check_config('config.json')
     print(config)
+    #Advanced output FLAG, set for test runs with additional output
+    globals.ADVANCED_OUTPUT = config['advancedOutput']
+
     globals.endpoint = SPARQLWrapper(config['external_endpoint'])
 
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)
@@ -225,6 +229,15 @@ def run():
             valid["validTargets"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred == globals.targetShape])
         if report[s].get("invalid_instances"):
             valid["invalidTargets"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred == globals.targetShape])
+    #Return full report, if ADVANCED_OUTPUT is set
+    if globals.ADVANCED_OUTPUT:
+        valid["advancedValid"] = []
+        valid["advancedInvalid"] = []
+        for s in report:
+            if report[s].get("valid_instances"):
+                valid["advancedValid"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred != globals.targetShape])
+            if report[s].get("invalid_instances"):
+                valid["advancedInvalid"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred != globals.targetShape])
     return Response(json.dumps(valid), mimetype='application/json')
 
 @app.route("/", methods=['GET'])

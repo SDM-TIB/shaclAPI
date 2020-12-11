@@ -25,6 +25,7 @@ referred_by = dict()
 targetShape = None
 shape_queried = dict()
 filter_clause = ''
+ADVANCED_OUTPUT = False
 
 # Used by variableStore
 shape_to_var = dict()
