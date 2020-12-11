@@ -5,15 +5,24 @@ from tests import testingUtils
 import pytest, warnings
 import os
 import itertools
+from glob import glob
 
 FLASK_ENDPOINT='http://localhost:5000/'
 TESTS_DIRS = [
-    './tests/tc1/test_definitions',
-    './tests/tc2/test_definitions',
-    './tests/tc3/test_definitions',
-    './tests/tc4/test_definitions'
+    './tests/tc1/test_definitions/',
+    './tests/tc2/test_definitions/',
+    './tests/tc3/test_definitions/',
+    './tests/tc4/test_definitions/'
 ]
 
+def get_all_files():
+    all_files = []
+    for d in TESTS_DIRS:
+        test_files = glob(d+'*.json')
+        all_files.extend(test_files)
+    return all_files
+
+@pytest.mark.dependency()
 def test_api_up():
     result = requests.get(FLASK_ENDPOINT)
     assert result.ok == True
@@ -23,24 +32,17 @@ def test_api_up():
 #    result = requests.get(config['external_endpoint'])
 #    assert result.ok == True
 
-#files creates the cross-join of all dir-file-combinations.
-#Which are reduced afterwards. Not efficient, but easy...
-files = [os.path.join(*x) for x in itertools.product(TESTS_DIRS, ['test1.json', 'test2.json', 'test3.json', 'test4.json', 'test5.json','test6.json','test7.json', 'test8.json','test9.json'])]
-files = [f for f in files if os.path.exists(f)]
-#files = ['./tests/tc2/test_definitions/test2.json']
-@pytest.mark.parametrize("file", files)
+
+@pytest.mark.parametrize("file", get_all_files())
+@pytest.mark.dependency(depends=["test_api_up"])
 def test_run(file):
-    if not os.path.exists(file):
-        return
     test = testingUtils.executeTest(file)
     PARAMS = test[0]
     if 'test_type' in PARAMS:
         del PARAMS['test_type']
     response = requests.post(FLASK_ENDPOINT + 'go', data=PARAMS)
+    assert response.status_code == 200, "Server-sided error, check server output for details"
     json_response = response.json()
-    print(json_response.keys())
-    print(test[1].keys())
-    print(json_response["advancedValid"])
     for key in test[1].keys():
         json_set_of_tuples = sorted([(item[0], item[1]) for item in json_response[key]], key=lambda x: x[0])
         test_set_of_tuples = sorted([(item[0], item[1]) for item in test[1][key]], key=lambda x: x[0])
@@ -48,7 +50,7 @@ def test_run(file):
         if len(json_set_of_tuples) != 0 and len(test_set_of_tuples) != 0:
             json_set_of_targets, json_set_of_shapes = zip(*json_set_of_tuples)
             test_set_of_targets, test_set_of_shapes = zip(*test_set_of_tuples)
-            assert json_set_of_targets == test_set_of_targets
+            assert json_set_of_targets == test_set_of_targets, "Reported instances differ from expected result for: {}".format(key)
             if json_set_of_shapes != test_set_of_shapes:
                 differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
                 warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
