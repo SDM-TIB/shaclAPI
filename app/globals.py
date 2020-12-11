@@ -24,6 +24,7 @@ network = None
 referred_by = dict()
 targetShape = None
 shape_queried = dict()
+filter_clause = ''
 
 # Used by variableStore
 shape_to_var = dict()

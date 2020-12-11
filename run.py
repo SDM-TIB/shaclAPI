@@ -8,7 +8,7 @@ import os
 import time
 import logging
 import json
-
+import re
 
 sys.path.append('./travshacl')
 from travshacl.reduction.ReducedShapeNetwork import ReducedShapeNetwork
@@ -60,7 +60,7 @@ def endpoint():
         print('Paths: ' + pathToString(paths))
 
         for path in paths:
-            construct_query = Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,path,s_id)
+            construct_query = Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,path,s_id,globals.filter_clause)
             #print("Construct Query: ")
             #print(str(construct_query) + '\n')
             SubGraph.extendWithConstructQuery(construct_query)
@@ -105,6 +105,7 @@ def run():
     globals.shape_to_var = dict()
     globals.targetShape = None
     globals.endpoint = None
+    globals.filter_clause = ''
 
     # Parse POST Arguments
     task = Eval.parse_task_string(request.form['task'])    
@@ -157,10 +158,55 @@ def run():
         printSet(TripleStore(s.id).getTriples())
     
     # Extract all the triples which are limiting the target shape by adding additional references to Objects.
-    globals.initial_query_triples = initial_query.triples
-    for query_triple in globals.initial_query_triples.copy():
+    globals.initial_query_triples = initial_query.triples.copy()
+    for query_triple in globals.initial_query_triples:
         if not isinstance(query_triple.object, term.URIRef):
             globals.initial_query_triples.remove(query_triple)
+    
+    # Extract all FILTER terms
+    filter_terms = re.findall('FILTER\(.*\)',initial_query.query,re.DOTALL)
+    for filter_term in filter_terms:
+        globals.filter_clause = globals.filter_clause + filter_term + '.\n'
+
+    print('Initial Query Filters')
+    printSet(filter_terms)
+
+    variables_in_filters = initial_query.variablesInFilter()
+    filter_expressions = initial_query.filters
+    print(filter_expressions)
+
+    shape_to_var_changed = False
+    initial_query_triple_store = TripleStore.fromSet(initial_query.triples)
+    target_shape_triple_store = TripleStore(globals.targetShape)
+    var_to_shape = {var: shape for shape,var in globals.shape_to_var.items()}
+    for variable in variables_in_filters:
+        variable_set = False
+        origin_triples = initial_query_triple_store.getTriplesReferingToVar(variable)
+        print(origin_triples)
+        for triple in origin_triples:
+            if triple.subject.n3() == variable.n3():
+                pass #TODO: Implement analogue but match triple.predicat, triple.object
+            else:
+                print(triple)
+                matched_target_triples = target_shape_triple_store.getTriplesWith(triple.subject,triple.predicat)
+                for matched_triple in matched_target_triples:
+                    globals.shape_to_var[var_to_shape[matched_triple.object]] = variable
+                    shape_to_var_changed = True
+                    variable_set = True
+        if variable_set == False:
+            for triple in origin_triples:
+                globals.initial_query_triples.append(triple)
+    
+    if shape_to_var_changed == True:
+        # Rebuild TripleStores for each Shape
+        for s in globals.network.shapes:
+            TripleStore.fromShape(s)
+            print(s.id)
+            printSet(TripleStore(s.id).getTriples())
+
+    #print(variables_in_filters)
+
+
     print('Initial Query Triples')
     printSet(globals.initial_query_triples)
 
@@ -168,7 +214,7 @@ def run():
         globals.shape_queried[s.id] = False
     
     # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized
-    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,[],globals.targetShape))
+    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,[],globals.targetShape,globals.filter_clause))
     globals.shape_queried[globals.targetShape] = True
 
     # Run the evaluation of the SHACL constraints over the specified endpoint

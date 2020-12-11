@@ -26,6 +26,7 @@ class Query:
         self.query = self.query.replace("AND", "&&")
         self.__parsed_query = None
         self.__triples = None
+        self.__filters = None
 
     @property
     def parsed_query(self):
@@ -70,11 +71,13 @@ class Query:
         with open(path,'w') as f:
             json.dump(str(self.parsed_query.algebra),f, indent=1)
     
-    # this won't work if the query contains more then one filter
-    def getFilter(self):
-        parsed_algebra = self.parsed_query.algebra
-        result_filter = self.__getFilter(parsed_algebra)
-        return result_filter[0]
+    @property
+    def filters(self):
+        if self.__filters == None:
+            parsed_algebra = self.parsed_query.algebra
+            result_filter = self.__getFilter(parsed_algebra)
+            self.__filters = result_filter[0]
+        return self.__filters
      
 
     def __getFilter(self,algebra: dict):
@@ -105,8 +108,30 @@ class Query:
             return []
         return result
     
+    def variablesInFilter(self):
+        result = []
+        filters = self.filters
+        if filters:
+            for expression in filters:
+                result = result + self.__variablesInFilter(expression)
+            return result
+        else:
+            return list()
+
+    def __variablesInFilter(self,expression):
+        result = list()
+        if isinstance(expression,dict):
+            for key,value in expression.items():
+                result = result + self.__variablesInFilter(value)
+        elif isinstance(expression,list) or isinstance(expression, tuple):
+            for item in expression:
+                result = result + self.__variablesInFilter(item)
+        elif isinstance(expression,term.Variable):
+            return [expression]
+        return result
+         
     def simplify(self):
-        expr = self.getFilter()
+        expr = self.filters
         if len(expr) == 0:
             query_string = 'SELECT DISTINCT ' 
             for var in self.queriedVars:
@@ -136,10 +161,10 @@ class Query:
             return self            
 
     @classmethod
-    def constructQueryFrom(self,targetShape, initial_query_triples, path, shape_id):
+    def constructQueryFrom(self,targetShape, initial_query_triples, path, shape_id, filter_clause):
         if targetShape != shape_id:
             where_clause = TripleStore.fromSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(initial_query_triples)).n3()
-            query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + '}'
+            query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + filter_clause +'}'
         else:
-            query = 'CONSTRUCT {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + '} WHERE {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + '}'
+            query = 'CONSTRUCT {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + '} WHERE {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + filter_clause + '}'
         return self(query)

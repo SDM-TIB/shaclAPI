@@ -35,6 +35,13 @@ class TripleStore():
             if triple.predicat.n3() == pred.n3() and triple.subject.n3() == sub.n3():
                 result = result + [triple]
         return result
+    
+    def getTriplesReferingToVar(self,var):
+        result = []
+        for triple in globals.tripleStorage[self.name]:
+            if triple.object.n3() == var.n3() or triple.subject.n3() == var.n3():
+                result = result + [triple]
+        return result
 
     def __len__(self):
         return len(globals.tripleStorage[self.name])
