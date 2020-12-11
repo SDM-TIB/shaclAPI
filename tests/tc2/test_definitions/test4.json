@@ -89,7 +89,9 @@
                 "ShapeA"
             ]
        ],
-        "invalidTargets": []
+        "invalidTargets": [],
+        "advancedValid": [],
+        "advancedInvalid": []
     },
     "test_type": "both"
 }

@@ -49,46 +49,26 @@
             [
                 "http://example.org/testGraph2#nodeA_9",
                 "ShapeB"
+            ]
+        ],
+        "advancedValid": [
+            [
+                "http://example.org/testGraph2#nodeB_0",
+                "ShapeB"
             ],
             [
-                "http://example.org/testGraph2#nodeA_10",
-                "ShapeA"
+                "http://example.org/testGraph2#nodeC_0",
+                "ShapeC"
             ],
             [
-                "http://example.org/testGraph2#nodeA_11",
-                "ShapeA"
-            ],
+                "http://example.org/testGraph2#nodeD_0",
+                "ShapeD"
+            ]
+        ],
+        "advancedInvalid": [
             [
-                "http://example.org/testGraph2#nodeA_12",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_13",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_14",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_15",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_16",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_17",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_18",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph2#nodeA_19",
-                "ShapeA"
+                "http://example.org/testGraph2#nodeB_1",
+                "ShapeB"
             ]
         ]
     },

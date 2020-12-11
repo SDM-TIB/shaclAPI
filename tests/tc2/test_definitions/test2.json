@@ -49,7 +49,14 @@
                 "ShapeA"
             ]
        ],
-        "invalidTargets": []
+        "invalidTargets": [],
+        "advancedValid": [
+            [
+                "http://example.org/testGraph2#nodeD_0",
+                "ShapeD"
+            ]
+        ],
+        "advancedInvalid": []
     },
     "test_type": "both"
 }

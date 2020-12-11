@@ -65,7 +65,7 @@ Tests(Target: ShapeA):
 # test2       # 10/ 0           # test:hasLiteral -- min: 1               # 
 #             #                 # test:refersTo -- min: 1 shape: D        #
 #             #                 # a classA                                #
-# test3       # 15/ 0           # test:refersTo -- min: 1 shape: B        # 
+# test3       #  5/10           # test:refersTo -- min: 1 shape: B        # 
 #             #                 # a classA                                #
 # test4       # 20/ 0           # a classA                                #
 # test5       #  5/ 5           # Same as test1, but not a star-shaped query
