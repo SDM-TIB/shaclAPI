@@ -3,10 +3,11 @@ import config_parser as Configs
 import json
 from tests import testingUtils
 import pytest, warnings
-import os
+import os, sys
 import itertools
 from glob import glob
 
+TRAV_DIR = 'travshacl/'
 FLASK_ENDPOINT='http://localhost:5000/'
 TESTS_DIRS = [
     './tests/tc1/test_definitions/',
@@ -18,7 +19,7 @@ TESTS_DIRS = [
 def get_all_files():
     all_files = []
     for d in TESTS_DIRS:
-        test_files = glob(d+'*.json')
+        test_files = glob(d + '*.json')
         all_files.extend(test_files)
     return all_files
 
@@ -31,6 +32,20 @@ def test_api_up():
 #    config = Configs.read_and_check_config(PARAMS['config'])
 #    result = requests.get(config['external_endpoint'])
 #    assert result.ok == True
+
+@pytest.mark.parametrize("file", get_all_files())
+def test_trav(file):
+    namespace = testingUtils.get_trav_args(file)
+    test_dir = os.getcwd()
+    os.chdir(TRAV_DIR)
+    try:
+        sys.path.append(os.getcwd())
+        from validation.Eval import Eval
+        sys.path.remove(os.getcwd())
+        response = Eval(namespace)        
+    finally:
+        os.chdir(test_dir)
+
 
 
 @pytest.mark.parametrize("file", get_all_files())
