@@ -2,6 +2,8 @@ import re
 from validation.ShapeParser import ShapeParser
 from validation.core.GraphTraversal import GraphTraversal
 from validation.sparql.SPARQLPrefixHandler import getPrefixes
+from rdflib.paths import Path
+from rdflib import Namespace
 
 class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShape):
@@ -9,6 +11,16 @@ class ReducedShapeParser(ShapeParser):
         self.query = query
         self.targetShape = targetShape
         self.currentShape = None
+
+    def _as_path(self, term):
+        t_inv = term.startswith('^')
+        t_split = term.rfind(':')
+        t_namespace = getPrefixes()[term[t_inv:t_split]][1:-1]
+        t_path = term[t_split+1:]
+        path = Namespace(t_namespace)[t_path]
+        #if t_inv:
+        #    return ~path
+        return path
 
     def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
         shapes = super().parseShapesFromDir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
@@ -22,12 +34,12 @@ class ReducedShapeParser(ShapeParser):
 
     def parseConstraint(self, varGenerator, obj, id, targetDef):
         if self.targetShape == self.currentShape:
-            extended_path = extend(obj['path'])
-            if not [t for t in self.query.triples if str(t.predicat) == extended_path]:
+            extended_path = self._as_path(obj['path'])
+            if not [t for t in self.query.triples if t.predicat == extended_path]:
                 return None
         elif obj.get('shape') == self.targetShape:
-            extended_path = extend(obj['path'])
-            if not [t for t in self.query.triples if str(t.predicat) == extended_path]:
+            extended_path = self._as_path(obj['path'])
+            if not [t for t in self.query.triples if t.predicat == extended_path]:
                 return None
         return super().parseConstraint(varGenerator, obj, id, targetDef)
 
@@ -39,8 +51,8 @@ class ReducedShapeParser(ShapeParser):
             if shape:
                 #Reference from or to targetShape
                 if shape == self.targetShape or self.currentShape == self.targetShape:
-                    extended_path = extend(path)
-                    if [t for t in self.query.triples if str(t.predicat) == extended_path]:
+                    extended_path = self._as_path(path)
+                    if [t for t in self.query.triples if t.predicat == extended_path]:
                         references[shape] = path
                 else:
                     references[shape] = path
@@ -59,7 +71,3 @@ class ReducedShapeParser(ShapeParser):
                     if ref == self.targetShape:
                         reverse_dependencies[ref].append(name)
         return dependencies, reverse_dependencies
-
-def extend(term):
-    index = term.rfind(":")
-    return str(getPrefixes()[term[:index]][1:-1]) + term[index+1:]

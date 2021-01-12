@@ -1,5 +1,7 @@
 from __future__ import annotations
 import rdflib.term as term
+import rdflib.paths as paths
+from rdflib import Namespace
 
 class Triple():
     '''
@@ -8,9 +10,14 @@ class Triple():
     '''
 
     def __init__(self, s, p, o):
-        self.subject = s
-        self.predicat = p
-        self.object = o
+        if isinstance(p, paths.InvPath):
+            self.subject = o
+            self.predicat = p.arg
+            self.object = s
+        else:
+            self.subject = s
+            self.predicat = p
+            self.object = o
 
     def __str__(self) -> str:
         '''
@@ -28,8 +35,6 @@ class Triple():
         return hash(str((str(self.subject.n3()),str(self.predicat.n3()),type(str(self.object.n3())))))
     
     def n3(self) -> str:
-        if self.predicat.n3().startswith('^'):
-            return str(self.object.n3()) + ' ' + str(self.predicat.n3())[1:] + ' ' + str(self.subject.n3()) + '.' 
         return str(self.subject.n3()) + ' ' + str(self.predicat.n3()) + ' ' + str(self.object.n3()) + '.'
     
     def replaceX(self,var: term.Variable) -> Triple:
