@@ -1,0 +1,12 @@
+{
+	"name": "Course",
+	"constraintDef": {
+		"conjunctions": [
+			[
+				{ "path": "ub:name", "min":  1},
+				{ "path": "ub:name", "max":  1},
+				{ "path": "rdf:type", "min": 1, "value": "ub:Course" }
+			]
+		]
+	}
+}

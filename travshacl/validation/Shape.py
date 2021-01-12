@@ -34,7 +34,6 @@ class Shape:
         self.bindings = set()
         self.invalidBindings = set()
         self.hasValidInstances = True
-        self.remainingTargetsCount = 0
 
         self.useSelectiveQueries = useSelectiveQueries
         self.maxSplitSize = maxSplitSize
@@ -192,12 +191,6 @@ class Shape:
                         True
                         )] + \
                 maxQueries
-
-    def getRemainingTargetsCount(self):
-        return self.remainingTargetsCount
-
-    def setRemainingTargetsCount(self, remainingTargets):
-        self.remainingTargetsCount = remainingTargets
 
     def addParentShape(self, parentName):
         return self.parentShapes.add(parentName)

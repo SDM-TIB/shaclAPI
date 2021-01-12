@@ -8,6 +8,7 @@ import math
 # from validation.rule_based_validation.utils.contactsource import contactSource
 # from multiprocessing import Queue
 
+
 class InstancesRetrieval:
     def __init__(self, endpoint_URL, shapes_dict, log_output, stats):
         self.endpointURL = endpoint_URL
@@ -53,7 +54,7 @@ class InstancesRetrieval:
         '''
         query = shape.getTargetQuery()  # targetQuery is set in shape's definition file (json file)
         bindings = self.run_target_query(shape, query)
-        shape.setRemainingTargetsCount(len(bindings))
+
         # NOTE: when using contactsource.py, the binding value has to be changed from 'b["x"]["value"]' to 'b'
         return {Literal(shape.getId(), b["x"]["value"], True) for b in bindings}  # target literals
 
@@ -196,8 +197,6 @@ class InstancesRetrieval:
             inv_target_literals = self.get_invalid_targets(
                 shape, "invalid", prev_val_list, prev_inv_list, prev_eval_shape_name)
             self.log_output.write("\nNumber of targets: " + str(len(inv_target_literals)))
-
-        shape.setRemainingTargetsCount(len(target_literals))
 
         return target_literals, inv_target_literals
 

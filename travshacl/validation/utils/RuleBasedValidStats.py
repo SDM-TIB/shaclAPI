@@ -5,6 +5,7 @@ class RuleBasedValidStats:
         self.initialTargets = 0
 
         self.maxRuleNumber = 0
+        self.totalRuleNumber = 0
         self.totalSolutionMappings = 0
         self.maxSolutionMappings = 0
 
@@ -56,6 +57,8 @@ class RuleBasedValidStats:
     def recordNumberOfRules(self, k):
         if k > self.maxRuleNumber:
             self.maxRuleNumber = k
+
+        self.totalRuleNumber += k
 
     def recordNumberOfSolutionMappings(self, k):
         if k > self.maxSolutionMappings:
