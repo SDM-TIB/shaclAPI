@@ -69,11 +69,14 @@ class TripleStore():
         constraint_triple_set = set()
 
         for constraint, i in zip(shape.constraints, range(len(shape.constraints))):
-            if constraint.value != None:
+            if constraint.value != None: 
+                # In that case we have an URI given
                 objNode = term.URIRef(extend(constraint.value))
             elif constraint.shapeRef != None:
+                # In that case we eventually have to reuse a variable...TODO: That's not always correct here loops!
                 objNode = globals.shape_to_var[constraint.shapeRef]
             else:
+                # Not further specified constraint
                 objNode  = term.Variable('c_' + str(i) + globals.shape_to_var[shape.id])
 
             if constraint.path.startswith('^'):
