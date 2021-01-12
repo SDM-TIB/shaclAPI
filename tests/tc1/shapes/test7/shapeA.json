@@ -7,8 +7,8 @@
 	"constraintDef":{
 		"conjunctions":[
 			[
-                { "path": "test1:belongsTo", "min": 1, "shape": "ShapeE_small"},
-                { "path": "test1:belongsTo", "max": 1, "shape": "ShapeE_small"}
+                { "path": "test1:belongsTo", "min": 1, "shape": "ShapeEsmall"},
+                { "path": "test1:belongsTo", "max": 1, "shape": "ShapeEsmall"}
 			]
 		]
 	}

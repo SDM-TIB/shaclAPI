@@ -1,0 +1,29 @@
+-----------------------------------------------------------------------------------------------------------------------------------------
+Shape Namen dürfen kein Undescore enthalten!
+validation/rule_based_validation/Validation.py --> atom_pattern.getPredicate().split("_")[0]
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+if one deletes SHACL VALIDATION API/output 
+    
+    Traceback (most recent call last):
+  File "/home/julian/Development/SHACL Validation API/env/lib/python3.8/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/julian/Development/SHACL Validation API/env/lib/python3.8/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/julian/Development/SHACL Validation API/env/lib/python3.8/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/julian/Development/SHACL Validation API/env/lib/python3.8/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/julian/Development/SHACL Validation API/env/lib/python3.8/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/julian/Development/SHACL Validation API/env/lib/python3.8/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/julian/Development/SHACL Validation API/run.py", line 225, in run
+    report = globals.network.validate()
+  File "./travshacl/validation/ShapeNetwork.py", line 129, in validate
+    instancesReport = self.getInstances(node_order, option)
+  File "./travshacl/validation/ShapeNetwork.py", line 187, in getInstances
+    fileManagement.openFile(self.outputDirName, "validation.log"),
+  File "./travshacl/validation/utils/fileManagement.py", line 4, in openFile
+    return open(path + fileName, "w")
+FileNotFoundError: [Errno 2] No such file or directory: './output/validation.log'
