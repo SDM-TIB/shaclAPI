@@ -1,6 +1,6 @@
 import rdflib as rdflib
 import app.globals as globals
-from rdflib import Namespace
+import app.shapeGraph as ShapeGraph
 
 def printSet(input):
     for elem in input:
@@ -16,17 +16,6 @@ def pathToString(paths):
             result = result + str(triple) + ','
         result = result[0:-1] + ']'
     return result
-
-
-def extend(term):
-        t_inv = term.startswith('^')
-        t_split = term.rfind(':')
-        t_namespace = globals.namespaces[term[t_inv:t_split]]
-        t_path = term[t_split+1:]
-        path = Namespace(t_namespace)[t_path]
-        #if t_inv:
-        #    return ~path
-        return path
 
 # def extend(term):
 #     index = term.rfind(":")

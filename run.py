@@ -101,7 +101,7 @@ def run():
     # Clear Globals
     SubGraph.clear()
     ShapeGraph.clear()
-    globals.referred_by = dict()
+    Path.clearReferredByDictionary()
     globals.shape_to_var = dict()
     globals.targetShape = None
     globals.endpoint = None
@@ -143,11 +143,7 @@ def run():
     ShapeGraph.constructAndSetGraphFromShapes(globals.network.shapes)
     
     # Construct globals.referred_by Dictionary (used to build Paths to Target Shapes)
-    for s in globals.network.shapes:
-        for obj,pred in s.referencedShapes.items():
-            if not obj in globals.referred_by:
-                globals.referred_by[obj] = []
-            globals.referred_by[obj].append({'shape': s.id, 'pred': pred})
+    Path.computeReferredByDictionary(globals.network.shapes)
     print('\nReferred by Dictionary: ' + str(globals.referred_by))
 
     # Set a Variable for each Shape

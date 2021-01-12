@@ -1,7 +1,17 @@
 import app.globals as globals
 from app.triple import Triple
 from rdflib.term import URIRef
-from app.utils import extend
+from app.shapeGraph import extend
+
+def computeReferredByDictionary(shapes):
+    for s in shapes:
+        for obj,pred in s.referencedShapes.items():
+            if not obj in globals.referred_by:
+                globals.referred_by[obj] = []
+            globals.referred_by[obj].append({'shape': s.id, 'pred': pred})
+
+def clearReferredByDictionary():
+    globals.referred_by = dict()
 
 def computePathsToTargetShape(shape_id, path):
     if globals.targetShape == shape_id:

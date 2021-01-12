@@ -2,7 +2,7 @@ import app.globals as globals
 from app.utils import printSet
 from rdflib import term
 from app.triple import Triple
-from app.utils import extend
+from app.shapeGraph import extend
 
 class TripleStore():
     '''

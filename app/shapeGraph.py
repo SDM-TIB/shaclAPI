@@ -1,6 +1,5 @@
 import app.globals as globals
 from app.triple import Triple
-from app.utils import extend
 from rdflib import Graph
 from rdflib import term
 from rdflib import BNode
@@ -8,6 +7,7 @@ from rdflib.plugins.sparql import algebra
 from rdflib.plugins.sparql.results.graph import GraphResultParser
 import re
 from travshacl.validation.Shape import Shape
+from rdflib import Namespace
 
 from typing import List
 
@@ -66,6 +66,19 @@ def setPrefixes(namespace):
     for name in namespace:
         globals.shapeGraph.bind(name[0],name[1])
     globals.namespaces = {key: value for (key,value) in [i for i in globals.shapeGraph.namespaces()]}
+
+def getPrefix(shorthand):
+    return globals.namespaces[shorthand]
+
+def extend(term):
+        t_inv = term.startswith('^')
+        t_split = term.rfind(':')
+        t_namespace = getPrefix(term[t_inv:t_split])
+        t_path = term[t_split+1:]
+        path = Namespace(t_namespace)[t_path]
+        #if t_inv:
+        #    return ~path
+        return path
 
 def uriRefToShapeId(uri):
     index = str(uri).rfind("shapes/")
