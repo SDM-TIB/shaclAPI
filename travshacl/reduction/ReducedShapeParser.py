@@ -59,7 +59,9 @@ class ReducedShapeParser(ShapeParser):
             #predicates are normalized to the extended, non-inverted form
             #self.query.triples is assumed to be non-inverted in all cases
             extended_path = self._as_path(obj['path'])
-            for t in self.query.triples:
+            self.printSet(self.query.triples(normalized=True))
+            self.printSet(self.query.triples(normalized=False))
+            for t in self.query.triples(normalized=True):
                 if t.predicat == extended_path:
                     return super().parseConstraint(varGenerator, obj, id, targetDef)
             return None
@@ -81,3 +83,9 @@ class ReducedShapeParser(ShapeParser):
                     if ref == self.targetShape:
                         reverse_dependencies[ref].append(name)
         return dependencies, reverse_dependencies
+
+    def printSet(self,input):
+        for elem in input:
+            print(str(elem))
+        if len(input) == 0:
+            print("-")

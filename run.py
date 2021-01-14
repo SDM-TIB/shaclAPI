@@ -44,7 +44,7 @@ def endpoint():
     print('\033[02m' + str(query) + '\033[0m\n')
 
     # Extract Triples of the given Query to identify the mentioned Shape (?x --> s_id)
-    query_triples = query.triples
+    query_triples = query.triples()
     possible_shapes = set()
     for row in ShapeGraph.queryTriples(query_triples):
         possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
@@ -159,7 +159,7 @@ def run():
         printSet(TripleStore(s.id).getTriples())
     
     # Extract all the triples in the given initial query
-    globals.initial_query_triples = initial_query.triples.copy()    
+    globals.initial_query_triples = initial_query.triples()    
     print('Initial Query Triples')
     printSet(globals.initial_query_triples)
     

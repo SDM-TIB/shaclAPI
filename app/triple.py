@@ -12,15 +12,16 @@ class Triple():
     def __init__(self, s, p, o, optional = False):
         self.optional = optional
         self.isInvPath = isinstance(p, paths.InvPath)
-        
-        if self.isInvPath:
-            self.subject = o
-            self.predicat = p.arg
-            self.object = s
-        else:
-            self.subject = s
-            self.predicat = p
-            self.object = o
+
+        self.subject = s
+        self.predicat = p
+        self.object = o
+    
+    @classmethod
+    def normalized(self,triple):
+        if triple.isInvPath:
+            return self(triple.object,triple.predicat.arg,triple.subject)
+        return triple
 
     def __str__(self) -> str:
         '''
@@ -34,7 +35,7 @@ class Triple():
             return triple_string
 
     def __eq__(self, other) -> bool: #TODO: self.optional not used here
-        return self.subject == other.subject and self.predicat == other.predicat and type(self.object) == type(other.object)
+        return self.subject == other.subject and self.predicat == other.predicat and self.object == other.object
     
     def __hash__(self): #TODO: self.optional not used here
         return hash(str((str(self.subject.n3()),str(self.predicat.n3()),type(str(self.object.n3())))))

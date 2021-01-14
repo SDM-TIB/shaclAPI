@@ -35,7 +35,7 @@ class TripleStore():
         for constraint, i in zip(shape.constraints, range(len(shape.constraints))):
             if constraint.value != None: 
                 # In that case we have an URI given
-                objNode = term.URIRef(extend(constraint.value))
+                objNode = extend(constraint.value)
             elif constraint.shapeRef != None:
                 # In that case we eventually have to reuse a variable...TODO: That's not always correct here loops!
                 objNode = globals.shape_to_var[constraint.shapeRef]
@@ -43,13 +43,10 @@ class TripleStore():
                 # Not further specified constraint
                 objNode  = term.Variable('c_' + str(i) + globals.shape_to_var[shape.id])
 
-            if constraint.path.startswith('^'):
-                constraint_triple_set.add(Triple(objNode,term.URIRef(extend(constraint.path[1:])), globals.shape_to_var[shape.id], optional=True))
-            else:
-                constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef(extend(constraint.path)), objNode, optional=True))
+                constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],extend(constraint.path), objNode, optional=True))
 
         if shape.targetDef != None:
-            constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), term.URIRef(extend(shape.targetDef))))
+            constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), extend(shape.targetDef)))
         store.add(constraint_triple_set)
 
         return store 
@@ -83,7 +80,9 @@ class TripleStore():
     def difference(self, with_triples):
         return set(with_triples).difference(globals.tripleStorage[self.name])
     
-    def getTriples(self):
+    def getTriples(self, normalized = False):
+        if normalized:
+            return [t.normalized(t) for t in globals.tripleStorage[self.name]]
         return globals.tripleStorage[self.name]
     
     def getTriplesWith(self, sub, pred):
@@ -109,9 +108,10 @@ class TripleStore():
             result_str = result_str + str(elem) + '\n'
         return result_str
     
-    def n3(self, optionals = False):
+    def n3(self, optionals = False, normalized = False):
         result = ""
-        for triple in globals.tripleStorage[self.name]:
+        triple_list = self.getTriples(normalized=normalized)
+        for triple in triple_list:
             result = result + triple.n3(optionals=optionals) + '\n'
         return result
         

@@ -26,11 +26,7 @@ def computePathsToTargetShape(shape_id, path):
         while len(stack) != 0:
             actual_path = path.copy()
             referrer = stack.pop()
-            print(referrer['pred'])
-            if referrer['pred'].startswith('^'):
-                actual_path.append(Triple(globals.shape_to_var[shape_id],extend(referrer['pred'][1:]),globals.shape_to_var[referrer['shape']]))
-            else:
-                actual_path.append(Triple(globals.shape_to_var[referrer['shape']],extend(referrer['pred']), globals.shape_to_var[shape_id]))
+            actual_path.append(Triple(globals.shape_to_var[referrer['shape']],extend(referrer['pred']), globals.shape_to_var[shape_id]))
             result = result + computePathsToTargetShape(referrer['shape'],actual_path)
         return result
 
