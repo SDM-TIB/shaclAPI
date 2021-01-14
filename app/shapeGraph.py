@@ -74,15 +74,16 @@ def getPrefix(shorthand):
     return globals.namespaces[shorthand]
 
 def extend(term):
-        t_inv = term.startswith('^')
-        t_split = term.rfind(':')
-        t_namespace = getPrefix(term[t_inv:t_split])
-        t_path = term[t_split+1:]
-        path = Namespace(t_namespace)[t_path]
-        if t_inv:
+    # Returns a URI Ref
+    t_inv = term.startswith('^')
+    t_split = term.rfind(':')
+    t_namespace = getPrefix(term[t_inv:t_split])
+    t_path = term[t_split+1:]
+    path = Namespace(t_namespace)[t_path]
+    if t_inv:
             raise Exception("Ignoring inverted Path!")
         #    return ~path
-        return path
+    return path
 
 def uriRefToShapeId(uri):
     index = str(uri).rfind("shapes/")

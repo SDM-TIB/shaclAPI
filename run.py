@@ -58,7 +58,7 @@ def endpoint():
             print('Paths: ' + pathToString(paths))
 
             for path in paths:
-                construct_query = Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,path,s_id,globals.filter_clause)
+                construct_query = Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,path,s_id,globals.filter_clause)
                 #print("Construct Query: ")
                 #print(str(construct_query) + '\n')
                 SubGraph.extendWithConstructQuery(construct_query)
@@ -102,7 +102,7 @@ def run():
     ShapeGraph.clear()
     Path.clearReferredByDictionary()
     globals.shape_to_var = dict()
-    globals.targetShape = None
+    globals.targetShapeID = None
     globals.endpoint = None
     globals.filter_clause = ''
     globals.ADVANCED_OUTPUT = False
@@ -113,7 +113,7 @@ def run():
     schema_directory = request.form['schemaDir']
     heuristics = Eval.parse_heuristics_string(request.form['heuristic'])
     query_string = request.form['query']
-    globals.targetShape = request.form['targetShape']
+    globals.targetShapeID = request.form['targetShape']
 
     # Parse Config File
     if 'config' in request.form:
@@ -123,20 +123,22 @@ def run():
         print("Using default config File!!")
         config = Configs.read_and_check_config('config.json')
     print(config)
+
     #Advanced output FLAG, set for test runs with additional output
     globals.ADVANCED_OUTPUT = config['advancedOutput']
 
     globals.endpoint = SPARQLWrapper(config['external_endpoint'])
 
-    os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True)
+    os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True) #TODO: Do we need that?
     
     initial_query = Query(query_string)
 
     # Step 1 and 2 are executed by ReducedShapeParser
     globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShape, config['workInParallel'])
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShapeID, config['workInParallel'])
 
+    print("Finished Step 1 and 2!")
     # Setup of the ShapeGraph
     ShapeGraph.setPrefixes(initial_query.parsed_query.prologue.namespace_manager.namespaces())
     ShapeGraph.constructAndSetGraphFromShapes(globals.network.shapes)
@@ -146,7 +148,7 @@ def run():
     print('\nReferred by Dictionary: ' + str(globals.referred_by))
 
     # Set a Variable for each Shape
-    VariableStore.setShapeVariables(globals.targetShape, globals.network.shapes)
+    VariableStore.setShapeVariables(globals.targetShapeID, globals.network.shapes)
     print('\nVariables to Shape Mapping: ' + str(globals.shape_to_var))
 
     print('\n-------------------Triples used for Construct Queries-------------------')
@@ -156,11 +158,10 @@ def run():
         print(s.id)
         printSet(TripleStore(s.id).getTriples())
     
-    # Extract all the triples which are limiting the target shape by adding additional references to Objects.
-    globals.initial_query_triples = initial_query.triples.copy()
-    for query_triple in globals.initial_query_triples:
-        if not isinstance(query_triple.object, term.URIRef):
-            globals.initial_query_triples.remove(query_triple)
+    # Extract all the triples in the given initial query
+    globals.initial_query_triples = initial_query.triples.copy()    
+    print('Initial Query Triples')
+    printSet(globals.initial_query_triples)
     
     # Extract all FILTER terms
     filter_terms = re.findall('FILTER\(.*\)',initial_query.query,re.DOTALL)
@@ -169,70 +170,33 @@ def run():
 
     print('Initial Query Filters')
     printSet(filter_terms)
-
-    variables_in_filters = initial_query.variablesInFilter()
-    filter_expressions = initial_query.filters
-    print(filter_expressions)
-
-    shape_to_var_changed = False
-    initial_query_triple_store = TripleStore.fromSet(initial_query.triples)
-    target_shape_triple_store = TripleStore(globals.targetShape)
-    var_to_shape = {var: shape for shape,var in globals.shape_to_var.items()}
-    for variable in variables_in_filters:
-        variable_set = False
-        origin_triples = initial_query_triple_store.getTriplesReferingToVar(variable)
-        print(origin_triples)
-        for triple in origin_triples:
-            if triple.subject.n3() == variable.n3():
-                pass #TODO: Implement analogue but match triple.predicat, triple.object
-            else:
-                print(triple)
-                matched_target_triples = target_shape_triple_store.getTriplesWith(triple.subject,triple.predicat)
-                for matched_triple in matched_target_triples:
-                    globals.shape_to_var[var_to_shape[matched_triple.object]] = variable
-                    shape_to_var_changed = True
-                    variable_set = True
-        if variable_set == False:
-            for triple in origin_triples:
-                globals.initial_query_triples.append(triple)
     
-    if shape_to_var_changed == True:
-        # Rebuild TripleStores for each Shape
-        for s in globals.network.shapes:
-            TripleStore.fromShape(s)
-            print(s.id)
-            printSet(TripleStore(s.id).getTriples())
-
-    #print(variables_in_filters)
-
-
-    print('Initial Query Triples')
-    printSet(globals.initial_query_triples)
+    #TODO: Rename Variables in globals.initial_query_triples and filter_terms
 
     for s in globals.network.shapes:
         globals.shape_queried[s.id] = False
     
-    # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized
-    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,[],globals.targetShape,globals.filter_clause))
-    globals.shape_queried[globals.targetShape] = True
+    # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized (path = [])
+    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,[],globals.targetShapeID,globals.filter_clause))
+    globals.shape_queried[globals.targetShapeID] = True
 
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = globals.network.validate()
     valid = {"validTargets":[], "invalidTargets":[]}
     for s in report:
         if report[s].get("valid_instances"):
-            valid["validTargets"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred == globals.targetShape])
+            valid["validTargets"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred == globals.targetShapeID])
         if report[s].get("invalid_instances"):
-            valid["invalidTargets"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred == globals.targetShape])
+            valid["invalidTargets"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred == globals.targetShapeID])
     #Return full report, if ADVANCED_OUTPUT is set
     if globals.ADVANCED_OUTPUT:
         valid["advancedValid"] = []
         valid["advancedInvalid"] = []
         for s in report:
             if report[s].get("valid_instances"):
-                valid["advancedValid"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred != globals.targetShape])
+                valid["advancedValid"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred != globals.targetShapeID])
             if report[s].get("invalid_instances"):
-                valid["advancedInvalid"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred != globals.targetShape])
+                valid["advancedInvalid"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred != globals.targetShapeID])
     return Response(json.dumps(valid), mimetype='application/json')
 
 @app.route("/", methods=['GET'])
@@ -241,3 +205,10 @@ def hello_world():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+# Extract all the triples which are limiting the target shape by adding additional references to Objects.
+# globals.initial_query_triples = initial_query.triples.copy()
+# for query_triple in globals.initial_query_triples:
+#     if not isinstance(query_triple.object, term.URIRef):
+#         globals.initial_query_triples.remove(query_triple)

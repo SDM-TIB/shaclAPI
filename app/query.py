@@ -5,6 +5,8 @@ from rdflib import term
 import json
 from rdflib.plugins.sparql.parserutils import CompValue
 import re
+from app.utils import printSet
+import app.path as Path
 
 '''
 Representation of a query.
@@ -163,8 +165,8 @@ class Query:
     @classmethod
     def constructQueryFrom(self,targetShape, initial_query_triples, path, shape_id, filter_clause):
         if targetShape != shape_id:
-            where_clause = TripleStore.fromSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(initial_query_triples)).n3()
+            where_clause = TripleStore.fromSet(initial_query_triples).n3() + Path.pathToAbbreviatedString(path) + TripleStore(shape_id).n3(optionals=True)
             query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + filter_clause +'}'
         else:
-            query = 'CONSTRUCT {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + '} WHERE {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + filter_clause + '}'
+            query = 'CONSTRUCT {\n' + TripleStore.fromSet(initial_query_triples).n3() + '} WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3() + filter_clause + '}'
         return self(query)

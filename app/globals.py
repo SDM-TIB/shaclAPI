@@ -21,7 +21,7 @@ shapeNamespace = Namespace("http://example.org/shapes/")
 
 # Used in run.py
 network = None
-targetShape = None
+targetShapeID = None
 shape_queried = dict()
 filter_clause = ''
 ADVANCED_OUTPUT = False
