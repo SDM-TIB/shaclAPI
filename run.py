@@ -49,22 +49,23 @@ def endpoint():
     for row in ShapeGraph.queryTriples(query_triples):
         possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
     
-    assert(len(possible_shapes) == 1)
-    s_id = list(possible_shapes)[0]
+    print(len(possible_shapes))
+    #assert(len(possible_shapes) == 1)
+    for s_id in possible_shapes:
 
-    print('The Query referres to {}'.format(s_id))
+        print('The Query referres to {}'.format(s_id))
 
-    if globals.shape_queried[s_id] == False:
-        # Extract Pathes from the Target Shape to the identified Shape
-        paths = Path.computePathsToTargetShape(s_id,[])
-        print('Paths: ' + pathToString(paths))
+        if globals.shape_queried[s_id] == False:
+            # Extract Pathes from the Target Shape to the identified Shape
+            paths = Path.computePathsToTargetShape(s_id,[])
+            print('Paths: ' + pathToString(paths))
 
-        for path in paths:
-            construct_query = Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,path,s_id,globals.filter_clause)
-            #print("Construct Query: ")
-            #print(str(construct_query) + '\n')
-            SubGraph.extendWithConstructQuery(construct_query)
-        globals.shape_queried[s_id] = True
+            for path in paths:
+                construct_query = Query.constructQueryFrom(globals.targetShape,globals.initial_query_triples,path,s_id,globals.filter_clause)
+                #print("Construct Query: ")
+                #print(str(construct_query) + '\n')
+                SubGraph.extendWithConstructQuery(construct_query)
+            globals.shape_queried[s_id] = True
 
     # Query the internal subgraph with the given input query
     print("Query Subgraph:")
