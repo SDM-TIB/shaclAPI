@@ -27,7 +27,10 @@ def constructAndSetGraphFromShapes(shapes: List[Shape]):
 
 def addReferencesToGraph(shape: Shape, targetNode: term.URIRef): #intershape constraints
     for obj,pred in shape.referencedShapes.items():
-        new_triple = (targetNode,term.URIRef(extend(pred)), globals.shapeNamespace[obj])
+        if pred.startswith('^'):
+            new_triple = (globals.shapeNamespace[obj], term.URIRef(extend(pred[1:])),targetNode) #TODO: CHECK if this is in the right direction --> Inverted Path
+        else:
+            new_triple = (targetNode,term.URIRef(extend(pred)), globals.shapeNamespace[obj]) #TODO: CHECK if this is in the right direction --> Inverted Path
         addTripleToShapeGraph(new_triple)
 
 def addConstraintsToGraph(shape: Shape, targetNode: term.URIRef): #intrashape constraints
@@ -76,7 +79,8 @@ def extend(term):
         t_namespace = getPrefix(term[t_inv:t_split])
         t_path = term[t_split+1:]
         path = Namespace(t_namespace)[t_path]
-        #if t_inv:
+        if t_inv:
+            raise Exception("Ignoring inverted Path!")
         #    return ~path
         return path
 
