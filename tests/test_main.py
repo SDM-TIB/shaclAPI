@@ -69,7 +69,7 @@ def test_run(file):
             if json_set_of_shapes != test_set_of_shapes:
                 differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
                 warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
-        assert len(json_set_of_tuples) == len(test_set_of_tuples)  
+        assert len(json_set_of_tuples) == len(test_set_of_tuples) , "Reported instances differ from expected result for: {}".format(key) 
    
    
     #testingUtils.writeTest('tests/test_definitions/lubm1.json', response.json(), query,testingUtils.TestType.ONLY_VALID)
