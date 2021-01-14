@@ -49,10 +49,7 @@ def endpoint():
     for row in ShapeGraph.queryTriples(query_triples):
         possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
     
-    print(len(possible_shapes))
-    #assert(len(possible_shapes) == 1)
     for s_id in possible_shapes:
-
         print('The Query referres to {}'.format(s_id))
 
         if globals.shape_queried[s_id] == False:
@@ -73,6 +70,7 @@ def endpoint():
     result = SubGraph.query(query)
     jsonResult = result.serialize(encoding='utf-8',format='json')
     end = time.time()
+    print("Got {} result bindings".format(len(result.bindings)))
     print("Execution took " + str((end - start)*1000) + ' ms')
     print('\033[92m-------------------------------------------------------------\033[00m')
 
