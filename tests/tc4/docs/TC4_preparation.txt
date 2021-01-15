@@ -43,8 +43,7 @@ Shapes:
 # --------------- # ------------------- # --------------------------------------    # 
 # A               # test:classA         # test:^refersTo -- min: 2 shape: B         # 
 # -------------------------------------------------------------------------------   #
-# B               # test:classB         # test:refersTo -- min: 1, max: 20 shape: A #
-#                 #                     # test:refersTo -- min: 1 shape: C          #
+# B               # test:classB         # test:refersTo -- min: 1, max: 20 shape: C #
 # -------------------------------------------------------------------------------   #
 # C               # test:classC         #                                           #
 

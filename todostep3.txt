@@ -1,0 +1,8 @@
+[DONE] - Ganze initial Query übernehmen
+[DONE] --> Alle Triple extrahieren und alle Variablen außer ?x umbenennen
+[DONE] --> Alle Filter extrahieren und die Variablen genauso umbenennen
+[DONE] - Path mit / Abkürzung
+
+- Shape S
+[DONE] --> Feste Variablen Zurodnung für Shapes wie bisher d.h. ?x bleibt die Target Shape!
+[DONE] --> Optional für alle Constraints d.h. außer die Target Definition von der Shape S

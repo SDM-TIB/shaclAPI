@@ -1,5 +1,5 @@
 {
-	"name": "ShapeE_average",
+	"name": "ShapeEaverage",
 	"targetDef": {
 		"query":"SELECT ?x WHERE {?x a test1:classE}",
 		"class": "test1:classE"
@@ -9,8 +9,8 @@
 			[
 				{ "path": "test1:has", "min": 2},
                 { "path": "test1:has", "max": 2},
-                { "path": "^test1:belongsTo", "min": 3},
-                { "path": "^test1:belongsTo", "max": 4}
+                { "path": "^test1:belongsTo", "min": 3, "shape": "ShapeA"},
+                { "path": "^test1:belongsTo", "max": 4, "shape": "ShapeA"}
 			]
 		]
 	}

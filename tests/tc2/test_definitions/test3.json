@@ -32,43 +32,43 @@
         "invalidTargets": [
             [
                 "http://example.org/testGraph2#nodeA_5",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_6",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_7",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_8",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_9",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_10",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_11",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_12",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_13",
-                "ShapeA"
+                "ShapeB"
             ],
             [
                 "http://example.org/testGraph2#nodeA_14",
-                "ShapeA"
+                "ShapeB"
             ]
         ],
         "advancedValid": [

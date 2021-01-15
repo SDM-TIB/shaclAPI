@@ -4,7 +4,7 @@
     "schemaDir": "./tests/tc1/shapes/test5",
     "heuristic": "TARGET IN BIG",
     "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classE.\n?x ^test1:belongsTo ?y\n}",
-    "targetShape": "ShapeE_average",
+    "targetShape": "ShapeEaverage",
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [
@@ -12,31 +12,31 @@
         "invalidTargets": [
             [
                 "http://example.org/testGraph1#nodeE_1",
-                "ShapeE_average"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_3",
-                "ShapeE_average"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_0",
-                "ShapeE_average"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_2",
-                "ShapeE_average"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_4",
-                "ShapeE_average"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_5",
-                "ShapeE_average"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_6",
-                "ShapeE_average"
+                "ShapeEaverage"
             ]
         ]
     },

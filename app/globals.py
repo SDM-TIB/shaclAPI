@@ -21,14 +21,17 @@ shapeNamespace = Namespace("http://example.org/shapes/")
 
 # Used in run.py
 network = None
-referred_by = dict()
-targetShape = None
+targetShapeID = None
 shape_queried = dict()
 filter_clause = ''
 ADVANCED_OUTPUT = False
 
 # Used by variableStore
 shape_to_var = dict()
+
+# Used by path.py
+referred_by = dict()
+
 
 initial_query_triples = None
 

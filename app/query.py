@@ -5,6 +5,8 @@ from rdflib import term
 import json
 from rdflib.plugins.sparql.parserutils import CompValue
 import re
+from app.utils import printSet
+import app.path as Path
 
 '''
 Representation of a query.
@@ -34,10 +36,11 @@ class Query:
             self.__parsed_query = sparql.processor.prepareQuery(self.query)
         return self.__parsed_query
     
-    @property
-    def triples(self):
+    def triples(self,normalized = False):
         if self.__triples == None:
             self.__triples = [Triple(*t) for t in self.extract_triples()]
+        if normalized:
+            return [t.normalized(t) for t in self.__triples]
         return self.__triples
 
     @property
@@ -45,6 +48,15 @@ class Query:
         result = []
         try:
             result = self.parsed_query.algebra['PV']
+        except Exception:
+            pass
+        finally:
+            return result
+    @property
+    def vars(self):
+        result=[]
+        try:
+            result = list(self.parsed_query.algebra['_vars'])
         except Exception:
             pass
         finally:
@@ -137,7 +149,7 @@ class Query:
             for var in self.queriedVars:
                 query_string = query_string + var.n3() + ' '
             query_string = query_string + 'WHERE {\n'
-            for triple in self.triples:
+            for triple in self.triples():
                 query_string = query_string + triple.n3() + '\n'
             query_string = query_string + '} ORDER BY ?x'
             return Query(query_string)
@@ -146,7 +158,7 @@ class Query:
             for var in self.queriedVars:
                 query_string = query_string + var.n3() + ' '
             query_string = query_string + 'WHERE {\n'
-            for triple in self.triples:
+            for triple in self.triples():
                 query_string = query_string + triple.n3() + '\n'
             filter_term = ''
             for triple in expr[0]:
@@ -163,8 +175,8 @@ class Query:
     @classmethod
     def constructQueryFrom(self,targetShape, initial_query_triples, path, shape_id, filter_clause):
         if targetShape != shape_id:
-            where_clause = TripleStore.fromSet(TripleStore(targetShape).getTriples().union(path).union(TripleStore(shape_id).getTriples()).union(initial_query_triples)).n3()
-            query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3() + '} WHERE {\n' + where_clause + filter_clause +'}'
+            where_clause = TripleStore.fromSet(initial_query_triples).n3() + Path.pathToAbbreviatedString(path) + TripleStore(shape_id).n3(optionals=True)
+            query = 'CONSTRUCT {\n' + TripleStore(shape_id).n3(normalized=True) + '} WHERE {\n' + where_clause + filter_clause +'}'
         else:
-            query = 'CONSTRUCT {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + '} WHERE {\n' + TripleStore.fromSet(TripleStore(targetShape).getTriples().union(initial_query_triples)).n3() + filter_clause + '}'
+            query = 'CONSTRUCT {\n' + TripleStore.fromSet(initial_query_triples).n3(normalized=True) + '} WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3() + filter_clause + '}'
         return self(query)

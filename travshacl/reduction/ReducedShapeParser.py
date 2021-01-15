@@ -2,6 +2,8 @@ import re
 from validation.ShapeParser import ShapeParser
 from validation.core.GraphTraversal import GraphTraversal
 from validation.sparql.SPARQLPrefixHandler import getPrefixes
+from rdflib.paths import Path
+from rdflib import Namespace
 
 class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShape):
@@ -9,43 +11,68 @@ class ReducedShapeParser(ShapeParser):
         self.query = query
         self.targetShape = targetShape
         self.currentShape = None
+        self.removed_constraints = []
 
+    """
+    Normalizes a path in prefixed n3-format ([^]prefix:predicate --> extended_prefix:predicate)
+    """
+    def _as_path(self, term):
+        t_inv = term.startswith('^')
+        t_split = term.rfind(':')
+        t_namespace = getPrefixes()[term[t_inv:t_split]][1:-1]
+        t_path = term[t_split+1:]
+        path = Namespace(t_namespace)[t_path]
+        #if t_inv:
+        #    return ~path
+        return path
+
+    """
+    Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
+    """
     def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
         shapes = super().parseShapesFromDir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
         shapes = [s for s in shapes if s.getId() in involvedShapes]
         return shapes
 
+    """
+    parseConstraint can return None, which need to be filtered.
+    """
     def parseConstraints(self, array, targetDef, constraintsId):
         self.currentShape = constraintsId[:-3]
         return [c for c in super().parseConstraints(array, targetDef, constraintsId) if c]
 
+    """
+    Constraints are only relevant if:
+        - subject and object do both NOT belong to the targetShape
+        - subject or object belong to the targetShape AND the predicate is part of the query
+            (-> inverted paths can be treated equally to normal paths)
+    Other constraints are not relevant and result in a None.
+    """
     def parseConstraint(self, varGenerator, obj, id, targetDef):
-        if self.targetShape == self.currentShape:
-            extended_path = extend(obj['path'])
-            if not [t for t in self.query.triples if str(t.predicat) == extended_path]:
-                return None
-        elif obj.get('shape') == self.targetShape:
-            extended_path = extend(obj['path'])
-            if not [t for t in self.query.triples if str(t.predicat) == extended_path]:
-                return None
+        if self.targetShape == self.currentShape or self.targetShape == obj.get('shape'):
+            #predicates are normalized to the extended, non-inverted form
+            #self.query.triples is assumed to be non-inverted in all cases
+            extended_path = self._as_path(obj['path'])
+            for t in self.query.triples(normalized=True):
+                if t.predicat == extended_path:
+                    return super().parseConstraint(varGenerator, obj, id, targetDef)
+            self.removed_constraints += [obj.get('path')]
+            return None
         return super().parseConstraint(varGenerator, obj, id, targetDef)
 
+    """
+    constraints and references are parsed independently based on the json. 
+    Constraints that are removed in parseConstraints() should not appear in the references.
+    self.removed_constraints keeps track of the removed constraints
+    """
     def shapeReferences(self, constraints):
-        references = {}
-        for c in constraints:
-            path = c.get("path")
-            shape = c.get("shape")
-            if shape:
-                #Reference from or to targetShape
-                if shape == self.targetShape or self.currentShape == self.targetShape:
-                    extended_path = extend(path)
-                    if [t for t in self.query.triples if str(t.predicat) == extended_path]:
-                        references[shape] = path
-                else:
-                    references[shape] = path
-        return references
+        return {c.get("shape"): c.get("path") for c in constraints\
+            if c.get("shape") and c.get("path") not in self.removed_constraints}
 
+    """
+    Returns unidirectional dependencies with a single exception: Reversed dependencies are included, if they aim at the targetShape.
+    """
     def computeReducedEdges(self, shapes):
         """Computes the edges in the network."""
         dependencies = {s.getId(): [] for s in shapes}
@@ -59,7 +86,3 @@ class ReducedShapeParser(ShapeParser):
                     if ref == self.targetShape:
                         reverse_dependencies[ref].append(name)
         return dependencies, reverse_dependencies
-
-def extend(term):
-    index = term.rfind(":")
-    return str(getPrefixes()[term[:index]][1:-1]) + term[index+1:]
