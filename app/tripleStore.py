@@ -33,6 +33,7 @@ class TripleStore():
 
         # Convert Constraints to instances of the Triple Class
         for constraint, i in zip(shape.constraints, range(len(shape.constraints))):
+            print(constraint.path,constraint.value,constraint.shapeRef)
             if constraint.value != None: 
                 # In that case we have an URI given
                 objNode = extend(constraint.value)
@@ -43,7 +44,7 @@ class TripleStore():
                 # Not further specified constraint
                 objNode  = term.Variable('c_' + str(i) + globals.shape_to_var[shape.id])
 
-                constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],extend(constraint.path), objNode, optional=True))
+            constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],extend(constraint.path), objNode, optional=True))
 
         if shape.targetDef != None:
             constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), extend(shape.targetDef)))
