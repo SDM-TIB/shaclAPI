@@ -35,7 +35,7 @@ class Triple():
             return triple_string
 
     def __eq__(self, other) -> bool: #TODO: self.optional not used here
-        return self.subject == other.subject and self.predicat == other.predicat and self.object == other.object
+        return self.subject == other.subject and self.predicat == other.predicat and self.object == other.object or  self.subject == other.subject and self.predicat == other.predicat and type(self.object) == type(other.object) and self.optional == True and other.optional == True
     
     def __hash__(self): #TODO: self.optional not used here
         return hash(str((str(self.subject.n3()),str(self.predicat.n3()),type(str(self.object.n3())))))
