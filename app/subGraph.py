@@ -15,12 +15,12 @@ travshacl <--> Subgraph (local) <--> SPARQL Endpoint (web)
 
 ROW_LIMIT_PER_QUERY = 10000
 
-def extendWithConstructQuery(query):
+def extendWithConstructQuery(query,shape_var):
     print('\033[94m-------------------Extending Subgraph-------------------\033[00m')
     len_of_last_result = ROW_LIMIT_PER_QUERY
     triples_queried = 0
     while len_of_last_result >= ROW_LIMIT_PER_QUERY:
-        new_query_string = str(query) + 'ORDER BY ASC(?x) LIMIT ' + str(ROW_LIMIT_PER_QUERY) + ' OFFSET ' + str(triples_queried)
+        new_query_string = str(query) + 'ORDER BY ASC('+shape_var.n3()+') LIMIT ' + str(ROW_LIMIT_PER_QUERY) + ' OFFSET ' + str(triples_queried)
         globals.endpoint.setQuery(new_query_string)
         try:
             print("\033[01mExecuting Construct Query: \033[0m")
