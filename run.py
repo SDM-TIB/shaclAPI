@@ -61,7 +61,7 @@ def endpoint():
                 construct_query = Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,path,s_id,globals.filter_clause)
                 #print("Construct Query: ")
                 #print(str(construct_query) + '\n')
-                SubGraph.extendWithConstructQuery(construct_query)
+                SubGraph.extendWithConstructQuery(construct_query,globals.shape_to_var[s_id])
             globals.shape_queried[s_id] = True
 
     # Query the internal subgraph with the given input query
@@ -131,6 +131,12 @@ def run():
 
     os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True) #TODO: Do we need that?
     
+    # Rename Variables in Initial Query to avoid overlapping Variable Names
+    initial_query = Query(query_string)
+    for i,variable in enumerate(initial_query.vars):
+        if variable not in initial_query.queriedVars:
+            query_string = query_string.replace(variable.n3(),'?q_{}'.format(i))
+
     initial_query = Query(query_string)
 
     # Step 1 and 2 are executed by ReducedShapeParser
@@ -177,7 +183,7 @@ def run():
         globals.shape_queried[s.id] = False
     
     # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized (path = [])
-    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,[],globals.targetShapeID,globals.filter_clause))
+    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,[],globals.targetShapeID,globals.filter_clause),initial_query.queriedVars[0])
     globals.shape_queried[globals.targetShapeID] = True
 
     # Run the evaluation of the SHACL constraints over the specified endpoint

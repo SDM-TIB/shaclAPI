@@ -52,6 +52,15 @@ class Query:
             pass
         finally:
             return result
+    @property
+    def vars(self):
+        result=[]
+        try:
+            result = list(self.parsed_query.algebra['_vars'])
+        except Exception:
+            pass
+        finally:
+            return result
 
     def extract_triples(self):
         list_of_triples = self.__extract_triples_rekursion(self.parsed_query.algebra)
