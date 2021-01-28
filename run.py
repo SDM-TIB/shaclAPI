@@ -203,6 +203,19 @@ def run():
                 valid["advancedValid"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred != globals.targetShapeID])
             if report[s].get("invalid_instances"):
                 valid["advancedInvalid"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred != globals.targetShapeID])
+    
+    queryResult = SubGraph.query(initial_query).serialize(encoding='utf-8',format='json')   
+    valid.update(json.loads(queryResult))
+    validationDict = {}
+    for s in report:
+        if report[s].get("valid_instances"):
+            validationDict.update({l.arg: 'valid' for l in report[s]['valid_instances']})
+        if report[s].get("invalid_instances"):
+            validationDict.update({l.arg: 'invalid' for l in report[s]['invalid_instances']})
+
+
+    for binding in valid['results']['bindings']:
+        binding['validation'] = {'type': 'literal', 'value': validationDict[binding['x']['value']]}
     return Response(json.dumps(valid), mimetype='application/json')
 
 @app.route("/", methods=['GET'])
