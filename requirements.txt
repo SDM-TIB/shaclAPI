@@ -1,0 +1,6 @@
+SPARQLWrapper
+pytest
+pytest-dependency
+pytest-timeout
+flask
+rdflib
