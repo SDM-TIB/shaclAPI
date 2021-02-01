@@ -180,3 +180,12 @@ class Query:
         else:
             query = 'CONSTRUCT {\n' + TripleStore.fromSet(initial_query_triples).n3(normalized=True) + '} WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3() + filter_clause + '}'
         return self(query)
+    
+    @classmethod
+    def targetDefFromStarShapedQuery(self, initial_query_triples, filter_clause):
+        # Identify ?x
+        return Query('SELECT ?x WHERE {' + TripleStore.fromSet(initial_query_triples).n3() + filter_clause + '}')
+
+        #count_dict = {var.n3(): initial_query.query.count(var.n3()) for var in initial_query.vars}
+
+

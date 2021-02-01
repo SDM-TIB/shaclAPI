@@ -44,35 +44,37 @@ def endpoint():
     print('\033[02m' + str(query) + '\033[0m\n')
 
     # Extract Triples of the given Query to identify the mentioned Shape (?x --> s_id)
-    query_triples = query.triples()
-    possible_shapes = set()
-    for row in ShapeGraph.queryTriples(query_triples):
-        possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
+    # query_triples = query.triples()
+    # possible_shapes = set()
+    # for row in ShapeGraph.queryTriples(query_triples):
+    #     possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
     
-    for s_id in possible_shapes:
-        print('The Query referres to {}'.format(s_id))
+    # for s_id in possible_shapes:
+    #     print('The Query referres to {}'.format(s_id))
 
-        if globals.shape_queried[s_id] == False:
-            # Extract Pathes from the Target Shape to the identified Shape
-            paths = Path.computePathsToTargetShape(s_id,[])
-            print('Paths: ' + pathToString(paths))
+    #     if globals.shape_queried[s_id] == False:
+    #         # Extract Pathes from the Target Shape to the identified Shape
+    #         paths = Path.computePathsToTargetShape(s_id,[])
+    #         print('Paths: ' + pathToString(paths))
 
-            for path in paths:
-                construct_query = Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,path,s_id,globals.filter_clause)
-                #print("Construct Query: ")
-                #print(str(construct_query) + '\n')
-                SubGraph.extendWithConstructQuery(construct_query,globals.shape_to_var[s_id])
-            globals.shape_queried[s_id] = True
+    #         for path in paths:
+    #             construct_query = Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,path,s_id,globals.filter_clause)
+    #             #print("Construct Query: ")
+    #             #print(str(construct_query) + '\n')
+    #             SubGraph.extendWithConstructQuery(construct_query,globals.shape_to_var[s_id])
+    #         globals.shape_queried[s_id] = True
 
     # Query the internal subgraph with the given input query
     print("Query Subgraph:")
     start = time.time()
-    result = SubGraph.query(query)
+    # result = SubGraph.query(query)
+    result = SubGraph.queryExternalEndpoint(query)
     jsonResult = result.serialize(encoding='utf-8',format='json')
     end = time.time()
-    print("Got {} result bindings".format(len(result.bindings)))
+    #print("Got {} result bindings".format(len(result.bindings)))
     print("Execution took " + str((end - start)*1000) + ' ms')
     print('\033[92m-------------------------------------------------------------\033[00m')
+    print(jsonResult)
 
     return Response(jsonResult, mimetype='application/json')
 
@@ -137,32 +139,12 @@ def run():
         if variable not in initial_query.queriedVars:
             query_string = query_string.replace(variable.n3(),'?q_{}'.format(i))
 
+    # Assumption target variable (center of star) is the first variable in first triple occuring in the initial query
+    if not '?x' in query_string:
+        targetVar = initial_query.triples()[0].subject
+        query_string = query_string.replace(targetVar.n3(),'?x')
+
     initial_query = Query(query_string)
-
-    # Step 1 and 2 are executed by ReducedShapeParser
-    globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
-                            heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShapeID, config['workInParallel'])
-
-    print("Finished Step 1 and 2!")
-    # Setup of the ShapeGraph
-    ShapeGraph.setPrefixes(initial_query.parsed_query.prologue.namespace_manager.namespaces())
-    ShapeGraph.constructAndSetGraphFromShapes(globals.network.shapes)
-    
-    # Construct globals.referred_by Dictionary (used to build Paths to Target Shapes)
-    Path.computeReferredByDictionary(globals.network.shapes)
-    print('\nReferred by Dictionary: ' + str(globals.referred_by))
-
-    # Set a Variable for each Shape
-    VariableStore.setShapeVariables(globals.targetShapeID, globals.network.shapes)
-    print('\nVariables to Shape Mapping: ' + str(globals.shape_to_var))
-
-    print('\n-------------------Triples used for Construct Queries-------------------')
-    # Build TripleStores for each Shape
-    for s in globals.network.shapes:
-        TripleStore.fromShape(s)
-        print(s.id)
-        printSet(TripleStore(s.id).getTriples())
     
     # Extract all the triples in the given initial query
     globals.initial_query_triples = initial_query.triples()    
@@ -176,8 +158,35 @@ def run():
 
     print('Initial Query Filters')
     printSet(filter_terms)
+
+    newTargetDef = Query.targetDefFromStarShapedQuery(globals.initial_query_triples, globals.filter_clause)
+    print("New Target Definition: " + str(newTargetDef))
+
+    # Step 1 and 2 are executed by ReducedShapeParser
+    globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
+                            heuristics, config['useSelectiveQueries'], config['maxSplit'],
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShapeID, config['workInParallel'], targetDefQuery= newTargetDef)
+
+    print("Finished Step 1 and 2!")
     
-    #TODO: Rename Variables in globals.initial_query_triples and filter_terms
+    # Setup of the ShapeGraph
+    ShapeGraph.setPrefixes(initial_query.parsed_query.prologue.namespace_manager.namespaces())
+    ShapeGraph.constructAndSetGraphFromShapes(globals.network.shapes)
+    
+    # Construct globals.referred_by Dictionary (used to build Paths to Target Shapes)
+    Path.computeReferredByDictionary(globals.network.shapes)
+    print('\nReferred by Dictionary: ' + str(globals.referred_by))
+
+    # Set a Variable for each Shape to use with Shape s_i and path
+    VariableStore.setShapeVariables(globals.targetShapeID, globals.network.shapes)
+    print('\nVariables to Shape Mapping: ' + str(globals.shape_to_var))
+
+    print('\n-------------------Triples used for Construct Queries-------------------')
+    # Build TripleStores for each Shape
+    for s in globals.network.shapes:
+        TripleStore.fromShape(s)
+        print(s.id)
+        printSet(TripleStore(s.id).getTriples())
 
     for s in globals.network.shapes:
         globals.shape_queried[s.id] = False
