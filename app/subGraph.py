@@ -4,6 +4,7 @@ from rdflib import ConjunctiveGraph
 import time
 from app.triple import Triple
 from rdflib.plugins.memory import IOMemory
+from SPARQLWrapper import JSON
 
 
 '''
@@ -43,6 +44,7 @@ def extendWithConstructQuery(query,shape_var):
 
 def queryExternalEndpoint(query):
     globals.endpoint.setQuery(query.query)
+    globals.endpoint.setReturnFormat(JSON)
     return globals.endpoint.query().convert()
 
 def count(graph):

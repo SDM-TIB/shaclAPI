@@ -29,10 +29,14 @@ class ReducedShapeParser(ShapeParser):
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
-    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
+    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, targetDefQuery = None):
         shapes = super().parseShapesFromDir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
         shapes = [s for s in shapes if s.getId() in involvedShapes]
+        if targetDefQuery:
+            for s in shapes:
+                if s.getId() == self.targetShape:
+                    s.targetQuery = targetDefQuery
         return shapes
 
     """
