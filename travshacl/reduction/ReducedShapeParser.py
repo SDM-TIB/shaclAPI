@@ -37,6 +37,7 @@ class ReducedShapeParser(ShapeParser):
             for s in shapes:
                 if s.getId() == self.targetShape:
                     s.targetQuery = targetDefQuery
+                    s.targetQueryNoPref = targetDefQuery
         return shapes
 
     """

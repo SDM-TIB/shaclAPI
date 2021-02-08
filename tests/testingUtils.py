@@ -70,6 +70,7 @@ def get_trav_args(params_file):
     schemaDir = os.path.realpath(schemaDir)
     args = {
         'd': schemaDir,
+        'outputs': False,
         'endpoint': json_config.get('external_endpoint') \
             or def_config['external_endpoint'],
         'graphTraversal': params.get('traversalStrategie') \
@@ -90,6 +91,6 @@ def get_trav_args(params_file):
         'g': 'g' == task,
         's': 's' == task,
         't': 't' == task,
-        'v': 'v' == task,
+        'f': 'f' == task,
     }
     return Namespace(**args)

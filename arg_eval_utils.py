@@ -9,7 +9,7 @@ def parse_task_string(task_string):
         return ValidationTask.SHAPE_VALIDATION
     elif task_string == 't':
         return ValidationTask.INSTANCES_VALID
-    elif task_string == 'v':
+    elif task_string == 'f':
         return ValidationTask.INSTANCES_VIOLATION
     elif task_string == 'a':
         return ValidationTask.ALL_INSTANCES
