@@ -47,6 +47,8 @@ def endpoint():
     result = SubGraph.queryExternalEndpoint(query)
     jsonResult = json.dumps(result)
     end = time.time()
+    
+    print("Got {} result bindings".format(len(result['results']['bindings'])))
     print("Execution took " + str((end - start)*1000) + ' ms')
     print('\033[92m-------------------------------------------------------------\033[00m')
 
