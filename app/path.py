@@ -3,6 +3,15 @@ from app.triple import Triple
 from rdflib.term import URIRef
 from app.shapeGraph import extend
 from app.utils import printSet
+import app.variableStore as VariableStore
+
+# Needed globals:
+#   referred_by = dict()
+
+# Usage:
+#   Extract Pathes from the Target Shape (target_shape_id) to the identified Shape (s_id)
+#   paths = Path.computePathsToTargetShape(target_shape_id, s_id,[])
+
 
 def computeReferredByDictionary(shapes):
     for s in shapes:
@@ -14,11 +23,11 @@ def computeReferredByDictionary(shapes):
 def clearReferredByDictionary():
     globals.referred_by = dict()
 
-def computePathsToTargetShape(shape_id, path):
+def computePathsToTargetShape(target_shape_id, shape_id, path):
     '''
     Returns a List with Lists of Triples representing the paths from the targetShape to the shape_id
     '''
-    if globals.targetShapeID == shape_id:
+    if target_shape_id == shape_id:
         return [path]
     else:
         stack = globals.referred_by[shape_id].copy()
@@ -26,8 +35,8 @@ def computePathsToTargetShape(shape_id, path):
         while len(stack) != 0:
             actual_path = path.copy()
             referrer = stack.pop()
-            actual_path.append(Triple(globals.shape_to_var[referrer['shape']],extend(referrer['pred']), globals.shape_to_var[shape_id]))
-            result = result + computePathsToTargetShape(referrer['shape'],actual_path)
+            actual_path.append(Triple(VariableStore.shape_to_var(referrer['shape']),extend(referrer['pred']), VariableStore.shape_to_var(shape_id)))
+            result = result + computePathsToTargetShape(target_shape_id, referrer['shape'],actual_path)
         return result
 
 def pathToAbbreviatedString(path):

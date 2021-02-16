@@ -17,6 +17,13 @@ travshacl <--> Subgraph (local) <--> SPARQL Endpoint (web)
 
 ROW_LIMIT_PER_QUERY = 10000
 
+# Example Usage (Initialize with TargetShape Data):
+#   SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,[],globals.targetShapeID,globals.filter_clause),initial_query.queriedVars[0])
+
+# Example Usage (More Data (with given path (target_shape --> ... --> shape))):
+#   construct_query = Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,path,s_id,globals.filter_clause)
+#   SubGraph.extendWithConstructQuery(construct_query,VariableStore.shape_to_var(s_id))
+
 def extendWithConstructQuery(query,shape_var):
     print('\033[94m-------------------Extending Subgraph-------------------\033[00m')
     len_of_last_result = ROW_LIMIT_PER_QUERY

@@ -3,6 +3,14 @@ from app.utils import printSet
 from rdflib import term
 from app.triple import Triple
 from app.shapeGraph import extend
+import app.variableStore as VariableStore
+
+# Needed globals:
+#   tripleStorage = dict()
+
+# Example Usage (Build TripleStore for each Shape in Network):
+#   for s in network.shapes:
+#     TripleStore.fromShape(s)
 
 class TripleStore():
     '''
@@ -39,15 +47,15 @@ class TripleStore():
                 objNode = extend(constraint.value)
             elif constraint.shapeRef != None:
                 # In that case we eventually have to reuse a variable...TODO: That's not always correct here loops!
-                objNode = globals.shape_to_var[constraint.shapeRef]
+                objNode = VariableStore.shape_to_var(constraint.shapeRef)
             else:
                 # Not further specified constraint
-                objNode  = term.Variable('c_' + str(i) + globals.shape_to_var[shape.id])
+                objNode  = term.Variable('c_' + str(i) + VariableStore.shape_to_var(shape.id))
 
-            constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],extend(constraint.path), objNode, optional=True))
+            constraint_triple_set.add(Triple(VariableStore.shape_to_var(shape.id),extend(constraint.path), objNode, optional=True))
 
         if shape.targetDef != None:
-            constraint_triple_set.add(Triple(globals.shape_to_var[shape.id],term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), extend(shape.targetDef)))
+            constraint_triple_set.add(Triple(VariableStore.shape_to_var(shape.id),term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), extend(shape.targetDef)))
         store.add(constraint_triple_set)
 
         return store 
@@ -109,10 +117,13 @@ class TripleStore():
             result_str = result_str + str(elem) + '\n'
         return result_str
     
-    def n3(self, optionals = False, normalized = False):
+    def n3(self, optionals = False, normalized = False, prepending_point = True):
         result = ""
         triple_list = self.getTriples(normalized=normalized)
-        for triple in triple_list:
-            result = result + triple.n3(optionals=optionals) + '\n'
+        for i,triple in enumerate(triple_list, start=1):
+            if i == len(triple_list):
+                result = result + triple.n3(optionals=optionals, prepending_point= prepending_point) + '\n'
+            else:
+                result = result + triple.n3(optionals=optionals) + '\n'
         return result
         

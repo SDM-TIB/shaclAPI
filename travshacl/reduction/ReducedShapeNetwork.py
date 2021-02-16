@@ -1,6 +1,7 @@
 from reduction.ReducedShapeParser import ReducedShapeParser
 from validation.ShapeNetwork import ShapeNetwork
 from validation.sparql.SPARQLEndpoint import SPARQLEndpoint
+from validation.rule_based_validation.Validation import Validation
 
 
 class ReducedShapeNetwork(ShapeNetwork):
@@ -22,3 +23,28 @@ class ReducedShapeNetwork(ShapeNetwork):
         self.useSHACL2SPARQLORDER = SHACL2SPARQLorder
         self.saveStats = outputDir is not None
         self.saveTargetsToFile = saveOutputs
+    
+
+    def getInstances(self, node_order, option):
+        """
+        Reports valid and violated constraints of the graph
+        :param node_order:
+        :param option: has three possible values: 'all', 'valid', 'violated'
+        """
+        targetShapes = [s for name, s in self.shapesDict.items()
+                        if self.shapesDict[name].getTargetQuery() is not None]
+        targetShapePredicates = [s.getId() for s in targetShapes]
+
+        result = Validation(
+            self.endpointURL,
+            node_order,
+            self.shapesDict,
+            option,
+            targetShapePredicates,
+            self.selectivityEnabled,
+            self.useSHACL2SPARQLORDER,
+            self.outputDirName,
+            self.saveStats,
+            self.saveTargetsToFile
+        ).exec()
+        return result

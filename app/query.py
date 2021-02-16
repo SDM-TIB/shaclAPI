@@ -184,7 +184,10 @@ class Query:
     @classmethod
     def targetDefFromStarShapedQuery(self, initial_query_triples, filter_clause):
         # Identify ?x
-        return Query('SELECT ?x WHERE {' + TripleStore.fromSet(initial_query_triples).n3() + filter_clause + '}')
+        if filter_clause == '':
+            return Query('SELECT ?x WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3(prepending_point = False) + filter_clause + '}')
+        else:
+            return Query('SELECT ?x WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3(prepending_point = True) + filter_clause + '}')
 
         #count_dict = {var.n3(): initial_query.query.count(var.n3()) for var in initial_query.vars}
 

@@ -16,8 +16,3 @@ def pathToString(paths):
             result = result + str(triple) + ','
         result = result[0:-1] + ']'
     return result
-
-# def extend(term):
-#     index = term.rfind(":")
-#     extended_term = str(globals.namespaces[term[:index]]) + term[index+1:]
-#     return extended_term
