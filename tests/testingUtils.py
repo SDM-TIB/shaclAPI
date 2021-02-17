@@ -70,7 +70,6 @@ def get_trav_args(params_file):
     schemaDir = os.path.realpath(schemaDir)
     args = {
         'd': schemaDir,
-        'outputs': False,
         'endpoint': json_config.get('external_endpoint') \
             or def_config['external_endpoint'],
         'graphTraversal': params.get('traversalStrategie') \
@@ -87,6 +86,8 @@ def get_trav_args(params_file):
             or def_config['SHACL2SPARQLorder'],
         'selective': json_config.get('useSelectiveQueries') \
             or def_config['useSelectiveQueries'],
+        'outputs': json_config.get('outputs') \
+            or def_config['outputs'],
         'a': 'a' == task,
         'g': 'g' == task,
         's': 's' == task,

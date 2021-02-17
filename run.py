@@ -18,6 +18,7 @@ sys.path.remove('./travshacl')
 from app.query import Query
 from app.utils import printSet, pathToString
 from app.tripleStore import TripleStore
+from app.outputCreation import QueryReport
 import app.subGraph as SubGraph
 import app.globals as globals
 import app.shapeGraph as ShapeGraph
@@ -144,10 +145,13 @@ def run():
     globals.endpoint.setReturnFormat(JSON)
     results = globals.endpoint.query().convert()
 
+    final_output = QueryReport.create_output(report, initial_query, results)
+    print(final_output.full_report)
+
     #New output generator, based on intersection of query and validation results
     reportResults = {}
     for shape, instance_dict in report.items():
-        print(shape, instance_dict)
+        #print(shape, instance_dict)
         for is_valid, instances in instance_dict.items():
             for instance in instances:
                 reportResults[instance[1]] = (instance[0], is_valid, shape)
@@ -156,9 +160,6 @@ def run():
     for binding in results['results']['bindings']:
         instance = binding['x']['value']
         queryResults[instance] = {var: info['value'] for var, info in binding.items()}
-
-    finalResult = {t: {'validation': reportResults[t], 'bindings': queryResults[t]} for t in reportResults.keys() & queryResults.keys()}
-    print(finalResult)
     
     #valid dict is left only for test purposes, no need to change the test cases
     valid = {"validTargets":[], "invalidTargets":[]}
