@@ -1,3 +1,4 @@
 [submodule "SDM-SHACL"]
 	path = travshacl
 	url = git@github.com:SDM-TIB/SDM-SHACL.git
+	branch = Trav-SHACL
