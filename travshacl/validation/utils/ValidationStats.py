@@ -24,7 +24,7 @@ class ValidationStats:
     def writeAll(self, statsOutput):
         statsOutput.write("targets:\n" + str(self.targets))
         statsOutput.write("\nmax number of rules in memory (2x max number of mappings for a query):\n" + str(self.maxSolutionMappings*2))
-        statsOutput.write("\ntotal number of rules in memory (2x total number of mappings):\n" + str(self.totalSolutionMappings*2))
+        statsOutput.write("\ntotal number of rules (2x total number of mappings):\n" + str(self.totalSolutionMappings*2))
         statsOutput.write("\nnumber of queries:\n" + str(self.numberOfQueries))
         statsOutput.write("\nmax exec time for a query:\n" + str(self.maxQueryExectime))
         statsOutput.write("\ntotal query exec time:\n" + str(self.totalQueryExectime))

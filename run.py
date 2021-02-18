@@ -139,6 +139,7 @@ def run():
 
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = network.validate()
+    print(report)
 
     # Retrieve the complete result for the initial query
     globals.endpoint.setQuery(initial_query.query)
@@ -151,7 +152,6 @@ def run():
     #New output generator, based on intersection of query and validation results
     reportResults = {}
     for shape, instance_dict in report.items():
-        #print(shape, instance_dict)
         for is_valid, instances in instance_dict.items():
             for instance in instances:
                 reportResults[instance[1]] = (instance[0], is_valid, shape)

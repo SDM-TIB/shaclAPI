@@ -123,11 +123,11 @@ class InstancesRetrieval:
         :return: One or multiple queries depending on whether the instances list was split or not.
                  If the instances list was not split, the variable 'query' returns an array with one single query.
         """
-        self.stats.updateValidationLog(''.join(["\n", inst_type, " instances shape: ", shape.id,
-                                                " - child's (", prev_eval_shape_name, ")"]))
+        self.stats.updateValidationLog(''.join(["\n", inst_type, " instances retrieval ", shape.id,
+                                                ": [out-neighbor's (", prev_eval_shape_name, ")"]))
         self.stats.updateValidationLog(''.join([" instances: ",
-                                                str(len(prev_val_list)), " val ",
-                                                str(len(prev_inv_list)), " inv"]))
+                                                str(len(prev_val_list)), " valid ",
+                                                str(len(prev_inv_list)), " invalid]"]))
         max_split_number = 256
         max_instances_per_query = 115
         shortest_inst_list = prev_val_list if len(prev_val_list) < len(prev_inv_list) else prev_inv_list
@@ -150,11 +150,12 @@ class InstancesRetrieval:
 
     def filter_constraint_query(self, shape, query_template, prev_eval_shape_name, q_type):
         """
-        Filters constraint query with targets from 'prev_eval_shape_name'. Since the length of a query string is
-        restricted by the SPARQL endpoint configuration, the query might be divided into several sub-queries,
-        where each subquery contains at most 'max_inst_per_query' (set to 80) instances.
+        Filters constraint query with targets from 'prev_eval_shape_name' (if available).
+        The end-user can restrict number of instances (shape.maxSplitSize) allowed for considering the filtering clause.
+        Since the length of a query string is restricted by the SPARQL endpoint configuration, the query might be
+        divided into several sub-queries, where each subquery contains at most 'max_instances_per_query' (set to 80).
 
-        :return: list with (possibly split) filtered query or original query if no filter could be applied
+        :return: list with (possibly partitioned) filtered query or original query if no filter was applied
         """
         max_split_number = shape.maxSplitSize
         max_instances_per_query = 80
@@ -165,17 +166,19 @@ class InstancesRetrieval:
                 len(prev_val_list) > 0 and len(prev_inv_list) > 0 and \
                 len(prev_val_list) <= max_split_number:
             VALUES_clauses = ""
-            ref_paths = "\n" if q_type == "max" else ''
-            split_instances = self._get_formatted_instances(prev_val_list, "", max_instances_per_query)
+            inter_shape_triples = "\n"
+            separator = ""
+            split_instances = self._get_formatted_instances(prev_val_list, separator, max_instances_per_query)
             for c in shape.constraints:
-                if c.shapeRef == prev_eval_shape_name:
-                    var = " ?" + c.variables[0]
-                    VALUES_clauses += "VALUES" + var + " {$instances$}\n"
+                if c.shapeRef == prev_eval_shape_name and c.min == 1:
+                    obj_var = " ?" + c.variables[0]
+                    VALUES_clauses += "VALUES" + obj_var + " {$instances$}\n"
                     if q_type == "max":
                         focus_var = c.varGenerator.getFocusNodeVar()
-                        ref_paths += "?" + focus_var + " " + c.path + var + ".\n"
+                        inter_shape_triples += "?" + focus_var + " " + c.path + obj_var + ".\n"
 
-            return [query_template.replace("$to_be_replaced$", VALUES_clauses.replace("$instances$", sublist) + ref_paths)
+            return [query_template.replace("$to_be_replaced$",
+                                           VALUES_clauses.replace("$instances$", sublist) + inter_shape_triples)
                     for sublist in split_instances]
 
         return [query_template.replace("$to_be_replaced$", "\n")]

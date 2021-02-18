@@ -185,7 +185,7 @@ class Query:
     def targetDefFromStarShapedQuery(self, initial_query_triples, filter_clause):
         # Identify ?x
         if filter_clause == '':
-            return Query('SELECT ?x WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3(prepending_point = False) + filter_clause + '}')
+            return Query('SELECT ?x WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3(prepending_point = False) + '}')
         else:
             return Query('SELECT ?x WHERE {\n' + TripleStore.fromSet(initial_query_triples).n3(prepending_point = True) + filter_clause + '}')
 

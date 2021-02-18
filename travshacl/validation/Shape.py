@@ -28,6 +28,8 @@ class Shape:
         self.minQuery = None
         self.maxQueries = None
         self.predicates = []
+        self.maxValidRefs = {}
+        self.skippedQueriesIds = set()
 
         self.referencedShapes = referencedShapes
         self.parentShapes = set()
@@ -54,9 +56,9 @@ class Shape:
         self.outDegree = outDegree
 
     def computePredicateSet(self, minQueryId, maxQueriesIds):
-        '''
+        """
         Returns the ids of the queries for a shape
-        '''
+        """
 
         return [self.id] + [self.id + "_d1"] + [minQueryId] + [q for q in maxQueriesIds]
 
@@ -139,17 +141,19 @@ class Shape:
             self.maxConstrId[max_c] = self.constraintsId + "_max_" + str(i+1)
 
         i = itertools.count()
-        self.maxQueries = {self.queryGenerator.generate_query(
+        self.maxQueries = [self.queryGenerator.generate_query(
                                         maxIds[next(i)],
                                         [c],
                                         self.useSelectiveQueries,
                                         self.targetQueryNoPref,
                                         self.includePrefixes,
                                         self.ORDERBYinQueries,
-                                        subquery) for c in maxConstraints}
+                                        subquery) for c in maxConstraints]
 
         self.predicates = self.computePredicateSet(minId, maxIds)
         self.rulePatterns = self.computeRulePatterns()
+        self.computeMaxQueriesToSkip()
+        self.removeFromMaxQueries()
 
     def computeRulePatterns(self):
         """ Computes shape rule patterns """
@@ -178,6 +182,29 @@ class Shape:
 
     def getInvalidTargets(self):
         return self.targets["violated"]
+
+    def computeMaxQueriesToSkip(self):
+        """
+        Creates a dictionary which keys are shapes names of the out-neighbors (defined in inter-shape max constraints)
+        of this shape, and the dictionary values are the respective max values of each constraint.
+        """
+        for max_c in self.getConstraints():
+            if max_c.max != -1 and max_c.shapeRef is not None:
+                for min_c in self.getConstraints():
+                    if min_c.min != -1 and min_c.shapeRef == max_c.shapeRef:
+                        self.maxValidRefs[max_c.shapeRef] = max_c.max
+                        for constrRef, query_id in self.maxConstrId.items():
+                            if constrRef.shapeRef == max_c.shapeRef:
+                                self.skippedQueriesIds.add(query_id)
+
+    def removeFromMaxQueries(self):
+        """
+        Filters max queries to be evaluated against the SPARQL endpoint by excluding needless evaluations
+        """
+        self.maxQueries = list(filter(lambda x: x.getId() not in self.skippedQueriesIds, self.maxQueries))
+
+    def getMaxValidRefs(self):
+        return self.maxValidRefs
 
 #    def getPosShapeRefs(self):
 #        return [d.getPosShapeRefs() for d in self.disjuncts]
