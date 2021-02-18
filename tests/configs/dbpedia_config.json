@@ -1,11 +1,12 @@
 {
-    "external_endpoint":"http://dbpedia.org/sparql",
-    "outputDirectory":"./output/",
-    "shapeFormat":"JSON",
+    "external_endpoint": "http://dbpedia.org/sparql",
+    "outputDirectory": "./output/",
+    "shapeFormat": "JSON",
     "workInParallel": false,
     "useSelectiveQueries": true,
     "maxSplit": 256,
-    "ORDERBYinQueries":true,
-    "SHACL2SPARQLorder":false,
-    "advancedOutput":true
+    "ORDERBYinQueries": true,
+    "SHACL2SPARQLorder": false,
+    "advancedOutput": true,
+    "outputs": false
 }

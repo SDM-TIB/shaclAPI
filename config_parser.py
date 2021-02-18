@@ -1,7 +1,7 @@
 import json
 
 CONFIG_DICT = {
-    'config.json':['outputDirectory','shapeFormat','workInParallel','useSelectiveQueries','maxSplit','ORDERBYinQueries','SHACL2SPARQLorder','external_endpoint']
+    'config.json':['outputDirectory','shapeFormat','workInParallel','useSelectiveQueries','maxSplit','ORDERBYinQueries','SHACL2SPARQLorder','external_endpoint','outputs']
 }
 
 def read_and_check_config(file):

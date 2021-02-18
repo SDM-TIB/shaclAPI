@@ -133,7 +133,7 @@ def run():
     # Step 1 and 2 are executed by ReducedShapeParser
     network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
                             heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShapeID, True, config['workInParallel'], targetDefQuery= newTargetDef.query) # False indicates no further output saving
+                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShapeID, config['outputs'], config['workInParallel'], targetDefQuery= newTargetDef.query)
 
     print("Finished Step 1 and 2!")
 
