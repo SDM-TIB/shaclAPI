@@ -1,19 +1,19 @@
+import sys
+sys.path.append('./travshacl') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
+
 from flask import Flask, request, Response
 from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib import term
 
 import rdflib
-import sys
 import os
 import time
 import logging
 import json
 import re
 
-sys.path.append('./travshacl')
-from travshacl.reduction.ReducedShapeNetwork import ReducedShapeNetwork
 from travshacl.validation.core.GraphTraversal import GraphTraversal
-sys.path.remove('./travshacl')
+from reduction.ReducedShapeNetwork import ReducedShapeNetwork
 
 from app.query import Query
 from app.utils import printSet, pathToString
@@ -26,6 +26,10 @@ import app.path as Path
 import app.variableStore as VariableStore
 import arg_eval_utils as Eval
 import config_parser as Configs
+sys.path.remove('./travshacl')
+
+
+
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')

@@ -1,2 +1,3 @@
 - Autoretrieve Namespaces
 - PrefixHandling: --> Example Prefixes extracted from the star shaped query should be added to the SPARQLPrefixHandler
+- /output - Folder is not automatically created; but travshacl crashes when this folder not exists
