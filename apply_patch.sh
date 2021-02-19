@@ -1,4 +1,6 @@
 #!/bin/bash
+git submodule init
+git submodule update
 git config -f .gitmodules submodule.SDM-SHACL.branch Trav-SHACL
 git submodule update --remote
 cd travshacl
