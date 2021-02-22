@@ -1,10 +1,8 @@
 import requests
-import config_parser as Configs
 import json
 from tests import testingUtils
 import pytest, warnings
 import os, sys
-import itertools
 from glob import glob
 
 TRAV_DIR = 'travshacl/'

@@ -56,11 +56,9 @@ class ReducedShapeParser(ShapeParser):
     """
     def parseConstraint(self, varGenerator, obj, id, targetDef):
         if self.targetShape == self.currentShape or self.targetShape == obj.get('shape'):
-            #predicates are normalized to the extended, non-inverted form
-            #self.query.triples is assumed to be non-inverted in all cases
-            extended_path = self._as_path(obj['path'])
-            for t in self.query.triples(normalized=True):
-                if t.predicat == extended_path:
+            for t in self.query.get_predicates(replace_prefixes=False):
+                path = obj['path'][obj['path'].startswith('^'):]
+                if t == path:
                     return super().parseConstraint(varGenerator, obj, id, targetDef)
             self.removed_constraints += [obj.get('path')]
             return None

@@ -8,7 +8,6 @@ class ReducedShapeNetwork(ShapeNetwork):
     def __init__(self, schemaDir, schemaFormat, endpointURL, graphTraversal, validationTask, heuristics, useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, query, targetShape,  saveOutputs, workInParallel=False, targetDefQuery=None):
         self.shapes = ReducedShapeParser(query, targetShape).parseShapesFromDir(
             schemaDir, schemaFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, targetDefQuery=targetDefQuery)
-        print([s.getTargetQuery() for s in self.shapes])
         self.shapesDict = {shape.getId(): shape for shape in self.shapes}
         self.endpointURL = endpointURL
         self.endpoint = SPARQLEndpoint(endpointURL)  # used in old_approach

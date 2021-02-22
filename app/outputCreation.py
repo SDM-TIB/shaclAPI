@@ -49,22 +49,20 @@ class QueryReport:
 
     @staticmethod
     def create_output(report, query, results):
-        return QueryReport(report, query, results)
+        return QueryReport(report, query, results).full_report
 
     def parse_results(self, results):
         slim_result = [x for x in results['results']['bindings']]
         return [{k: v['value']  for k, v in entry.items()} for entry in slim_result]
 
     def parse_triples(self, query):
-        return [(t.subject.n3(), t.predicat.n3(), t.object.n3()) for t in query.triples()]
-
+        return query.get_triples()
 
     def parse_report(self, report):
         #Maybe create RDF Graph?
         report_triples = []
         n = Namespace("//travshacl_path#")
         for shape, s_report in report.items():
-            print(s_report.get('valid_instances') is not None, s_report.get('invalid_instances') is not None)
             if s_report.get('valid_instances'):
                 for validating_shape, instance, _ in s_report['valid_instances']:
                     report_triples += [(instance, n['satisfiesShape'], validating_shape)]
