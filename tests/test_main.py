@@ -1,10 +1,8 @@
 import requests
-import config_parser as Configs
 import json
 from tests import testingUtils
 import pytest, warnings
 import os, sys
-import itertools
 from glob import glob
 
 TRAV_DIR = 'travshacl/'
@@ -55,7 +53,7 @@ def test_trav(file):
 
 @pytest.mark.parametrize("file", get_all_files())
 @pytest.mark.timeout(20)
-@pytest.mark.dependency(depends=["test_api_up"])
+#@pytest.mark.dependency(depends=["test_api_up"])
 def test_run(file):
     test_file_name = str(file).replace('/','_')
     test_file_name = test_file_name.replace('.','',1)

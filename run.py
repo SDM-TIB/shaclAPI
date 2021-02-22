@@ -1,28 +1,15 @@
 from flask import Flask, request, Response
-from SPARQLWrapper import SPARQLWrapper
-from rdflib import term
+from SPARQLWrapper import SPARQLWrapper, JSON
 
-import rdflib
+import os, time, logging, json
+
 import sys
-import os
-import time
-import logging
-import json
-import re
-
-sys.path.append('./travshacl')
-from travshacl.reduction.ReducedShapeNetwork import ReducedShapeNetwork
-from travshacl.validation.core.GraphTraversal import GraphTraversal
+sys.path.append('./travshacl') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
+from reduction.ReducedShapeNetwork import ReducedShapeNetwork
 sys.path.remove('./travshacl')
 
 from app.query import Query
-from app.utils import printSet, pathToString
-from app.tripleStore import TripleStore
-import app.subGraph as SubGraph
-import app.globals as globals
-import app.shapeGraph as ShapeGraph
-import app.path as Path
-import app.variableStore as VariableStore
+from app.outputCreation import QueryReport
 import arg_eval_utils as Eval
 import config_parser as Configs
 
@@ -31,58 +18,33 @@ log = logging.getLogger('werkzeug')
 log.disabled = True
 
 INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
+ENDPOINT = None
+
 @app.route("/endpoint", methods=['GET','POST'])
 def endpoint():
+    global ENDPOINT
     print('\033[92m-------------------SPARQL Endpoint Request-------------------\033[00m')
     # Preprocessing of the Query
     if request.method == 'POST':
-        query = Query(request.form['query'])
+        query = request.form['query']
     if request.method == 'GET':
-        query = Query(request.args['query'])
+        query = request.args['query']
 
     print("Received Query: ")
     print('\033[02m' + str(query) + '\033[0m\n')
 
-    # Extract Triples of the given Query to identify the mentioned Shape (?x --> s_id)
-    query_triples = query.triples()
-    possible_shapes = set()
-    for row in ShapeGraph.queryTriples(query_triples):
-        possible_shapes.add(ShapeGraph.uriRefToShapeId(row[0]))
-    
-    for s_id in possible_shapes:
-        print('The Query referres to {}'.format(s_id))
-
-        if globals.shape_queried[s_id] == False:
-            # Extract Pathes from the Target Shape to the identified Shape
-            paths = Path.computePathsToTargetShape(s_id,[])
-            print('Paths: ' + pathToString(paths))
-
-            for path in paths:
-                construct_query = Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,path,s_id,globals.filter_clause)
-                #print("Construct Query: ")
-                #print(str(construct_query) + '\n')
-                SubGraph.extendWithConstructQuery(construct_query,globals.shape_to_var[s_id])
-            globals.shape_queried[s_id] = True
-
-    # Query the internal subgraph with the given input query
-    print("Query Subgraph:")
     start = time.time()
-    result = SubGraph.query(query)
-    jsonResult = result.serialize(encoding='utf-8',format='json')
+    ENDPOINT.setQuery(query)
+    ENDPOINT.setReturnFormat(JSON)
+    result = ENDPOINT.query().convert()
+    jsonResult = json.dumps(result)
     end = time.time()
-    print("Got {} result bindings".format(len(result.bindings)))
+    
+    print("Got {} result bindings".format(len(result['results']['bindings'])))
     print("Execution took " + str((end - start)*1000) + ' ms')
     print('\033[92m-------------------------------------------------------------\033[00m')
 
     return Response(jsonResult, mimetype='application/json')
-
-@app.route("/queryShapeGraph", methods = ['POST'])
-def queryShapeGraph():
-    query = Query(request.form['query'])
-    result = ShapeGraph.query(query.parsed_query)
-    for row in result:
-        print(row)
-    return "Done"
     
 @app.route("/go", methods=['POST'])
 def run():
@@ -98,14 +60,8 @@ def run():
             - targetShape
     '''
     # Clear Globals
-    SubGraph.clear()
-    ShapeGraph.clear()
-    Path.clearReferredByDictionary()
-    globals.shape_to_var = dict()
-    globals.targetShapeID = None
-    globals.endpoint = None
-    globals.filter_clause = ''
-    globals.ADVANCED_OUTPUT = False
+    global ENDPOINT
+    ENDPOINT = None
 
     # Parse POST Arguments
     task = Eval.parse_task_string(request.form['task'])    
@@ -113,7 +69,7 @@ def run():
     schema_directory = request.form['schemaDir']
     heuristics = Eval.parse_heuristics_string(request.form['heuristic'])
     query_string = request.form['query']
-    globals.targetShapeID = request.form['targetShape']
+    targetShapeID = request.form['targetShape']
 
     # Parse Config File
     if 'config' in request.form:
@@ -122,112 +78,88 @@ def run():
     else:
         print("Using default config File!!")
         config = Configs.read_and_check_config('config.json')
-    print(config)
 
-    #Advanced output FLAG, set for test runs with additional output
-    globals.ADVANCED_OUTPUT = config['advancedOutput']
+    #DEBUG FLAG, set for test runs with additional output
+    DEBUG_OUTPUT = config['advancedOutput']
 
-    globals.endpoint = SPARQLWrapper(config['external_endpoint'])
+    output_directory = config['outputDirectory']
+    endpoint_url = config['external_endpoint']
+    ENDPOINT = SPARQLWrapper(endpoint_url)
 
-    os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True) #TODO: Do we need that?
-    
-    # Rename Variables in Initial Query to avoid overlapping Variable Names
-    initial_query = Query(query_string)
-    for i,variable in enumerate(initial_query.vars):
-        if variable not in initial_query.queriedVars:
-            query_string = query_string.replace(variable.n3(),'?q_{}'.format(i))
+    if DEBUG_OUTPUT:
+        print(config)
+        endpoint_url = INTERNAL_SPARQL_ENDPOINT
 
-    initial_query = Query(query_string)
+    os.makedirs(os.path.join(os.getcwd(), output_directory), exist_ok=True)
+
+    #Parse query_string into a target_definition and a corresponding select_query
+    query = Query.prepare_query(query_string)
+    target_definition = query.as_target_query()
+    query_string = query.as_valid_query()
+
+    print("New TargetDef:\n", target_definition)
 
     # Step 1 and 2 are executed by ReducedShapeParser
-    globals.network = ReducedShapeNetwork(schema_directory, config['shapeFormat'], INTERNAL_SPARQL_ENDPOINT, traversal_strategie, task,
-                            heuristics, config['useSelectiveQueries'], config['maxSplit'],
-                            config['outputDirectory'], config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], initial_query, globals.targetShapeID, config['workInParallel'])
-
-    print("Finished Step 1 and 2!")
-    # Setup of the ShapeGraph
-    ShapeGraph.setPrefixes(initial_query.parsed_query.prologue.namespace_manager.namespaces())
-    ShapeGraph.constructAndSetGraphFromShapes(globals.network.shapes)
-    
-    # Construct globals.referred_by Dictionary (used to build Paths to Target Shapes)
-    Path.computeReferredByDictionary(globals.network.shapes)
-    print('\nReferred by Dictionary: ' + str(globals.referred_by))
-
-    # Set a Variable for each Shape
-    VariableStore.setShapeVariables(globals.targetShapeID, globals.network.shapes)
-    print('\nVariables to Shape Mapping: ' + str(globals.shape_to_var))
-
-    print('\n-------------------Triples used for Construct Queries-------------------')
-    # Build TripleStores for each Shape
-    for s in globals.network.shapes:
-        TripleStore.fromShape(s)
-        print(s.id)
-        printSet(TripleStore(s.id).getTriples())
-    
-    # Extract all the triples in the given initial query
-    globals.initial_query_triples = initial_query.triples()    
-    print('Initial Query Triples')
-    printSet(globals.initial_query_triples)
-    
-    # Extract all FILTER terms
-    filter_terms = re.findall('FILTER\(.*\)',initial_query.query,re.DOTALL)
-    for filter_term in filter_terms:
-        globals.filter_clause = globals.filter_clause + filter_term + '.\n'
-
-    print('Initial Query Filters')
-    printSet(filter_terms)
-    
-    #TODO: Rename Variables in globals.initial_query_triples and filter_terms
-
-    for s in globals.network.shapes:
-        globals.shape_queried[s.id] = False
-    
-    # Extract query_triples of the input query to construct a query such that our Subgraph can be initalized (path = [])
-    SubGraph.extendWithConstructQuery(Query.constructQueryFrom(globals.targetShapeID,globals.initial_query_triples,[],globals.targetShapeID,globals.filter_clause),initial_query.queriedVars[0])
-    globals.shape_queried[globals.targetShapeID] = True
+    network = ReducedShapeNetwork(
+        schema_directory, config['shapeFormat'], endpoint_url, traversal_strategie, task,
+        heuristics, config['useSelectiveQueries'], config['maxSplit'], output_directory, 
+        config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], query, targetShapeID, 
+        config['outputs'], config['workInParallel'], targetDefQuery=target_definition
+    )
 
     # Run the evaluation of the SHACL constraints over the specified endpoint
-    report = globals.network.validate()
-    valid = {"validTargets":[], "invalidTargets":[]}
-    for s in report:
-        if report[s].get("valid_instances"):
-            valid["validTargets"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred == globals.targetShapeID])
-        if report[s].get("invalid_instances"):
-            valid["invalidTargets"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred == globals.targetShapeID])
-    #Return full report, if ADVANCED_OUTPUT is set
-    if globals.ADVANCED_OUTPUT:
-        valid["advancedValid"] = []
-        valid["advancedInvalid"] = []
-        for s in report:
-            if report[s].get("valid_instances"):
-                valid["advancedValid"].extend([(l.arg, s) for l in report[s]["valid_instances"] if l.pred != globals.targetShapeID])
-            if report[s].get("invalid_instances"):
-                valid["advancedInvalid"].extend([(l.arg, s) for l in report[s]["invalid_instances"] if l.pred != globals.targetShapeID])
-    
-    queryResult = SubGraph.query(initial_query).serialize(encoding='utf-8',format='json')   
-    valid.update(json.loads(queryResult))
-    validationDict = {}
-    for s in report:
-        if report[s].get("valid_instances"):
-            validationDict.update({l.arg: 'valid' for l in report[s]['valid_instances']})
-        if report[s].get("invalid_instances"):
-            validationDict.update({l.arg: 'invalid' for l in report[s]['invalid_instances']})
+    report = network.validate()
 
+    # Retrieve the complete result for the initial query
+    ENDPOINT.setQuery(query_string)
+    ENDPOINT.setReturnFormat(JSON)
+    results = ENDPOINT.query().convert()
 
-    for binding in valid['results']['bindings']:
-        binding['validation'] = {'type': 'literal', 'value': validationDict[binding['x']['value']]}
+    valid = QueryReport.create_output(report, query, results)
+
+    if DEBUG_OUTPUT:
+        #New output generator, based on intersection of query and validation results
+        reportResults = {}
+        for shape, instance_dict in report.items():
+            for is_valid, instances in instance_dict.items():
+                for instance in instances:
+                    reportResults[instance[1]] = (instance[0], is_valid, shape)
+
+        queryResults = {}
+        for binding in results['results']['bindings']:
+            instance = binding[query.target_var[1:]]['value']
+            queryResults[instance] = {var: info['value'] for var, info in binding.items()}
+        
+        #valid dict is left only for test purposes, no need to change the test cases
+        valid = {"validTargets":[], "invalidTargets":[], "advancedValid":[], "advancedInvalid":[]}
+        for t in reportResults.keys() & queryResults.keys():
+            #'validation' : (instance shape, is_valid, violating/validating shape)
+            if reportResults[t][0] == targetShapeID:
+                if reportResults[t][1] == 'valid_instances':
+                    valid["validTargets"].append((t, reportResults[t][2]))
+                elif reportResults[t][1] == 'invalid_instances':
+                    valid["invalidTargets"].append((t, reportResults[t][2]))
+        for t in reportResults:
+            #'validation' : (instance's shape, is_valid, violating/validating shape)
+            if reportResults[t][0] != targetShapeID:
+                if reportResults[t][1] == 'valid_instances':
+                    valid["advancedValid"].append((t, reportResults[t][2]))
+                elif reportResults[t][1] == 'invalid_instances':
+                    valid["advancedInvalid"].append((t, reportResults[t][2]))
+
     return Response(json.dumps(valid), mimetype='application/json')
 
 @app.route("/", methods=['GET'])
 def hello_world():
     return "Hello World"
 
+# @app.route("/queryShapeGraph", methods = ['POST'])
+# def queryShapeGraph():
+#     query = Query(request.form['query'])
+#     result = ShapeGraph.query(query.parsed_query)
+#     for row in result:
+#         print(row)
+#     return "Done"
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-# Extract all the triples which are limiting the target shape by adding additional references to Objects.
-# globals.initial_query_triples = initial_query.triples.copy()
-# for query_triple in globals.initial_query_triples:
-#     if not isinstance(query_triple.object, term.URIRef):
-#         globals.initial_query_triples.remove(query_triple)

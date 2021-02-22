@@ -8,12 +8,12 @@
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [
-       ],
-        "invalidTargets": [
             [
                 "http://example.org/testGraph3#nodeD_0",
                 "ShapeD"
-            ],
+            ]
+       ],
+        "invalidTargets": [
             [
                 "http://example.org/testGraph3#nodeD_1",
                 "ShapeD"

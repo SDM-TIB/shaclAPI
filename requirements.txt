@@ -4,3 +4,4 @@ pytest-dependency
 pytest-timeout
 flask
 rdflib
+requests

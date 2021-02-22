@@ -1,0 +1,40 @@
+From b718d2c3989b9fa46c8c4b7e298905fa5074f334 Mon Sep 17 00:00:00 2001
+From: Julian Gercke <julian.gercke@gmx.de>
+Date: Thu, 18 Feb 2021 14:14:02 +0100
+Subject: [PATCH] required changes
+
+---
+ validation/core/ValidationTask.py        | 3 +++
+ validation/sparql/SPARQLPrefixHandler.py | 4 ++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/validation/core/ValidationTask.py b/validation/core/ValidationTask.py
+index 361eb17..b45b698 100644
+--- a/validation/core/ValidationTask.py
++++ b/validation/core/ValidationTask.py
+@@ -11,3 +11,6 @@ class ValidationTask(Enum):
+     INSTANCES_VALID = "report the valid instances"
+     INSTANCES_VIOLATION = "report the instances that violate at least one constraint"
+     ALL_INSTANCES = "report all instances: the valid ones and the ones that violate at least one constraint"
++
++    def __eq__(self,other):
++        return str(self) == str(other)
+\ No newline at end of file
+diff --git a/validation/sparql/SPARQLPrefixHandler.py b/validation/sparql/SPARQLPrefixHandler.py
+index ab8c854..5e76426 100644
+--- a/validation/sparql/SPARQLPrefixHandler.py
++++ b/validation/sparql/SPARQLPrefixHandler.py
+@@ -6,6 +6,10 @@ prefixes = {
+     "dbr": "<http://dbpedia.org/resource/>",
+     "yago": "<http://dbpedia.org/class/yago/>",
+     "foaf": "<http://xmlns.com/foaf/0.1/>",
++    "test1": "<http://example.org/testGraph1#>",
++    "test2": "<http://example.org/testGraph2#>",
++    "test3": "<http://example.org/testGraph3#>",
++    "test4": "<http://example.org/testGraph4#>",
+     "": "<http://example.org/>"
+ }
+ 
+-- 
+2.25.1
+

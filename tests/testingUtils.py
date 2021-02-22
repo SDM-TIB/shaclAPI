@@ -86,10 +86,12 @@ def get_trav_args(params_file):
             or def_config['SHACL2SPARQLorder'],
         'selective': json_config.get('useSelectiveQueries') \
             or def_config['useSelectiveQueries'],
+        'outputs': json_config.get('outputs') \
+            or def_config['outputs'],
         'a': 'a' == task,
         'g': 'g' == task,
         's': 's' == task,
         't': 't' == task,
-        'v': 'v' == task,
+        'f': 'f' == task,
     }
     return Namespace(**args)
