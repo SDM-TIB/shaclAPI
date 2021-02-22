@@ -6,11 +6,11 @@ import os, time, logging, json
 import sys
 sys.path.append('./travshacl') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
 from reduction.ReducedShapeNetwork import ReducedShapeNetwork
+import arg_eval_utils as Eval
 sys.path.remove('./travshacl')
 
 from app.query import Query
 from app.outputCreation import QueryReport
-import arg_eval_utils as Eval
 import config_parser as Configs
 
 app = Flask(__name__)

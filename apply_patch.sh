@@ -9,5 +9,5 @@ git branch -D local
 git branch local
 git checkout local
 git am --abort
-git am ../0001-required-changes.patch
+git am ../0001-namespace-changes.patch
 cd ..

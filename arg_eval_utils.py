@@ -1,5 +1,5 @@
-from travshacl.validation.core.ValidationTask import ValidationTask
-from travshacl.validation.core.GraphTraversal import GraphTraversal
+from validation.core.ValidationTask import ValidationTask
+from validation.core.GraphTraversal import GraphTraversal
 
 
 def parse_task_string(task_string):
