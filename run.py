@@ -7,7 +7,9 @@ import sys
 sys.path.append('./travshacl') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
 from reduction.ReducedShapeNetwork import ReducedShapeNetwork
 import arg_eval_utils as Eval
+import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
 sys.path.remove('./travshacl')
+
 
 from app.query import Query
 from app.outputCreation import QueryReport
@@ -96,6 +98,9 @@ def run():
     query = Query.prepare_query(query_string)
     target_definition = query.as_target_query()
     query_string = query.as_valid_query()
+
+    SPARQLPrefixHandler.prefixes = {key:"<" + value + ">" for (key,value) in query.namespace_manager.namespaces()}
+    SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
 
     print("New TargetDef:\n", target_definition)
 

@@ -14,6 +14,12 @@ TESTS_DIRS = [
     './tests/tc4/test_definitions/'
 ]
 
+required_prefixes = { 
+    "test1": "<http://example.org/testGraph1#>",
+    "test2": "<http://example.org/testGraph2#>",
+    "test3": "<http://example.org/testGraph3#>",
+    "test4": "<http://example.org/testGraph4#>" }
+
 RESULT_DIR = 'test_output'
 if not os.path.isdir(RESULT_DIR):
     os.mkdir(RESULT_DIR)
@@ -44,7 +50,10 @@ def test_trav(file):
     try:
         sys.path.append(os.getcwd())
         from validation.Eval import Eval
+        import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
         sys.path.remove(os.getcwd())
+        SPARQLPrefixHandler.prefixes.update(required_prefixes)
+        SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
         response = Eval(namespace)        
     finally:
         os.chdir(test_dir)
