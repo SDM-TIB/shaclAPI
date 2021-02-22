@@ -125,7 +125,7 @@ class Query:
         return query
     
     def _replace_prefixes_in_query(self, query):
-        """Uses the infomration from self.get_triples to replace abbreviated term with their long version.
+        """Uses the information from self.get_triples to replace abbreviated term with their long version.
         It would be possible to perform this action without knowing the triples, 
         but finding and replacing only relevant parts is then harder.
 

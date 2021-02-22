@@ -82,6 +82,7 @@ def run():
     #DEBUG FLAG, set for test runs with additional output
     DEBUG_OUTPUT = config['advancedOutput']
 
+    output_directory = config['outputDirectory']
     endpoint_url = config['external_endpoint']
     ENDPOINT = SPARQLWrapper(endpoint_url)
 
@@ -89,7 +90,7 @@ def run():
         print(config)
         endpoint_url = INTERNAL_SPARQL_ENDPOINT
 
-    os.makedirs(os.getcwd() + '/' + schema_directory, exist_ok=True) #TODO: Do we need that?
+    os.makedirs(os.path.join(os.getcwd(), output_directory), exist_ok=True)
 
     #Parse query_string into a target_definition and a corresponding select_query
     query = Query.prepare_query(query_string)
@@ -101,7 +102,7 @@ def run():
     # Step 1 and 2 are executed by ReducedShapeParser
     network = ReducedShapeNetwork(
         schema_directory, config['shapeFormat'], endpoint_url, traversal_strategie, task,
-        heuristics, config['useSelectiveQueries'], config['maxSplit'], config['outputDirectory'], 
+        heuristics, config['useSelectiveQueries'], config['maxSplit'], output_directory, 
         config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], query, targetShapeID, 
         config['outputs'], config['workInParallel'], targetDefQuery=target_definition
     )
