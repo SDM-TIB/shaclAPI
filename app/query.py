@@ -41,9 +41,9 @@ class Query:
         Returns:
             list: List of triples (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
         """
-        return self.__extract_triples_rekursion(self.query_object.algebra)         
+        return self.__extract_triples_recursion(self.query_object.algebra)         
 
-    def __extract_triples_rekursion(self, algebra):
+    def __extract_triples_recursion(self, algebra):
         """Recursive function for triple pattern extraction.
 
         Args:
@@ -55,7 +55,7 @@ class Query:
         result = []
         for k,v in algebra.items():
             if isinstance(v, dict):
-                result = result + self.__extract_triples_rekursion(v)
+                result = result + self.__extract_triples_recursion(v)
             else:
                 if k == 'triples':
                     result = result + v
