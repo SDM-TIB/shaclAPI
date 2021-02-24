@@ -32,10 +32,10 @@ class ReducedShapeParser(ShapeParser):
     def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, targetDefQuery = None):
         shapes = super().parseShapesFromDir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
-        shapes = [s for s in shapes if s.getId() in involvedShapes]
+        shapes = [s for s in shapes if s.get_id() in involvedShapes]
         if targetDefQuery:
             for s in shapes:
-                if s.getId() == self.targetShape:
+                if s.get_id() == self.targetShape:
                     s.targetQuery = targetDefQuery
                     s.targetQueryNoPref = targetDefQuery
         return shapes
@@ -78,12 +78,12 @@ class ReducedShapeParser(ShapeParser):
     """
     def computeReducedEdges(self, shapes):
         """Computes the edges in the network."""
-        dependencies = {s.getId(): [] for s in shapes}
-        reverse_dependencies = {s.getId(): [] for s in shapes}
+        dependencies = {s.get_id(): [] for s in shapes}
+        reverse_dependencies = {s.get_id(): [] for s in shapes}
         for s in shapes:
             refs = s.getShapeRefs()
             if refs:
-                name = s.getId()
+                name = s.get_id()
                 dependencies[name] = refs
                 for ref in refs:
                     if ref == self.targetShape:
