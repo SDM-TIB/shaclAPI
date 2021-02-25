@@ -1,42 +1,38 @@
 {
     "task": "a",
     "traversalStrategie": "DFS",
-    "schemaDir": "./tests/tc1/shapes/test9",
+    "schemaDir": "./tests/tc1/shapes/test5_11",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classE.\n?x ^test1:belongsTo ?y\n}",
-    "targetShape": "ShapeEbig",
+    "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classE.\n?x ^test1:belongsTo ?y.\n?x test1:has ?z}",
+    "targetShape": "ShapeEaverage",
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [
-            [
-                "http://example.org/testGraph1#nodeE_0",
-                "ShapeEbig"
-            ]
        ],
         "invalidTargets": [
             [
                 "http://example.org/testGraph1#nodeE_3",
-                "ShapeEbig"
+                "ShapeEaverage"
+            ],
+            [
+                "http://example.org/testGraph1#nodeE_0",
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_2",
-                "ShapeEbig"
-            ],
-            [
-                "http://example.org/testGraph1#nodeE_1",
-                "ShapeEbig"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_4",
-                "ShapeEbig"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_5",
-                "ShapeEbig"
+                "ShapeEaverage"
             ],
             [
                 "http://example.org/testGraph1#nodeE_6",
-                "ShapeEbig"
+                "ShapeEaverage"
             ]
         ]
     },

@@ -1,9 +1,9 @@
 {
     "task": "a",
     "traversalStrategie": "DFS",
-    "schemaDir": "./tests/tc1/shapes/test9",
+    "schemaDir": "./tests/tc1/shapes/test6_12",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classE.\n?x ^test1:belongsTo ?y\n}",
+    "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classE.\n?x ^test1:belongsTo ?y.\n?x test1:has ?z}",
     "targetShape": "ShapeEbig",
     "config": "tests/configs/lubm_config.json",
     "result": {
@@ -20,10 +20,6 @@
             ],
             [
                 "http://example.org/testGraph1#nodeE_2",
-                "ShapeEbig"
-            ],
-            [
-                "http://example.org/testGraph1#nodeE_1",
                 "ShapeEbig"
             ],
             [
