@@ -13,6 +13,10 @@
                 "ShapeEsmall"
             ],
             [
+                "http://example.org/testGraph1#nodeE_2",
+                "ShapeEsmall"
+            ],
+            [
                 "http://example.org/testGraph1#nodeE_3",
                 "ShapeEsmall"
             ]
@@ -20,10 +24,6 @@
         "invalidTargets": [
             [
                 "http://example.org/testGraph1#nodeE_0",
-                "ShapeEsmall"
-            ],
-            [
-                "http://example.org/testGraph1#nodeE_2",
                 "ShapeEsmall"
             ],
             [
