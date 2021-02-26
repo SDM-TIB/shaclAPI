@@ -1,0 +1,28 @@
+{
+    "task": "a",
+    "traversalStrategie": "DFS",
+    "schemaDir": "./tests/tc3b/shapes/nobetaD",
+    "heuristic": "TARGET IN BIG",
+    "query": "PREFIX test3b:<http://example.org/testGraph3b#>\nSELECT ?x WHERE {\n?x a test3b:classC.\n?x test3b:alpha ?y.\n}",
+    "targetShape": "ShapeC",
+    "config": "tests/configs/lubm_config.json",
+    "result": {
+        "validTargets": [
+            [
+                "http://example.org/testGraph3b#nodeC_0",
+                "ShapeC"
+            ]
+       ],
+        "invalidTargets": [
+            [
+                "http://example.org/testGraph3b#nodeC_1",
+                "ShapeC"
+            ],
+            [
+                "http://example.org/testGraph3b#nodeC_2",
+                "ShapeC"
+            ]
+        ]
+    },
+    "test_type": "both"
+}
