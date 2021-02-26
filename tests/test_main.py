@@ -8,9 +8,9 @@ from glob import glob
 TRAV_DIR = 'travshacl/'
 FLASK_ENDPOINT='http://localhost:5000/'
 TESTS_DIRS = [
-    './tests/tc1/test_definitions/',
+    './tests/tc1_nomax/test_definitions/',
     './tests/tc2/test_definitions/',
-    './tests/tc3/test_definitions/',
+    './tests/tc3b/test_definitions/',
     './tests/tc4/test_definitions/'
 ]
 
