@@ -3,6 +3,7 @@ from rdflib.namespace import RDF
 from rdflib.plugins import sparql
 from rdflib.paths import InvPath
 from rdflib.term import URIRef
+from app.triple import Triple
 
 class Query:
     target_query = None
@@ -43,7 +44,7 @@ class Query:
         """
         return self.__extract_triples_recursion(self.query_object.algebra)         
 
-    def __extract_triples_recursion(self, algebra):
+    def __extract_triples_recursion(self, algebra, is_optional=False):
         """Recursive function for triple pattern extraction.
 
         Args:
@@ -55,10 +56,17 @@ class Query:
         result = []
         for k,v in algebra.items():
             if isinstance(v, dict):
-                result = result + self.__extract_triples_recursion(v)
+                if v.name == "LeftJoin" and v['expr'].name == "TrueFilter" and v['expr']['_vars'] == set():
+                    result = result + self.__extract_triples_recursion(v, is_optional= True)
+                else:
+                    if is_optional and k == "p2":
+                        result = result + self.__extract_triples_recursion(v, is_optional= True)
+                    else:
+                        result = result + self.__extract_triples_recursion(v, is_optional= False)
             else:
                 if k == 'triples':
-                    result = result + v
+                    print(v, is_optional)
+                    result = result + Triple.fromList(v, is_optional)
         return result
 
     def _get_target_var(self):
