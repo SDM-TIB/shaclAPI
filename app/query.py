@@ -157,7 +157,7 @@ class Query:
         old_triples = set(oldQuery.triples)
         
         target_query = "SELECT DISTINCT {} WHERE".format(self.target_var) + " {\n" + ".\n".join([t.n3(self.namespace_manager) for t in (new_triples.union(old_triples))]) + "\n".join([filter for filter in (new_filters + old_filters)]) + " }"
-        return self.as_target_query
+        return self.as_target_query()
 
 
     def as_valid_query(self):
