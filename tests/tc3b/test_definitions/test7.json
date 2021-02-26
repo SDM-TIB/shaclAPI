@@ -17,10 +17,6 @@
             [
                 "http://example.org/testGraph3b#nodeC_0",
                 "ShapeC"
-            ],
-            [
-                "http://example.org/testGraph3b#nodeC_2",
-                "ShapeC"
             ]
         ]
     },

@@ -15,10 +15,6 @@
        ],
         "invalidTargets": [
             [
-                "http://example.org/testGraph3b#nodeD_0",
-                "ShapeD"
-            ],
-            [
                 "http://example.org/testGraph3b#nodeD_2",
                 "ShapeD"
             ]

@@ -18,10 +18,6 @@
             ]
        ],
         "invalidTargets": [
-            [
-                "http://example.org/testGraph3b#nodeC_2",
-                "ShapeC"
-            ]
         ]
     },
     "test_type": "both"
