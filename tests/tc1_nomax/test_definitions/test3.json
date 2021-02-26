@@ -1,0 +1,64 @@
+{
+    "task": "a",
+    "traversalStrategie": "DFS",
+    "schemaDir": "./tests/tc1/shapes/test1_2_3",
+    "heuristic": "TARGET IN BIG",
+    "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classA. \n?x test1:has ?lit. \n?x test1:belongsTo ?y. \n?x test1:age ?age. \nFILTER(?age = '18')\n}",
+    "targetShape": "ShapeA",
+    "config": "tests/configs/lubm_config.json",
+    "result": {
+        "validTargets": [
+            [
+                "http://example.org/testGraph1#nodeA_0",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_1",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_2",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_3",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_4",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_5",
+                "ShapeA"
+            ]
+       ],
+        "invalidTargets": [
+            [
+                "http://example.org/testGraph1#nodeA_6",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_11",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_12",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_13",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_14",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph1#nodeA_15",
+                "ShapeA"
+            ]
+        ]
+    },
+    "test_type": "both"
+}
