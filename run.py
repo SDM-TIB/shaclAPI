@@ -99,7 +99,8 @@ def run():
     target_definition = query.as_target_query()
     query_string = query.as_valid_query()
 
-    SPARQLPrefixHandler.prefixes = {key:"<" + value + ">" for (key,value) in query.namespace_manager.namespaces()}
+    SPARQLPrefixHandler.prefixes = {str(key):"<" + str(value) + ">" for (key,value) in query.namespace_manager.namespaces()}
+    print(SPARQLPrefixHandler.prefixes)
     SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
 
     print("New TargetDef:\n", target_definition)
