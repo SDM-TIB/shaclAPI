@@ -94,23 +94,20 @@ def run():
 
     os.makedirs(os.path.join(os.getcwd(), output_directory), exist_ok=True)
 
-    #Parse query_string into a target_definition and a corresponding select_query
+    #Parse query_string into a corresponding select_query
     query = Query.prepare_query(query_string)
-    target_definition = query.as_target_query()
     query_string = query.as_valid_query()
 
     SPARQLPrefixHandler.prefixes = {str(key):"<" + str(value) + ">" for (key,value) in query.namespace_manager.namespaces()}
     print(SPARQLPrefixHandler.prefixes)
     SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
 
-    print("New TargetDef:\n", target_definition)
-
     # Step 1 and 2 are executed by ReducedShapeParser
     network = ReducedShapeNetwork(
         schema_directory, config['shapeFormat'], endpoint_url, traversal_strategie, task,
         heuristics, config['useSelectiveQueries'], config['maxSplit'], output_directory, 
         config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], query, targetShapeID, 
-        config['outputs'], config['workInParallel'], targetDefQuery=target_definition
+        config['outputs'], config['workInParallel'], initial_query=query
     )
 
     # Run the evaluation of the SHACL constraints over the specified endpoint

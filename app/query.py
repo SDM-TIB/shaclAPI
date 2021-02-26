@@ -51,7 +51,7 @@ class Query:
             algebra (dict): A sparql.algebra dictionary
 
         Returns:
-            list: List of triples (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
+            list: List of Triple Objects which behave as Python Tuple (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
         """
         result = []
         for k,v in algebra.items():
@@ -65,7 +65,6 @@ class Query:
                         result = result + self.__extract_triples_recursion(v, is_optional= False)
             else:
                 if k == 'triples':
-                    print(v, is_optional)
                     result = result + Triple.fromList(v, is_optional)
         return result
 
@@ -106,6 +105,13 @@ class Query:
         if replace_prefixes:
             return self._replace_prefixes_in_query(self.target_query)
         return self.target_query
+
+    def merge_as_target_query(self, old_target_query):
+        print(self.triples)
+        print(old_target_query.triples)
+        #TODO: Calculate merged query
+        return self.as_target_query()
+
 
     def as_valid_query(self):
         """Returns the query as a valid query_string. 

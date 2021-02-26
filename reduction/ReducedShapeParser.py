@@ -4,6 +4,7 @@ from validation.core.GraphTraversal import GraphTraversal
 from validation.sparql.SPARQLPrefixHandler import getPrefixes
 from rdflib.paths import Path
 from rdflib import Namespace
+from app.query import Query
 
 class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShape):
@@ -29,15 +30,25 @@ class ReducedShapeParser(ShapeParser):
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
-    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, targetDefQuery = None):
+    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, initial_query = None):
         shapes = super().parseShapesFromDir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
         shapes = [s for s in shapes if s.get_id() in involvedShapes]
-        if targetDefQuery:
+
+        # Replacing old targetQuery with new one
+        if initial_query:
             for s in shapes:
                 if s.get_id() == self.targetShape:
-                    s.targetQuery = targetDefQuery
-                    s.targetQueryNoPref = targetDefQuery
+                    # The Shape already has a target query
+                    if s.targetQuery:
+                        print("Old TargetDef:\n", s.targetQueryNoPref)
+                        oldTargetQuery = Query.prepare_query(s.targetQuery)
+                        targetQuery = initial_query.merge_as_target_query(oldTargetQuery)
+                    else:
+                        targetQuery = initial_query.as_target_query()
+                    s.targetQuery = targetQuery
+                    s.targetQueryNoPref = targetQuery
+                    print("New TargetDef:\n", targetQuery)
         return shapes
 
     """

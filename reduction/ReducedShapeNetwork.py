@@ -5,9 +5,9 @@ from validation.rule_based_validation.Validation import Validation
 
 
 class ReducedShapeNetwork(ShapeNetwork):
-    def __init__(self, schemaDir, schemaFormat, endpointURL, graphTraversal, validationTask, heuristics, useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, query, targetShape,  saveOutputs, workInParallel=False, targetDefQuery=None):
+    def __init__(self, schemaDir, schemaFormat, endpointURL, graphTraversal, validationTask, heuristics, useSelectiveQueries, maxSplitSize, outputDir, ORDERBYinQueries, SHACL2SPARQLorder, query, targetShape,  saveOutputs, workInParallel=False, initial_query = None):
         self.shapes = ReducedShapeParser(query, targetShape).parseShapesFromDir(
-            schemaDir, schemaFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, targetDefQuery=targetDefQuery)
+            schemaDir, schemaFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, initial_query=initial_query)
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
         self.endpointURL = endpointURL
         self.endpoint = SPARQLEndpoint(endpointURL)  # used in old_approach
