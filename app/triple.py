@@ -44,3 +44,6 @@ class Triple():
     
     def __str__(self) -> str:
         return self.n3()
+    
+    def __hash__(self):
+        return hash(str(self.n3()))

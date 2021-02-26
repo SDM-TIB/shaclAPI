@@ -10,14 +10,42 @@ class Query:
 
     def __init__(self, query_string, target_var=None):
         self.query_string = query_string
-        self.query_object = sparql.processor.prepareQuery(query_string)
-        self.namespace_manager = self.query_object.prologue.namespace_manager
+        self.__query_object = None
+        self.__namespace_manager = None
+        self.__variables = None
+        self.__triples = None
+        self.__target_var = target_var
 
-        variables = self.query_object.algebra.get('_vars') or []
-        self.variables = [var.n3(self.namespace_manager) for var in variables]
-        self.triples = self.extract_triples()
+    @property
+    def query_object(self):
+        if not self.__query_object:
+            self.__query_object = sparql.processor.prepareQuery(self.query_string)
+        return self.__query_object
 
-        self.target_var = target_var or self._get_target_var()
+    @property
+    def triples(self):
+        if not self.__triples:
+            self.__triples = self.extract_triples()
+        return self.__triples
+    
+    @property
+    def target_var(self):
+        if not self.__target_var:
+            self.__target_var = self._get_target_var()
+        return self.__target_var
+
+    @property
+    def namespace_manager(self):
+        if not self.__namespace_manager:
+            self.__namespace_manager = self.query_object.prologue.namespace_manager
+        return self.__namespace_manager
+
+    @property
+    def variables(self):
+        if not self.__variables:
+            variables = self.query_object.algebra.get('_vars') or []
+            self.__variables = [var.n3(self.namespace_manager) for var in variables]
+        return self.__variables
 
     @staticmethod
     def prepare_query(query):
@@ -42,7 +70,10 @@ class Query:
         Returns:
             list: List of triples (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
         """
-        return self.__extract_triples_recursion(self.query_object.algebra)         
+        return self.__extract_triples_recursion(self.query_object.algebra)    
+
+    def extract_filter_terms(self):
+        return re.findall('FILTER\(.*\)',self.query_string,re.DOTALL)     
 
     def __extract_triples_recursion(self, algebra, is_optional=False):
         """Recursive function for triple pattern extraction.
@@ -106,11 +137,27 @@ class Query:
             return self._replace_prefixes_in_query(self.target_query)
         return self.target_query
 
-    def merge_as_target_query(self, old_target_query):
-        print(self.triples)
-        print(old_target_query.triples)
-        #TODO: Calculate merged query
-        return self.as_target_query()
+    def merge_as_target_query(self, oldTargetQuery):
+        '''
+        Merges two queries; such that one gets a minimal result:
+        1.) Rename the old target var to the new target var.
+        2.) Retain all filters
+        3.) If we have a optional version of a triple and a not optional version. Convert all optionals to non optionals.
+        4.) Eliminate all duplicate triples, which are not needed in the filters.
+        '''
+        # Step 1
+        old_query_string_renamed = oldTargetQuery.as_valid_query().replace(oldTargetQuery.target_var, self.target_var)
+        oldQuery = Query(old_query_string_renamed)
+
+        # Step 2
+        new_filters = self.extract_filter_terms()
+        old_filters = oldQuery.extract_filter_terms()
+
+        new_triples = set(self.triples)
+        old_triples = set(oldQuery.triples)
+        
+        target_query = "SELECT DISTINCT {} WHERE".format(self.target_var) + " {\n" + ".\n".join([t.n3(self.namespace_manager) for t in (new_triples.union(old_triples))]) + "\n".join([filter for filter in (new_filters + old_filters)]) + " }"
+        return self.as_target_query
 
 
     def as_valid_query(self):
