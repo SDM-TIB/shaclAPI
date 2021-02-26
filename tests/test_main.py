@@ -8,16 +8,16 @@ from glob import glob
 TRAV_DIR = 'travshacl/'
 FLASK_ENDPOINT='http://localhost:5000/'
 TESTS_DIRS = [
-    './tests/tc1_nomax/test_definitions/',
+    './tests/tc1/test_definitions/',
     './tests/tc2/test_definitions/',
-    './tests/tc3b/test_definitions/',
+    './tests/tc3/test_definitions/',
     './tests/tc4/test_definitions/'
 ]
 
 required_prefixes = { 
     "test1": "<http://example.org/testGraph1#>",
     "test2": "<http://example.org/testGraph2#>",
-    "test3": "<http://example.org/testGraph3#>",
+    "test3b": "<http://example.org/testGraph3b#>",
     "test4": "<http://example.org/testGraph4#>" }
 
 RESULT_DIR = 'test_output'

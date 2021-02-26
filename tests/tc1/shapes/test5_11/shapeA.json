@@ -9,8 +9,7 @@
 			[
 				{ "path": "test1:has", "min": 1},
                 { "path": "test1:has", "max": 1},
-                { "path": "test1:belongsTo", "min": 1, "shape": "ShapeEaverage"},
-                { "path": "test1:belongsTo", "max": 1, "shape": "ShapeEaverage"}
+                { "path": "test1:belongsTo", "min": 1, "shape": "ShapeEaverage"}
 			]
 		]
 	}

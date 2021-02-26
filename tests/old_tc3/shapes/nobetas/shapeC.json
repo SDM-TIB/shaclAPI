@@ -1,0 +1,15 @@
+{
+	"name": "ShapeC",
+	"targetDef": {
+		"query":"SELECT ?x WHERE {?x a test3:classC}",
+		"class": "test3:classC"
+	},
+	"constraintDef":{
+		"conjunctions":[
+			[
+				{ "path": "test3:alpha", "min": 1, "shape": "ShapeD"},
+				{ "path": "test3:alpha", "max": 1, "shape": "ShapeD"}
+			]
+		]
+	}
+}

@@ -1,6 +1,6 @@
 {
-    "namespace": "http://example.org/testGraph3#",
-    "bind": "test3",
+    "namespace": "http://example.org/testGraph3b#",
+    "bind": "test3b",
     "classes": {
         "classA": {
             "nodeAmount": 3,
@@ -21,9 +21,8 @@
             "nodeAmount": 3,
             "alpha": {
                 "nodeD":{
-                    "0":[0,2],
-                    "1":[1],
-                    "2":[2]
+                    "0":[0],
+                    "1":[1]
                 }
 
             }
