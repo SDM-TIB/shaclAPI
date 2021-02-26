@@ -9,15 +9,16 @@ from reduction.ReducedShapeNetwork import ReducedShapeNetwork
 import arg_eval_utils as Eval
 import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
 sys.path.remove('./travshacl')
-
-
 from app.query import Query
+import app.colors as Colors
+
+
 from app.outputCreation import QueryReport
 import config_parser as Configs
 
+
 app = Flask(__name__)
-log = logging.getLogger('werkzeug')
-log.disabled = True
+logging.getLogger('werkzeug').disabled = True
 
 INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
 ENDPOINT = None
@@ -25,7 +26,7 @@ ENDPOINT = None
 @app.route("/endpoint", methods=['GET','POST'])
 def endpoint():
     global ENDPOINT
-    print('\033[92m-------------------SPARQL Endpoint Request-------------------\033[00m')
+    print(Colors.green('-------------------SPARQL Endpoint Request-------------------'))
     # Preprocessing of the Query
     if request.method == 'POST':
         query = request.form['query']
@@ -33,7 +34,7 @@ def endpoint():
         query = request.args['query']
 
     print("Received Query: ")
-    print('\033[02m' + str(query) + '\033[0m\n')
+    print(Colors.grey(query))
 
     start = time.time()
     ENDPOINT.setQuery(query)
@@ -44,7 +45,7 @@ def endpoint():
     
     print("Got {} result bindings".format(len(result['results']['bindings'])))
     print("Execution took " + str((end - start)*1000) + ' ms')
-    print('\033[92m-------------------------------------------------------------\033[00m')
+    print(Colors.green('-------------------------------------------------------------'))
 
     return Response(jsonResult, mimetype='application/json')
     
@@ -64,6 +65,7 @@ def run():
     # Clear Globals
     global ENDPOINT
     ENDPOINT = None
+    print(Colors.magenta('---------------------New Validation Task---------------------'))
 
     # Parse POST Arguments
     task = Eval.parse_task_string(request.form['task'])    
@@ -89,7 +91,6 @@ def run():
     ENDPOINT = SPARQLWrapper(endpoint_url)
 
     if DEBUG_OUTPUT:
-        print(config)
         endpoint_url = INTERNAL_SPARQL_ENDPOINT
 
     os.makedirs(os.path.join(os.getcwd(), output_directory), exist_ok=True)
@@ -99,7 +100,6 @@ def run():
     query_string = query.as_valid_query()
 
     SPARQLPrefixHandler.prefixes = {str(key):"<" + str(value) + ">" for (key,value) in query.namespace_manager.namespaces()}
-    print(SPARQLPrefixHandler.prefixes)
     SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
 
     # Step 1 and 2 are executed by ReducedShapeParser
@@ -149,20 +149,13 @@ def run():
                     valid["advancedValid"].append((t, reportResults[t][2]))
                 elif reportResults[t][1] == 'invalid_instances':
                     valid["advancedInvalid"].append((t, reportResults[t][2]))
+    print(Colors.magenta('-------------------------------------------------------------'))
 
     return Response(json.dumps(valid), mimetype='application/json')
 
 @app.route("/", methods=['GET'])
 def hello_world():
     return "Hello World"
-
-# @app.route("/queryShapeGraph", methods = ['POST'])
-# def queryShapeGraph():
-#     query = Query(request.form['query'])
-#     result = ShapeGraph.query(query.parsed_query)
-#     for row in result:
-#         print(row)
-#     return "Done"
 
 if __name__ == '__main__':
     app.run(debug=True)

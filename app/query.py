@@ -153,11 +153,32 @@ class Query:
         new_filters = self.extract_filter_terms()
         old_filters = oldQuery.extract_filter_terms()
 
-        new_triples = set(self.triples)
-        old_triples = set(oldQuery.triples)
+        # Step 3 + 4
+        final_triples = set()
+
+        for t in self.triples:
+            if t.optional:
+                if t.not_optional_self() in oldQuery.triples:
+                    final_triples.add(t.not_optional_self())
+                else:
+                    final_triples.add(t)
+            else:
+                final_triples.add(t)
         
-        target_query = "SELECT DISTINCT {} WHERE".format(self.target_var) + " {\n" + ".\n".join([t.n3(self.namespace_manager) for t in (new_triples.union(old_triples))]) + "\n".join([filter for filter in (new_filters + old_filters)]) + " }"
-        return self.as_target_query()
+        for t in oldQuery.triples:
+            if t.optional:
+                if t.not_optional_self() in self.triples:
+                    final_triples.add(t.not_optional_self())
+                else:
+                    final_triples.add(t)
+            else:
+                final_triples.add(t)
+        
+        target_query_string = "SELECT {} WHERE".format(self.target_var) + \
+            " {\n" + "\n".join([t.n3(self.namespace_manager) for t in final_triples]) + \
+            "\n" + "\n".join([filter for filter in (new_filters + old_filters)]) + "}"
+
+        return Query.prepare_query(target_query_string).query_string
 
 
     def as_valid_query(self):

@@ -1,6 +1,6 @@
 from rdflib.paths import InvPath
 from rdflib.namespace import RDF
-from rdflib.term import URIRef
+from rdflib.term import URIRef, Variable
 
 
 class Triple():
@@ -12,12 +12,15 @@ class Triple():
         self.object = o
 
     def __eq__(self, other) -> bool:
-        return self.subject == other.subject and self.predicat == other.predicat and self.object == other.object and self.optional == other.optional
+        return self.subject == other.subject and self.predicat == other.predicat and type(self.object) == type(other.object) and self.optional == other.optional and not isinstance(self.object, Variable)
     
     def __iter__(self): # This makes Triple behave as a Python Tuple Class Object
         yield self.subject
         yield self.predicat
         yield self.object
+    
+    def not_optional_self():
+        return Triple(self.subject, self.predicat, self.object, is_optional = False)
     
     @staticmethod
     def fromList(liste, is_optional):
@@ -37,7 +40,7 @@ class Triple():
         if self.optional:
             return 'OPTIONAL{ ' + subject_n3 + ' ' + predicat_n3 + ' ' + object_n3 + ' }'
         else:
-            return subject_n3 + ' ' + predicat_n3 + ' ' + object_n3
+            return subject_n3 + ' ' + predicat_n3 + ' ' + object_n3 + '.'
 
     def __repr__(self) -> str:
         return self.n3()

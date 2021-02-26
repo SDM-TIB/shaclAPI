@@ -1,10 +1,11 @@
 import re
 from validation.ShapeParser import ShapeParser
 from validation.core.GraphTraversal import GraphTraversal
-from validation.sparql.SPARQLPrefixHandler import getPrefixes
+from validation.sparql.SPARQLPrefixHandler import getPrefixes, getPrefixString
 from rdflib.paths import Path
 from rdflib import Namespace
 from app.query import Query
+import app.colors as Colors
 
 class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShape):
@@ -40,15 +41,16 @@ class ReducedShapeParser(ShapeParser):
             for s in shapes:
                 if s.get_id() == self.targetShape:
                     # The Shape already has a target query
+                    print("Starshaped Query:", Colors.grey(initial_query.query_string),sep='\n')
                     if s.targetQuery:
-                        print("Old TargetDef:\n", s.targetQueryNoPref)
+                        print("Old TargetDef:", Colors.grey(s.targetQueryNoPref),sep='\n')
                         oldTargetQuery = Query.prepare_query(s.targetQuery)
                         targetQuery = initial_query.merge_as_target_query(oldTargetQuery)
                     else:
                         targetQuery = initial_query.as_target_query()
-                    s.targetQuery = targetQuery
+                    s.targetQuery = getPrefixString() + targetQuery
                     s.targetQueryNoPref = targetQuery
-                    print("New TargetDef:\n", targetQuery)
+                    print("New TargetDef:", Colors.grey(targetQuery),sep='\n')
         return shapes
 
     """
