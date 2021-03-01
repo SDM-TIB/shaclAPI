@@ -97,7 +97,6 @@ def run():
 
     #Parse query_string into a corresponding select_query
     query = Query.prepare_query(query_string)
-    query_string = query.as_valid_query()
 
     SPARQLPrefixHandler.prefixes = {str(key):"<" + str(value) + ">" for (key,value) in query.namespace_manager.namespaces()}
     SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
@@ -114,11 +113,14 @@ def run():
     report = network.validate()
 
     # Retrieve the complete result for the initial query
+    query_string = query.as_result_query()
     ENDPOINT.setQuery(query_string)
     ENDPOINT.setReturnFormat(JSON)
     results = ENDPOINT.query().convert()
 
-    valid = QueryReport.create_output(report, query, results)
+    q = QueryReport(report, query, results)
+    valid = q.full_report
+    #valid = QueryReport.create_output(report, query, results)
 
     if DEBUG_OUTPUT:
         #New output generator, based on intersection of query and validation results

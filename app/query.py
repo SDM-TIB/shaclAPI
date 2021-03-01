@@ -13,6 +13,7 @@ class Query:
         self.__query_object = None
         self.__namespace_manager = None
         self.__variables = None
+        self.__PV = None
         self.__triples = None
         self.__target_var = target_var
 
@@ -46,6 +47,13 @@ class Query:
             variables = self.query_object.algebra.get('_vars') or []
             self.__variables = [var.n3(self.namespace_manager) for var in variables]
         return self.__variables
+
+    @property
+    def PV(self):
+        if not self.__PV:
+            PV = self.query_object.algebra.get('PV') or []
+            self.__PV = [var.n3(self.namespace_manager) for var in PV]
+        return self.__PV
 
     @staticmethod
     def prepare_query(query):
@@ -192,6 +200,13 @@ class Query:
             string: A valid query_string
         """
         return self.query_string
+
+    def as_result_query(self):
+        return re.sub(
+            r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE', 
+            f'SELECT DISTINCT * WHERE',
+            self.query_string
+        )
 
     def _reduce_select(self, query):
         """
