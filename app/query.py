@@ -166,7 +166,7 @@ class Query:
 
         for t in self.triples:
             if t.optional:
-                if t.not_optional_self() in oldQuery.triples:
+                if t.subjectPredicatNonOptionalInTrippleList(oldQuery.triples):
                     final_triples.add(t.not_optional_self())
                 else:
                     final_triples.add(t)
@@ -175,7 +175,7 @@ class Query:
         
         for t in oldQuery.triples:
             if t.optional:
-                if t.not_optional_self() in self.triples:
+                if t.subjectPredicatNonOptionalInTrippleList(self.triples):
                     final_triples.add(t.not_optional_self())
                 else:
                     final_triples.add(t)
