@@ -14,19 +14,10 @@ class Triple():
     def __eq__(self, other) -> bool:
         return self.subject == other.subject and self.predicat == other.predicat and self.object == other.object and self.optional == other.optional
 
-    def subjectPredicatNonOptionalInTrippleList(self, liste):
-        for t in liste:
-            if self.subject == t.subject and self.predicat == t.predicat and t.optional == False:
-                return True
-        return False
-    
     def __iter__(self): # This makes Triple behave as a Python Tuple Class Object
         yield self.subject
         yield self.predicat
         yield self.object
-    
-    def not_optional_self(self):
-        return Triple(self.subject, self.predicat, self.object, is_optional = False)
     
     @staticmethod
     def fromList(liste, is_optional):

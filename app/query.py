@@ -145,49 +145,27 @@ class Query:
             return self._replace_prefixes_in_query(self.target_query)
         return self.target_query
 
-    def merge_as_target_query(self, oldTargetQuery):
+    def merge_as_target_query(self, oldTargetQuery) -> str:
         '''
-        Merges two queries; such that one gets a minimal result:
-        1.) Rename the old target var to the new target var.
-        2.) Retain all filters
-        3.) If we have a optional version of a triple and a not optional version. Convert all optionals to non optionals.
-        4.) Eliminate all duplicate triples, which are not needed in the filters.
+        Merges two queries using intersection
         '''
-        # Step 1
-        old_query_string_renamed = oldTargetQuery.as_valid_query().replace(oldTargetQuery.target_var, self.target_var)
+        # Replace Target Variable
+        if not '?x' in oldTargetQuery.query_string:
+            old_query_string_renamed = oldTargetQuery.as_valid_query().replace(oldTargetQuery.target_var, self.target_var)
+        else:
+            old_query_string_renamed = oldTargetQuery.query_string
         oldQuery = Query(old_query_string_renamed)
 
-        # Step 2
-        new_filters = self.extract_filter_terms()
-        old_filters = oldQuery.extract_filter_terms()
-
-        # Step 3 + 4
-        final_triples = set()
-
-        for t in self.triples:
-            if t.optional:
-                if t.subjectPredicatNonOptionalInTrippleList(oldQuery.triples):
-                    final_triples.add(t.not_optional_self())
-                else:
-                    final_triples.add(t)
-            else:
-                final_triples.add(t)
-        
-        for t in oldQuery.triples:
-            if t.optional:
-                if t.subjectPredicatNonOptionalInTrippleList(self.triples):
-                    final_triples.add(t.not_optional_self())
-                else:
-                    final_triples.add(t)
-            else:
-                final_triples.add(t)
-        
-        target_query_string = "SELECT {} WHERE".format(self.target_var) + \
-            " {\n" + "\n".join([t.n3(self.namespace_manager) for t in final_triples]) + \
-            "\n" + "\n".join([filter for filter in (new_filters + old_filters)]) + "}"
+        # Intersection of both queries
+        target_query_string = "SELECT DISTINCT {} WHERE ".format(self.target_var) + \
+            "{\n{\n" + oldQuery.get_statement() + "\n}{" + self.get_statement() + "}}"
 
         return Query.prepare_query(target_query_string).query_string
 
+    def get_statement(self):
+        start = self.query_string.index("{") + len("{")
+        end = self.query_string.rfind("}")
+        return self.query_string[start:end]
 
     def as_valid_query(self):
         """Returns the query as a valid query_string. 

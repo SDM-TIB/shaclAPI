@@ -44,7 +44,7 @@ class ReducedShapeParser(ShapeParser):
                     print("Starshaped Query:", Colors.grey(initial_query.query_string),sep='\n')
                     if s.targetQuery:
                         print("Old TargetDef:", Colors.grey(s.targetQueryNoPref),sep='\n')
-                        oldTargetQuery = Query.prepare_query(s.targetQuery)
+                        oldTargetQuery = Query(s.targetQuery)
                         targetQuery = initial_query.merge_as_target_query(oldTargetQuery)
                     else:
                         targetQuery = initial_query.as_target_query()
