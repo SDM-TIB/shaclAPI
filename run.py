@@ -1,9 +1,8 @@
 from flask import Flask, request, Response
+import os, time, logging, json , sys
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-import os, time, logging, json
 
-import sys
 sys.path.append('./travshacl') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
 from reduction.ReducedShapeNetwork import ReducedShapeNetwork
 import arg_eval_utils as Eval
@@ -11,8 +10,6 @@ import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
 sys.path.remove('./travshacl')
 from app.query import Query
 import app.colors as Colors
-
-
 from app.outputCreation import QueryReport
 import config_parser as Configs
 
@@ -21,11 +18,15 @@ app = Flask(__name__)
 logging.getLogger('werkzeug').disabled = True
 
 INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
-ENDPOINT = None
+EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
+
+# Profiling Code
+# from pyinstrument import Profiler
+# global_request_count = 0
 
 @app.route("/endpoint", methods=['GET','POST'])
 def endpoint():
-    global ENDPOINT
+    global EXTERNAL_SPARQL_ENDPOINT
     print(Colors.green('-------------------SPARQL Endpoint Request-------------------'))
     # Preprocessing of the Query
     if request.method == 'POST':
@@ -37,9 +38,9 @@ def endpoint():
     print(Colors.grey(query))
 
     start = time.time()
-    ENDPOINT.setQuery(query)
-    ENDPOINT.setReturnFormat(JSON)
-    result = ENDPOINT.query().convert()
+    EXTERNAL_SPARQL_ENDPOINT.setQuery(query)
+    EXTERNAL_SPARQL_ENDPOINT.setReturnFormat(JSON)
+    result = EXTERNAL_SPARQL_ENDPOINT.query().convert()
     jsonResult = json.dumps(result)
     end = time.time()
     
@@ -61,11 +62,26 @@ def run():
             - heuristic
             - query
             - targetShape
+        CONFIG File:
+            - debugging
+            - external_endpoint
+            - outputDirectory
+            - shapeFormat
+            - useSelectiveQueries
+            - maxSplit
+            - ORDERBYinQueries
+            - SHACL2SPARQLorder
+            - outputs
+            - workInParallel
     '''
-    # Clear Globals
-    global ENDPOINT
-    ENDPOINT = None
     print(Colors.magenta('---------------------New Validation Task---------------------'))
+    # Profiling Code
+    # g.profiler = Profiler()
+    # g.profiler.start()
+
+    # Each run can be over a different Endpoint, so the endpoint needs to be recreated
+    global EXTERNAL_SPARQL_ENDPOINT
+    EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse POST Arguments
     task = Eval.parse_task_string(request.form['task'])    
@@ -80,18 +96,18 @@ def run():
         config = Configs.read_and_check_config(request.form['config'])
         print("Using Custom Config: {}".format(request.form['config']))
     else:
-        print("Using default config File!!")
+        print("Using default config File!")
         config = Configs.read_and_check_config('config.json')
 
     #DEBUG FLAG, set for test runs with additional output
-    DEBUG_OUTPUT = config['advancedOutput']
-
+    DEBUG_OUTPUT = config['debugging']
     output_directory = config['outputDirectory']
-    endpoint_url = config['external_endpoint']
-    ENDPOINT = SPARQLWrapper(endpoint_url)
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config['external_endpoint'])
 
     if DEBUG_OUTPUT:
         endpoint_url = INTERNAL_SPARQL_ENDPOINT
+    else:
+        endpoint_url = config['external_endpoint']
 
     os.makedirs(os.path.join(os.getcwd(), output_directory), exist_ok=True)
 
@@ -114,13 +130,13 @@ def run():
 
     # Retrieve the complete result for the initial query
     query_string = query.as_result_query()
-    ENDPOINT.setQuery(query_string)
-    ENDPOINT.setReturnFormat(JSON)
-    results = ENDPOINT.query().convert()
+    EXTERNAL_SPARQL_ENDPOINT.setQuery(query_string)
+    EXTERNAL_SPARQL_ENDPOINT.setReturnFormat(JSON)
+    results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
 
     q = QueryReport(report, query, results)
     valid = q.full_report
-    #valid = QueryReport.create_output(report, query, results)
+    #print(valid)
 
     if DEBUG_OUTPUT:
         #New output generator, based on intersection of query and validation results
@@ -153,6 +169,13 @@ def run():
                     valid["advancedInvalid"].append((t, reportResults[t][2]))
     print(Colors.magenta('-------------------------------------------------------------'))
 
+    # Profiling Code
+    # global global_request_count
+    # g.profiler.stop()
+    # output_html = g.profiler.output_html()
+    # global_request_count = global_request_count + 1
+    # with open("timing/profil{}.html".format(global_request_count - 1),"w") as f:
+    #     f.write(output_html)
     return Response(json.dumps(valid), mimetype='application/json')
 
 @app.route("/", methods=['GET'])

@@ -7,6 +7,6 @@
     "maxSplit": 256,
     "ORDERBYinQueries": true,
     "SHACL2SPARQLorder": false,
-    "advancedOutput": true,
+    "debugging": true,
     "outputs": false
 }

@@ -247,19 +247,6 @@ class Query:
             list: A list of all triples where each triple is a tuple or three strings ('subject', 'predicate', 'object)
         """
         if replace_prefixes:
-            return [(s.n3(), p.n3(), o.n3()) for s, p, o in self.triples]
-        triples = []
-        for s, p, o in self.triples:
-            s = s.n3(self.namespace_manager)
-            #InvPath's n3() is not capable of handling namespace_managers
-            if isinstance(p, InvPath):
-                p = '^'+URIRef(p.arg).n3(self.namespace_manager)
-            #rdf:type is commonly written as 'a' and therefore replaced.
-            elif p == RDF.type:
-                p = 'a'
-            else:
-                p = p.n3(self.namespace_manager)
-            o = o.n3(self.namespace_manager)
-            triples += [(s, p, o)]
-
-        return triples
+            return [t.toTuple() for t in self.triples]
+        else:
+            return [t.toTuple(self.namespace_manager) for t in self.triples]

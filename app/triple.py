@@ -23,9 +23,8 @@ class Triple():
     def fromList(liste, is_optional):
         return [Triple(s,p,o, is_optional= is_optional) for (s,p,o) in liste]
 
-    def n3(self, namespace_manager = None) -> str:
+    def toTuple(self, namespace_manager = None) -> str:
         subject_n3 = self.subject.n3(namespace_manager)
-
         if isinstance(self.predicat, InvPath):
             predicat_n3 = '^'+URIRef(self.predicat.arg).n3(namespace_manager)
         elif self.predicat == RDF.type and namespace_manager != None:
@@ -34,13 +33,10 @@ class Triple():
             predicat_n3 = self.predicat.n3(namespace_manager)
         object_n3 = self.object.n3(namespace_manager)
 
-        if self.optional:
-            return 'OPTIONAL{ ' + subject_n3 + ' ' + predicat_n3 + ' ' + object_n3 + ' }'
-        else:
-            return subject_n3 + ' ' + predicat_n3 + ' ' + object_n3 + '.'
+        return tuple([subject_n3, predicat_n3, object_n3])
 
     def __repr__(self) -> str:
-        return self.n3()
+        return str(tuple(self))
     
     def __str__(self) -> str:
         return self.n3()

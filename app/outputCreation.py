@@ -1,8 +1,6 @@
 from rdflib import Namespace, URIRef
 
 class QueryReport:
-    _full_report = []
-
     """
     bindings: (variable, subject)
     triples: (subject, path, object)
@@ -11,7 +9,7 @@ class QueryReport:
     """
 
     def __init__(self, report, query, results):
-        print(query.as_result_query())
+        self._full_report = []
         self.query = query
         self.namespace_manager = query.namespace_manager
 
@@ -57,8 +55,8 @@ class QueryReport:
         return QueryReport(report, query, results).full_report
 
     def parse_results(self, results):
-        slim_result = [x for x in results['results']['bindings']]
-        return [{k: URIRef(v['value']).n3(self.namespace_manager)  for k, v in entry.items()} for entry in slim_result]
+        # Transforms the given bindings into a list of bindings using prefix notation
+        return [{k: URIRef(v['value']).n3(self.namespace_manager) for k, v in entry.items()} for entry in results['results']['bindings']]
 
     def parse_triples(self, query):
         return query.get_triples(replace_prefixes=False)
