@@ -13,5 +13,7 @@ jobs:
       run: docker-compose up -d
     - name: Check running containers
       run: docker ps -a
+    - name: Show API Log
+      run: docker logs api
     - name: Run pytest
       run: docker exec api pytest
