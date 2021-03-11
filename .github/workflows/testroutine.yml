@@ -1,0 +1,17 @@
+name: Run Testroutine using Docker-Compose Stack
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the docker-compose stack
+      run: docker-compose up -d
+    - name: Check running containers
+      run: docker ps -a
+    - name: Run pytest
+      run: docker exec -it api pytest
