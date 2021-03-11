@@ -18,5 +18,9 @@ jobs:
       run: docker ps -a
     - name: Show API Log
       run: docker logs api
+    - name: Curl Sparql Endpoint
+      run: curl http://0.0.0.0:14000/sparql
+    - name: Curl API
+      run: curl http://localhost:5000/
     - name: Run pytest
       run: docker exec api pytest
