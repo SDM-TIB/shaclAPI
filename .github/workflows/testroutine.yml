@@ -14,4 +14,4 @@ jobs:
     - name: Check running containers
       run: docker ps -a
     - name: Run pytest
-      run: docker exec -it api pytest
+      run: docker exec api pytest
