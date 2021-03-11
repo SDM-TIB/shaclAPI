@@ -18,7 +18,10 @@ jobs:
       run: docker ps -a
     - name: Show API Log
       run: docker logs api
-    - name: tmate debugging
-      uses: mxschmitt/action-tmate@v3
+# Uncomment for ssh debugging      
+#    - name: tmate debugging
+#      uses: mxschmitt/action-tmate@v3
+    - name: Sleep a few seconds ...
+      run: sleep 5
     - name: Run pytest
       run: docker exec api pytest
