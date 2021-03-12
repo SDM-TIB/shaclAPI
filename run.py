@@ -39,7 +39,6 @@ def endpoint():
 
     start = time.time()
     EXTERNAL_SPARQL_ENDPOINT.setQuery(query)
-    EXTERNAL_SPARQL_ENDPOINT.setReturnFormat(JSON)
     result = EXTERNAL_SPARQL_ENDPOINT.query().convert()
     jsonResult = json.dumps(result)
     end = time.time()
@@ -102,7 +101,7 @@ def run():
     #DEBUG FLAG, set for test runs with additional output
     DEBUG_OUTPUT = config['debugging']
     output_directory = config['outputDirectory']
-    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config['external_endpoint'])
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config['external_endpoint'], returnFormat=JSON)
 
     if DEBUG_OUTPUT:
         endpoint_url = INTERNAL_SPARQL_ENDPOINT
@@ -131,7 +130,6 @@ def run():
     # Retrieve the complete result for the initial query
     query_string = query.as_result_query()
     EXTERNAL_SPARQL_ENDPOINT.setQuery(query_string)
-    EXTERNAL_SPARQL_ENDPOINT.setReturnFormat(JSON)
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
 
     q = QueryReport(report, query, results)

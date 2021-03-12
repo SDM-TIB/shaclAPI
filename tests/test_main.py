@@ -4,9 +4,12 @@ from tests import testingUtils
 import pytest, warnings
 import os, sys
 from glob import glob
+import time
+import urllib
 
 TRAV_DIR = 'travshacl/'
 FLASK_ENDPOINT='http://localhost:5000/'
+MAX_NUMBER_OF_TRIES=10
 TESTS_DIRS = [
     './tests/tc1/test_definitions/',
     './tests/tc2/test_definitions/',
@@ -47,16 +50,28 @@ def test_trav(file):
     namespace = testingUtils.get_trav_args(file)
     test_dir = os.getcwd()
     os.chdir(TRAV_DIR)
-    try:
-        sys.path.append(os.getcwd())
-        from validation.Eval import Eval
-        import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
-        sys.path.remove(os.getcwd())
-        SPARQLPrefixHandler.prefixes.update(required_prefixes)
-        SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
-        response = Eval(namespace)        
-    finally:
-        os.chdir(test_dir)
+    try_number = 0
+    while MAX_NUMBER_OF_TRIES > try_number:    
+        try:
+            sys.path.append(os.getcwd())
+            from validation.Eval import Eval
+            import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
+            sys.path.remove(os.getcwd())
+            SPARQLPrefixHandler.prefixes.update(required_prefixes)
+            SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
+            response = Eval(namespace)
+        except Exception as e:
+            if MAX_NUMBER_OF_TRIES > try_number and isinstance(e,(ConnectionResetError,urllib.error.URLError)) :
+                print("An Error {} occured retry in 3s... ({}/{})".format(type(e),try_number + 1,MAX_NUMBER_OF_TRIES))
+                try_number = try_number + 1
+                time.sleep(3)
+                continue
+            else:
+                os.chdir(test_dir)
+                raise Exception(e)
+        else:
+            os.chdir(test_dir)
+            break
 
 
 
