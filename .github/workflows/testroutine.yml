@@ -22,6 +22,6 @@ jobs:
 #    - name: tmate debugging
 #      uses: mxschmitt/action-tmate@v3
     - name: Sleep a few seconds ...
-      run: sleep 5
+      run: sleep 10
     - name: Run pytest
       run: docker exec api pytest

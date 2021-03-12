@@ -4,4 +4,5 @@ WORKDIR /code
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-CMD [ "python", "run.py"]
+RUN cp QueryGenerator.fix.py travshacl/validation/sparql/QueryGenerator.py
+CMD [ "./wait-for-it.sh","0.0.0.0:14000", "--", "python", "run.py"]
