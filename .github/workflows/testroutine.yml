@@ -16,12 +16,14 @@ jobs:
       run: docker-compose up -d
     - name: Check running containers
       run: docker ps -a
-    - name: Show API Log
-      run: docker logs api
 # Uncomment for ssh debugging      
 #    - name: tmate debugging
 #      uses: mxschmitt/action-tmate@v3
     - name: Sleep a few seconds ...
       run: sleep 10
+    - name: Show API Log
+      run: docker logs api
+    - name: Show Sparql-Endpoint Log
+      run: docker logs sparql_endpoint
     - name: Run pytest
       run: docker exec api pytest
