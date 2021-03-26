@@ -1,8 +1,8 @@
 {
 	"name": "ShapeB",
 	"targetDef": {
-		"query":"SELECT ?x WHERE {?x a test2:classB}",
-		"class": "test2:classB"
+		"query":"SELECT ?x WHERE {VALUES ?x { test2:nodeB_1 test2:nodeB_0 } }",
+		"class": ""
 	},
 	"constraintDef":{
 		"conjunctions":[
