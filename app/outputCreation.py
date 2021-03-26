@@ -21,7 +21,9 @@ class QueryReport:
         string = "[\n"
         indent = 1
         for bindings, triples, report_triples in self.full_report:
-            string += indent*" " + f"{{ {list(bindings.items())} }},\n"
+            string += indent*" " + "{\n"
+            indent += 1
+            string += indent*" " + f"{list(bindings.items())},\n"
             
             string += indent*" " + "{\n"
             indent += 1
@@ -34,6 +36,8 @@ class QueryReport:
             indent += 1
             for t in report_triples:
                 string += indent*" " + f"{t},\n"
+            indent -= 1
+            string += indent*" " + "},\n"
             indent -= 1
             string += indent*" " + "},\n"
         string += "]\n"
@@ -70,12 +74,12 @@ class QueryReport:
             if s_report.get('valid_instances'):
                 for validating_shape, instance, _ in s_report['valid_instances']:
                     instance = URIRef(instance).n3(self.namespace_manager)
-                    path = t_path['satisfiedShape'].n3(self.namespace_manager)
+                    path = t_path['satisfiesShape'].n3(self.namespace_manager)
                     report_triples += [(instance, path, validating_shape)]
             if s_report.get('invalid_instances'):
                 for violating_shape,  instance, _ in s_report['invalid_instances']:
                     instance = URIRef(instance).n3(self.namespace_manager)
-                    path = t_path['satisfiedShape'].n3(self.namespace_manager)
+                    path = t_path['violatesShape'].n3(self.namespace_manager)
                     report_triples += [(instance, path, violating_shape)]
                     #TODO: Add n['violatesConstraints']
         return report_triples
