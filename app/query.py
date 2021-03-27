@@ -149,16 +149,23 @@ class Query:
         '''
         Merges two queries using intersection
         '''
+        
         # Replace Target Variable
+        if not '?x' in self.query_string:
+            new_query_string_renamed = self.as_valid_query().replace(self.target_var, '?x')
+        else:
+            new_query_string_renamed = self.query_string
+
         if not '?x' in oldTargetQuery.query_string:
-            old_query_string_renamed = oldTargetQuery.as_valid_query().replace(oldTargetQuery.target_var, self.target_var)
+            old_query_string_renamed = oldTargetQuery.as_valid_query().replace(oldTargetQuery.target_var, '?x')
         else:
             old_query_string_renamed = oldTargetQuery.query_string
         oldQuery = Query(old_query_string_renamed)
+        newQuery = Query(new_query_string_renamed)
 
         # Intersection of both queries
-        target_query_string = "SELECT DISTINCT {} WHERE ".format(self.target_var) + \
-            "{\n{\n" + oldQuery.get_statement() + "\n}{" + self.get_statement() + "}}"
+        target_query_string = "SELECT DISTINCT ?x WHERE " + \
+            "{\n{\n" + oldQuery.get_statement() + "\n}{" + newQuery.get_statement() + "}}"
 
         return Query.prepare_query(target_query_string).query_string
 

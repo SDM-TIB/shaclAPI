@@ -7,7 +7,7 @@ from glob import glob
 import time
 import urllib
 
-TRAV_DIR = 'travshacl/'
+TRAV_DIR = 'Trav-SHACL/'
 FLASK_ENDPOINT='http://localhost:5000/'
 MAX_NUMBER_OF_TRIES=10
 TESTS_DIRS = [
@@ -54,12 +54,12 @@ def test_trav(file):
     while MAX_NUMBER_OF_TRIES > try_number:    
         try:
             sys.path.append(os.getcwd())
-            from validation.Eval import Eval
-            import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
+            from travshacl.TravSHACL import eval_shape_schema
+            import travshacl.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
             sys.path.remove(os.getcwd())
             SPARQLPrefixHandler.prefixes.update(required_prefixes)
             SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
-            response = Eval(namespace)
+            response = eval_shape_schema(namespace)
         except Exception as e:
             if MAX_NUMBER_OF_TRIES > try_number and isinstance(e,(ConnectionResetError,urllib.error.URLError)) :
                 print("An Error {} occured retry in 3s... ({}/{})".format(type(e),try_number + 1,MAX_NUMBER_OF_TRIES))

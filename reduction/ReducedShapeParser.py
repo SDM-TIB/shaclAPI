@@ -1,7 +1,7 @@
 import re
-from validation.ShapeParser import ShapeParser
-from validation.core.GraphTraversal import GraphTraversal
-from validation.sparql.SPARQLPrefixHandler import getPrefixes, getPrefixString
+from travshacl.core.ShapeParser import ShapeParser
+from travshacl.core.GraphTraversal import GraphTraversal
+from travshacl.sparql.SPARQLPrefixHandler import get_prefixes, get_prefix_string
 from rdflib.paths import Path
 from rdflib import Namespace
 from app.query import Query
@@ -21,7 +21,7 @@ class ReducedShapeParser(ShapeParser):
     def _as_path(self, term):
         t_inv = term.startswith('^')
         t_split = term.rfind(':')
-        t_namespace = getPrefixes()[term[t_inv:t_split]][1:-1]
+        t_namespace = get_prefixes()[term[t_inv:t_split]][1:-1]
         t_path = term[t_split+1:]
         path = Namespace(t_namespace)[t_path]
         #if t_inv:
@@ -31,26 +31,25 @@ class ReducedShapeParser(ShapeParser):
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
-    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, initial_query = None):
-        shapes = super().parseShapesFromDir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
+    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
+        shapes = super().parse_shapes_from_dir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
         shapes = [s for s in shapes if s.get_id() in involvedShapes]
 
         # Replacing old targetQuery with new one
-        if initial_query:
-            for s in shapes:
-                if s.get_id() == self.targetShape:
-                    # The Shape already has a target query
-                    print("Starshaped Query:", Colors.grey(initial_query.query_string),sep='\n')
-                    if s.targetQuery:
-                        print("Old TargetDef:", Colors.grey(s.targetQueryNoPref),sep='\n')
-                        oldTargetQuery = Query(s.targetQuery)
-                        targetQuery = initial_query.merge_as_target_query(oldTargetQuery)
-                    else:
-                        targetQuery = initial_query.as_target_query()
-                    s.targetQuery = getPrefixString() + targetQuery
-                    s.targetQueryNoPref = targetQuery
-                    print("New TargetDef:", Colors.grey(targetQuery),sep='\n')
+        for s in shapes:
+            if s.get_id() == self.targetShape:
+                # The Shape already has a target query
+                print("Starshaped Query:", Colors.grey(self.query.query_string),sep='\n')
+                if s.targetQuery:
+                    print("Old TargetDef:", Colors.grey(s.targetQueryNoPref),sep='\n')
+                    oldTargetQuery = Query(s.targetQuery)
+                    targetQuery = self.query.merge_as_target_query(oldTargetQuery)
+                else:
+                    targetQuery = self.query.as_target_query()
+                s.targetQuery = get_prefix_string() + targetQuery
+                s.targetQueryNoPref = targetQuery
+                print("New TargetDef:", Colors.grey(targetQuery),sep='\n')
         return shapes
 
     """
@@ -94,7 +93,7 @@ class ReducedShapeParser(ShapeParser):
         dependencies = {s.get_id(): [] for s in shapes}
         reverse_dependencies = {s.get_id(): [] for s in shapes}
         for s in shapes:
-            refs = s.getShapeRefs()
+            refs = s.get_shape_refs()
             if refs:
                 name = s.get_id()
                 dependencies[name] = refs

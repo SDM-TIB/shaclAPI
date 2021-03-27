@@ -3,11 +3,11 @@ import os, time, logging, json , sys
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 
-sys.path.append('./travshacl') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
+sys.path.append('./Trav-SHACL') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
 from reduction.ReducedShapeNetwork import ReducedShapeNetwork
 import arg_eval_utils as Eval
-import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
-sys.path.remove('./travshacl')
+import travshacl.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
+sys.path.remove('./Trav-SHACL')
 from app.query import Query
 import app.colors as Colors
 from app.outputCreation import QueryReport
@@ -83,7 +83,6 @@ def run():
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse POST Arguments
-    task = Eval.parse_task_string(request.form['task'])    
     traversal_strategie = Eval.parse_traversal_string(request.form['traversalStrategie'])
     schema_directory = request.form['schemaDir']
     heuristics = Eval.parse_heuristics_string(request.form['heuristic'])
@@ -118,11 +117,9 @@ def run():
 
     # Step 1 and 2 are executed by ReducedShapeParser
     network = ReducedShapeNetwork(
-        schema_directory, config['shapeFormat'], endpoint_url, traversal_strategie, task,
+        schema_directory, config['shapeFormat'], endpoint_url, traversal_strategie,
         heuristics, config['useSelectiveQueries'], config['maxSplit'], output_directory, 
-        config['ORDERBYinQueries'], config['SHACL2SPARQLorder'], query, targetShapeID, 
-        config['outputs'], config['workInParallel'], initial_query=query
-    )
+        config['ORDERBYinQueries'], config['outputs'], config['workInParallel'],targetShapeID, query)
 
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = network.validate()

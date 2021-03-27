@@ -1,20 +1,5 @@
-from validation.core.ValidationTask import ValidationTask
-from validation.core.GraphTraversal import GraphTraversal
+from travshacl.core.GraphTraversal import GraphTraversal
 
-
-def parse_task_string(task_string):
-    if task_string == 'g':
-        return ValidationTask.GRAPH_VALIDATION
-    elif task_string == 's':
-        return ValidationTask.SHAPE_VALIDATION
-    elif task_string == 't':
-        return ValidationTask.INSTANCES_VALID
-    elif task_string == 'f':
-        return ValidationTask.INSTANCES_VIOLATION
-    elif task_string == 'a':
-        return ValidationTask.ALL_INSTANCES
-    else:
-        return None
 
 def parse_traversal_string(traversal_string):
     if traversal_string == "DFS":
