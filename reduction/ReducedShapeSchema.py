@@ -4,7 +4,7 @@ from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
 from travshacl.rule_based_validation.Validation import Validation
 
 
-class ReducedShapeNetwork(ShapeSchema):
+class ReducedShapeSchema(ShapeSchema):
     def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query):
         self.shapes = ReducedShapeParser(initial_query, target_shape).parse_shapes_from_dir(
             schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
@@ -20,11 +20,13 @@ class ReducedShapeNetwork(ShapeSchema):
         self.saveStats = output_dir is not None
         self.saveTargetsToFile = save_outputs
         self.targetShape = target_shape
-    
+
     def validate(self):
         """Executes the validation of the shape network."""
-        start = [self.targetShape]
-        node_order = self.graphTraversal.traverse_graph(self.dependencies, self.reverse_dependencies, start[0])  # TODO: deal with more than one possible starting point
+        start = [self.targetShape]  # The TargetShape has to be the first Node; because we are limiting the validation to a set of target instances via the star-shape query
+        # TODO: deal with more than one possible starting point
+        node_order = self.graphTraversal.traverse_graph(
+            self.dependencies, self.reverse_dependencies, start[0])
 
         for s in self.shapes:
             s.compute_constraint_queries()

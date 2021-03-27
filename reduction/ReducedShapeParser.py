@@ -7,6 +7,7 @@ from rdflib import Namespace
 from app.query import Query
 import app.colors as Colors
 
+
 class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShape):
         super().__init__()
@@ -18,44 +19,52 @@ class ReducedShapeParser(ShapeParser):
     """
     Normalizes a path in prefixed n3-format ([^]prefix:predicate --> extended_prefix:predicate)
     """
+
     def _as_path(self, term):
         t_inv = term.startswith('^')
         t_split = term.rfind(':')
         t_namespace = get_prefixes()[term[t_inv:t_split]][1:-1]
         t_path = term[t_split+1:]
         path = Namespace(t_namespace)[t_path]
-        #if t_inv:
+        # if t_inv:
         #    return ~path
         return path
 
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
+
     def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
-        shapes = super().parse_shapes_from_dir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
-        involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
-        print("Involved Shapes:",Colors.grey(str(involvedShapes)),sep='\n')
+        shapes = super().parse_shapes_from_dir(path, shapeFormat,
+                                               useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
+        involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(
+            *self.computeReducedEdges(shapes), self.targetShape)
+        print("Involved Shapes:", Colors.grey(str(involvedShapes)), sep='\n')
         shapes = [s for s in shapes if s.get_id() in involvedShapes]
 
         # Replacing old targetQuery with new one
         for s in shapes:
             if s.get_id() == self.targetShape:
                 # The Shape already has a target query
-                print("Starshaped Query:", Colors.grey(self.query.query_string),sep='\n')
+                print("Starshaped Query:", Colors.grey(
+                    self.query.query_string), sep='\n')
                 if s.targetQuery:
-                    print("Old TargetDef:", Colors.grey(s.targetQueryNoPref),sep='\n')
+                    print("Old TargetDef:", Colors.grey(
+                        s.targetQueryNoPref), sep='\n')
                     oldTargetQuery = Query(s.targetQuery)
-                    targetQuery = self.query.merge_as_target_query(oldTargetQuery)
+                    targetQuery = self.query.merge_as_target_query(
+                        oldTargetQuery)
                 else:
                     targetQuery = self.query.as_target_query()
                 s.targetQuery = get_prefix_string() + targetQuery
                 s.targetQueryNoPref = targetQuery
-                print("New TargetDef:", Colors.grey(targetQuery),sep='\n')
+                print("New TargetDef:", Colors.grey(targetQuery), sep='\n')
         return shapes
 
     """
     parseConstraint can return None, which need to be filtered.
     """
+
     def parse_constraints(self, array, targetDef, constraintsId):
         self.currentShape = constraintsId[:-3]
         return [c for c in super().parse_constraints(array, targetDef, constraintsId) if c]
@@ -67,6 +76,7 @@ class ReducedShapeParser(ShapeParser):
             (-> inverted paths can be treated equally to normal paths)
     Other constraints are not relevant and result in a None.
     """
+
     def parse_constraint(self, varGenerator, obj, id, targetDef):
         if self.targetShape == self.currentShape or self.targetShape == obj.get('shape'):
             for t in self.query.get_predicates(replace_prefixes=False):
@@ -82,13 +92,15 @@ class ReducedShapeParser(ShapeParser):
     Constraints that are removed in parseConstraints() should not appear in the references.
     self.removed_constraints keeps track of the removed constraints
     """
+
     def shape_references(self, constraints):
-        return {c.get("shape"): c.get("path") for c in constraints\
-            if c.get("shape") and c.get("path") not in self.removed_constraints}
+        return {c.get("shape"): c.get("path") for c in constraints
+                if c.get("shape") and c.get("path") not in self.removed_constraints}
 
     """
     Returns unidirectional dependencies with a single exception: Reversed dependencies are included, if they aim at the targetShape.
     """
+
     def computeReducedEdges(self, shapes):
         """Computes the edges in the network."""
         dependencies = {s.get_id(): [] for s in shapes}

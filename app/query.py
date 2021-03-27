@@ -5,6 +5,7 @@ from rdflib.paths import InvPath
 from rdflib.term import URIRef
 from app.triple import Triple
 
+
 class Query:
     target_query = None
 
@@ -20,7 +21,8 @@ class Query:
     @property
     def query_object(self):
         if not self.__query_object:
-            self.__query_object = sparql.processor.prepareQuery(self.query_string)
+            self.__query_object = sparql.processor.prepareQuery(
+                self.query_string)
         return self.__query_object
 
     @property
@@ -28,7 +30,7 @@ class Query:
         if not self.__triples:
             self.__triples = self.extract_triples()
         return self.__triples
-    
+
     @property
     def target_var(self):
         if not self.__target_var:
@@ -45,7 +47,8 @@ class Query:
     def variables(self):
         if not self.__variables:
             variables = self.query_object.algebra.get('_vars') or []
-            self.__variables = [var.n3(self.namespace_manager) for var in variables]
+            self.__variables = [var.n3(self.namespace_manager)
+                                for var in variables]
         return self.__variables
 
     @property
@@ -65,23 +68,23 @@ class Query:
         Returns:
             Query: Valid Query-Object for further processing
         """
-        #Remove ',' in a query (esp.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
+        # Remove ',' in a query (esp.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
         query = query.replace(',', ' ')
-        #Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
+        # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
         query = query.replace('\'', '"')
-        #Remove '.' if it is followed by '}', tarvshacl cannot handle these dots.
+        # Remove '.' if it is followed by '}', tarvshacl cannot handle these dots.
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
         return Query(query)
-        
+
     def extract_triples(self):
         """Entry point for a recursive run over a sparql.algebra, which represents a query as nested dictionaries.
         Returns:
             list: List of triples (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
         """
-        return self.__extract_triples_recursion(self.query_object.algebra)    
+        return self.__extract_triples_recursion(self.query_object.algebra)
 
     def extract_filter_terms(self):
-        return re.findall('FILTER\(.*\)',self.query_string,re.DOTALL)     
+        return re.findall('FILTER\(.*\)', self.query_string, re.DOTALL)
 
     def __extract_triples_recursion(self, algebra, is_optional=False):
         """Recursive function for triple pattern extraction.
@@ -93,15 +96,20 @@ class Query:
             list: List of Triple Objects which behave as Python Tuple (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
         """
         result = []
-        for k,v in algebra.items():
+        for k, v in algebra.items():
             if isinstance(v, dict):
                 if v.name == "LeftJoin" and v['expr'].name == "TrueFilter" and v['expr']['_vars'] == set():
-                    result = result + self.__extract_triples_recursion(v, is_optional= True)
+                    result = result + \
+                        self.__extract_triples_recursion(v, is_optional=True)
                 else:
                     if is_optional and k == "p2":
-                        result = result + self.__extract_triples_recursion(v, is_optional= True)
+                        result = result + \
+                            self.__extract_triples_recursion(
+                                v, is_optional=True)
                     else:
-                        result = result + self.__extract_triples_recursion(v, is_optional= False)
+                        result = result + \
+                            self.__extract_triples_recursion(
+                                v, is_optional=False)
             else:
                 if k == 'triples':
                     result = result + Triple.fromList(v, is_optional)
@@ -139,7 +147,7 @@ class Query:
         Returns:
             string: A target query corresponding to the query_string
         """
-        if not self.target_query:      
+        if not self.target_query:
             self.target_query = self._reduce_select(self.query_string)
         if replace_prefixes:
             return self._replace_prefixes_in_query(self.target_query)
@@ -149,7 +157,7 @@ class Query:
         '''
         Merges two queries using intersection
         '''
-        
+
         # Replace Target Variable
         if not '?x' in self.query_string:
             new_query_string_renamed = self.as_valid_query().replace(self.target_var, '?x')
@@ -157,7 +165,8 @@ class Query:
             new_query_string_renamed = self.query_string
 
         if not '?x' in oldTargetQuery.query_string:
-            old_query_string_renamed = oldTargetQuery.as_valid_query().replace(oldTargetQuery.target_var, '?x')
+            old_query_string_renamed = oldTargetQuery.as_valid_query().replace(
+                oldTargetQuery.target_var, '?x')
         else:
             old_query_string_renamed = oldTargetQuery.query_string
         oldQuery = Query(old_query_string_renamed)
@@ -188,7 +197,7 @@ class Query:
 
     def as_result_query(self):
         return re.sub(
-            r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE', 
+            r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE',
             f'SELECT DISTINCT * WHERE',
             self.query_string
         )
@@ -200,12 +209,12 @@ class Query:
         Regex: SELECT [DISTINCT|REDUCED] [[?targ, ...]|*] WHERE -> SELECT [DISTINCT|REDUCED] ?targ WHERE
         """
         query = re.sub(
-            r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE', 
+            r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE',
             f'SELECT DISTINCT {self.target_var} WHERE',
             query
         )
         return query
-    
+
     def _replace_prefixes_in_query(self, query):
         """Uses the information from self.get_triples to replace abbreviated term with their long version.
         It would be possible to perform this action without knowing the triples, 
@@ -219,11 +228,11 @@ class Query:
         """
         for short_list, long_list in zip(self.get_triples(replace_prefixes=False), self.get_triples(replace_prefixes=True)):
             short_s, short_p, short_o = short_list
-            long_s , long_p , long_o  = long_list
+            long_s, long_p, long_o = long_list
             short_triple = f'{re.escape(short_s)}\s+{re.escape(short_p)}\s+{re.escape(short_o)}'
-            long_triple  = f'{long_s} {long_p} {long_o}'
+            long_triple = f'{long_s} {long_p} {long_o}'
             query = re.sub(short_triple, long_triple, query)
-        
+
         prefix_block = re.search(r'(PREFIX.*)SELECT', query, re.DOTALL)
         query = query[prefix_block.end(1):]
         return query
