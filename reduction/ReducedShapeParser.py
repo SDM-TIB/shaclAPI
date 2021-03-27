@@ -31,9 +31,10 @@ class ReducedShapeParser(ShapeParser):
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
-    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
+    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
         shapes = super().parse_shapes_from_dir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(*self.computeReducedEdges(shapes), self.targetShape)
+        print("Involved Shapes:",Colors.grey(str(involvedShapes)),sep='\n')
         shapes = [s for s in shapes if s.get_id() in involvedShapes]
 
         # Replacing old targetQuery with new one
@@ -55,9 +56,9 @@ class ReducedShapeParser(ShapeParser):
     """
     parseConstraint can return None, which need to be filtered.
     """
-    def parseConstraints(self, array, targetDef, constraintsId):
+    def parse_constraints(self, array, targetDef, constraintsId):
         self.currentShape = constraintsId[:-3]
-        return [c for c in super().parseConstraints(array, targetDef, constraintsId) if c]
+        return [c for c in super().parse_constraints(array, targetDef, constraintsId) if c]
 
     """
     Constraints are only relevant if:
@@ -66,22 +67,22 @@ class ReducedShapeParser(ShapeParser):
             (-> inverted paths can be treated equally to normal paths)
     Other constraints are not relevant and result in a None.
     """
-    def parseConstraint(self, varGenerator, obj, id, targetDef):
+    def parse_constraint(self, varGenerator, obj, id, targetDef):
         if self.targetShape == self.currentShape or self.targetShape == obj.get('shape'):
             for t in self.query.get_predicates(replace_prefixes=False):
                 path = obj['path'][obj['path'].startswith('^'):]
                 if t == path:
-                    return super().parseConstraint(varGenerator, obj, id, targetDef)
+                    return super().parse_constraint(varGenerator, obj, id, targetDef)
             self.removed_constraints += [obj.get('path')]
             return None
-        return super().parseConstraint(varGenerator, obj, id, targetDef)
+        return super().parse_constraint(varGenerator, obj, id, targetDef)
 
     """
     constraints and references are parsed independently based on the json. 
     Constraints that are removed in parseConstraints() should not appear in the references.
     self.removed_constraints keeps track of the removed constraints
     """
-    def shapeReferences(self, constraints):
+    def shape_references(self, constraints):
         return {c.get("shape"): c.get("path") for c in constraints\
             if c.get("shape") and c.get("path") not in self.removed_constraints}
 

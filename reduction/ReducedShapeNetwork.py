@@ -6,7 +6,7 @@ from travshacl.rule_based_validation.Validation import Validation
 
 class ReducedShapeNetwork(ShapeSchema):
     def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query):
-        self.shapes = ReducedShapeParser(initial_query, target_shape).parseShapesFromDir(
+        self.shapes = ReducedShapeParser(initial_query, target_shape).parse_shapes_from_dir(
             schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
         self.endpointURL = endpoint_url
