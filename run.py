@@ -1,25 +1,17 @@
+from app.utils import parse_validation_params, prepare_validation
 from flask import Flask, request, Response
-import os, time, logging, json , sys
+import os, time, logging, json
 from SPARQLWrapper import SPARQLWrapper, JSON
-
-
-sys.path.append('./Trav-SHACL') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
-from reduction.ReducedShapeSchema import ReducedShapeSchema
-from travshacl.TravSHACL import parse_heuristics
-import travshacl.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
-from travshacl.core.GraphTraversal import GraphTraversal
-sys.path.remove('./Trav-SHACL')
+import multiprocessing as mp
 
 from app.query import Query
 import app.colors as Colors
 from app.outputCreation import QueryReport
-import config_parser as Configs
 
 
 app = Flask(__name__)
 logging.getLogger('werkzeug').disabled = True
 
-INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
 EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
 
 # Profiling Code
@@ -51,6 +43,53 @@ def endpoint():
     print(Colors.green('-------------------------------------------------------------'))
 
     return Response(jsonResult, mimetype='application/json')
+
+def mp_query(q, endpoint_url, query_string):
+    endpoint = SPARQLWrapper(endpoint_url, returnFormat=JSON)
+    endpoint.setQuery(query_string)
+    q.put(endpoint.query().convert())
+
+def mp_validate(q, query, *params):
+    schema = prepare_validation(query, *params)
+    q.put(schema.validate())
+    
+@app.route("/baseline", methods=['POST'])
+def baseline():
+    global EXTERNAL_SPARQL_ENDPOINT
+    EXTERNAL_SPARQL_ENDPOINT = None
+
+    # Parse POST Arguments
+    query_string = request.form["query"]
+
+    # Parse Config File
+    params = parse_validation_params(request.form)[:-1]
+    config = params[-1]
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["internal_endpoint"], returnFormat=JSON)
+    os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
+
+    # Parse query_string into a corresponding select_query    
+    query = Query.prepare_query(query_string)
+    query_ctx = mp.get_context("spawn")
+    val_ctx   = mp.get_context("spawn")
+    
+    query_q = query_ctx.Queue()
+    val_q   = val_ctx.Queue()
+    
+    query_p = query_ctx.Process(target=mp_query, args=(query_q, config["external_endpoint"], query_string))
+    val_p   = val_ctx.Process(target=mp_validate, args=(val_q, query, *params))
+    query_p.start()
+    val_p.start()
+
+    query_p.join()
+    val_p.join()
+    
+    report = val_q.get()
+    results = query_q.get()
+
+    q = QueryReport(report, query, results)
+    valid = q.full_report
+
+    return Response(q.to_json(), mimetype='application/json')
 
 
 @app.route("/go", methods=['POST'])
@@ -86,53 +125,26 @@ def run():
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse POST Arguments
-    traversal_strategie = GraphTraversal.BFS if request.form[
-        'traversalStrategie'] == "BFS" else GraphTraversal.DFS
-    schema_directory = request.form['schemaDir']
-    heuristics = parse_heuristics(request.form['heuristic'])
     query_string = request.form['query']
     targetShapeID = request.form['targetShape']
 
     # Parse Config File
-    if 'config' in request.form:
-        config = Configs.read_and_check_config(request.form['config'])
-        print("Using Custom Config: {}".format(request.form['config']))
-    else:
-        print("Using default config File!")
-        config = Configs.read_and_check_config('config.json')
-
-    # DEBUG FLAG, set for test runs with additional output
-    DEBUG_OUTPUT = config['debugging']
-    output_directory = config['outputDirectory']
-    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(
-        config['external_endpoint'], returnFormat=JSON)
-
-    if DEBUG_OUTPUT:
-        endpoint_url = INTERNAL_SPARQL_ENDPOINT
-    else:
-        endpoint_url = config['external_endpoint']
-
-    os.makedirs(os.path.join(os.getcwd(), output_directory), exist_ok=True)
+    params = parse_validation_params(request.form)
+    config = params[-2]
+    DEBUG_OUTPUT = config["debugging"]
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["internal_endpoint"], returnFormat=JSON)
+    os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(query_string)
-
-    SPARQLPrefixHandler.prefixes = {str(
-        key): "<" + str(value) + ">" for (key, value) in query.namespace_manager.namespaces()}
-    SPARQLPrefixHandler.prefixString = "\n".join(["".join(
-        "PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
-
-    # Step 1 and 2 are executed by ReducedShapeParser
-    schema = ReducedShapeSchema(
-        schema_directory, config['shapeFormat'], endpoint_url, traversal_strategie,
-        heuristics, config['useSelectiveQueries'], config['maxSplit'], output_directory,
-        config['ORDERBYinQueries'], config['outputs'], config['workInParallel'], targetShapeID, query)
-
+    schema = prepare_validation(query, *params)
+    
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = schema.validate()
-
+    
     # Retrieve the complete result for the initial query
     query_string = query.as_result_query()
+
     EXTERNAL_SPARQL_ENDPOINT.setQuery(query_string)
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
 

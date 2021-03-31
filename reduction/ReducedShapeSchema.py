@@ -46,3 +46,28 @@ class ReducedShapeSchema(ShapeSchema):
             self.saveTargetsToFile
         ).exec()
         return result
+
+class ReturnShapeSchema(ShapeSchema):
+    def validate(self):
+        """Executes the validation of the shape network."""
+        start = self.get_starting_point()
+        node_order = self.graphTraversal.traverse_graph(self.dependencies, self.reverse_dependencies, start[0])  # TODO: deal with more than one possible starting point
+
+        for s in self.shapes:
+            s.compute_constraint_queries()
+
+        target_shapes = [s for name, s in self.shapesDict.items()
+                         if self.shapesDict[name].get_target_query() is not None]
+        target_shape_predicates = [s.get_id() for s in target_shapes]
+
+        result = Validation(
+            self.endpointURL,
+            node_order,
+            self.shapesDict,
+            target_shape_predicates,
+            self.selectivityEnabled,
+            self.outputDirName,
+            self.saveStats,
+            self.saveTargetsToFile
+        ).exec()
+        return result

@@ -1,3 +1,4 @@
+import json
 from rdflib import Namespace, URIRef
 
 
@@ -61,6 +62,9 @@ class QueryReport:
     @staticmethod
     def create_output(report, query, results):
         return QueryReport(report, query, results).full_report
+
+    def to_json(self):
+        return json.dumps(self.full_report)
 
     def parse_results(self, results):
         # Transforms the given bindings into a list of bindings using prefix notation

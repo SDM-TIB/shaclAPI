@@ -111,7 +111,18 @@ def test_run(file):
         with open(os.path.join(RESULT_DIR,test_file_name),"a") as outputfile:
             outputfile.write(json.dumps(json_response,indent = 4))
 
-
+@pytest.mark.parametrize("file", get_all_files())
+def test_base(file):
+    test_file_name = str(file).replace('/','_')
+    test_file_name = test_file_name.replace('.','',1)
+    if os.path.isfile(os.path.join(RESULT_DIR,test_file_name)):
+        os.remove(os.path.join(RESULT_DIR,test_file_name))
+    test = testingUtils.executeTest(file)
+    PARAMS = test[0]
+    if 'test_type' in PARAMS:
+        del PARAMS['test_type']
+    response = requests.post(FLASK_ENDPOINT + 'baseline', data=PARAMS)
+    assert response.status_code == 200, "Server-sided error, check server output for details"
    
    
     #testingUtils.writeTest('tests/test_definitions/lubm1.json', response.json(), query,testingUtils.TestType.ONLY_VALID)
