@@ -22,7 +22,7 @@ EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
 @app.route("/endpoint", methods=['GET', 'POST'])
 def endpoint():
     global EXTERNAL_SPARQL_ENDPOINT
-    print(Colors.green('-------------------SPARQL Endpoint Request-------------------'))
+    print(Colors.green(Colors.headline('SPARQL Endpoint Request')))
     # Preprocessing of the Query
     if request.method == 'POST':
         query = request.form['query']
@@ -40,7 +40,7 @@ def endpoint():
 
     print("Got {} result bindings".format(len(result['results']['bindings'])))
     print("Execution took " + str((end - start)*1000) + ' ms')
-    print(Colors.green('-------------------------------------------------------------'))
+    print(Colors.green(Colors.headline('')))
 
     return Response(jsonResult, mimetype='application/json')
 
@@ -64,7 +64,7 @@ def baseline():
     # Parse Config File
     params = parse_validation_params(request.form)[:-1]
     config = params[-1]
-    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["internal_endpoint"], returnFormat=JSON)
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
 
     # Parse query_string into a corresponding select_query    
@@ -115,7 +115,7 @@ def run():
             - outputs
             - workInParallel
     '''
-    print(Colors.magenta('---------------------New Validation Task---------------------'))
+    print(Colors.magenta(Colors.headline('New Validation Task')))
     # Profiling Code
     # g.profiler = Profiler()
     # g.profiler.start()
@@ -132,7 +132,7 @@ def run():
     params = parse_validation_params(request.form)
     config = params[-2]
     DEBUG_OUTPUT = config["debugging"]
-    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["internal_endpoint"], returnFormat=JSON)
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
 
     # Parse query_string into a corresponding select_query
@@ -183,7 +183,7 @@ def run():
                     valid["advancedValid"].append((t, reportResults[t][2]))
                 elif reportResults[t][1] == 'invalid_instances':
                     valid["advancedInvalid"].append((t, reportResults[t][2]))
-    print(Colors.magenta('-------------------------------------------------------------'))
+    print(Colors.magenta(Colors.headline('')))
 
     # Profiling Code
     # global global_request_count

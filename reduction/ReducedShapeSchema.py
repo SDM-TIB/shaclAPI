@@ -2,12 +2,17 @@ from reduction.ReducedShapeParser import ReducedShapeParser
 from travshacl.core.ShapeSchema import ShapeSchema
 from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
 from travshacl.rule_based_validation.Validation import Validation
+import app.colors as Colors
 
 
 class ReducedShapeSchema(ShapeSchema):
     def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query):
-        self.shapes = ReducedShapeParser(initial_query, target_shape).parse_shapes_from_dir(
+        print(Colors.blue(Colors.headline("Shape Parsing and Reduction")))
+        self.shapeParser = ReducedShapeParser(initial_query, target_shape)
+        self.shapes = self.shapeParser.parse_shapes_from_dir(
             schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
+        print(Colors.blue(Colors.headline('')))
+        self.schema_dir = schema_dir
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
         self.endpointURL = endpoint_url
         self.graphTraversal = graph_traversal
@@ -46,6 +51,11 @@ class ReducedShapeSchema(ShapeSchema):
             self.saveTargetsToFile
         ).exec()
         return result
+    
+    def to_json(self):
+        print(self.shapeParser.removed_constraints)
+        print(self.shapeParser.involvedShapeIDs)
+
 
 class ReturnShapeSchema(ShapeSchema):
     def validate(self):

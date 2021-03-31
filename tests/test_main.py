@@ -123,14 +123,3 @@ def test_base(file):
         del PARAMS['test_type']
     response = requests.post(FLASK_ENDPOINT + 'baseline', data=PARAMS)
     assert response.status_code == 200, "Server-sided error, check server output for details"
-   
-   
-    #testingUtils.writeTest('tests/test_definitions/lubm1.json', response.json(), query,testingUtils.TestType.ONLY_VALID)
-
-#def test_createTest():
-#    testingUtils.testFromExecution(file='tests/test_definitions/test4.json',
-#                                    query_file='query.sparql',
-#                                    test_type= testingUtils.TestType.BOTH,
-#                                    config= 'tests/configs/lubm_config.json', 
-#                                    schemaDir='./tests/setup/shapes/smallFamily',
-#                                    targetShape='Person')

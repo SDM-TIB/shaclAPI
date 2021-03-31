@@ -14,21 +14,8 @@ class ReducedShapeParser(ShapeParser):
         self.query = query
         self.targetShape = targetShape
         self.currentShape = None
-        self.removed_constraints = []
-
-    """
-    Normalizes a path in prefixed n3-format ([^]prefix:predicate --> extended_prefix:predicate)
-    """
-
-    def _as_path(self, term):
-        t_inv = term.startswith('^')
-        t_split = term.rfind(':')
-        t_namespace = get_prefixes()[term[t_inv:t_split]][1:-1]
-        t_path = term[t_split+1:]
-        path = Namespace(t_namespace)[t_path]
-        # if t_inv:
-        #    return ~path
-        return path
+        self.removed_constraints = {}
+        self.involvedShapeIDs = []
 
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
@@ -37,10 +24,12 @@ class ReducedShapeParser(ShapeParser):
     def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
         shapes = super().parse_shapes_from_dir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
-        involvedShapes = GraphTraversal(GraphTraversal.BFS).traverse_graph(
+        self.involvedShapeIDs = GraphTraversal(GraphTraversal.BFS).traverse_graph(
             *self.computeReducedEdges(shapes), self.targetShape)
-        print("Involved Shapes:", Colors.grey(str(involvedShapes)), sep='\n')
-        shapes = [s for s in shapes if s.get_id() in involvedShapes]
+        
+        print("Involved Shapes:", Colors.grey(str(self.involvedShapeIDs)), sep='\n')
+        print("Removed Constraints:", Colors.grey(str(self.removed_constraints)), sep='\n')
+        shapes = [s for s in shapes if s.get_id() in self.involvedShapeIDs]
 
         # Replacing old targetQuery with new one
         for s in shapes:
@@ -67,11 +56,13 @@ class ReducedShapeParser(ShapeParser):
 
     def parse_constraints(self, array, targetDef, constraintsId):
         self.currentShape = constraintsId[:-3]
+        self.removed_constraints[self.currentShape] = []
         return [c for c in super().parse_constraints(array, targetDef, constraintsId) if c]
 
     """
     Constraints are only relevant if:
         - subject and object do both NOT belong to the targetShape
+        OR
         - subject or object belong to the targetShape AND the predicate is part of the query
             (-> inverted paths can be treated equally to normal paths)
     Other constraints are not relevant and result in a None.
@@ -79,23 +70,23 @@ class ReducedShapeParser(ShapeParser):
 
     def parse_constraint(self, varGenerator, obj, id, targetDef):
         if self.targetShape == self.currentShape or self.targetShape == obj.get('shape'):
-            for t in self.query.get_predicates(replace_prefixes=False):
-                path = obj['path'][obj['path'].startswith('^'):]
-                if t == path:
-                    return super().parse_constraint(varGenerator, obj, id, targetDef)
-            self.removed_constraints += [obj.get('path')]
-            return None
+            path = obj['path'][obj['path'].startswith('^'):]
+            if path in self.query.get_predicates(replace_prefixes=False):
+                return super().parse_constraint(varGenerator, obj, id, targetDef)
+            else:
+                self.removed_constraints[self.currentShape] += [obj.get('path')]
+                return None
         return super().parse_constraint(varGenerator, obj, id, targetDef)
 
     """
     constraints and references are parsed independently based on the json. 
-    Constraints that are removed in parseConstraints() should not appear in the references.
+    Constraints that are removed in parse_constraint() should not appear in the references.
     self.removed_constraints keeps track of the removed constraints
     """
 
     def shape_references(self, constraints):
         return {c.get("shape"): c.get("path") for c in constraints
-                if c.get("shape") and c.get("path") not in self.removed_constraints}
+                if c.get("shape") and c.get("path") not in self.removed_constraints[self.currentShape]}
 
     """
     Returns unidirectional dependencies with a single exception: Reversed dependencies are included, if they aim at the targetShape.

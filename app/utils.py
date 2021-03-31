@@ -25,9 +25,9 @@ def parse_validation_params(request_form):
     targetShapeID = request_form['targetShape']
    
     config = Configs.read_and_check_config(request_form.get('config', 'config.json'))
-
-    config['internal_endpoint'] = config['external_endpoint']
-    config['external_endpoint'] = INTERNAL_SPARQL_ENDPOINT if config['debugging'] else config['external_endpoint']
+    
+    # The internal_endpoint is that one which is propagated to the backend validation process
+    config['internal_endpoint'] = INTERNAL_SPARQL_ENDPOINT if config['debugging'] else config['external_endpoint']
     config['traversalStrategie'] = request_form['traversalStrategie']
     config['heuristic'] = request_form['heuristic']
 
