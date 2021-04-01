@@ -3,6 +3,9 @@ from flask import Flask, request, Response
 import os, time, logging, json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
+from app.multiprocessing.contactSource import contactSource
+from app.multiprocessing.Xjoin import XJoin
+from copy import copy
 
 from app.query import Query
 import app.colors as Colors
@@ -22,6 +25,9 @@ EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
 
 @app.route("/endpoint", methods=['GET', 'POST'])
 def endpoint():
+    '''
+    This is just an proxy endpoint to log the communication between the backend and the external sparql endpoint.
+    '''
     global EXTERNAL_SPARQL_ENDPOINT
     print(Colors.green(Colors.headline('SPARQL Endpoint Request')))
     # Preprocessing of the Query
@@ -45,6 +51,12 @@ def endpoint():
 
     return Response(jsonResult, mimetype='application/json')
 
+@app.route("/newValidationResult", methods=['POST'])
+def enqueueValidationResult():
+    #TODO: receive validation instances and put the in a global multiprocessing queue
+    pass
+
+
 def mp_query(q, endpoint_url, query_string):
     endpoint = SPARQLWrapper(endpoint_url, returnFormat=JSON)
     endpoint.setQuery(query_string)
@@ -52,7 +64,12 @@ def mp_query(q, endpoint_url, query_string):
 
 def mp_validate(q, query, *params):
     schema = prepare_validation(query, *params)
-    q.put(schema.validate())
+    report = schema.validate()
+    for shape, instance_dict in report.items():
+        for is_valid, instances in instance_dict.items():
+            for instance in instances:
+                q.put((instance[1], instance[0], (is_valid == 'valid_instances'), shape))
+    q.put('EOF')
     
 @app.route("/baseline", methods=['POST'])
 def baseline():
@@ -61,10 +78,12 @@ def baseline():
 
     # Parse POST Arguments
     query_string = request.form["query"]
+    targetShapeID = request.form['targetShape']
 
     # Parse Config File
-    params = parse_validation_params(request.form)[:-1]
-    config = params[-1]
+    params = parse_validation_params(request.form)
+    config = params[-2]
+
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
 
@@ -73,21 +92,24 @@ def baseline():
     query_ctx = mp.get_context("spawn")
     val_ctx   = mp.get_context("spawn")
     
-    query_q = query_ctx.Queue()
-    val_q   = val_ctx.Queue()
+    query_queue = query_ctx.Queue()
+    val_queue   = val_ctx.Queue()
     
-    query_p = query_ctx.Process(target=mp_query, args=(query_q, config["external_endpoint"], query_string))
-    val_p   = val_ctx.Process(target=mp_validate, args=(val_q, query, *params))
+    query_p = query_ctx.Process(target=contactSource, args=(config["external_endpoint"], query_string, query_queue, -1))
+    val_p   = val_ctx.Process(target=mp_validate, args=(val_queue, query, *params))
     query_p.start()
     val_p.start()
 
     query_p.join()
     val_p.join()
-    
-    report = val_q.get()
-    results = query_q.get()
 
-    return Response(SimpleOutput(BaseResult.from_travshacl(report, query,results)).to_json(), mimetype='application/json')
+    
+    baseResult = BaseResult.from_travshaclBase(val_queue,query,query_queue)
+    #print(SimpleOutput(copy(baseResult)))
+    #print(baseResult.validation_report_triples)
+    #print(baseResult.query_results)
+    
+    return Response(TestOutput(copy(baseResult)).to_json(targetShapeID), mimetype='application/json')
 
 
 @app.route("/go", methods=['POST'])

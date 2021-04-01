@@ -6,6 +6,8 @@ class ValReport(IntEnum):
     IS_VALID = 1
     REASON = 2
 
+#TODO: Create Output which uses XJoin
+
 class BaseResult:
     '''
     The BaseResult includes all information which is needed to construct an output. 
@@ -26,6 +28,23 @@ class BaseResult:
         #This will convert the entries to a notation which uses Prefixes
         conv_query_results = [{k: v['value'] for k, v in entry.items(
                                     )} for entry in query_results['results']['bindings']]
+        return BaseResult(conv_val_report, conv_query_results, query)
+    
+    @staticmethod
+    def from_travshaclBase(validation_queue, query, query_queue):
+        #This will convert the entries to a notation which uses Prefixes
+        actual_tuple = query_queue.get()
+        conv_query_results = []
+        while actual_tuple != 'EOF':
+            conv_query_results += [actual_tuple]
+            actual_tuple = query_queue.get()
+
+        conv_val_report = {}
+        actual_tuple = validation_queue.get()
+        while actual_tuple != 'EOF':
+            conv_val_report[actual_tuple[0]] = actual_tuple[1:4]
+            actual_tuple = validation_queue.get() 
+        print(conv_val_report)
         return BaseResult(conv_val_report, conv_query_results, query)
     
     @staticmethod

@@ -17,6 +17,7 @@ class SimpleOutput():
         return json.dumps(self._output)
 
     def output(self):
+        #TODO: eliminate duplicates
         if not self._output:
             transformed_report_triples = self.transform_report_triples()
             transformed_query_result = [{k: URIRef(v).n3(self.base.query.namespace_manager) for k,v in bindings.items()} for bindings in self.base.query_results]
@@ -32,6 +33,8 @@ class SimpleOutput():
         return self._output
 
     def __str__(self):
+        if not self._output:
+            self.output()
         string = "[\n"
         indent = 1
         for bindings, triples, report_triples in self._output:

@@ -40,5 +40,5 @@ class TestOutput():
                             (t, self.base.validation_report_triples[t][2]))
         return self._output
 
-    def __str__(self):
-        pass
+    def to_string(self, targetShapeID):
+        return str(self.output(targetShapeID))
