@@ -1,4 +1,6 @@
+import json
 from rdflib import Namespace, URIRef
+
 
 class QueryReport:
     """
@@ -24,7 +26,7 @@ class QueryReport:
             string += indent*" " + "{\n"
             indent += 1
             string += indent*" " + f"{list(bindings.items())},\n"
-            
+
             string += indent*" " + "{\n"
             indent += 1
             for t in triples:
@@ -47,9 +49,12 @@ class QueryReport:
     def full_report(self):
         if not self._full_report:
             for b in self.bindings:
-                pv_binding = {k: v for k,v in b.items() if '?'+k in self.query.PV}
-                triples = [(b[t[0][1:]], t[1], b.get(t[2][1:]) or t[2]) for t in self.triples if t[0][1:] in b]
-                report_triples = [t for t in self.report_triples if t[0] in b.values()]
+                pv_binding = {k: v for k, v in b.items() if '?' +
+                              k in self.query.PV}
+                triples = [(b[t[0][1:]], t[1], b.get(t[2][1:]) or t[2])
+                           for t in self.triples if t[0][1:] in b]
+                report_triples = [
+                    t for t in self.report_triples if t[0] in b.values()]
 
                 self._full_report += [(pv_binding, triples, report_triples)]
         return self._full_report
@@ -57,6 +62,9 @@ class QueryReport:
     @staticmethod
     def create_output(report, query, results):
         return QueryReport(report, query, results).full_report
+
+    def to_json(self):
+        return json.dumps(self.full_report)
 
     def parse_results(self, results):
         # Transforms the given bindings into a list of bindings using prefix notation
@@ -66,7 +74,7 @@ class QueryReport:
         return query.get_triples(replace_prefixes=False)
 
     def parse_report(self, report):
-        #Maybe create RDF Graph?
+        # Maybe create RDF Graph?
         report_triples = []
         t_path = Namespace("//travshacl_path#")
         self.namespace_manager.bind('ts', t_path)
@@ -81,5 +89,5 @@ class QueryReport:
                     instance = URIRef(instance).n3(self.namespace_manager)
                     path = t_path['violatesShape'].n3(self.namespace_manager)
                     report_triples += [(instance, path, violating_shape)]
-                    #TODO: Add n['violatesConstraints']
+                    # TODO: Add n['violatesConstraints']
         return report_triples
