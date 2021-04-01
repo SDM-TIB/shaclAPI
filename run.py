@@ -6,8 +6,9 @@ import multiprocessing as mp
 
 from app.query import Query
 import app.colors as Colors
-from app.outputCreation import QueryReport
-
+from app.output.simpleOutput import SimpleOutput
+from app.output.baseResult import BaseResult
+from app.output.testOutput import TestOutput
 
 app = Flask(__name__)
 logging.getLogger('werkzeug').disabled = True
@@ -86,10 +87,7 @@ def baseline():
     report = val_q.get()
     results = query_q.get()
 
-    q = QueryReport(report, query, results)
-    valid = q.full_report
-
-    return Response(q.to_json(), mimetype='application/json')
+    return Response(SimpleOutput(BaseResult.from_travshacl(report, query,results)).to_json(), mimetype='application/json')
 
 
 @app.route("/go", methods=['POST'])
@@ -148,41 +146,6 @@ def run():
     EXTERNAL_SPARQL_ENDPOINT.setQuery(query_string)
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
 
-    q = QueryReport(report, query, results)
-    valid = q.full_report
-    # print(valid)
-
-    if DEBUG_OUTPUT:
-        # New output generator, based on intersection of query and validation results
-        reportResults = {}
-        for shape, instance_dict in report.items():
-            for is_valid, instances in instance_dict.items():
-                for instance in instances:
-                    reportResults[instance[1]] = (instance[0], is_valid, shape)
-
-        queryResults = {}
-        for binding in results['results']['bindings']:
-            instance = binding[query.target_var[1:]]['value']
-            queryResults[instance] = {var: info['value']
-                                      for var, info in binding.items()}
-
-        # valid dict is left only for test purposes, no need to change the test cases
-        valid = {"validTargets": [], "invalidTargets": [],
-                 "advancedValid": [], "advancedInvalid": []}
-        for t in reportResults.keys() & queryResults.keys():
-            # 'validation' : (instance shape, is_valid, violating/validating shape)
-            if reportResults[t][0] == targetShapeID:
-                if reportResults[t][1] == 'valid_instances':
-                    valid["validTargets"].append((t, reportResults[t][2]))
-                elif reportResults[t][1] == 'invalid_instances':
-                    valid["invalidTargets"].append((t, reportResults[t][2]))
-        for t in reportResults:
-            # 'validation' : (instance's shape, is_valid, violating/validating shape)
-            if reportResults[t][0] != targetShapeID:
-                if reportResults[t][1] == 'valid_instances':
-                    valid["advancedValid"].append((t, reportResults[t][2]))
-                elif reportResults[t][1] == 'invalid_instances':
-                    valid["advancedInvalid"].append((t, reportResults[t][2]))
     print(Colors.magenta(Colors.headline('')))
 
     # Profiling Code
@@ -192,7 +155,11 @@ def run():
     # global_request_count = global_request_count + 1
     # with open("timing/profil{}.html".format(global_request_count - 1),"w") as f:
     #     f.write(output_html)
-    return Response(json.dumps(valid), mimetype='application/json')
+    
+    if DEBUG_OUTPUT:
+        return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(targetShapeID), mimetype='application/json')
+    else:
+        return Response(SimpleOutput(BaseResult.from_travshacl(report, query, results)).to_json())
 
 
 @app.route("/", methods=['GET'])

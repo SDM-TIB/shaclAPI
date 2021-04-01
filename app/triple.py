@@ -1,7 +1,12 @@
 from rdflib.paths import InvPath
 from rdflib.namespace import RDF
 from rdflib.term import URIRef, Variable
+from enum import IntEnum
 
+class TripleE(IntEnum):
+    SUBJECT = 0
+    PREDICAT = 1
+    OBJECT = 2
 
 class Triple():
     def __init__(self, s, p, o, is_optional=False):
