@@ -387,13 +387,3 @@ class XJoin():
 
         file.close()
 
-def mergeTuples(record_tuple, r_tuple): #TODO: Integrate above
-    res = record_tuple.copy()
-    keys_res = res.keys()
-    keys_r_tuple = r_tuple.keys()
-    res.update(r_tuple)
-    for key,value in res.items():
-        if key in keys_res and key in keys_r_tuple:
-            res[key] = [value, record_tuple[key].copy()]
-
-    return res

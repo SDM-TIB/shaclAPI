@@ -12,6 +12,7 @@ import app.colors as Colors
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
+from app.multiprocessing.transformer import contact_source_to_XJoin_Format, createProxy, queue_output_to_table
 
 app = Flask(__name__)
 logging.getLogger('werkzeug').disabled = True
@@ -57,26 +58,22 @@ def enqueueValidationResult():
     pass
 
 
-def mp_query(q, endpoint_url, query_string):
-    endpoint = SPARQLWrapper(endpoint_url, returnFormat=JSON)
-    endpoint.setQuery(query_string)
-    q.put(endpoint.query().convert())
 
-def mp_validate(q, query, target_var, *params):
+def mp_validate(q, query, *params):
     schema = prepare_validation(query, *params)
     report = schema.validate()
     for shape, instance_dict in report.items():
         for is_valid, instances in instance_dict.items():
             for instance in instances:
-                q.put({target_var: instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)}) #TODO: There are more variables then the target_var
+                q.put({'instance': instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)}) #TODO: There are more variables then the target_var
     q.put('EOF')  #{instance: (shape of instance, is_valid, violating/validating shape)}
 
 def mp_query_preprocessing(q, query):
     #vars = [var[1:] for var in query.variables]
-    target_var = str(query.target_var)[1:]
-    target_query_string = query.as_target_query()
-    q.put(target_var)
-    q.put(target_query_string)
+    #target_var = str(query.target_var)[1:]
+    result_query_string = query.as_result_query()
+    #q.put(target_var)
+    q.put(result_query_string)
     
 @app.route("/baseline", methods=['POST'])
 def baseline():
@@ -97,34 +94,50 @@ def baseline():
     # Parse query_string into a corresponding select_query    
     query = Query.prepare_query(query_string)
 
-    target_var_ctx = mp.get_context("spawn")
-    target_var_queue = target_var_ctx.Queue()
-    target_p = target_var_ctx.Process(target=mp_query_preprocessing, args=(target_var_queue, query))
-    target_p.start()
-    target_p.join()
-    targetVar = target_var_queue.get()
-    target_query_string = target_var_queue.get()
+    # 1.) Query Preprocessing
+    # query_preprocessing_ctx = mp.get_context("spawn")
+    # query_preprocessing_queue = query_preprocessing_ctx.Queue()
+    # query_preprocessing_p = query_preprocessing_ctx.Process(target=mp_query_preprocessing, args=(query_preprocessing_queue, query))
+    # query_preprocessing_p.start()
+    # query_preprocessing_p.join()
 
+    # result_query_string = query_preprocessing_queue.get()
+
+    # 2.) Get the Data
     query_ctx = mp.get_context("spawn")
-    val_ctx   = mp.get_context("spawn")
-    out_ctx   = mp.get_context("spawn")
-    
     query_queue = query_ctx.Queue()
-    val_queue   = val_ctx.Queue()
-    out_queue   = out_ctx.Queue()
-    join = XJoin([targetVar])
-        
-    query_p = query_ctx.Process(target=contactSource, args=(config["external_endpoint"], target_query_string, query_queue, -1))
-    val_p   = val_ctx.Process(target=mp_validate, args=(val_queue, query, targetVar, *params))
-    out_p   = out_ctx.Process(target=join.execute, args=(query_queue, val_queue,out_queue))
+    query_p = query_ctx.Process(target=contactSource, args=(config["external_endpoint"], query_string, query_queue, -1))
     query_p.start()
-    val_p.start()
-    out_p.start()
 
-    query_p.join()
-    val_p.join()
+    val_ctx   = mp.get_context("spawn")
+    val_queue   = val_ctx.Queue()
+    val_p   = val_ctx.Process(target=mp_validate, args=(val_queue, query, *params))
+    val_p.start()
+
+    # 3.) Transform the Data
+    transform_ctx = mp.get_context("spawn")
+    transformed_query_queue = transform_ctx.Queue()
+    query_queue_copy = transform_ctx.Queue()
+    transform_p = transform_ctx.Process(target=contact_source_to_XJoin_Format, args=(query_queue, transformed_query_queue, query_queue_copy))
+    transform_p.start()
+    proxy_queue = createProxy(transformed_query_queue)
+
+    # 4.) Join the Data
+    out_ctx   = mp.get_context("spawn") 
+    out_queue   = out_ctx.Queue()
+    join = XJoin(['instance'])
+    out_p  = out_ctx.Process(target=join.execute, args=(proxy_queue, val_queue,out_queue))
+    out_p.start()
+    proxy2_queue = createProxy(out_queue)
+
+    # 5.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
     out_p.join()
-    testOutput = TestOutput.fromJoinedResultQueue(targetVar,out_queue)
+    api_result = queue_output_to_table(proxy2_queue,query_queue_copy)
+
+    # 6.) Output
+    print(str(api_result))
+    
+    testOutput = TestOutput.fromJoinedResults(targetShapeID,api_result)
     print(testOutput.to_string(targetShapeID))
 
     return Response(testOutput.to_json(targetShapeID), mimetype='application/json')

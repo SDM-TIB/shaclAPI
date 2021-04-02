@@ -128,7 +128,7 @@ def test_base(file):
     assert response.status_code == 200, "Server-sided error, check server output for details"
     json_response = response.json()
     try:
-        for key in test[1].keys():
+        for key in ['validTargets','invalidTargets']:
             json_set_of_tuples = sorted([(item[0], item[1]) for item in json_response[key]], key=lambda x: x[0])
             test_set_of_tuples = sorted([(item[0], item[1]) for item in test[1][key]], key=lambda x: x[0])
 
