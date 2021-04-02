@@ -1,12 +1,11 @@
 from rdflib import Namespace, URIRef
 from enum import IntEnum
+import app.colors as Colors
 
 class ValReport(IntEnum):
     SHAPE = 0
     IS_VALID = 1
     REASON = 2
-
-#TODO: Create Output which uses XJoin
 
 class BaseResult:
     '''
@@ -14,7 +13,7 @@ class BaseResult:
     Each URIRef is non abbreviated!
 
     validation_report_triples: {instance: (shape of instance, is_valid, violating/validating shape)}
-    query_results: {'query_var': 'prefix:instance'}
+    query_results: [{'query_var': 'prefix:instance'},...]
     '''
     def __init__(self, validation_report_triples, query_results, query):
         self.validation_report_triples = validation_report_triples
@@ -28,23 +27,6 @@ class BaseResult:
         #This will convert the entries to a notation which uses Prefixes
         conv_query_results = [{k: v['value'] for k, v in entry.items(
                                     )} for entry in query_results['results']['bindings']]
-        return BaseResult(conv_val_report, conv_query_results, query)
-    
-    @staticmethod
-    def from_travshaclBase(validation_queue, query, query_queue):
-        #This will convert the entries to a notation which uses Prefixes
-        actual_tuple = query_queue.get()
-        conv_query_results = []
-        while actual_tuple != 'EOF':
-            conv_query_results += [actual_tuple]
-            actual_tuple = query_queue.get()
-
-        conv_val_report = {}
-        actual_tuple = validation_queue.get()
-        while actual_tuple != 'EOF':
-            conv_val_report[actual_tuple[0]] = actual_tuple[1:4]
-            actual_tuple = validation_queue.get() 
-        print(conv_val_report)
         return BaseResult(conv_val_report, conv_query_results, query)
     
     @staticmethod

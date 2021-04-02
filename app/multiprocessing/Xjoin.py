@@ -163,7 +163,7 @@ class XJoin():
                 file_descriptor = self.fileDescriptor_left
 
             # Check if the partition has been flushed and has records in main memory.
-            if ((file_descriptor.has_key(i)) and (len(partition.records)>0)):
+            if ((i in file_descriptor) and (len(partition.records)>0)):
                 dtsLast = 0
 
                 for record in partition.records:
@@ -227,6 +227,8 @@ class XJoin():
 
     def probeMainSecondaryMem(self, record, filedescriptor2, partition, timestage2):
         # Probe a record against its corresponding partition in secondary memory.
+        if not partition in filedescriptor2:
+            return
         file2 = open(filedescriptor2[partition].file.name, 'r')
         records2 = file2.readlines()
         timestamps = filedescriptor2[partition].timestamps
@@ -276,7 +278,7 @@ class XJoin():
     def probeSecondarySecondaryMem(self, filedescriptor1, filedescriptor2):
         # Probe partitions in secondary memory.
         for partition in filedescriptor1.keys():
-            if (filedescriptor2.has_key(partition)):
+            if (partition in filedescriptor2):
                 file1 = open(filedescriptor1[partition].file.name, 'r')
                 records1 = file1.readlines()
                 timestamps1 = filedescriptor1[partition].timestamps
@@ -362,25 +364,36 @@ class XJoin():
             self.right_table.partitions[victim] = Partition()
 
         # Update file descriptor
-        if (file_descriptor.has_key(victim)):
+        if (victim in file_descriptor):
             lenfile = file_descriptor[victim].size
             file = open(file_descriptor[victim].file.name, 'a')
             file_descriptor.update({victim: FileDescriptor(file, len(partition_to_flush.records) + lenfile, file_descriptor[victim].timestamps)})
         else:
-            file = NamedTemporaryFile(suffix=".ht", prefix="", delete=False)
+            file = NamedTemporaryFile(suffix=".ht", prefix="", delete=False, mode='a')
             file_descriptor.update({victim: FileDescriptor(file, len(partition_to_flush.records), set())})
 
         # Flush partition in file.
         for record in partition_to_flush.records:
             self.timestamp += 1
-            tuple = str(record.tuple)
+            tuple_str = str(record.tuple)
             ats   = str(record.ats)
             dts   = str(self.timestamp)
             #ats   = "%.40r" % (record.ats)
             #dts   = "%.40r" % (time())
 
-            file.write(tuple + '|')
+            file.write(tuple_str + '|')
             file.write(ats + '|')
             file.write(dts + '\n')
 
         file.close()
+
+def mergeTuples(record_tuple, r_tuple): #TODO: Integrate above
+    res = record_tuple.copy()
+    keys_res = res.keys()
+    keys_r_tuple = r_tuple.keys()
+    res.update(r_tuple)
+    for key,value in res.items():
+        if key in keys_res and key in keys_r_tuple:
+            res[key] = [value, record_tuple[key].copy()]
+
+    return res

@@ -62,14 +62,21 @@ def mp_query(q, endpoint_url, query_string):
     endpoint.setQuery(query_string)
     q.put(endpoint.query().convert())
 
-def mp_validate(q, query, *params):
+def mp_validate(q, query, target_var, *params):
     schema = prepare_validation(query, *params)
     report = schema.validate()
     for shape, instance_dict in report.items():
         for is_valid, instances in instance_dict.items():
             for instance in instances:
-                q.put((instance[1], instance[0], (is_valid == 'valid_instances'), shape))
-    q.put('EOF')
+                q.put({target_var: instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)}) #TODO: There are more variables then the target_var
+    q.put('EOF')  #{instance: (shape of instance, is_valid, violating/validating shape)}
+
+def mp_query_preprocessing(q, query):
+    #vars = [var[1:] for var in query.variables]
+    target_var = str(query.target_var)[1:]
+    target_query_string = query.as_target_query()
+    q.put(target_var)
+    q.put(target_query_string)
     
 @app.route("/baseline", methods=['POST'])
 def baseline():
@@ -89,27 +96,38 @@ def baseline():
 
     # Parse query_string into a corresponding select_query    
     query = Query.prepare_query(query_string)
+
+    target_var_ctx = mp.get_context("spawn")
+    target_var_queue = target_var_ctx.Queue()
+    target_p = target_var_ctx.Process(target=mp_query_preprocessing, args=(target_var_queue, query))
+    target_p.start()
+    target_p.join()
+    targetVar = target_var_queue.get()
+    target_query_string = target_var_queue.get()
+
     query_ctx = mp.get_context("spawn")
     val_ctx   = mp.get_context("spawn")
+    out_ctx   = mp.get_context("spawn")
     
     query_queue = query_ctx.Queue()
     val_queue   = val_ctx.Queue()
-    
-    query_p = query_ctx.Process(target=contactSource, args=(config["external_endpoint"], query_string, query_queue, -1))
-    val_p   = val_ctx.Process(target=mp_validate, args=(val_queue, query, *params))
+    out_queue   = out_ctx.Queue()
+    join = XJoin([targetVar])
+        
+    query_p = query_ctx.Process(target=contactSource, args=(config["external_endpoint"], target_query_string, query_queue, -1))
+    val_p   = val_ctx.Process(target=mp_validate, args=(val_queue, query, targetVar, *params))
+    out_p   = out_ctx.Process(target=join.execute, args=(query_queue, val_queue,out_queue))
     query_p.start()
     val_p.start()
+    out_p.start()
 
     query_p.join()
     val_p.join()
+    out_p.join()
+    testOutput = TestOutput.fromJoinedResultQueue(targetVar,out_queue)
+    print(testOutput.to_string(targetShapeID))
 
-    
-    baseResult = BaseResult.from_travshaclBase(val_queue,query,query_queue)
-    #print(SimpleOutput(copy(baseResult)))
-    #print(baseResult.validation_report_triples)
-    #print(baseResult.query_results)
-    
-    return Response(TestOutput(copy(baseResult)).to_json(targetShapeID), mimetype='application/json')
+    return Response(testOutput.to_json(targetShapeID), mimetype='application/json')
 
 
 @app.route("/go", methods=['POST'])
