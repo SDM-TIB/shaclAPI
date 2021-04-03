@@ -34,7 +34,7 @@ def parse_validation_params(request_form):
 
     return traversal_strategie, schema_directory, heuristics, config, targetShapeID
 
-def prepare_validation(query,replace_target_query, traversal_strategie, schema_directory, heuristics, config, targetShapeID):
+def prepare_validation(query,replace_target_query, merge_old_target_query, traversal_strategie, schema_directory, heuristics, config, targetShapeID):
     SPARQLPrefixHandler.prefixes = {str(
         key): "<" + str(value) + ">" for (key, value) in query.namespace_manager.namespaces()}
     SPARQLPrefixHandler.prefixString = "\n".join(["".join(
@@ -43,6 +43,6 @@ def prepare_validation(query,replace_target_query, traversal_strategie, schema_d
     schema = ReducedShapeSchema(
         schema_directory, config['shapeFormat'], config['internal_endpoint'], traversal_strategie,
         heuristics, config['useSelectiveQueries'], config['maxSplit'], config['outputDirectory'],
-        config['ORDERBYinQueries'], config['outputs'], config['workInParallel'], targetShapeID, query, replace_target_query=replace_target_query)
+        config['ORDERBYinQueries'], config['outputs'], config['workInParallel'], targetShapeID, query, replace_target_query=replace_target_query, merge_old_target_query=merge_old_target_query)
 
     return schema

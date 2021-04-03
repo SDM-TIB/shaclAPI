@@ -136,7 +136,7 @@ class Query:
             return '?x'
         raise Exception("Not a valid star-shaped query.")
 
-    def as_target_query(self, replace_prefixes=True):
+    def as_target_query(self, replace_prefixes=False):
         """Creates a target query based on the given query_string, 
         where the projection is reduced to the target_var only and 
         (optionally) the prefixes are replaced and removed.

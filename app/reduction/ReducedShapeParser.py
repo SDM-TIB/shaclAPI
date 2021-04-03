@@ -21,7 +21,7 @@ class ReducedShapeParser(ShapeParser):
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
 
-    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True):
+    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True):
         shapes = super().parse_shapes_from_dir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         self.involvedShapeIDs = GraphTraversal(GraphTraversal.BFS).traverse_graph(
@@ -39,14 +39,18 @@ class ReducedShapeParser(ShapeParser):
                     # The Shape already has a target query
                     print("Starshaped Query:", Colors.grey(
                         self.query.query_string), sep='\n')
-                    if s.targetQuery:
+                    if s.targetQuery and merge_old_target_query:
                         print("Old TargetDef:", Colors.grey(
                             s.targetQueryNoPref), sep='\n')
                         oldTargetQuery = Query(s.targetQuery)
                         targetQuery = self.query.merge_as_target_query(
                             oldTargetQuery)
                     else:
-                        targetQuery = self.query.as_target_query()
+                        if not '?x' in self.query.query_string:
+                            new_query_string = self.query.as_valid_query().replace(self.query.target_var, '?x')
+                            targetQuery = Query(new_query_string).as_target_query()
+                        else:
+                            targetQuery = self.query.query_string
                     s.targetQuery = get_prefix_string() + targetQuery
                     s.targetQueryNoPref = targetQuery
                     print("New TargetDef:", Colors.grey(targetQuery), sep='\n')

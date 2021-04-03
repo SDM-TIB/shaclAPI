@@ -23,7 +23,7 @@ EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
 from pyinstrument import Profiler
 global_request_count = 0
 
-# Building Multiprocessing Chain using Runner and Queries
+# Building Multiprocessing Chain using Runners and Queries
 VALIDATION_RUNNER = Runner(mp_validate)
 val_queue = VALIDATION_RUNNER.get_out_queues()[0]
 CONTACT_SOURCE_RUNNER = Runner(contactSource)
@@ -91,7 +91,7 @@ def baseline():
 
     # 1.) Get the Data
     CONTACT_SOURCE_RUNNER.new_task(config["external_endpoint"], query_string, -1)
-    VALIDATION_RUNNER.new_task(query, True, True, *params)
+    VALIDATION_RUNNER.new_task(query, True, True, True, *params)
 
     # 2.) Transform the Data
     CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.new_task()
@@ -160,7 +160,7 @@ def run():
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(query_string)
-    schema = prepare_validation(query, True, *params) # True means replace TargetShape Query
+    schema = prepare_validation(query, True, True, *params) # True means replace TargetShape Query
     
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = schema.validate(start_with_target_shape=True)

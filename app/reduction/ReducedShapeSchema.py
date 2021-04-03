@@ -6,11 +6,11 @@ import app.colors as Colors
 
 
 class ReducedShapeSchema(ShapeSchema):
-    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query):
+    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query):
         print(Colors.blue(Colors.headline("Shape Parsing and Reduction")))
         self.shapeParser = ReducedShapeParser(initial_query, target_shape)
         self.shapes = self.shapeParser.parse_shapes_from_dir(
-            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query)
+            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query, merge_old_target_query=merge_old_target_query)
         print(Colors.blue(Colors.headline('')))
         self.schema_dir = schema_dir
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
