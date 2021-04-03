@@ -1,4 +1,4 @@
-from reduction.ReducedShapeParser import ReducedShapeParser
+from app.reduction.ReducedShapeParser import ReducedShapeParser
 from travshacl.core.ShapeSchema import ShapeSchema
 from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
 from travshacl.rule_based_validation.Validation import Validation

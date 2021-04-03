@@ -7,7 +7,7 @@ from flask.globals import request
 from app.query import Query
 import sys
 sys.path.append('./Trav-SHACL') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
-from reduction.ReducedShapeSchema import ReducedShapeSchema
+from app.reduction.ReducedShapeSchema import ReducedShapeSchema
 from travshacl.TravSHACL import parse_heuristics
 import travshacl.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
 from travshacl.core.GraphTraversal import GraphTraversal

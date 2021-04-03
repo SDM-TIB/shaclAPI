@@ -1,5 +1,7 @@
 import multiprocessing as mp
 import app.colors as Colors
+from app.utils import prepare_validation
+from app.multiprocessing.Xjoin import XJoin
 
 def contact_source_to_XJoin_Format(in_queue, out_queue, in_copy_queue):
     '''
@@ -92,3 +94,17 @@ def proxy(in_queue, out_queue):
         # print(Colors.yellow(str(actual_tuple)))
         actual_tuple = in_queue.get()
     out_queue.put('EOF')
+
+def mp_validate(out_queue, query, replace_target_query,start_with_target_shape, *params):
+    schema = prepare_validation(query,replace_target_query, *params)
+    report = schema.validate(start_with_target_shape)
+    for shape, instance_dict in report.items():
+        for is_valid, instances in instance_dict.items():
+            for instance in instances:
+                out_queue.put({'instance': instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)})
+    out_queue.put('EOF')  #{instance: (shape of instance, is_valid, violating/validating shape)}
+
+
+def mp_xjoin(left, right, out_queue):
+    join = XJoin(['instance'])
+    join.execute(left, right, out_queue)

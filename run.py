@@ -4,7 +4,6 @@ import os, time, logging, json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
 from app.multiprocessing.contactSource import contactSource
-from app.multiprocessing.Xjoin import XJoin
 from copy import copy
 
 from app.query import Query
@@ -12,7 +11,7 @@ import app.colors as Colors
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
-from app.multiprocessing.transformer import contact_source_to_XJoin_Format, createProxy, queue_output_to_table, proxy
+from app.multiprocessing.transformer import contact_source_to_XJoin_Format, createProxy, queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
 
 app = Flask(__name__)
@@ -24,26 +23,15 @@ EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
 from pyinstrument import Profiler
 global_request_count = 0
 
-
-def mp_validate(out_queue, query, replace_target_query,start_with_target_shape, *params):
-    schema = prepare_validation(query,replace_target_query, *params)
-    report = schema.validate(start_with_target_shape)
-    for shape, instance_dict in report.items():
-        for is_valid, instances in instance_dict.items():
-            for instance in instances:
-                out_queue.put({'instance': instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)})
-    out_queue.put('EOF')  #{instance: (shape of instance, is_valid, violating/validating shape)}
-
-
+# Building Multiprocessing Chain using Runner and Queries
 VALIDATION_RUNNER = Runner(mp_validate)
 val_queue = VALIDATION_RUNNER.get_out_queues()[0]
 CONTACT_SOURCE_RUNNER = Runner(contactSource)
 query_queue = CONTACT_SOURCE_RUNNER.get_out_queues()[0]
 CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER = Runner(contact_source_to_XJoin_Format, number_of_out_queues=2, in_queues=[query_queue])
 transformed_query_queue, query_queue_copy = CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.get_out_queues()
-#join = XJoin(['instance'])
-#XJOIN_RUNNER = Runner(join.execute, in_queues=[transformed_query_queue, val_queue])
-#out_queue  = XJOIN_RUNNER.get_out_queues()[0]
+XJOIN_RUNNER = Runner(mp_xjoin, in_queues=[transformed_query_queue, val_queue])
+out_queue  = XJOIN_RUNNER.get_out_queues()[0]
 
 @app.route("/endpoint", methods=['GET', 'POST'])
 def endpoint():
@@ -78,20 +66,13 @@ def enqueueValidationResult():
     #TODO: receive validation instances and put them in a global multiprocessing queue
     pass
 
-def mp_query_preprocessing(q, query):
-    #vars = [var[1:] for var in query.variables]
-    #target_var = str(query.target_var)[1:]
-    result_query_string = query.as_result_query()
-    #q.put(target_var)
-    q.put(result_query_string)
-    
 @app.route("/baseline", methods=['POST'])
 def baseline():
     # # Profiling Code
     # g.profiler = Profiler()
     # g.profiler.start()
 
-    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER, CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER, transformed_query_queue, val_queue
+    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER, CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER,XJOIN_RUNNER, out_queue, query_queue_copy
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse POST Arguments
@@ -116,15 +97,9 @@ def baseline():
     CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.new_task()
 
     # 3.) Join the Data
-    out_ctx   = mp.get_context("spawn") 
-    out_queue   = out_ctx.Queue()
-    join = XJoin(['instance'])
-    out_p  = out_ctx.Process(target=join.execute, args=(transformed_query_queue, val_queue, out_queue))
-    out_p.start()
-    #proxy_out_queue = createProxy(out_queue)
+    XJOIN_RUNNER.new_task()
 
     # 4.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
-    out_p.join()
     api_result = queue_output_to_table(out_queue, query_queue_copy)
 
     # 5.) Output
@@ -226,5 +201,5 @@ if __name__ == '__main__':
     VALIDATION_RUNNER.start_process()
     CONTACT_SOURCE_RUNNER.start_process()
     CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.start_process()
-    #XJOIN_RUNNER.start_process()
+    XJOIN_RUNNER.start_process()
     app.run(debug=True)

@@ -44,20 +44,23 @@ class TestOutput():
     @staticmethod
     def fromJoinedResults(targetShapeID, result_list):
         output = {"validTargets": [], "invalidTargets": [], "advancedValid": [], "advancedInvalid": []}
+        instances = dict()
         for query_result in result_list:
             for binding in query_result:
                 if 'validation' in binding:
                     if binding['validation']:
-                        if targetShapeID == binding['validation'][ValReport.SHAPE]:
-                            if binding['validation'][ValReport.IS_VALID]:
-                                output['validTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                        if binding['instance'] not in instances:
+                            instances[binding['instance']] = binding['validation']
+                            if targetShapeID == binding['validation'][ValReport.SHAPE]:
+                                if binding['validation'][ValReport.IS_VALID]:
+                                    output['validTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                                else:
+                                    output['invalidTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
                             else:
-                                output['invalidTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
-                        else:
-                            if binding['validation'][ValReport.IS_VALID]:
-                                output['advancedValid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
-                            else:
-                                output['advancedInvalid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                                if binding['validation'][ValReport.IS_VALID]:
+                                    output['advancedValid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                                else:
+                                    output['advancedInvalid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
         return TestOutput(None, output=output)
 
     def to_string(self, targetShapeID):
