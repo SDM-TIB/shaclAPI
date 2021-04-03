@@ -1,5 +1,5 @@
 from app.utils import parse_validation_params, prepare_validation
-from flask import Flask, request, Response
+from flask import Flask, request, Response, g
 import os, time, logging, json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
@@ -12,7 +12,8 @@ import app.colors as Colors
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
-from app.multiprocessing.transformer import contact_source_to_XJoin_Format, createProxy, queue_output_to_table
+from app.multiprocessing.transformer import contact_source_to_XJoin_Format, createProxy, queue_output_to_table, proxy
+from app.multiprocessing.runner import Runner
 
 app = Flask(__name__)
 logging.getLogger('werkzeug').disabled = True
@@ -20,9 +21,29 @@ logging.getLogger('werkzeug').disabled = True
 EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
 
 # Profiling Code
-# from pyinstrument import Profiler
-# global_request_count = 0
+from pyinstrument import Profiler
+global_request_count = 0
 
+
+def mp_validate(out_queue, query, replace_target_query,start_with_target_shape, *params):
+    schema = prepare_validation(query,replace_target_query, *params)
+    report = schema.validate(start_with_target_shape)
+    for shape, instance_dict in report.items():
+        for is_valid, instances in instance_dict.items():
+            for instance in instances:
+                out_queue.put({'instance': instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)})
+    out_queue.put('EOF')  #{instance: (shape of instance, is_valid, violating/validating shape)}
+
+
+VALIDATION_RUNNER = Runner(mp_validate)
+val_queue = VALIDATION_RUNNER.get_out_queues()[0]
+CONTACT_SOURCE_RUNNER = Runner(contactSource)
+query_queue = CONTACT_SOURCE_RUNNER.get_out_queues()[0]
+CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER = Runner(contact_source_to_XJoin_Format, number_of_out_queues=2, in_queues=[query_queue])
+transformed_query_queue, query_queue_copy = CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.get_out_queues()
+#join = XJoin(['instance'])
+#XJOIN_RUNNER = Runner(join.execute, in_queues=[transformed_query_queue, val_queue])
+#out_queue  = XJOIN_RUNNER.get_out_queues()[0]
 
 @app.route("/endpoint", methods=['GET', 'POST'])
 def endpoint():
@@ -54,19 +75,8 @@ def endpoint():
 
 @app.route("/newValidationResult", methods=['POST'])
 def enqueueValidationResult():
-    #TODO: receive validation instances and put the in a global multiprocessing queue
+    #TODO: receive validation instances and put them in a global multiprocessing queue
     pass
-
-
-
-def mp_validate(q, query, *params):
-    schema = prepare_validation(query, *params)
-    report = schema.validate()
-    for shape, instance_dict in report.items():
-        for is_valid, instances in instance_dict.items():
-            for instance in instances:
-                q.put({'instance': instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)}) #TODO: There are more variables then the target_var
-    q.put('EOF')  #{instance: (shape of instance, is_valid, violating/validating shape)}
 
 def mp_query_preprocessing(q, query):
     #vars = [var[1:] for var in query.variables]
@@ -77,7 +87,11 @@ def mp_query_preprocessing(q, query):
     
 @app.route("/baseline", methods=['POST'])
 def baseline():
-    global EXTERNAL_SPARQL_ENDPOINT
+    # # Profiling Code
+    # g.profiler = Profiler()
+    # g.profiler.start()
+
+    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER, CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER, transformed_query_queue, val_queue
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse POST Arguments
@@ -85,7 +99,7 @@ def baseline():
     targetShapeID = request.form['targetShape']
 
     # Parse Config File
-    params = parse_validation_params(request.form)
+    params = parse_validation_params(request.form) # Removing TargetShapeID --> prepare_validation will return unreduced shape schema
     config = params[-2]
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
@@ -94,52 +108,35 @@ def baseline():
     # Parse query_string into a corresponding select_query    
     query = Query.prepare_query(query_string)
 
-    # 1.) Query Preprocessing
-    # query_preprocessing_ctx = mp.get_context("spawn")
-    # query_preprocessing_queue = query_preprocessing_ctx.Queue()
-    # query_preprocessing_p = query_preprocessing_ctx.Process(target=mp_query_preprocessing, args=(query_preprocessing_queue, query))
-    # query_preprocessing_p.start()
-    # query_preprocessing_p.join()
+    # 1.) Get the Data
+    CONTACT_SOURCE_RUNNER.new_task(config["external_endpoint"], query_string, -1)
+    VALIDATION_RUNNER.new_task(query, True, True, *params)
 
-    # result_query_string = query_preprocessing_queue.get()
+    # 2.) Transform the Data
+    CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.new_task()
 
-    # 2.) Get the Data
-    query_ctx = mp.get_context("spawn")
-    query_queue = query_ctx.Queue()
-    query_p = query_ctx.Process(target=contactSource, args=(config["external_endpoint"], query_string, query_queue, -1))
-    query_p.start()
-
-    val_ctx   = mp.get_context("spawn")
-    val_queue   = val_ctx.Queue()
-    val_p   = val_ctx.Process(target=mp_validate, args=(val_queue, query, *params))
-    val_p.start()
-
-    # 3.) Transform the Data
-    transform_ctx = mp.get_context("spawn")
-    transformed_query_queue = transform_ctx.Queue()
-    query_queue_copy = transform_ctx.Queue()
-    transform_p = transform_ctx.Process(target=contact_source_to_XJoin_Format, args=(query_queue, transformed_query_queue, query_queue_copy))
-    transform_p.start()
-    proxy_queue = createProxy(transformed_query_queue)
-
-    # 4.) Join the Data
+    # 3.) Join the Data
     out_ctx   = mp.get_context("spawn") 
     out_queue   = out_ctx.Queue()
     join = XJoin(['instance'])
-    out_p  = out_ctx.Process(target=join.execute, args=(proxy_queue, val_queue,out_queue))
+    out_p  = out_ctx.Process(target=join.execute, args=(transformed_query_queue, val_queue, out_queue))
     out_p.start()
-    proxy2_queue = createProxy(out_queue)
+    #proxy_out_queue = createProxy(out_queue)
 
-    # 5.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
+    # 4.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
     out_p.join()
-    api_result = queue_output_to_table(proxy2_queue,query_queue_copy)
+    api_result = queue_output_to_table(out_queue, query_queue_copy)
 
-    # 6.) Output
-    print(str(api_result))
-    
+    # 5.) Output
     testOutput = TestOutput.fromJoinedResults(targetShapeID,api_result)
-    print(testOutput.to_string(targetShapeID))
-
+    
+    # # Profiling Code
+    # g.profiler.stop()
+    # global global_request_count
+    # output_html = g.profiler.output_html()
+    # global_request_count = global_request_count + 1
+    # with open("timing/profil{}.html".format(global_request_count - 1),"w") as f:
+    #     f.write(output_html)
     return Response(testOutput.to_json(targetShapeID), mimetype='application/json')
 
 
@@ -166,10 +163,10 @@ def run():
             - outputs
             - workInParallel
     '''
-    print(Colors.magenta(Colors.headline('New Validation Task')))
-    # Profiling Code
+    # # Profiling Code
     # g.profiler = Profiler()
     # g.profiler.start()
+    # print(Colors.magenta(Colors.headline('New Validation Task')))
 
     # Each run can be over a different Endpoint, so the endpoint needs to be recreated
     global EXTERNAL_SPARQL_ENDPOINT
@@ -188,10 +185,10 @@ def run():
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(query_string)
-    schema = prepare_validation(query, *params)
+    schema = prepare_validation(query, True, *params) # True means replace TargetShape Query
     
     # Run the evaluation of the SHACL constraints over the specified endpoint
-    report = schema.validate()
+    report = schema.validate(start_with_target_shape=True)
     
     # Retrieve the complete result for the initial query
     query_string = query.as_result_query()
@@ -201,14 +198,14 @@ def run():
 
     print(Colors.magenta(Colors.headline('')))
 
-    # Profiling Code
+    # # Profiling Code
     # global global_request_count
     # g.profiler.stop()
     # output_html = g.profiler.output_html()
     # global_request_count = global_request_count + 1
-    # with open("timing/profil{}.html".format(global_request_count - 1),"w") as f:
+    # with open("timing/api_profil{}.html".format(global_request_count - 1),"w") as f:
     #     f.write(output_html)
-    
+
     if DEBUG_OUTPUT:
         return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(targetShapeID), mimetype='application/json')
     else:
@@ -221,4 +218,13 @@ def hello_world():
 
 
 if __name__ == '__main__':
+    # This seems to load some pyparsing stuff and will speed up the execution of the first task by 1 second.
+    query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
+    query.namespace_manager.namespaces()
+    
+    # Starting the processes of the runners
+    VALIDATION_RUNNER.start_process()
+    CONTACT_SOURCE_RUNNER.start_process()
+    CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.start_process()
+    #XJOIN_RUNNER.start_process()
     app.run(debug=True)

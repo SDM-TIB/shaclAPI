@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import app.colors as Colors
 
 def contact_source_to_XJoin_Format(in_queue, out_queue, in_copy_queue):
     '''
@@ -50,7 +51,10 @@ def queue_output_to_table(join_result_queue, query_queue):
     item_id = item['id']
     del item['id']
     assert item_id in table
+    # print(list(item['query_result'].keys()))
+    # print(table[item_id])
     for val_result in table[item_id]:
+        # print('Trying to remove:' + val_result['var'])
         del item['query_result'][val_result['var']]
     for var, instance in item['query_result'].items():
         singles += [var]
@@ -85,6 +89,6 @@ def proxy(in_queue, out_queue):
     actual_tuple = in_queue.get()
     while actual_tuple != 'EOF':
         out_queue.put(actual_tuple)
-        print(actual_tuple)
+        # print(Colors.yellow(str(actual_tuple)))
         actual_tuple = in_queue.get()
     out_queue.put('EOF')

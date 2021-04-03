@@ -228,7 +228,7 @@ class XJoin():
     def probeMainSecondaryMem(self, record, filedescriptor2, partition, timestage2):
         # Probe a record against its corresponding partition in secondary memory.
         if not partition in filedescriptor2:
-            return
+            return float("inf")
         file2 = open(filedescriptor2[partition].file.name, 'r')
         records2 = file2.readlines()
         timestamps = filedescriptor2[partition].timestamps

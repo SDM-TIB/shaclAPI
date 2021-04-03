@@ -6,11 +6,11 @@ import app.colors as Colors
 
 
 class ReducedShapeSchema(ShapeSchema):
-    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query):
+    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query):
         print(Colors.blue(Colors.headline("Shape Parsing and Reduction")))
         self.shapeParser = ReducedShapeParser(initial_query, target_shape)
         self.shapes = self.shapeParser.parse_shapes_from_dir(
-            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
+            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query)
         print(Colors.blue(Colors.headline('')))
         self.schema_dir = schema_dir
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
@@ -26,9 +26,15 @@ class ReducedShapeSchema(ShapeSchema):
         self.saveTargetsToFile = save_outputs
         self.targetShape = target_shape
 
-    def validate(self):
+    def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
-        start = [self.targetShape]  # The TargetShape has to be the first Node; because we are limiting the validation to a set of target instances via the star-shape query
+        if start_with_target_shape:
+            print(Colors.red("Starting with Target Shape"))
+            start = [self.targetShape]  # The TargetShape has to be the first Node; because we are limiting the validation to a set of target instances via the star-shape query
+        else:
+            print(Colors.red("Starting with Shape determined by TravShacl"))
+            start = self.get_starting_point()
+        print("Starting Point is:" + start[0])
         # TODO: deal with more than one possible starting point
         node_order = self.graphTraversal.traverse_graph(
             self.dependencies, self.reverse_dependencies, start[0])
@@ -57,7 +63,14 @@ class ReducedShapeSchema(ShapeSchema):
         print(self.shapeParser.involvedShapeIDs)
 
 
-class ReturnShapeSchema(ShapeSchema):
+class ReturnShapeSchema(ShapeSchema): # Here the normal ShapeSchema is used and not the reduced one!
+    '''
+    # Use with:
+    # schema = ReturnShapeSchema(
+    #    schema_directory, config['shapeFormat'], config['internal_endpoint'], traversal_strategie,
+    #    heuristics, config['useSelectiveQueries'], config['maxSplit'], config['outputDirectory'],
+    #    config['ORDERBYinQueries'], config['outputs'], config['workInParallel'])
+    '''
     def validate(self):
         """Executes the validation of the shape network."""
         start = self.get_starting_point()

@@ -5,7 +5,7 @@ import urllib.request
 
 from multiprocessing import Process, Queue
 
-def contactSource(endpoint, query, queue, limit=-1):
+def contactSource(queue, endpoint, query, limit=-1):
     # Contacts the datasource (i.e. real endpoint).
     # Every tuple in the answer is represented as Python dictionaries
     # and is stored in a queue.
