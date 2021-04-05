@@ -1,7 +1,7 @@
 import re
 from travshacl.core.ShapeParser import ShapeParser
 from travshacl.core.GraphTraversal import GraphTraversal
-from travshacl.sparql.SPARQLPrefixHandler import get_prefixes, get_prefix_string
+#from travshacl.sparql.SPARQLPrefixHandler import get_prefixes, get_prefix_string
 from rdflib.paths import Path
 from rdflib import Namespace
 from app.query import Query
@@ -21,7 +21,7 @@ class ReducedShapeParser(ShapeParser):
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
 
-    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True):
+    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True, replace_prefixes_with_query_prefixes=True):
         shapes = super().parse_shapes_from_dir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         self.involvedShapeIDs = GraphTraversal(GraphTraversal.BFS).traverse_graph(
@@ -30,6 +30,9 @@ class ReducedShapeParser(ShapeParser):
         print("Involved Shapes:", Colors.grey(str(self.involvedShapeIDs)), sep='\n')
         print("Removed Constraints:", Colors.grey(str(self.removed_constraints)), sep='\n')
         shapes = [s for s in shapes if s.get_id() in self.involvedShapeIDs]
+        if replace_prefixes_with_query_prefixes:
+            for s in shapes:
+                s.prefixes = {str(key): "<" + str(value) + ">" for key, value in self.query.namespace_manager.namespaces()}
 
         # Replacing old targetQuery with new one
         if replace_target_query:
@@ -51,7 +54,7 @@ class ReducedShapeParser(ShapeParser):
                             targetQuery = Query(new_query_string).as_target_query()
                         else:
                             targetQuery = self.query.query_string
-                    s.targetQuery = get_prefix_string() + targetQuery
+                    s.targetQuery = s.get_prefix_string() + targetQuery
                     s.targetQueryNoPref = targetQuery
                     print("New TargetDef:", Colors.grey(targetQuery), sep='\n')
         else:
