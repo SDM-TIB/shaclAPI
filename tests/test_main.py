@@ -55,10 +55,7 @@ def test_trav(file):
         try:
             sys.path.append(os.getcwd())
             from travshacl.TravSHACL import eval_shape_schema
-            #import travshacl.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
             sys.path.remove(os.getcwd())
-            #SPARQLPrefixHandler.prefixes.update(required_prefixes)
-            #SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
             response = eval_shape_schema(namespace)
         except Exception as e:
             if MAX_NUMBER_OF_TRIES > try_number and isinstance(e,(ConnectionResetError,urllib.error.URLError)) :

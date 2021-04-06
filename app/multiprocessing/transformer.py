@@ -76,22 +76,11 @@ def queue_iter(in_queue):
         yield actual_tuple
         actual_tuple = in_queue.get()
 
-def createProxy(in_queue):
-    '''
-    Create a Proxy given a queue will copy the content of the queue to a new queue, while printing the content.
-    '''
-    proxy_var_ctx = mp.get_context("spawn")
-    proxy_queue = proxy_var_ctx.Queue()
-    proxy_p = proxy_var_ctx.Process(target=proxy, args=(in_queue, proxy_queue))
-    proxy_p.start()
-    return proxy_queue
-
-
 def proxy(in_queue, out_queue):
     actual_tuple = in_queue.get()
     while actual_tuple != 'EOF':
         out_queue.put(actual_tuple)
-        # print(Colors.yellow(str(actual_tuple)))
+        print(Colors.yellow(str(actual_tuple)))
         actual_tuple = in_queue.get()
     out_queue.put('EOF')
 

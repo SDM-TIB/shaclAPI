@@ -4,6 +4,9 @@
 		"query":"SELECT ?x WHERE {?x a test3b:classD}",
 		"class": "test3b:classD"
 	},
+	"prefix": {
+		"test3b":"<http://example.org/testGraph3b#>"
+	},
 	"constraintDef":{
 		"conjunctions":[
 			[

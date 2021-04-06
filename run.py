@@ -11,7 +11,7 @@ import app.colors as Colors
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
-from app.multiprocessing.transformer import contact_source_to_XJoin_Format, createProxy, queue_output_to_table, mp_validate, mp_xjoin
+from app.multiprocessing.transformer import contact_source_to_XJoin_Format, queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
 
 app = Flask(__name__)

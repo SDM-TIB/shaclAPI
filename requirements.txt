@@ -5,3 +5,4 @@ pytest-timeout
 flask
 rdflib
 requests
+pyinstrument
