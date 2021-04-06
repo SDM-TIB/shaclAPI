@@ -5,7 +5,21 @@ import urllib.request
 
 from multiprocessing import Process, Queue
 
-def contactSource(queue, endpoint, query, limit=-1):
+
+'''
+Normal contactSource Implementation but queue is filled with an output, which is in a format which is joinable with validation results. Queue_copy contains the normal result but with an id.
+Example:
+    Input: {var1: instance1, var2: instance2, var3: instance3} 
+    Output queue:
+           {'instance': instance1, 'var': var1, 'id': UNIQUE_RESULT_ID}, 
+           {'instance': instance2, 'var': var2, 'id': UNIQUE_RESULT_ID}, 
+           {'instance': instance3, 'var': var3, 'id': UNIQUE_RESULT_ID}
+    Output queue_copy:
+           {'query_result': {'var1': instance1, 'var2': instance2, 'var3': instance3}, 'id': UNIQUE_RESULT_ID}
+
+'''
+
+def contactSource(queue, queue_copy, endpoint, query, limit=-1):
     # Contacts the datasource (i.e. real endpoint).
     # Every tuple in the answer is represented as Python dictionaries
     # and is stored in a queue.
@@ -25,7 +39,7 @@ def contactSource(queue, endpoint, query, limit=-1):
     port = 80 if len(host_port) == 1 else host_port[1]
     card = 0
     if limit == -1:
-        b, card = contactSourceAux(referer, server, path, port, query, queue)
+        b, card = contactSourceAux(referer, server, path, port, query, queue, queue_copy)
     else:
         # Contacts the datasource (i.e. real endpoint) incrementally,
         # retreiving partial result sets combining the SPARQL sequence
@@ -36,7 +50,7 @@ def contactSource(queue, endpoint, query, limit=-1):
 
         while True:
             query_copy = query + " LIMIT " + str(limit) + " OFFSET " + str(offset)
-            b, cardinality = contactSourceAux(referer, server, path, port, query_copy, queue)
+            b, cardinality = contactSourceAux(referer, server, path, port, query_copy, queue,queue_copy, offset)
             card += cardinality
             if cardinality < limit:
                 break
@@ -45,10 +59,11 @@ def contactSource(queue, endpoint, query, limit=-1):
 
     # Close the queue
     queue.put("EOF")
+    queue_copy.put("EOF")
     return b
 
 
-def contactSourceAux(referer, server, path, port, query, queue):
+def contactSourceAux(referer, server, path, port, query, queue, queue_copy, first_id=0):
 
     # Setting variables to return.
     b = None
@@ -78,6 +93,7 @@ def contactSourceAux(referer, server, path, port, query, queue):
 
                 if 'results' in res:
                     # print "raw results from endpoint", res
+                    id = first_id
                     for x in res['results']['bindings']:
                         for key, props in x.items():
                             # Handle typed-literals and language tags
@@ -96,8 +112,9 @@ def contactSourceAux(referer, server, path, port, query, queue):
                                     x[key] = props['value'] + suffix
                             except:
                                 x[key] = props['value'] + suffix
-
-                        queue.put(x)
+                            queue.put({'var': key, 'instance': x[key], 'id': id})
+                        queue_copy.put({'query_result': x, 'id': id})
+                        id = id + 1
                         reslist += 1
                     # Every tuple is added to the queue.
                     #for elem in reslist:

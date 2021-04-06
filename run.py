@@ -11,7 +11,7 @@ import app.colors as Colors
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
-from app.multiprocessing.transformer import contact_source_to_XJoin_Format, queue_output_to_table, mp_validate, mp_xjoin
+from app.multiprocessing.transformer import queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
 
 app = Flask(__name__)
@@ -26,10 +26,8 @@ global_request_count = 0
 # Building Multiprocessing Chain using Runners and Queries
 VALIDATION_RUNNER = Runner(mp_validate)
 val_queue = VALIDATION_RUNNER.get_out_queues()[0]
-CONTACT_SOURCE_RUNNER = Runner(contactSource)
-query_queue = CONTACT_SOURCE_RUNNER.get_out_queues()[0]
-CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER = Runner(contact_source_to_XJoin_Format, number_of_out_queues=2, in_queues=[query_queue])
-transformed_query_queue, query_queue_copy = CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.get_out_queues()
+CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
+transformed_query_queue, query_queue_copy = CONTACT_SOURCE_RUNNER.get_out_queues()
 XJOIN_RUNNER = Runner(mp_xjoin, in_queues=[transformed_query_queue, val_queue])
 out_queue  = XJOIN_RUNNER.get_out_queues()[0]
 
@@ -72,7 +70,7 @@ def baseline():
     # g.profiler = Profiler()
     # g.profiler.start()
 
-    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER, CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER,XJOIN_RUNNER, out_queue, query_queue_copy
+    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER,XJOIN_RUNNER, out_queue, query_queue_copy
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse POST Arguments
@@ -93,16 +91,13 @@ def baseline():
     CONTACT_SOURCE_RUNNER.new_task(config["external_endpoint"], query_string, -1)
     VALIDATION_RUNNER.new_task(query, True, True, True, *params)
 
-    # 2.) Transform the Data
-    CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.new_task()
-
-    # 3.) Join the Data
+    # 2.) Join the Data
     XJOIN_RUNNER.new_task()
 
-    # 4.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
+    # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
     api_result = queue_output_to_table(out_queue, query_queue_copy)
 
-    # 5.) Output
+    # 4.) Output
     testOutput = TestOutput.fromJoinedResults(targetShapeID,api_result)
     
     # # Profiling Code
@@ -200,6 +195,5 @@ if __name__ == '__main__':
     # Starting the processes of the runners
     VALIDATION_RUNNER.start_process()
     CONTACT_SOURCE_RUNNER.start_process()
-    CONTACT_SOURCE_TO_XJOIN_TRANSFORMER_RUNNER.start_process()
     XJOIN_RUNNER.start_process()
     app.run(debug=True)
