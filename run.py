@@ -26,8 +26,10 @@ global_request_count = 0
 # Building Multiprocessing Chain using Runners and Queries
 VALIDATION_RUNNER = Runner(mp_validate)
 val_queue = VALIDATION_RUNNER.get_out_queues()[0]
+
 CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
-transformed_query_queue, query_queue_copy = CONTACT_SOURCE_RUNNER.get_out_queues()
+transformed_query_queue, query_queue = CONTACT_SOURCE_RUNNER.get_out_queues()
+
 XJOIN_RUNNER = Runner(mp_xjoin, in_queues=[transformed_query_queue, val_queue])
 out_queue  = XJOIN_RUNNER.get_out_queues()[0]
 
@@ -95,7 +97,7 @@ def baseline():
     XJOIN_RUNNER.new_task()
 
     # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
-    api_result = queue_output_to_table(out_queue, query_queue_copy)
+    api_result = queue_output_to_table(out_queue, query_queue)
 
     # 4.) Output
     testOutput = TestOutput.fromJoinedResults(targetShapeID,api_result)

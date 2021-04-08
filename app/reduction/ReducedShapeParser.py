@@ -52,6 +52,7 @@ class ReducedShapeParser(ShapeParser):
                             targetQuery = self.query.query_string
                     s.targetQuery = s.get_prefix_string() + targetQuery
                     s.targetQueryNoPref = targetQuery
+                    s._Shape__compute_target_queries()
                     print("New TargetDef:", Colors.grey(targetQuery), sep='\n')
         else:
             print(Colors.red("Using Shape Schema WITHOUT replaced target query!"))
