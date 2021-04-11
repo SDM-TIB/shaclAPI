@@ -1,3 +1,0 @@
-- Task/ValidationTask isn't used anymore --> Remove left occurences
-
-- tests/test_main.py::test_trav[./tests/tc1/test_definitions/test3.json] with not starting point @ ShapeE produces to much violated Shapes --> Is only the valid list correct?

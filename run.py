@@ -80,7 +80,7 @@ def baseline():
     targetShapeID = request.form['targetShape']
 
     # Parse Config File
-    params = parse_validation_params(request.form) # Removing TargetShapeID --> prepare_validation will return unreduced shape schema
+    params = parse_validation_params(request.form)
     config = params[-2]
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)

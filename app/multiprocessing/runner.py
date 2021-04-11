@@ -34,11 +34,5 @@ def mp_function(task_in_queue, function, in_queues, out_queues):
     speed_up_query.namespace_manager.namespaces()
     active_task = task_in_queue.get()
     while active_task != 'EOF':
-        #print(function.__name__)
-        #print(*in_queues, *out_queues, *active_task)
-        if len(active_task) != 0:
-            function(*in_queues, *out_queues, *active_task)
-        else:
-            function(*in_queues, *out_queues, *active_task)
-
+        function(*in_queues, *out_queues, *active_task)
         active_task = task_in_queue.get()
