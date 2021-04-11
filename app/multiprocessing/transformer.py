@@ -85,9 +85,9 @@ def proxy(in_queue, out_queue):
         actual_tuple = in_queue.get()
     out_queue.put('EOF')
 
-def mp_validate(out_queue, query, replace_target_query,start_with_target_shape, merge_old_target_query, *params):
+def mp_validate(out_queue, query, replace_target_query,start_with_target_shape, merge_old_target_query, backend, *params):
     #TODO: This output queue should be generated while validation --> stream of validation results
-    schema = prepare_validation(query,replace_target_query, merge_old_target_query, *params)
+    schema = prepare_validation(query,replace_target_query, merge_old_target_query, *params, backend=backend)
     report = schema.validate(start_with_target_shape)
     for shape, instance_dict in report.items():
         for is_valid, instances in instance_dict.items():

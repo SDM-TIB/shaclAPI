@@ -97,9 +97,9 @@ def test_run(file):
                 json_set_of_targets, json_set_of_shapes = zip(*json_set_of_tuples)
                 test_set_of_targets, test_set_of_shapes = zip(*test_set_of_tuples)
                 assert json_set_of_targets == test_set_of_targets, "Reported instances differ from expected result for: {}".format(key)
-                if json_set_of_shapes != test_set_of_shapes:
-                    differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
-                    warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
+                # if json_set_of_shapes != test_set_of_shapes:
+                #     differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
+                #     warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
             assert len(json_set_of_tuples) == len(test_set_of_tuples) , "Reported instances differ from expected result for: {}".format(key)
     except Exception as identifier:
         with open(os.path.join(RESULT_DIR,log_file_name),"w") as outputfile:
@@ -133,9 +133,9 @@ def test_base(file):
                 json_set_of_targets, json_set_of_shapes = zip(*json_set_of_tuples)
                 test_set_of_targets, test_set_of_shapes = zip(*test_set_of_tuples)
                 assert json_set_of_targets == test_set_of_targets, "Reported instances differ from expected result for: {}".format(key)
-                if json_set_of_shapes != test_set_of_shapes:
-                    differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
-                    warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
+                # if json_set_of_shapes != test_set_of_shapes:
+                #     differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
+                #     warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
             assert len(json_set_of_tuples) == len(test_set_of_tuples) , "Reported instances differ from expected result for: {}".format(key)
     except Exception as identifier:
         with open(os.path.join(RESULT_DIR,log_file_name),"w") as outputfile:

@@ -1,20 +1,21 @@
 import re
 from travshacl.core.ShapeParser import ShapeParser
-from travshacl.core.GraphTraversal import GraphTraversal
 from rdflib.paths import Path
 from rdflib import Namespace
 from app.query import Query
 import app.colors as Colors
 
-
+# Note the internal structure of ShapeParser:
+# parse_shapes_from_dir --> calls for each shape: parse_constraints (--> parse_constraint), shape_references; Afterwards we call computeReducedEdges to find the involvedShapeIDs.
 class ReducedShapeParser(ShapeParser):
-    def __init__(self, query, targetShape):
+    def __init__(self, query, targetShape, graph_traversal):
         super().__init__()
         self.query = query
         self.targetShape = targetShape
         self.currentShape = None
         self.removed_constraints = {}
         self.involvedShapeIDs = []
+        self.graph_traversal = graph_traversal
 
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
@@ -23,7 +24,7 @@ class ReducedShapeParser(ShapeParser):
     def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True):
         shapes = super().parse_shapes_from_dir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
-        self.involvedShapeIDs = GraphTraversal(GraphTraversal.BFS).traverse_graph(
+        self.involvedShapeIDs = self.graph_traversal.traverse_graph(
             *self.computeReducedEdges(shapes), self.targetShape)
         
         print("Involved Shapes:", Colors.grey(str(self.involvedShapeIDs)), sep='\n')
