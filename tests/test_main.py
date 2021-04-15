@@ -104,8 +104,9 @@ def test_run(file):
         with open(os.path.join(RESULT_DIR,log_file_name),"a") as outputfile:
             outputfile.write(json.dumps(json_response,indent = 4))
 
+@pytest.mark.parametrize("config", ['tests/configs/lubm_config.json', 'tests/configs/lubm_config_s2spy.json'])
 @pytest.mark.parametrize("file", get_all_files())
-def test_base(file):
+def test_base(file, config):
     log_file_name = str(file).replace('/','_')
     log_file_name = log_file_name.replace('.','',1)
     log_file_name = "base" + log_file_name
@@ -114,6 +115,7 @@ def test_base(file):
         os.remove(os.path.join(RESULT_DIR,log_file_name))
     test = testingUtils.executeTest(file)
     PARAMS = test[0]
+    PARAMS['config'] = config
     if 'test_type' in PARAMS:
         del PARAMS['test_type']
     response = requests.post(FLASK_ENDPOINT + 'baseline', data=PARAMS)
