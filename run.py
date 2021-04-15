@@ -120,6 +120,8 @@ def baseline():
     # global_request_count = global_request_count + 1
     # with open("timing/profil{}.html".format(global_request_count - 1),"w") as f:
     #     f.write(output_html)
+    
+    # print(str(SimpleOutput.fromJoinedResults(api_result, query)))
     return Response(testOutput.to_json(targetShapeID), mimetype='application/json')
 
 

@@ -5,13 +5,16 @@ from app.triple import TripleE
 
 
 class SimpleOutput():
-    '''
-    output: (subject, ts:violatesShape, shape) / (subject, ts:satisfiesShape, shape) / (subject, ts:violatesConstraint, [constraints, ...])
-    '''
+    """
+    bindings: (variable, subject)
+    triples: (subject, path, object)
+    report: (subject, ts:violatesShape, shape) / (subject, ts:satisfiesShape, shape) / (subject, ts:violatesConstraint, [constraints, ...])
+    output: [([bindings, ...], [triples, ...], [report, ...])]
+    """
 
-    def __init__(self, baseResult):
+    def __init__(self, baseResult, output=[]):
         self.base: BaseResult = baseResult
-        self._output = []
+        self._output = output
 
     def to_json(self):
         return json.dumps(self._output)
@@ -31,6 +34,22 @@ class SimpleOutput():
 
                 self._output += [(pv_binding, triples, report_triples)]
         return self._output
+
+    @staticmethod
+    def fromJoinedResults(result_list, query):
+        output = []
+        t_path = Namespace("//travshacl_path#")
+        query.namespace_manager.bind('ts', t_path)
+        t_path_valid = t_path['satisfiesShape'].n3(query.namespace_manager)
+        t_path_invalid = t_path['violatesShape'].n3(query.namespace_manager)
+        
+        for query_result in result_list:
+            binding = {'?' + b['var']:URIRef(b['instance']).n3(query.namespace_manager) for b in query_result}
+            triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICAT], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
+                           for t in query.get_triples(replace_prefixes=False) if t[TripleE.SUBJECT] in binding]
+            report_triples = [( b['instance'], t_path_valid if b['validation'][1] else t_path_invalid, b['validation'][0]) for b in query_result]
+            output += [(binding, triples, report_triples)]
+        return SimpleOutput(None, output)
 
     def __str__(self):
         if not self._output:
