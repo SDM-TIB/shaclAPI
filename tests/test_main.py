@@ -40,11 +40,6 @@ def test_api_up():
     result = requests.get(FLASK_ENDPOINT)
     assert result.ok == True
 
-#def test_external_endpoint_up():
-#    config = Configs.read_and_check_config(PARAMS['config'])
-#    result = requests.get(config['external_endpoint'])
-#    assert result.ok == True
-
 @pytest.mark.parametrize("file", get_all_files())
 def test_trav(file):
     namespace = testingUtils.get_trav_args(file)

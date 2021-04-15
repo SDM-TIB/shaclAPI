@@ -1,12 +1,13 @@
 from app.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
 from travshacl.core.ShapeSchema import ShapeSchema
 from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
+from app.reduction.travshacl.ValidationResultStreaming import ValidationResultStreaming
 from travshacl.rule_based_validation.Validation import Validation
 import app.colors as Colors
 
 
 class ReducedShapeSchema(ShapeSchema):
-    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query):
+    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query, result_transmitter):
         print(Colors.blue(Colors.headline("Shape Parsing and Reduction")))
         self.shapeParser = ReducedShapeParser(initial_query, target_shape, graph_traversal)
         self.shapes = self.shapeParser.parse_shapes_from_dir(
@@ -25,6 +26,7 @@ class ReducedShapeSchema(ShapeSchema):
         self.saveStats = output_dir is not None
         self.saveTargetsToFile = save_outputs
         self.targetShape = target_shape
+        self.result_transmitter = result_transmitter
 
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
@@ -45,8 +47,8 @@ class ReducedShapeSchema(ShapeSchema):
         target_shapes = [s for name, s in self.shapesDict.items()
                          if self.shapesDict[name].get_target_query() is not None]
         target_shape_predicates = [s.get_id() for s in target_shapes]
-
-        result = Validation(
+        
+        result = ValidationResultStreaming(
             self.endpointURL,
             node_order,
             self.shapesDict,
@@ -54,7 +56,8 @@ class ReducedShapeSchema(ShapeSchema):
             self.selectivityEnabled,
             self.outputDirName,
             self.saveStats,
-            self.saveTargetsToFile
+            self.saveTargetsToFile,
+            self.result_transmitter
         ).exec()
         return result
     

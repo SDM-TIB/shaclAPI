@@ -5,10 +5,11 @@ from app.query import Query
 class Runner:
     def __init__(self,function, number_of_out_queues = 1, in_queues = list()):
         self.context   = mp.get_context("spawn")
+        self.manager = mp.Manager()
         self.task_queue = self.context.Queue()
         self.out_queues = []
         for _ in range(number_of_out_queues):
-            self.out_queues += [self.context.Queue()]
+            self.out_queues += [self.manager.Queue()]
         self.out_queues = tuple(self.out_queues)
         self.in_queues = tuple(in_queues)
         self.function = function

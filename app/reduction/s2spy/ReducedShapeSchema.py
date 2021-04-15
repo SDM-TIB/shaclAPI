@@ -1,13 +1,13 @@
 from app.reduction.s2spy.ReducedShapeParser import ReducedShapeParser
 from s2spy.validation.ShapeNetwork import ShapeNetwork
 from s2spy.validation.sparql.SPARQLEndpoint import SPARQLEndpoint
-from s2spy.validation.RuleBasedValidation import RuleBasedValidation
+from app.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedValidationResultStreaming
 from s2spy.validation.utils import fileManagement
 import app.colors as Colors
 
 
 class ReducedShapeSchema(ShapeNetwork):
-    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query):
+    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query, result_transmitter):
         print(Colors.blue(Colors.headline("Shape Parsing and Reduction")))
         self.shapeParser = ReducedShapeParser(initial_query, target_shape, graph_traversal)
         self.shapes = self.shapeParser.parseShapesFromDir(
@@ -20,6 +20,7 @@ class ReducedShapeSchema(ShapeNetwork):
         self.dependencies, self.reverse_dependencies = self.compute_edges()
         self.outputDirName = output_dir
         self.targetShape = target_shape
+        self.result_transmitter = result_transmitter
 
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
@@ -36,7 +37,7 @@ class ReducedShapeSchema(ShapeNetwork):
         for s in self.shapes:
             s.computeConstraintQueries()
 
-        RuleBasedValidation(
+        RuleBasedValidationResultStreaming(
             self.endpoint,
             node_order,
             self.shapesDict,
@@ -44,7 +45,8 @@ class ReducedShapeSchema(ShapeNetwork):
             fileManagement.openFile(self.outputDirName, "targets_valid.log"),
             fileManagement.openFile(self.outputDirName, "targets_violated.log"),
             fileManagement.openFile(self.outputDirName, "stats.txt"),
-            fileManagement.openFile(self.outputDirName, "traces.csv")
+            fileManagement.openFile(self.outputDirName, "traces.csv"),
+            self.result_transmitter
         ).exec()
         return {}
     

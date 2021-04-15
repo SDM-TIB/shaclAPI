@@ -2,6 +2,7 @@ import multiprocessing as mp
 import app.colors as Colors
 from app.utils import prepare_validation
 from app.multiprocessing.Xjoin import XJoin
+import warnings
 
 # Not needed anymore! (Integrated into contactSource)
 # def contact_source_to_XJoin_Format(in_queue, out_queue, in_copy_queue):
@@ -55,10 +56,12 @@ def queue_output_to_table(join_result_queue, query_queue):
     del item['id']
     assert item_id in table
     # print(list(item['query_result'].keys()))
-    # print(table[item_id])
     for val_result in table[item_id]:
         # print('Trying to remove:' + val_result['var'])
-        del item['query_result'][val_result['var']]
+        try:
+            del item['query_result'][val_result['var']]
+        except:
+            warnings.warn("Found duplicate Var!")
     for var, instance in item['query_result'].items():
         singles += [var]
         table[item_id] += [{'var': var, 'instance': instance}]
@@ -85,16 +88,15 @@ def proxy(in_queue, out_queue):
         actual_tuple = in_queue.get()
     out_queue.put('EOF')
 
-def mp_validate(out_queue, query, replace_target_query,start_with_target_shape, merge_old_target_query, backend, *params):
-    #TODO: This output queue should be generated while validation --> stream of validation results
-    schema = prepare_validation(query,replace_target_query, merge_old_target_query, *params, backend=backend)
+def mp_validate(out_queue, query, replace_target_query,start_with_target_shape, merge_old_target_query, backend, result_transmitter, *params):
+    schema = prepare_validation(query,replace_target_query, merge_old_target_query, *params, result_transmitter=result_transmitter, backend=backend)
     report = schema.validate(start_with_target_shape)
-    for shape, instance_dict in report.items():
-        for is_valid, instances in instance_dict.items():
-            for instance in instances:
-                out_queue.put({'instance': instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)})
+    if not result_transmitter.use_streaming(): # The following only works with travshacl backend --> s2spy don't provide results after validation terminates.
+        for shape, instance_dict in report.items():
+            for is_valid, instances in instance_dict.items():
+                for instance in instances:
+                    out_queue.put({'instance': instance[1], 'validation': (instance[0], (is_valid == 'valid_instances'), shape)})
     out_queue.put('EOF')  #{instance: (shape of instance, is_valid, violating/validating shape)}
-
 
 def mp_xjoin(left, right, out_queue):
     join = XJoin(['instance'])

@@ -13,11 +13,13 @@ from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
 from app.multiprocessing.transformer import queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
+from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 
 app = Flask(__name__)
 logging.getLogger('werkzeug').disabled = True
 
 EXTERNAL_SPARQL_ENDPOINT: SPARQLWrapper = None
+VALIDATION_RESULT_ENDPOINT = "http://localhost:5000/newValidationResult"
 
 # Profiling Code
 from pyinstrument import Profiler
@@ -63,8 +65,12 @@ def endpoint():
 
 @app.route("/newValidationResult", methods=['POST'])
 def enqueueValidationResult():
-    #TODO: receive validation instances and put them in a global multiprocessing queue
-    pass
+    global val_queue
+    new_val_result = {'instance': request.form['instance'], 
+                        'validation': (request.form['shape'], request.form['validation_result'] == 'valid', request.form['reason'])}
+    print("Received", new_val_result)
+    val_queue.put(new_val_result)
+    return 'Ok'
 
 @app.route("/baseline", methods=['POST'])
 def baseline():
@@ -72,7 +78,7 @@ def baseline():
     # g.profiler = Profiler()
     # g.profiler.start()
 
-    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER,XJOIN_RUNNER, out_queue, query_queue_copy
+    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER,XJOIN_RUNNER, out_queue, val_queue
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse POST Arguments
@@ -82,6 +88,11 @@ def baseline():
     # Parse Config File
     params = parse_validation_params(request.form)
     config = params[-2]
+    
+    # Setup of the Validation Result Transmitting Strategie
+    #result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT)
+    result_transmitter = ValidationResultTransmitter(output_queue=val_queue)
+    #result_transmitter = ValidationResultTransmitter()
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
@@ -91,7 +102,7 @@ def baseline():
 
     # 1.) Get the Data
     CONTACT_SOURCE_RUNNER.new_task(config["external_endpoint"], query_string, -1)
-    VALIDATION_RUNNER.new_task(query, True, True, True, "travshacl", *params)
+    VALIDATION_RUNNER.new_task(query, True, True, True, config['backend'], result_transmitter, *params)
 
     # 2.) Join the Data
     XJOIN_RUNNER.new_task()
@@ -115,6 +126,8 @@ def baseline():
 @app.route("/go", methods=['POST'])
 def run():
     '''
+    ONLY COMPATIBLE WITH TRAVSHACL BACKEND!
+
     Go Route: Here we replace the main.py and Eval.py of travshacl.
     Arguments:
         POST:
@@ -143,6 +156,7 @@ def run():
     # Each run can be over a different Endpoint, so the endpoint needs to be recreated
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
+    result_transmitter = ValidationResultTransmitter()
 
     # Parse POST Arguments
     query_string = request.form['query']
@@ -151,13 +165,13 @@ def run():
     # Parse Config File
     params = parse_validation_params(request.form)
     config = params[-2]
-    DEBUG_OUTPUT = config["debugging"]
+    debug_mode = config["debugging"]
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(query_string)
-    schema = prepare_validation(query, True, True, *params, backend="s2spy") # True means replace TargetShape Query
+    schema = prepare_validation(query, True, True, *params, backend=config['backend'], result_transmitter=result_transmitter) # True means replace TargetShape Query
     
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = schema.validate(start_with_target_shape=True)
@@ -178,10 +192,8 @@ def run():
     # with open("timing/api_profil{}.html".format(global_request_count - 1),"w") as f:
     #     f.write(output_html)
 
-    if DEBUG_OUTPUT:
-        return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(targetShapeID), mimetype='application/json')
-    else:
-        return Response(SimpleOutput(BaseResult.from_travshacl(report, query, results)).to_json())
+    return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(targetShapeID), mimetype='application/json')
+    #return Response(SimpleOutput(BaseResult.from_travshacl(report, query, results)).to_json())
 
 
 @app.route("/", methods=['GET'])

@@ -42,9 +42,3 @@ class Triple():
 
     def __repr__(self) -> str:
         return str(tuple(self))
-
-    def __str__(self) -> str:
-        return self.n3()
-
-    def __hash__(self):
-        return hash(str(self.n3()))
