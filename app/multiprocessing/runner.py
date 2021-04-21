@@ -3,6 +3,14 @@ import multiprocessing as mp
 from app.query import Query
 
 class Runner:
+    """
+    A runner object is associated with a multiprocessing.Process which is started with start_process and runs until stop_process is called.
+    Additional a runner has a function f assigned, which is executed each time when new_task is called.
+    f needs to have to following parameters: 
+        - FIRST: in_queues (multiprocessing.Queue)
+        - SECOND: out_queues (number_of_out_queues specified in constructor of Runner)
+        - FINALLY: variable number of parameters needed for the task (These ones which also needed to be passed to new_task)
+    """
     def __init__(self,function, number_of_out_queues = 1, in_queues = list()):
         self.context   = mp.get_context("spawn")
         self.manager = mp.Manager()

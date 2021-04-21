@@ -3,7 +3,6 @@ from flask import Flask, request, Response, g
 import os, time, logging, json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
-from app.multiprocessing.contactSource import contactSource
 from copy import copy
 
 from app.query import Query
@@ -13,6 +12,7 @@ from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
 from app.multiprocessing.transformer import queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
+from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 
 app = Flask(__name__)
@@ -72,8 +72,8 @@ def enqueueValidationResult():
     val_queue.put(new_val_result)
     return 'Ok'
 
-@app.route("/baseline", methods=['POST'])
-def baseline():
+@app.route("/multiprocessing", methods=['POST'])
+def run_multiprocessing():
     # # Profiling Code
     # g.profiler = Profiler()
     # g.profiler.start()
@@ -125,7 +125,7 @@ def baseline():
     return Response(testOutput.to_json(targetShapeID), mimetype='application/json')
 
 
-@app.route("/go", methods=['POST'])
+@app.route("/singleprocessing", methods=['POST'])
 def run():
     '''
     ONLY COMPATIBLE WITH TRAVSHACL BACKEND!

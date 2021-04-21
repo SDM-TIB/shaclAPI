@@ -6,7 +6,7 @@ import urllib.request
 from multiprocessing import Process, Queue
 
 
-'''
+"""
 Normal contactSource Implementation but queue is filled with an output, which is in a format which is joinable with validation results. Queue_copy contains the normal result but with an id.
 Example:
     Input: {var1: instance1, var2: instance2, var3: instance3} 
@@ -17,7 +17,7 @@ Example:
     Output queue_copy:
            {'query_result': {'var1': instance1, 'var2': instance2, 'var3': instance3}, 'id': UNIQUE_RESULT_ID}
 
-'''
+"""
 
 def contactSource(queue, queue_copy, endpoint, query, limit=-1):
     # Contacts the datasource (i.e. real endpoint).

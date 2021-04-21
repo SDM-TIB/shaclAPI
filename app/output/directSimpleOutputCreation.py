@@ -4,6 +4,8 @@ from rdflib import Namespace, URIRef
 
 class QueryReport:
     """
+    Unused!
+    
     bindings: (variable, subject)
     triples: (subject, path, object)
     report: (subject, ts:violatesShape, shape) / (subject, ts:satisfiesShape, shape) / (subject, ts:violatesConstraint, [constraints, ...])

@@ -80,7 +80,7 @@ def test_run(file):
     PARAMS = test[0]
     if 'test_type' in PARAMS:
         del PARAMS['test_type']
-    response = requests.post(FLASK_ENDPOINT + 'go', data=PARAMS)
+    response = requests.post(FLASK_ENDPOINT + 'singleprocessing', data=PARAMS)
     assert response.status_code == 200, "Server-sided error, check server output for details"
     json_response = response.json()
     try:
@@ -106,7 +106,7 @@ def test_run(file):
 
 @pytest.mark.parametrize("config", ['tests/configs/lubm_config.json', 'tests/configs/lubm_config_s2spy.json'])
 @pytest.mark.parametrize("file", get_all_files())
-def test_base(file, config):
+def test_multiprocessing(file, config):
     log_file_name = str(file).replace('/','_')
     log_file_name = log_file_name.replace('.','',1)
     log_file_name = "base" + log_file_name
@@ -118,7 +118,7 @@ def test_base(file, config):
     PARAMS['config'] = config
     if 'test_type' in PARAMS:
         del PARAMS['test_type']
-    response = requests.post(FLASK_ENDPOINT + 'baseline', data=PARAMS)
+    response = requests.post(FLASK_ENDPOINT + 'multiprocessing', data=PARAMS)
     assert response.status_code == 200, "Server-sided error, check server output for details"
     json_response = response.json()
     try:

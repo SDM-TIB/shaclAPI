@@ -1,6 +1,11 @@
 import requests
 
 class ValidationResultTransmitter():
+    """
+    Class used to transmit validation results from a backend to the api.
+    This can be done via an endpoint or using a multiprocessing.Queue.
+    """
+
     def __init__(self, validation_result_endpoint=None, output_queue=None):
         self.output_queue = output_queue
         self.endpoint = validation_result_endpoint
