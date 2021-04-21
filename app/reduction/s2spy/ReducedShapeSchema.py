@@ -3,6 +3,8 @@ from s2spy.validation.ShapeNetwork import ShapeNetwork
 from s2spy.validation.sparql.SPARQLEndpoint import SPARQLEndpoint
 from app.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedValidationResultStreaming
 from s2spy.validation.utils import fileManagement
+from travshacl.TravSHACL import parse_heuristics
+from travshacl.core.GraphTraversal import GraphTraversal
 import app.colors as Colors
 
 
@@ -21,6 +23,13 @@ class ReducedShapeSchema(ShapeNetwork):
         self.outputDirName = output_dir
         self.targetShape = target_shape
         self.result_transmitter = result_transmitter
+
+    @staticmethod
+    def from_config(config, query_object, result_transmitter):
+        return ReducedShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, \
+            GraphTraversal[config.traversal_strategie], parse_heuristics(config.heuristic), config.use_selective_queries, \
+                config.max_split_size, config.output_directory, config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
+                    config.target_shape, query_object, config.replace_target_query, config.merge_old_target_query, result_transmitter)
 
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""

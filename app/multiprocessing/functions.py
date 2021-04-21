@@ -53,13 +53,12 @@ def queue_output_to_table(join_result_queue, query_queue):
     return list(table.values())
 
 
-def mp_validate(out_queue, query, replace_target_query, start_with_target_shape, merge_old_target_query, backend, result_transmitter, *params):
+def mp_validate(out_queue, config, query, result_transmitter):
     """
     Function to be executed with Runner to run the validation process of the backend.
     """
-    schema = prepare_validation(query, replace_target_query, merge_old_target_query,
-                                *params, result_transmitter=result_transmitter, backend=backend)
-    report = schema.validate(start_with_target_shape)
+    schema = prepare_validation(config, query, result_transmitter)
+    report = schema.validate(config.start_with_target_shape)
     # The following only works with travshacl backend --> s2spy don't provide results after validation terminates.
     if not result_transmitter.use_streaming():
         for shape, instance_dict in report.items():

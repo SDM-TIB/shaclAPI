@@ -1,4 +1,4 @@
-from app.utils import parse_validation_params, prepare_validation
+from app.utils import prepare_validation
 from flask import Flask, request, Response, g
 import os, time, logging, json
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -7,10 +7,11 @@ from copy import copy
 
 from app.query import Query
 import app.colors as Colors
+from app.config import Config
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
-from app.multiprocessing.transformer import queue_output_to_table, mp_validate, mp_xjoin
+from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
@@ -74,35 +75,37 @@ def enqueueValidationResult():
 
 @app.route("/multiprocessing", methods=['POST'])
 def run_multiprocessing():
-    # # Profiling Code
-    # g.profiler = Profiler()
-    # g.profiler.start()
-
+    '''
+    Required Arguments:
+        - query
+        - targetShape
+        - external_endpoint
+        - schemaDir
+    See app/config.py for a full list of available arguments!
+    '''
     global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER,XJOIN_RUNNER, out_queue, val_queue
     EXTERNAL_SPARQL_ENDPOINT = None
 
-    # Parse POST Arguments
-    query_string = request.form["query"]
-    targetShapeID = request.form['targetShape']
-
-    # Parse Config File
-    params = parse_validation_params(request.form)
-    config = params[-2]
+    # Parse Config from POST Request and Config File
+    config = Config.from_request_form(request.form)
     
     # Setup of the Validation Result Transmitting Strategie
-    #result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT)
-    result_transmitter = ValidationResultTransmitter(output_queue=val_queue)
-    #result_transmitter = ValidationResultTransmitter()
+    if config.transmission_strategy == 'endpoint':
+        result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT)
+    elif config.transmission_strategy == 'queue':
+        result_transmitter = ValidationResultTransmitter(output_queue=val_queue)
+    else:
+        result_transmitter = ValidationResultTransmitter()
 
-    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
-    os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
+    os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
 
     # Parse query_string into a corresponding select_query    
-    query = Query.prepare_query(query_string)
+    query = Query.prepare_query(config.query)
 
     # 1.) Get the Data
-    CONTACT_SOURCE_RUNNER.new_task(config["external_endpoint"], query_string, -1)
-    VALIDATION_RUNNER.new_task(query, True, True, True, config['backend'], result_transmitter, *params)
+    CONTACT_SOURCE_RUNNER.new_task(config.external_endpoint, query.as_result_query(), -1)
+    VALIDATION_RUNNER.new_task(config, query, result_transmitter)
 
     # 2.) Join the Data
     XJOIN_RUNNER.new_task()
@@ -111,18 +114,10 @@ def run_multiprocessing():
     api_result = queue_output_to_table(out_queue, query_queue)
 
     # 4.) Output
-    testOutput = TestOutput.fromJoinedResults(targetShapeID,api_result)
-    
-    # # Profiling Code
-    # g.profiler.stop()
-    # global global_request_count
-    # output_html = g.profiler.output_html()
-    # global_request_count = global_request_count + 1
-    # with open("timing/profil{}.html".format(global_request_count - 1),"w") as f:
-    #     f.write(output_html)
+    testOutput = TestOutput.fromJoinedResults(config.target_shape,api_result)
     
     # print(str(SimpleOutput.fromJoinedResults(api_result, query)))
-    return Response(testOutput.to_json(targetShapeID), mimetype='application/json')
+    return Response(testOutput.to_json(config.target_shape), mimetype='application/json')
 
 
 @app.route("/singleprocessing", methods=['POST'])
@@ -130,71 +125,37 @@ def run():
     '''
     ONLY COMPATIBLE WITH TRAVSHACL BACKEND!
 
-    Go Route: Here we replace the main.py and Eval.py of travshacl.
-    Arguments:
-        POST:
-            - traversalStrategie
-            - schemaDir
-            - heuristic
-            - query
-            - targetShape
-        CONFIG File:
-            - debugging
-            - external_endpoint
-            - outputDirectory
-            - shapeFormat
-            - useSelectiveQueries
-            - maxSplit
-            - ORDERBYinQueries
-            - SHACL2SPARQLorder
-            - outputs
-            - workInParallel
+    Required Arguments:
+        - query
+        - targetShape
+        - external_endpoint
+        - schemaDir
+    See app/config.py for a full list of available arguments!
     '''
-    # # Profiling Code
-    # g.profiler = Profiler()
-    # g.profiler.start()
-    # print(Colors.magenta(Colors.headline('New Validation Task')))
 
     # Each run can be over a different Endpoint, so the endpoint needs to be recreated
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
     result_transmitter = ValidationResultTransmitter()
 
-    # Parse POST Arguments
-    query_string = request.form['query']
-    targetShapeID = request.form['targetShape']
-
-    # Parse Config File
-    params = parse_validation_params(request.form)
-    config = params[-2]
-    debug_mode = config["debugging"]
-    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config["external_endpoint"], returnFormat=JSON)
-    os.makedirs(os.path.join(os.getcwd(), config["outputDirectory"]), exist_ok=True)
+    # Parse Config from POST Request and Config File
+    config = Config.from_request_form(request.form)
+    
+    EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
+    os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
 
     # Parse query_string into a corresponding select_query
-    query = Query.prepare_query(query_string)
-    schema = prepare_validation(query, True, True, *params, backend=config['backend'], result_transmitter=result_transmitter) # True means replace TargetShape Query
+    query = Query.prepare_query(config.query)
+    schema = prepare_validation(config, query, result_transmitter) # True means replace TargetShape Query
     
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = schema.validate(start_with_target_shape=True)
     
     # Retrieve the complete result for the initial query
-    query_string = query.as_result_query()
-
-    EXTERNAL_SPARQL_ENDPOINT.setQuery(query_string)
+    EXTERNAL_SPARQL_ENDPOINT.setQuery(query.as_result_query())
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
 
-    print(Colors.magenta(Colors.headline('')))
-
-    # # Profiling Code
-    # global global_request_count
-    # g.profiler.stop()
-    # output_html = g.profiler.output_html()
-    # global_request_count = global_request_count + 1
-    # with open("timing/api_profil{}.html".format(global_request_count - 1),"w") as f:
-    #     f.write(output_html)
-
-    return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(targetShapeID), mimetype='application/json')
+    return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(config.target_shape), mimetype='application/json')
     #return Response(SimpleOutput(BaseResult.from_travshacl(report, query, results)).to_json())
 
 
@@ -202,6 +163,18 @@ def run():
 def hello_world():
     return "Hello World"
 
+def start_profiling():
+    g.profiler = Profiler()
+    g.profiler.start()
+    print(Colors.magenta(Colors.headline('New Validation Task')))
+
+def stop_profiling():
+    global global_request_count
+    g.profiler.stop()
+    output_html = g.profiler.output_html()
+    global_request_count = global_request_count + 1
+    with open("timing/api_profil{}.html".format(global_request_count - 1),"w") as f:
+        f.write(output_html)
 
 if __name__ == '__main__':
     # This seems to load some pyparsing stuff and will speed up the execution of the first task by 1 second.

@@ -1,4 +1,3 @@
-from app.utils import prepare_validation
 import multiprocessing as mp
 from app.query import Query
 
