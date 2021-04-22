@@ -4,6 +4,7 @@ sys.path.append('./s2spy')
 sys.path.append('./Trav-SHACL') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
 from app.reduction.travshacl.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaTravShacl
 from app.reduction.s2spy.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaS2Spy
+from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
 sys.path.remove('./Trav-SHACL')
 sys.path.remove('./s2spy')
 
@@ -17,6 +18,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 def prepare_validation(config, query, result_transmitter):
     if config.backend == "travshacl":
         ReducedShapeSchema = ReducedShapeSchemaTravShacl
+        SPARQLEndpoint.instance = None # Travshacl uses a singleton, the endpoint won't change otherwise
     elif config.backend == "s2spy":
         SPARQLPrefixHandler.prefixes = {str(key): "<" + str(value) + ">" for (key, value) in query.namespace_manager.namespaces()}
         SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"

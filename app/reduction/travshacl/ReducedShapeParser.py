@@ -8,7 +8,7 @@ import app.colors as Colors
 # Note the internal structure of ShapeParser:
 # parse_shapes_from_dir --> calls for each shape: parse_constraints (--> parse_constraint), shape_references; Afterwards we call computeReducedEdges to find the involvedShapeIDs.
 class ReducedShapeParser(ShapeParser):
-    def __init__(self, query, targetShape, graph_traversal):
+    def __init__(self, query, targetShape, graph_traversal, remove_constraints):
         super().__init__()
         self.query = query
         self.targetShape = targetShape
@@ -16,6 +16,7 @@ class ReducedShapeParser(ShapeParser):
         self.removed_constraints = {}
         self.involvedShapeIDs = []
         self.graph_traversal = graph_traversal
+        self.remove_constraints = remove_constraints
 
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
@@ -78,7 +79,7 @@ class ReducedShapeParser(ShapeParser):
     """
 
     def parse_constraint(self, varGenerator, obj, id, targetDef):
-        if self.targetShape == self.currentShape or self.targetShape == obj.get('shape'):
+        if self.remove_constraints and (self.targetShape == self.currentShape or self.targetShape == obj.get('shape')):
             path = obj['path'][obj['path'].startswith('^'):]
             if path in self.query.get_predicates(replace_prefixes=False):
                 return super().parse_constraint(varGenerator, obj, id, targetDef)

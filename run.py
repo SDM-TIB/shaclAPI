@@ -104,7 +104,7 @@ def run_multiprocessing():
     query = Query.prepare_query(config.query)
 
     # 1.) Get the Data
-    CONTACT_SOURCE_RUNNER.new_task(config.external_endpoint, query.as_result_query(), -1)
+    CONTACT_SOURCE_RUNNER.new_task(config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query.as_valid_query(), -1)
     VALIDATION_RUNNER.new_task(config, query, result_transmitter)
 
     # 2.) Join the Data
@@ -114,10 +114,14 @@ def run_multiprocessing():
     api_result = queue_output_to_table(out_queue, query_queue)
 
     # 4.) Output
-    testOutput = TestOutput.fromJoinedResults(config.target_shape,api_result)
     
-    # print(str(SimpleOutput.fromJoinedResults(api_result, query)))
-    return Response(testOutput.to_json(config.target_shape), mimetype='application/json')
+    if config.test_output:
+        testOutput = TestOutput.fromJoinedResults(config.target_shape,api_result)
+        return Response(testOutput.to_json(config.target_shape), mimetype='application/json')
+    else:
+        simpleOutput = SimpleOutput.fromJoinedResults(api_result, query)
+        return Response(str(simpleOutput))
+
 
 
 @app.route("/singleprocessing", methods=['POST'])

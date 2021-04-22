@@ -26,12 +26,14 @@ def queue_output_to_table(join_result_queue, query_queue):
             table[item_id] = []
         table[item_id] += [item]
 
-    if query_queue.empty():
-        return list()
-
     # Step 2: Find variables with no matching validation result
     singles = []
     item = query_queue.get()
+
+    if item == 'EOF':
+        print("Initial Query Bindings were empty!!")
+        return list()
+    
     item_id = item['id']
     del item['id']
     assert item_id in table

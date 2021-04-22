@@ -8,7 +8,7 @@ class Config:
 
     @staticmethod
     def from_request_form(request_params):
-        config_file_path = request_params.get('config', 'config.json')
+        config_file_path = request_params.get('config', './quickstart/config.json')
         with open(config_file_path) as config_file:
             final_config = json.load(config_file)
         final_config.update(request_params)
@@ -18,6 +18,10 @@ class Config:
         return eval('self.' + name)
 
     # ------------------------------- Required Configs -------------------------------------------
+    @property
+    def config(self):
+        return self.config_dict['config']
+
     @property
     def query(self):
         return self.config_dict['query']
@@ -34,6 +38,7 @@ class Config:
     def schema_directory(self):
         return self.config_dict['schemaDir']
 
+    # ------------------------------- Optional Configs -------------------------------------------
     @property
     def output_directory(self):
         return self.config_dict.get('output_directory') or self.config_dict.get('outputDirectory') or "./output/"
@@ -105,3 +110,19 @@ class Config:
     @property
     def transmission_strategy(self):
         return self.config_dict.get('transmission_strategy') or "queue"
+    
+    @property
+    def remove_constraints(self):
+        return self.config_dict.get('remove_constraints') or False
+    
+    @property
+    def send_initial_query_over_internal_endpoint(self):
+        '''
+        There might be problems with contactSource and some Sparql Endpoints. These can be fixed by routing through our internal endpoint.
+        This will force the api todo so.
+        '''
+        return self.config_dict.get('send_initial_query_over_internal_endpoint') or False
+    
+    @property
+    def test_output(self):
+        return self.config_dict.get('test_output') or False

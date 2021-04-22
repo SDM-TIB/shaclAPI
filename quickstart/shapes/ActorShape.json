@@ -1,0 +1,19 @@
+{
+	"name": "ActorShape",
+	"prefix": {
+		"dbo": "<http://dbpedia.org/ontology/>",
+		"dbr": "<http://dbpedia.org/resource/>",
+		"dbp": "<http://dbpedia.org/property/>"
+	},
+	"constraintDef": {
+		"conjunctions": [
+			[
+				{ "path": "dbo:birthPlace", "min": 1 },
+				{ "path": "dbo:activeYearsStartYear", "min": 1 },
+				{ "path": "dbo:occupation", "min": 1, "value":"dbr:Actor" },
+				{ "path": "dbo:imdbId", "min": 1 },
+				{ "path": "^dbo:starring", "min": 1 }
+			]
+		]
+	}
+}

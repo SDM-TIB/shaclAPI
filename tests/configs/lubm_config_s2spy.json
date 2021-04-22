@@ -9,5 +9,7 @@
     "SHACL2SPARQLorder": false,
     "debugging": false,
     "outputs": false,
-    "backend": "s2spy"
+    "backend": "s2spy",
+    "remove_constraints": true,
+    "test_output": true
 }
