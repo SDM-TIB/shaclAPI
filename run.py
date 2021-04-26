@@ -100,11 +100,17 @@ def run_multiprocessing():
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
 
-    # Parse query_string into a corresponding select_query    
+    # Parse query_string into a corresponding Query Object    
     query = Query.prepare_query(config.query)
 
+    # The information we need depends on the output format:
+    if config.test_output:
+        query_to_be_executed = query.as_valid_query()
+    else:
+        query_to_be_executed = query.as_result_query()
+
     # 1.) Get the Data
-    CONTACT_SOURCE_RUNNER.new_task(config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query.as_valid_query(), -1)
+    CONTACT_SOURCE_RUNNER.new_task(config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
     VALIDATION_RUNNER.new_task(config, query, result_transmitter)
 
     # 2.) Join the Data
@@ -159,9 +165,10 @@ def run():
     EXTERNAL_SPARQL_ENDPOINT.setQuery(query.as_result_query())
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
 
-    return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(config.target_shape), mimetype='application/json')
-    #return Response(SimpleOutput(BaseResult.from_travshacl(report, query, results)).to_json())
-
+    if config.test_output:
+        return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(config.target_shape), mimetype='application/json')
+    else:
+        return Response(str(SimpleOutput(BaseResult.from_travshacl(report, query, results))))
 
 @app.route("/", methods=['GET'])
 def hello_world():
