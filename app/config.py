@@ -63,7 +63,7 @@ class Config:
         '''
         Whether to save the validation output of the backend to a file.
         '''
-        return self.config_dict.get('outputs') or False
+        return self.config_dict.get('outputs',False)
 
     @property
     def output_directory(self):
@@ -91,49 +91,49 @@ class Config:
         '''
         The travshacl backend can use more selectiv queries. This options is used to turn that on or off.
         '''
-        return self.config_dict.get('useSelectiveQueries') or True
+        return self.config_dict.get('useSelectiveQueries', True)
 
     @property
     def max_split_size(self):
         '''
         The max split size.
         '''
-        return self.config_dict.get('maxSplit') or 256
+        return self.config_dict.get('maxSplit',256)
 
     @property
     def order_by_in_queries(self):
         '''
         Whether to use Queries with a ORDER BY Clause.
         '''
-        return self.config_dict.get('ORDERBYinQueries') or True
+        return self.config_dict.get('ORDERBYinQueries', True)
 
     @property
     def SHACL2SPARQL_order(self):
         '''
         Whether to use the SHACL2SPARQL_order. (TODO: Not used in either case)
         '''
-        return self.config_dict.get('SHACL2SPARQLorder') or False
+        return self.config_dict.get('SHACL2SPARQLorder', False)
 
     @property
     def debugging(self):
         '''
         Whether debugging mode is activ. When using debugging mode the api is working as a proxy between the external endpoint and the backend; which allows writing received queries to the standard output.
         '''
-        return self.config_dict.get('debugging') or False
+        return self.config_dict.get('debugging', False)
 
     @property
     def backend(self):
         '''
         The backend to use. Only "travshacl" or "s2spy" is implemented.
         '''
-        return self.config_dict.get('backend') or "travshacl"
+        return self.config_dict.get('backend',"travshacl")
 
     @property
     def task(self):
         '''
         The task to be done by the backend. (TODO: Only 'a' makes sense here.)
         '''
-        return self.config_dict.get('task') or 'a'
+        return self.config_dict.get('task','a')
 
     @property
     def traversal_strategie(self):
@@ -154,7 +154,7 @@ class Config:
         '''
         Whether or not the api should replace the target query of the target shape.
         '''
-        return self.config_dict.get('replace_target_query') or True
+        return self.config_dict.get('replace_target_query', True)
     
     @property
     def merge_old_target_query(self):
@@ -162,14 +162,14 @@ class Config:
         Whether the api should merge the star shaped query with the given target query in the target shape file.
         If this option is inactive the target query of the target shape is basically replaced with the star shaped query.
         '''
-        return self.config_dict.get('merge_old_target_query') or True
+        return self.config_dict.get('merge_old_target_query',True) 
 
     @property
     def start_with_target_shape(self):
         '''
         Whether the backend is forced to start the validation process with the target shape.
         '''
-        return self.config_dict.get('start_with_target_shape') or True
+        return self.config_dict.get('start_with_target_shape',True)
     
     @property
     def transmission_strategy(self):
@@ -184,7 +184,7 @@ class Config:
         '''
         Whether the api should remove constraints of the target shape not mentioned in the query.
         '''
-        return self.config_dict.get('remove_constraints') or False
+        return self.config_dict.get('remove_constraints', False)
     
     @property
     def send_initial_query_over_internal_endpoint(self):
@@ -192,14 +192,14 @@ class Config:
         There might be problems with contactSource and some Sparql Endpoints. These can be fixed by routing through our internal endpoint.
         This will force the api todo so.
         '''
-        return self.config_dict.get('send_initial_query_over_internal_endpoint') or False
+        return self.config_dict.get('send_initial_query_over_internal_endpoint', False)
     
     @property
     def test_output(self):
         '''
         Whether the more simple test output is activated or not.
         '''
-        return self.config_dict.get('test_output') or False
+        return self.config_dict.get('test_output', False)
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property
