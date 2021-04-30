@@ -1,0 +1,7 @@
+prof				email				[validation result]
+http://example.com/Prof0	"prof0@dept0.uni0.edu"		valid
+http://example.com/Prof1 	"prof1@dept0.uni0.edu"		valid
+http://example.com/Prof2 	"prof2@dept0.uni0.edu"		valid
+http://example.com/Prof3 	"prof3@dept0.uni0.edu"		invalid; doctoralDegreeFrom :Uni2
+http://example.com/Prof4 	"prof4@dept0.uni0.edu"		valid
+http://example.com/Prof5 	"prof5@dept0.uni0.edu"		invalid; doctoralDegreeFrom :Uni4

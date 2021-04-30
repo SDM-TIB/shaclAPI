@@ -1,0 +1,22 @@
+{
+	"name": "FullProfessor",
+	"targetDef": {
+		"query":"SELECT ?x WHERE {?x a ub:FullProfessor}",
+		"class": "ub:FullProfessor"
+	},
+	"prefix": {
+		"ub": "<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>",
+        "": "<http://example.com/>"
+	},
+	"constraintDef": {
+		"conjunctions": [
+			[
+				{ "path": "ub:doctoralDegreeFrom", "min": 1, "shape": "University" },
+				{ "path": "ub:email", "min": 1 },
+				{ "path": "ub:name", "min": 1 },
+				{ "path": "ub:name", "max": 1 },
+				{ "path": "ub:worksFor", "min": 1, "shape": "Department" }
+			]
+		]
+	}
+}
