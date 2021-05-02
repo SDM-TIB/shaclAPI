@@ -1,4 +1,6 @@
 import re
+
+import rdflib.term
 from rdflib.namespace import RDF
 from rdflib.plugins import sparql
 from rdflib.paths import InvPath
@@ -68,8 +70,10 @@ class Query:
         Returns:
             Query: Valid Query-Object for further processing
         """
-        # Remove ',' in a query (esp.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
-        query = query.replace(',', ' ')
+        # Remove ',' in a query's SELECT clause (i.e.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
+        select_clause = re.match("SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
+        select_clause_new = select_clause.replace(',', ' ')
+        query = query.replace(select_clause, select_clause_new)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
         query = query.replace('\'', '"')
         # Remove '.' if it is followed by '}', tarvshacl cannot handle these dots.
@@ -84,7 +88,10 @@ class Query:
         return self.__extract_triples_recursion(self.query_object.algebra)
 
     def extract_filter_terms(self):
-        return re.findall('FILTER\(.*\)', self.query_string, re.DOTALL)
+        return re.findall('FILTER\s*\(.*\)', self.query_string, re.DOTALL)
+
+    def extract_values_terms(self):
+        return re.findall('VALUES\s*[?].*\{[^}]*\}', self.query_string, re.DOTALL)
 
     def __extract_triples_recursion(self, algebra, is_optional=False):
         """Recursive function for triple pattern extraction.
@@ -173,10 +180,42 @@ class Query:
         newQuery = Query(new_query_string_renamed)
 
         # Intersection of both queries
-        target_query_string = "SELECT DISTINCT ?x WHERE " + \
-            "{\n{\n" + oldQuery.get_statement() + "\n}{" + newQuery.get_statement() + "}}"
+        triples = oldQuery.triples
+        triples.extend(newQuery.triples)
+        triples = set(triples)
 
-        return Query.prepare_query(target_query_string).query_string
+        filters = oldQuery.extract_filter_terms()
+        filters.extend(newQuery.extract_filter_terms())
+
+        values = oldQuery.extract_values_terms()
+        values.extend(newQuery.extract_values_terms())
+
+        return self.target_query_from_triples(triples, filters, values).query_string
+
+    @staticmethod
+    def target_query_from_triples(triples: set, filters: list = None, values: list = None):
+        triples = sorted(list(triples))
+        query_string = "SELECT DISTINCT ?x WHERE {\n"
+
+        if values:
+            for value in values:
+                query_string += value + "\n"
+
+        for triple in triples:
+            print(triple)
+            query_string += "?" + str(triple.subject) + " <" + str(triple.predicat) + "> "
+            if isinstance(triple.object, rdflib.term.URIRef):
+                query_string += "<" + str(triple.object) + ">"
+            else:
+                query_string += "?" + str(triple.object)
+            query_string += " .\n"
+
+        if filters:
+            for filter in filters:
+                query_string += filter + "\n"
+
+        query_string += "}"
+        return Query.prepare_query(query_string)
 
     def get_statement(self):
         start = self.query_string.index("{") + len("{")

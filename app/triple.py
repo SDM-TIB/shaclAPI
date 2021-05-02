@@ -1,3 +1,4 @@
+import rdflib.term
 from rdflib.paths import InvPath
 from rdflib.namespace import RDF
 from rdflib.term import URIRef, Variable
@@ -23,6 +24,20 @@ class Triple():
     def __eq__(self, other) -> bool:
         return self.subject == other.subject and self.predicat == other.predicat and self.object == other.object and self.optional == other.optional
 
+    def __lt__(self, other) -> bool:
+        if self.predicat == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type":
+            if self.predicat != other.predicat:
+                return True
+            else:
+                if isinstance(self.object, rdflib.term.Variable) and isinstance(other.object, rdflib.term.URIRef):
+                    return False
+                else:
+                    return True
+        elif isinstance(self.object, rdflib.term.URIRef):
+            return True
+        else:
+            return False
+
     def __iter__(self):
         """
         This makes Triple behave similar to a Python Tuple Class Object
@@ -30,6 +45,9 @@ class Triple():
         yield self.subject
         yield self.predicat
         yield self.object
+
+    def __hash__(self):
+        return hash((self.subject, self.predicat, self.object, self.optional))
 
     @staticmethod
     def fromList(liste, is_optional):
