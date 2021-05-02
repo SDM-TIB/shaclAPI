@@ -71,7 +71,7 @@ class Query:
             Query: Valid Query-Object for further processing
         """
         # Remove ',' in a query's SELECT clause (i.e.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
-        select_clause = re.match("SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
+        select_clause = re.search("SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
         select_clause_new = select_clause.replace(',', ' ')
         query = query.replace(select_clause, select_clause_new)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
@@ -190,10 +190,10 @@ class Query:
         values = oldQuery.extract_values_terms()
         values.extend(newQuery.extract_values_terms())
 
-        return self.target_query_from_triples(triples, filters, values).query_string
+        return self.target_query_from_triples(triples, filters, values, namespace_manager=self.namespace_manager).query_string
 
     @staticmethod
-    def target_query_from_triples(triples: set, filters: list = None, values: list = None):
+    def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager = None):
         triples = sorted(list(triples))
         query_string = "SELECT DISTINCT ?x WHERE {\n"
 
@@ -202,13 +202,7 @@ class Query:
                 query_string += value + "\n"
 
         for triple in triples:
-            print(triple)
-            query_string += "?" + str(triple.subject) + " <" + str(triple.predicat) + "> "
-            if isinstance(triple.object, rdflib.term.URIRef):
-                query_string += "<" + str(triple.object) + ">"
-            else:
-                query_string += "?" + str(triple.object)
-            query_string += " .\n"
+            query_string += triple.n3(namespace_manager) + '\n'
 
         if filters:
             for filter in filters:

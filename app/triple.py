@@ -71,5 +71,12 @@ class Triple():
 
         return tuple([subject_n3, predicat_n3, object_n3])
 
+    def n3(self, namespace_manager = None) -> str:
+        (subject_n3, predicat_n3,object_n3) = self.toTuple(namespace_manager)
+        if self.optional:
+            return 'OPTIONAL{ ' + subject_n3 + ' ' + predicat_n3 + ' ' + object_n3 + ' }'
+        else:
+            return subject_n3 + ' ' + predicat_n3 + ' ' + object_n3 + '.'
+
     def __repr__(self) -> str:
         return str(tuple(self))
