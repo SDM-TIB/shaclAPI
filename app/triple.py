@@ -26,14 +26,11 @@ class Triple():
 
     def __lt__(self, other) -> bool:
         if self.predicat == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type":
-            if self.predicat != other.predicat:
+            if isinstance(self.object, rdflib.term.URIRef):
                 return True
-            else:
-                if isinstance(self.object, rdflib.term.Variable) and isinstance(other.object, rdflib.term.URIRef):
-                    return False
-                else:
-                    return True
-        elif isinstance(self.object, rdflib.term.URIRef):
+            elif self.predicat == other.predicat and isinstance(other.object, rdflib.term.URIRef):
+                return False
+        elif isinstance(self.predicat, rdflib.term.URIRef) and isinstance(self.object, rdflib.term.URIRef):
             return True
         else:
             return False
