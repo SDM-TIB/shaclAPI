@@ -25,6 +25,7 @@ def queue_output_to_table(join_result_queue, query_queue):
         if item_id not in table:
             table[item_id] = []
         table[item_id] += [item]
+        # print("Result: {}:{}".format(item_id, table[item_id]))
 
     # Step 2: Find variables with no matching validation result
     singles = []
@@ -72,11 +73,11 @@ def mp_validate(out_queue, config, query, result_transmitter):
     out_queue.put('EOF')
 
 
-def mp_xjoin(left, right, out_queue):
+def mp_xjoin(left, right, out_queue, config):
     """
     Function to be executed with Runner to join the instances of the left with the right queue.
     """
-    join = XJoin(['instance'])
+    join = XJoin(['instance'], config.memory_size)
     join.execute(left, right, out_queue)
 
 def proxy(in_queue, out_queue):

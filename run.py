@@ -114,10 +114,12 @@ def run_multiprocessing():
     VALIDATION_RUNNER.new_task(config, query, result_transmitter)
 
     # 2.) Join the Data
-    XJOIN_RUNNER.new_task()
+    XJOIN_RUNNER.new_task(config)
 
     # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
+    start = time.time()
     api_result = queue_output_to_table(out_queue, query_queue)
+    # print("queue_output_to_table took {}".format(time.time() - start))
 
     # 4.) Output
     
@@ -142,7 +144,7 @@ def run():
         - schemaDir
     See app/config.py for a full list of available arguments!
     '''
-
+    # start_profiling()
     # Each run can be over a different Endpoint, so the endpoint needs to be recreated
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
@@ -164,7 +166,7 @@ def run():
     # Retrieve the complete result for the initial query
     EXTERNAL_SPARQL_ENDPOINT.setQuery(query.as_result_query())
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
-
+    # stop_profiling()
     if config.test_output:
         return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(config.target_shape), mimetype='application/json')
     else:

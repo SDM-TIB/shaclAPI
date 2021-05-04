@@ -30,7 +30,13 @@ def contactSource(queue, queue_copy, endpoint, query, limit=-1):
     server = endpoint
 
     referer = server
-    server = server.split("http://")[1]
+    try:
+        server = server.split("http://")[1]
+    except:
+        try:
+            server = server.split("https://")[1]
+        except:
+            raise Exception("Not a valid endpoint url: {}".format(server))
     if '/' in server:
         (server, path) = server.split("/", 1)
     else:

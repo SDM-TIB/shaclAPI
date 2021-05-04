@@ -18,7 +18,7 @@ from app.multiprocessing.OperatorStructures import Table, Partition, Record, Fil
 
 class XJoin():
 
-    def __init__(self, vars):
+    def __init__(self, vars, memory_size):
         self.left_table  = Table()
         self.right_table = Table()
         self.qresults    = Queue()
@@ -31,7 +31,7 @@ class XJoin():
         self.rightSourceBlocked  = False
 
         # Main memory settings
-        self.memorySize   = 10        # Represents the main memory size (# tuples).OLD:Represents the main memory size (in KB).
+        self.memorySize   = memory_size        # Represents the main memory size (# tuples).OLD:Represents the main memory size (in KB).
         self.memory_left  = 0
         self.memory_right = 0
         self.fileDescriptor_left = {}

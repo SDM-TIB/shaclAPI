@@ -200,6 +200,13 @@ class Config:
         Whether the more simple test output is activated or not.
         '''
         return self.config_dict.get('test_output', False)
+    
+    @property
+    def memory_size(self):
+        '''
+        Number of tuples which can be stored in main memory
+        '''
+        return self.config_dict.get('memory_size', 1000000)
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property

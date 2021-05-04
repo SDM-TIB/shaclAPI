@@ -1,5 +1,6 @@
 import multiprocessing as mp
 from app.query import Query
+import time
 
 class Runner:
     """
@@ -42,5 +43,8 @@ def mp_function(task_in_queue, function, in_queues, out_queues):
     speed_up_query.namespace_manager.namespaces()
     active_task = task_in_queue.get()
     while active_task != 'EOF':
+        start = time.time()
         function(*in_queues, *out_queues, *active_task)
+        end = time.time()
+        print("{} took {}".format(function.__name__, end - start))
         active_task = task_in_queue.get()
