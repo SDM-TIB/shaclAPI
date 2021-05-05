@@ -53,7 +53,7 @@ class XJoin():
     
     def instantiate(self, d):
         newvars = self.vars - set(d.keys())
-        return XJoin(newvars)
+        return XJoin(newvars, self.memorySize)
 
     def execute(self, left, right, out, processqueue=Queue()):
         # Executes the XJoin.
