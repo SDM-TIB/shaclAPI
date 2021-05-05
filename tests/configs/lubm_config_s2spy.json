@@ -11,5 +11,5 @@
     "outputs": false,
     "backend": "s2spy",
     "remove_constraints": true,
-    "test_output": true
+    "output_format": "test"
 }

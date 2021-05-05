@@ -20,8 +20,9 @@ class Runner:
             self.out_queues += [self.manager.Queue()]
         self.out_queues = tuple(self.out_queues)
         self.in_queues = tuple(in_queues)
+        self.stats_out_queue = self.manager.Queue()
         self.function = function
-        self.process = self.context.Process(target=mp_function, args=(self.task_queue, self.function, self.in_queues, self.out_queues))
+        self.process = self.context.Process(target=mp_function, args=(self.task_queue, self.function, self.in_queues, self.out_queues, self.stats_out_queue))
     
     def start_process(self):
         self.process.start()
@@ -33,18 +34,18 @@ class Runner:
         return self.process.is_alive()
         
     def get_out_queues(self):
-        return self.out_queues
+        return *self.out_queues, self.stats_out_queue
 
     def new_task(self, *task):
         self.task_queue.put(task)
 
-def mp_function(task_in_queue, function, in_queues, out_queues):
+def mp_function(task_in_queue, function, in_queues, out_queues, stats_out_queue):
     speed_up_query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
     speed_up_query.namespace_manager.namespaces()
     active_task = task_in_queue.get()
     while active_task != 'EOF':
-        start = time.time()
-        function(*in_queues, *out_queues, *active_task)
-        end = time.time()
-        print("{} took {}".format(function.__name__, end - start))
+        function(*in_queues, *out_queues, *active_task[1:])
+        finished_timestamp = time.time()
+        if active_task[0]:
+            stats_out_queue.put(finished_timestamp)
         active_task = task_in_queue.get()

@@ -19,14 +19,14 @@ def queue_output_to_table(join_result_queue, query_queue):
     """
     # Step 1: Gather joined Query Results with the same id
     table = {}
-    for item in queue_iter(join_result_queue):
+    item = join_result_queue.get()
+    while item != 'EOF':
         item_id = item['id']
         del item['id']
         if item_id not in table:
             table[item_id] = []
         table[item_id] += [item]
-        # print("Result: {}:{}".format(item_id, table[item_id]))
-
+        item = join_result_queue.get()
     # Step 2: Find variables with no matching validation result
     singles = []
     item = query_queue.get()
@@ -48,13 +48,14 @@ def queue_output_to_table(join_result_queue, query_queue):
         table[item_id] += [{'var': var, 'instance': instance}]
 
     # Step 3: Add Singles with instance to the matching joined validation result
-    for item in queue_iter(query_queue):
+    item = query_queue.get()
+    while item != 'EOF':
         item_id = item['id']
         for single in singles:
             assert item_id in table
             table[item_id] += [{'var': single, 'instance': item['query_result'][single], 'validation': None}]
+        item = query_queue.get()
     return list(table.values())
-
 
 def mp_validate(out_queue, config, query, result_transmitter):
     """
@@ -90,15 +91,6 @@ def proxy(in_queue, out_queue):
         print(Colors.yellow(str(actual_tuple)))
         actual_tuple = in_queue.get()
     out_queue.put('EOF')
-
-def queue_iter(in_queue):
-    """
-    Utility Function used to transform multiprocessing.Queues into an iterator.
-    """
-    actual_tuple = in_queue.get()
-    while actual_tuple != 'EOF':
-        yield actual_tuple
-        actual_tuple = in_queue.get()
 
 
 # Not needed anymore! (Integrated into contactSource)

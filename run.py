@@ -11,6 +11,7 @@ from app.config import Config
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
+from app.output.statsOutput import StatsOutput
 from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
@@ -28,13 +29,13 @@ global_request_count = 0
 
 # Building Multiprocessing Chain using Runners and Queries
 VALIDATION_RUNNER = Runner(mp_validate)
-val_queue = VALIDATION_RUNNER.get_out_queues()[0]
+val_queue, stats_out_queue_val = VALIDATION_RUNNER.get_out_queues()
 
 CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
-transformed_query_queue, query_queue = CONTACT_SOURCE_RUNNER.get_out_queues()
+transformed_query_queue, query_queue, stats_out_queue_contact = CONTACT_SOURCE_RUNNER.get_out_queues()
 
 XJOIN_RUNNER = Runner(mp_xjoin, in_queues=[transformed_query_queue, val_queue])
-out_queue  = XJOIN_RUNNER.get_out_queues()[0]
+out_queue, stats_out_queue_xjoin  = XJOIN_RUNNER.get_out_queues()
 
 @app.route("/endpoint", methods=['GET', 'POST'])
 def endpoint():
@@ -83,19 +84,22 @@ def run_multiprocessing():
         - schemaDir
     See app/config.py for a full list of available arguments!
     '''
-    global EXTERNAL_SPARQL_ENDPOINT, VALIDATION_RUNNER, CONTACT_SOURCE_RUNNER,XJOIN_RUNNER, out_queue, val_queue
+    global_start_time = time.time()
+
+    global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(request.form)
-    
+    log_stats = (config.output_format == "stats")
+
     # Setup of the Validation Result Transmitting Strategie
     if config.transmission_strategy == 'endpoint':
-        result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT)
+        result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT, first_val_time_queue=stats_out_queue_xjoin, log_stats=log_stats)
     elif config.transmission_strategy == 'queue':
-        result_transmitter = ValidationResultTransmitter(output_queue=val_queue)
+        result_transmitter = ValidationResultTransmitter(output_queue=val_queue, first_val_time_queue=stats_out_queue_xjoin, log_stats=log_stats)
     else:
-        result_transmitter = ValidationResultTransmitter()
+        result_transmitter = ValidationResultTransmitter(first_val_time_queue=stats_out_queue_xjoin, log_stats=log_stats)
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
@@ -104,32 +108,31 @@ def run_multiprocessing():
     query = Query.prepare_query(config.query)
 
     # The information we need depends on the output format:
-    if config.test_output:
+    if config.output_format == "test":
         query_to_be_executed = query.as_valid_query()
     else:
         query_to_be_executed = query.as_result_query()
 
+    task_start_time = time.time()
     # 1.) Get the Data
-    CONTACT_SOURCE_RUNNER.new_task(config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
-    VALIDATION_RUNNER.new_task(config, query, result_transmitter)
+    CONTACT_SOURCE_RUNNER.new_task(log_stats, config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
+    VALIDATION_RUNNER.new_task(log_stats, config, query, result_transmitter)
 
     # 2.) Join the Data
-    XJOIN_RUNNER.new_task(config)
+    XJOIN_RUNNER.new_task(log_stats, config)
 
     # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
-    start = time.time()
     api_result = queue_output_to_table(out_queue, query_queue)
-    # print("queue_output_to_table took {}".format(time.time() - start))
 
     # 4.) Output
-    
-    if config.test_output:
-        testOutput = TestOutput.fromJoinedResults(config.target_shape,api_result)
-        return Response(testOutput.to_json(config.target_shape), mimetype='application/json')
-    else:
-        simpleOutput = SimpleOutput.fromJoinedResults(api_result, query)
-        return Response(str(simpleOutput))
-
+    if config.output_format == "test":
+        api_output = TestOutput.fromJoinedResults(config.target_shape,api_result)
+    elif config.output_format == "simple":
+        api_output = SimpleOutput.fromJoinedResults(api_result, query)
+    elif config.output_format == "stats":
+        TestOutput.fromJoinedResults(config.target_shape, api_result)
+        api_output = StatsOutput.from_queues(global_start_time, task_start_time, stats_out_queue_contact, stats_out_queue_val, stats_out_queue_xjoin)
+    return Response(api_output.to_json(config.target_shape), mimetype='application/json')
 
 
 @app.route("/singleprocessing", methods=['POST'])
@@ -167,7 +170,7 @@ def run():
     EXTERNAL_SPARQL_ENDPOINT.setQuery(query.as_result_query())
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
     # stop_profiling()
-    if config.test_output:
+    if config.output_format == "test":
         return Response(TestOutput(BaseResult.from_travshacl(report, query, results)).to_json(config.target_shape), mimetype='application/json')
     else:
         return Response(str(SimpleOutput(BaseResult.from_travshacl(report, query, results))))

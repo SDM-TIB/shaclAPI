@@ -16,7 +16,7 @@ class SimpleOutput():
         self.base: BaseResult = baseResult
         self._output = output
 
-    def to_json(self):
+    def to_json(self,targetShapeID):
         return json.dumps(self._output)
 
     def output(self):

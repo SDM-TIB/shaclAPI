@@ -195,11 +195,11 @@ class Config:
         return self.config_dict.get('send_initial_query_over_internal_endpoint', False)
     
     @property
-    def test_output(self):
+    def output_format(self):
         '''
-        Whether the more simple test output is activated or not.
+        Which output format the api should use. This can be "test", "stats" or "simple"
         '''
-        return self.config_dict.get('test_output', False)
+        return self.config_dict.get('output_format', "simple")
     
     @property
     def memory_size(self):
