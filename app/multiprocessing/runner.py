@@ -42,10 +42,13 @@ class Runner:
 def mp_function(task_in_queue, function, in_queues, out_queues, stats_out_queue):
     speed_up_query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
     speed_up_query.namespace_manager.namespaces()
-    active_task = task_in_queue.get()
-    while active_task != 'EOF':
-        function(*in_queues, *out_queues, *active_task[1:])
-        finished_timestamp = time.time()
-        if active_task[0]:
-            stats_out_queue.put(finished_timestamp)
+    try:
         active_task = task_in_queue.get()
+        while active_task != 'EOF':
+            function(*in_queues, *out_queues, *active_task[1:])
+            finished_timestamp = time.time()
+            if active_task[0]:
+                stats_out_queue.put(finished_timestamp)
+            active_task = task_in_queue.get()
+    except KeyboardInterrupt:
+        pass

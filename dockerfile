@@ -4,4 +4,5 @@ WORKDIR /code
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-CMD [ "./wait-for-it.sh","0.0.0.0:14000", "--", "python", "run.py"]
+ENV FLASK_APP=run.py
+CMD [ "./wait-for-it.sh","0.0.0.0:14000", "--", "flask", "run"]

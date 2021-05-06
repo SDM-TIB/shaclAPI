@@ -98,7 +98,7 @@ class Config:
         '''
         The max split size.
         '''
-        return self.config_dict.get('maxSplit',256)
+        return int(self.config_dict.get('maxSplit',256))
 
     @property
     def order_by_in_queries(self):
@@ -206,7 +206,7 @@ class Config:
         '''
         Number of tuples which can be stored in main memory
         '''
-        return self.config_dict.get('memory_size', 1000000)
+        return int(self.config_dict.get('memory_size', 1000000))
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property

@@ -3,7 +3,6 @@ from flask import Flask, request, Response, g
 import os, time, logging, json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
-from copy import copy
 
 from app.query import Query
 import app.colors as Colors
@@ -27,6 +26,10 @@ VALIDATION_RESULT_ENDPOINT = "http://localhost:5000/newValidationResult"
 from pyinstrument import Profiler
 global_request_count = 0
 
+# This seems to load some pyparsing stuff and will speed up the execution of the first task by 1 second.
+query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
+query.namespace_manager.namespaces()
+
 # Building Multiprocessing Chain using Runners and Queries
 VALIDATION_RUNNER = Runner(mp_validate)
 val_queue, stats_out_queue_val = VALIDATION_RUNNER.get_out_queues()
@@ -36,6 +39,11 @@ transformed_query_queue, query_queue, stats_out_queue_contact = CONTACT_SOURCE_R
 
 XJOIN_RUNNER = Runner(mp_xjoin, in_queues=[transformed_query_queue, val_queue])
 out_queue, stats_out_queue_xjoin  = XJOIN_RUNNER.get_out_queues()
+
+# Starting the processes of the runners
+VALIDATION_RUNNER.start_process()
+CONTACT_SOURCE_RUNNER.start_process()
+XJOIN_RUNNER.start_process()
 
 @app.route("/endpoint", methods=['GET', 'POST'])
 def endpoint():
@@ -191,14 +199,3 @@ def stop_profiling():
     global_request_count = global_request_count + 1
     with open("timing/api_profil{}.html".format(global_request_count - 1),"w") as f:
         f.write(output_html)
-
-if __name__ == '__main__':
-    # This seems to load some pyparsing stuff and will speed up the execution of the first task by 1 second.
-    query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
-    query.namespace_manager.namespaces()
-    
-    # Starting the processes of the runners
-    VALIDATION_RUNNER.start_process()
-    CONTACT_SOURCE_RUNNER.start_process()
-    XJOIN_RUNNER.start_process()
-    app.run(debug=True)
