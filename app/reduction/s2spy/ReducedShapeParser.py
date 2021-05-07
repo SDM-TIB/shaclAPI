@@ -25,16 +25,18 @@ class ReducedShapeParser(ShapeParser):
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
 
-    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True):
+    def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True, prune_shape_network=True):
         shapes = super().parseShapesFromDir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
-        self.involvedShapeIDs = self.graph_traversal.traverse_graph(
-            *self.computeReducedEdges(shapes), self.targetShape)
-        
-        print("Involved Shapes:", Colors.grey(str(self.involvedShapeIDs)), sep='\n')
-        print("Removed Constraints:", Colors.grey(str(self.removed_constraints)), sep='\n')
-        shapes = [s for s in shapes if s.getId() in self.involvedShapeIDs]
+        if prune_shape_network:
+            self.involvedShapeIDs = self.graph_traversal.traverse_graph(
+                *self.computeReducedEdges(shapes), self.targetShape)            
+            print("Involved Shapes:", Colors.grey(str(self.involvedShapeIDs)), sep='\n')
+            shapes = [s for s in shapes if s.getId() in self.involvedShapeIDs]
+        else:
+            print(Colors.red("Shape Network is not pruned!"))
 
+        print("Removed Constraints:", Colors.grey(str(self.removed_constraints)), sep='\n')
         # Replacing old targetQuery with new one
         if replace_target_query:
             print(Colors.red("Using Shape Schema WITH replaced target query!"))

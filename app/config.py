@@ -207,6 +207,13 @@ class Config:
         Number of tuples which can be stored in main memory
         '''
         return int(self.config_dict.get('memory_size', 1000000))
+    
+    @property
+    def prune_shape_network(self):
+        '''
+        Whether or not prune the shape_network to the from the target shape reachable shapes.
+        '''
+        return self.config_dict.get('prune_shape_network', True)
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property

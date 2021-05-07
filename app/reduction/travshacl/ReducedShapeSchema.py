@@ -9,11 +9,11 @@ import app.colors as Colors
 
 
 class ReducedShapeSchema(ShapeSchema):
-    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query, remove_constraints, result_transmitter):
+    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query, remove_constraints, prune_shape_network, result_transmitter):
         print(Colors.blue(Colors.headline("Shape Parsing and Reduction")))
         self.shapeParser = ReducedShapeParser(initial_query, target_shape, graph_traversal, remove_constraints)
         self.shapes = self.shapeParser.parse_shapes_from_dir(
-            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query, merge_old_target_query=merge_old_target_query)
+            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query, merge_old_target_query=merge_old_target_query, prune_shape_network=prune_shape_network)
         print(Colors.blue(Colors.headline('')))
         self.schema_dir = schema_dir
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
@@ -35,7 +35,7 @@ class ReducedShapeSchema(ShapeSchema):
         return ReducedShapeSchema(config.schema_directory, config.schema_format, config.internal_endpoint, \
             GraphTraversal[config.traversal_strategie], parse_heuristics(config.heuristic), config.use_selective_queries, \
                 config.max_split_size, config.output_directory, config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
-                    config.target_shape, query_object, config.replace_target_query, config.merge_old_target_query,config.remove_constraints, result_transmitter)
+                    config.target_shape, query_object, config.replace_target_query, config.merge_old_target_query,config.remove_constraints, config.prune_shape_network, result_transmitter)
 
 
     def validate(self, start_with_target_shape=True):
