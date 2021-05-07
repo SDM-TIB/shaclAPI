@@ -53,6 +53,6 @@ class StatsOutput():
         last_result_time = last_result_timestamp - global_start_time
         
         matrix = {"test_name": test_name, "approach": approach_name, "first_result_time": first_result_time, "last_result_time": last_result_time, "number_of_results": number_of_results}
-        stats = {"test_identifier": test_identifier, "total_execution_time": total_execution_time, "query_time": query_time, "network_validation_time": network_validation_time, "join_time": join_time}
+        stats = {"test_identifier": test_identifier, "approach": approach_name, "total_execution_time": total_execution_time, "query_time": query_time, "network_validation_time": network_validation_time, "join_time": join_time}
 
         return StatsOutput(output=stats), matrix, traces
