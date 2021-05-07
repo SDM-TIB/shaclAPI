@@ -146,7 +146,7 @@ def run_multiprocessing():
         api_output, matrix, traces = StatsOutput.from_queues(config.test_identifier,approach_name, global_start_time, task_start_time, stats_out_queue_contact, stats_out_queue_val, stats_out_queue_xjoin)
         output_directory = os.path.join(os.getcwd(), config.output_directory)
         matrix_file = os.path.join(output_directory, "matrix_" + approach_name + "_" + config.test_identifier + ".json")
-        trace_file = os.path.join(output_directory, "trace_" + approach_name + "_" + config.test_identifier + ".json")
+        trace_file = os.path.join(output_directory, "trace_" + approach_name + "_" + config.test_identifier + ".csv")
         stats_file = os.path.join(output_directory, "stats_" + approach_name + "_" + config.test_identifier + ".json")
         with open(matrix_file, "w") as f:
             json.dump(matrix,f, indent=4)
