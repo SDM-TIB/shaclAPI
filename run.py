@@ -7,6 +7,7 @@ import multiprocessing as mp
 from app.query import Query
 import app.colors as Colors
 from app.config import Config
+from app.utils import write_list_of_dicts
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
@@ -145,18 +146,13 @@ def run_multiprocessing():
         approach_name = os.path.basename(config.config)
         api_output, matrix, traces = StatsOutput.from_queues(config.test_identifier,approach_name, global_start_time, task_start_time, stats_out_queue_contact, stats_out_queue_val, stats_out_queue_xjoin)
         output_directory = os.path.join(os.getcwd(), config.output_directory)
-        matrix_file = os.path.join(output_directory, "matrix_" + approach_name + "_" + config.test_identifier + ".json")
-        trace_file = os.path.join(output_directory, "trace_" + approach_name + "_" + config.test_identifier + ".csv")
-        stats_file = os.path.join(output_directory, "stats_" + approach_name + "_" + config.test_identifier + ".json")
-        with open(matrix_file, "w") as f:
-            json.dump(matrix,f, indent=4)
-        with open(trace_file, "w") as f:
-            f.write("test_name" + ',' + "approach" + ',' + "time" + ',' + "validation" + '\n')
-            for trace in traces:
-                f.write(trace["test_name"] + ',' + trace["approach"] + ',' + str(trace["time"]) + ',' + trace["validation"] + '\n')
-            #json.dump(traces, f, indent=4)
-        with open(stats_file, "w") as f:
-            json.dump(api_output.output, f, indent=4)
+        matrix_file = os.path.join(output_directory, "matrix.csv")
+        trace_file = os.path.join(output_directory, "trace.csv")
+        stats_file = os.path.join(output_directory, "stats.csv")
+        
+        write_list_of_dicts([matrix], matrix_file)
+        write_list_of_dicts(traces, trace_file)
+        write_list_of_dicts([api_output.output], stats_file)
     return Response(api_output.to_json(config.target_shape), mimetype='application/json')
 
 
