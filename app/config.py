@@ -1,4 +1,5 @@
 import json
+import uuid
 
 
 class Config:
@@ -214,6 +215,13 @@ class Config:
         Whether or not prune the shape_network to the from the target shape reachable shapes.
         '''
         return self.config_dict.get('prune_shape_network', True)
+    
+    @property
+    def test_identifier(self):
+        '''
+        The test identifier will be used in output files / Stats Output identifing the test run.
+        '''
+        return self.config_dict.get('test_identifier', str(uuid.uuid1()))
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property

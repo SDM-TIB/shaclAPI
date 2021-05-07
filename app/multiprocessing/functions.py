@@ -2,10 +2,10 @@ import multiprocessing as mp
 import app.colors as Colors
 from app.utils import prepare_validation
 from app.multiprocessing.Xjoin import XJoin
-import warnings
+import warnings, time
 
 
-def queue_output_to_table(join_result_queue, query_queue):
+def queue_output_to_table(join_result_queue, query_queue, stats_out_queue=None):
     """
     Transforms the joined output and the raw query result to the final output. Therefore we need to find the singles (literals with no shape associated)
     1.) First gather joined Query Results (Query Result + Validation Result) with the same id  --> hashtable (dict)
@@ -20,13 +20,21 @@ def queue_output_to_table(join_result_queue, query_queue):
     # Step 1: Gather joined Query Results with the same id
     table = {}
     item = join_result_queue.get()
+    number_of_results = 0
     while item != 'EOF':
+        # A new result is received:
+        if stats_out_queue:
+            stats_out_queue.put({"topic": "new_xjoin_result", "time": time.time(), "validation_result": item['validation'][1]})
+        number_of_results += 1
         item_id = item['id']
         del item['id']
         if item_id not in table:
             table[item_id] = []
         table[item_id] += [item]
         item = join_result_queue.get()
+    if stats_out_queue:
+        stats_out_queue.put({"topic": "number_of_results", "number": number_of_results})
+        stats_out_queue.put('EOF')
     # Step 2: Find variables with no matching validation result
     singles = []
     item = query_queue.get()

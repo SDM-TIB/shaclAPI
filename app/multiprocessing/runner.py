@@ -48,7 +48,7 @@ def mp_function(task_in_queue, function, in_queues, out_queues, stats_out_queue)
             function(*in_queues, *out_queues, *active_task[1:])
             finished_timestamp = time.time()
             if active_task[0]:
-                stats_out_queue.put(finished_timestamp)
+                stats_out_queue.put({"topic": function.__name__, "time": finished_timestamp})
             active_task = task_in_queue.get()
     except KeyboardInterrupt:
         pass

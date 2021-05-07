@@ -17,7 +17,7 @@ class ValidationResultTransmitter():
     def send(self, instance, shape, valid, reason):
         if (not self.timestamp_of_first_result_send) and self.log_stats:
             self.timestamp_of_first_result_send = True
-            self.first_val_time_queue.put(time.time())
+            self.first_val_time_queue.put({"topic": "first_validation_result", "time": time.time()})
 
         if self.output_queue != None:
             self.output_queue.put({'instance': instance, 

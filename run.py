@@ -99,15 +99,14 @@ def run_multiprocessing():
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(request.form)
-    log_stats = (config.output_format == "stats")
 
     # Setup of the Validation Result Transmitting Strategie
     if config.transmission_strategy == 'endpoint':
         result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT, first_val_time_queue=stats_out_queue_xjoin, log_stats=log_stats)
     elif config.transmission_strategy == 'queue':
-        result_transmitter = ValidationResultTransmitter(output_queue=val_queue, first_val_time_queue=stats_out_queue_xjoin, log_stats=log_stats)
+        result_transmitter = ValidationResultTransmitter(output_queue=val_queue, first_val_time_queue=stats_out_queue_xjoin, log_stats=config.output_format == "stats")
     else:
-        result_transmitter = ValidationResultTransmitter(first_val_time_queue=stats_out_queue_xjoin, log_stats=log_stats)
+        result_transmitter = ValidationResultTransmitter(first_val_time_queue=stats_out_queue_xjoin, log_stats=config.output_format == "stats")
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
@@ -123,14 +122,18 @@ def run_multiprocessing():
 
     task_start_time = time.time()
     # 1.) Get the Data
-    CONTACT_SOURCE_RUNNER.new_task(log_stats, config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
-    VALIDATION_RUNNER.new_task(log_stats, config, query, result_transmitter)
+    CONTACT_SOURCE_RUNNER.new_task(config.output_format == "stats", config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
+    VALIDATION_RUNNER.new_task(config.output_format == "stats", config, query, result_transmitter)
 
     # 2.) Join the Data
-    XJOIN_RUNNER.new_task(log_stats, config)
+    XJOIN_RUNNER.new_task(config.output_format == "stats", config)
 
     # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
-    api_result = queue_output_to_table(out_queue, query_queue)
+    if config.output_format == "stats":
+        api_result = queue_output_to_table(out_queue, query_queue, stats_out_queue_xjoin)
+    else:
+        api_result = queue_output_to_table(out_queue, query_queue)
+
 
     # 4.) Output
     if config.output_format == "test":
@@ -139,7 +142,21 @@ def run_multiprocessing():
         api_output = SimpleOutput.fromJoinedResults(api_result, query)
     elif config.output_format == "stats":
         TestOutput.fromJoinedResults(config.target_shape, api_result)
-        api_output = StatsOutput.from_queues(global_start_time, task_start_time, stats_out_queue_contact, stats_out_queue_val, stats_out_queue_xjoin)
+        approach_name = os.path.basename(config.config)
+        api_output, matrix, traces = StatsOutput.from_queues(config.test_identifier,approach_name, global_start_time, task_start_time, stats_out_queue_contact, stats_out_queue_val, stats_out_queue_xjoin)
+        output_directory = os.path.join(os.getcwd(), config.output_directory)
+        matrix_file = os.path.join(output_directory, "matrix_" + approach_name + "_" + config.test_identifier + ".json")
+        trace_file = os.path.join(output_directory, "trace_" + approach_name + "_" + config.test_identifier + ".json")
+        stats_file = os.path.join(output_directory, "stats_" + approach_name + "_" + config.test_identifier + ".json")
+        with open(matrix_file, "w") as f:
+            json.dump(matrix,f, indent=4)
+        with open(trace_file, "w") as f:
+            f.write("test_name" + ',' + "approach" + ',' + "time" + ',' + "validation" + '\n')
+            for trace in traces:
+                f.write(trace["test_name"] + ',' + trace["approach"] + ',' + str(trace["time"]) + ',' + trace["validation"] + '\n')
+            #json.dump(traces, f, indent=4)
+        with open(stats_file, "w") as f:
+            json.dump(api_output.output, f, indent=4)
     return Response(api_output.to_json(config.target_shape), mimetype='application/json')
 
 
