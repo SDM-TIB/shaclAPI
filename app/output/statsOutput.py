@@ -38,7 +38,7 @@ class StatsOutput():
             elif join_stat['topic'] == 'first_validation_result':
                 join_started_time = join_stat['time']
             else: 
-                join_finished_time = stats_out_queue_xjoin.get()['time']
+                join_finished_time = join_stat['time']
             join_stat = stats_out_queue_xjoin.get()
         
         if not join_finished_time:
