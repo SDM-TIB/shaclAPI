@@ -64,8 +64,8 @@ def contactSource(queue, queue_copy, endpoint, query, limit=-1):
             offset = offset + limit
 
     # Close the queue
-    queue.put("EOF")
-    queue_copy.put("EOF")
+    # queue.put("EOF")
+    # queue_copy.put("EOF")
     return b
 
 

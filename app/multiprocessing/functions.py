@@ -5,7 +5,7 @@ from app.multiprocessing.Xjoin import XJoin
 import warnings, time
 
 
-def queue_output_to_table(join_result_queue, query_queue, stats_out_queue=None):
+def queue_output_to_table(join_result_queue, query_queue, individual_result_times_queue=None):
     """
     Transforms the joined output and the raw query result to the final output. Therefore we need to find the singles (literals with no shape associated)
     1.) First gather joined Query Results (Query Result + Validation Result) with the same id  --> hashtable (dict)
@@ -23,8 +23,8 @@ def queue_output_to_table(join_result_queue, query_queue, stats_out_queue=None):
     number_of_results = 0
     while item != 'EOF':
         # A new result is received:
-        if stats_out_queue:
-            stats_out_queue.put({"topic": "new_xjoin_result", "time": time.time(), "validation_result": item['validation'][1]})
+        if individual_result_times_queue:
+            individual_result_times_queue.put({"topic": "new_xjoin_result", "time": time.time(), "validation_result": item['validation'][1]})
         number_of_results += 1
         item_id = item['id']
         del item['id']
@@ -32,9 +32,9 @@ def queue_output_to_table(join_result_queue, query_queue, stats_out_queue=None):
             table[item_id] = []
         table[item_id] += [item]
         item = join_result_queue.get()
-    if stats_out_queue:
-        stats_out_queue.put({"topic": "number_of_results", "number": number_of_results})
-        stats_out_queue.put('EOF')
+    if individual_result_times_queue:
+        individual_result_times_queue.put({"topic": "number_of_results", "number": number_of_results})
+        individual_result_times_queue.put('EOF')
     # Step 2: Find variables with no matching validation result
     singles = []
     item = query_queue.get()
@@ -79,8 +79,7 @@ def mp_validate(out_queue, config, query, result_transmitter):
                     out_queue.put({'instance': instance[1], 'validation': (
                         instance[0], (is_valid == 'valid_instances'), shape)})
     # {instance: (shape of instance, is_valid, violating/validating shape)}
-    out_queue.put('EOF')
-
+    # out_queue.put('EOF')
 
 def mp_xjoin(left, right, out_queue, config):
     """
@@ -98,8 +97,7 @@ def proxy(in_queue, out_queue):
         out_queue.put(actual_tuple)
         print(Colors.yellow(str(actual_tuple)))
         actual_tuple = in_queue.get()
-    out_queue.put('EOF')
-
+    # out_queue.put('EOF')
 
 # Not needed anymore! (Integrated into contactSource)
 # def contact_source_to_XJoin_Format(in_queue, out_queue, in_copy_queue):

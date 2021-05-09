@@ -11,7 +11,7 @@ class Runner:
         - SECOND: out_queues (number_of_out_queues specified in constructor of Runner)
         - FINALLY: variable number of parameters needed for the task (These ones which also needed to be passed to new_task)
     """
-    def __init__(self,function, number_of_out_queues = 1, in_queues = list()):
+    def __init__(self,function, number_of_out_queues = 1, in_queues = list(), runner_stats_out_queue=None):
         self.context   = mp.get_context("spawn")
         self.manager = mp.Manager()
         self.task_queue = self.context.Queue()
@@ -20,7 +20,10 @@ class Runner:
             self.out_queues += [self.manager.Queue()]
         self.out_queues = tuple(self.out_queues)
         self.in_queues = tuple(in_queues)
-        self.stats_out_queue = self.manager.Queue()
+        if not runner_stats_out_queue:
+            self.stats_out_queue = self.manager.Queue()
+        else:
+            self.stats_out_queue = runner_stats_out_queue
         self.function = function
         self.process = self.context.Process(target=mp_function, args=(self.task_queue, self.function, self.in_queues, self.out_queues, self.stats_out_queue))
     
@@ -45,10 +48,17 @@ def mp_function(task_in_queue, function, in_queues, out_queues, stats_out_queue)
     try:
         active_task = task_in_queue.get()
         while active_task != 'EOF':
-            function(*in_queues, *out_queues, *active_task[1:])
-            finished_timestamp = time.time()
-            if active_task[0]:
-                stats_out_queue.put({"topic": function.__name__, "time": finished_timestamp})
-            active_task = task_in_queue.get()
+            try:
+                function(*in_queues, *out_queues, *active_task[1:])
+            except Exception as e:
+                stats_out_queue.put({"topic": "Exception", "location": function.__name__})
+                print(e)
+            finally:
+                for queue in out_queues:
+                    queue.put('EOF') # Writing EOF here allows global error handling
+                finished_timestamp = time.time()
+                if active_task[0]:
+                    stats_out_queue.put({"topic": function.__name__, "time": finished_timestamp})
+                active_task = task_in_queue.get()
     except KeyboardInterrupt:
         pass

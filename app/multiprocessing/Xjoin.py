@@ -202,7 +202,7 @@ class XJoin():
             remove(self.fileDescriptor_right[i].file.name)
 
         # Put EOF in queue and exit.
-        self.qresults.put("EOF")
+        # self.qresults.put("EOF")
 
     def probe(self, record, partition, var):
         # Probe a tuple if the partition is not empty.

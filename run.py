@@ -7,7 +7,7 @@ import multiprocessing as mp
 from app.query import Query
 import app.colors as Colors
 from app.config import Config
-from app.utils import write_list_of_dicts
+from app.utils import lookForException
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
@@ -16,6 +16,7 @@ from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
+from app.output.statsCalculation import StatsCalculation
 
 app = Flask(__name__)
 logging.getLogger('werkzeug').disabled = True
@@ -32,14 +33,31 @@ query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELE
 query.namespace_manager.namespaces()
 
 # Building Multiprocessing Chain using Runners and Queries
+# Validation --> \
+#                 XJoin --> Output Generation
+# Query      --> /
+
+# Dataprocessing Queues --> 'EOF' is written by the runner class after function to execute finished
+# val_queue: Queue with validation results
+# transformed_query_queue: Query results in a joinable format
+# query_queue: All results in original binding format
+# out_queue: Joined results (literals/non-shape uris missing, and still need to collect bindings with similar id)
+# 
+# Queues to collect statistics: --> {"topic":...., "":....}
+# stats_out_queue: one time statistics per run --> known number of statistics (also contains exception notifications in case a runner catches an exception)
+# result_timing_out_queue: variable number of result timestamps per run --> close with 'EOF' by queue_output_to_table
+
+
 VALIDATION_RUNNER = Runner(mp_validate)
-val_queue, stats_out_queue_val = VALIDATION_RUNNER.get_out_queues()
+val_queue, stats_out_queue = VALIDATION_RUNNER.get_out_queues()
 
-CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
-transformed_query_queue, query_queue, stats_out_queue_contact = CONTACT_SOURCE_RUNNER.get_out_queues()
+CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2, runner_stats_out_queue=stats_out_queue)
+transformed_query_queue, query_queue, _ = CONTACT_SOURCE_RUNNER.get_out_queues()
 
-XJOIN_RUNNER = Runner(mp_xjoin, in_queues=[transformed_query_queue, val_queue])
-out_queue, stats_out_queue_xjoin  = XJOIN_RUNNER.get_out_queues()
+XJOIN_RUNNER = Runner(mp_xjoin, in_queues=[transformed_query_queue, val_queue], runner_stats_out_queue=stats_out_queue)
+out_queue, _  = XJOIN_RUNNER.get_out_queues()
+
+result_timing_out_queue = mp.Queue()
 
 # Starting the processes of the runners
 VALIDATION_RUNNER.start_process()
@@ -93,21 +111,23 @@ def run_multiprocessing():
         - schemaDir
     See app/config.py for a full list of available arguments!
     '''
-    global_start_time = time.time()
-
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(request.form)
 
+    # Setup Stats Calculation
+    statsCalc = StatsCalculation(test_identifier = config.test_identifier, approach_name = os.path.basename(config.config))
+    statsCalc.globalCalculationStart()
+
     # Setup of the Validation Result Transmitting Strategie
     if config.transmission_strategy == 'endpoint':
-        result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT, first_val_time_queue=stats_out_queue_xjoin, log_stats=log_stats)
+        result_transmitter = ValidationResultTransmitter(validation_result_endpoint=VALIDATION_RESULT_ENDPOINT, first_val_time_queue=stats_out_queue, log_stats=(config.output_format == "stats"))
     elif config.transmission_strategy == 'queue':
-        result_transmitter = ValidationResultTransmitter(output_queue=val_queue, first_val_time_queue=stats_out_queue_xjoin, log_stats=config.output_format == "stats")
+        result_transmitter = ValidationResultTransmitter(output_queue=val_queue, first_val_time_queue=stats_out_queue, log_stats=(config.output_format == "stats"))
     else:
-        result_transmitter = ValidationResultTransmitter(first_val_time_queue=stats_out_queue_xjoin, log_stats=config.output_format == "stats")
+        result_transmitter = ValidationResultTransmitter(first_val_time_queue=stats_out_queue, log_stats=(config.output_format == "stats"))
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
@@ -121,7 +141,8 @@ def run_multiprocessing():
     else:
         query_to_be_executed = query.as_result_query()
 
-    task_start_time = time.time()
+    statsCalc.taskCalculationStart()
+
     # 1.) Get the Data
     CONTACT_SOURCE_RUNNER.new_task(config.output_format == "stats", config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
     VALIDATION_RUNNER.new_task(config.output_format == "stats", config, query, result_transmitter)
@@ -131,28 +152,31 @@ def run_multiprocessing():
 
     # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
     if config.output_format == "stats":
-        api_result = queue_output_to_table(out_queue, query_queue, stats_out_queue_xjoin)
+        api_result = queue_output_to_table(out_queue, query_queue, result_timing_out_queue)
     else:
         api_result = queue_output_to_table(out_queue, query_queue)
 
 
     # 4.) Output
     if config.output_format == "test":
+        lookForException(stats_out_queue)
         api_output = TestOutput.fromJoinedResults(config.target_shape,api_result)
     elif config.output_format == "simple":
+        lookForException(stats_out_queue)
         api_output = SimpleOutput.fromJoinedResults(api_result, query)
     elif config.output_format == "stats":
         TestOutput.fromJoinedResults(config.target_shape, api_result)
-        approach_name = os.path.basename(config.config)
-        api_output, matrix, traces = StatsOutput.from_queues(config.test_identifier,approach_name, global_start_time, task_start_time, stats_out_queue_contact, stats_out_queue_val, stats_out_queue_xjoin)
+        statsCalc.globalCalculationFinished()
+
         output_directory = os.path.join(os.getcwd(), config.output_directory)
         matrix_file = os.path.join(output_directory, "matrix.csv")
         trace_file = os.path.join(output_directory, "trace.csv")
         stats_file = os.path.join(output_directory, "stats.csv")
-        
-        write_list_of_dicts([matrix], matrix_file)
-        write_list_of_dicts(traces, trace_file)
-        write_list_of_dicts([api_output.output], stats_file)
+
+        statsCalc.receive_and_write_trace(trace_file, result_timing_out_queue)
+        statsCalc.receive_global_stats(stats_out_queue)
+        api_output = statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
+
     return Response(api_output.to_json(config.target_shape), mimetype='application/json')
 
 
