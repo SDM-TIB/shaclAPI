@@ -1,6 +1,8 @@
 import time
 from app.output.statsOutput import StatsOutput
 from app.output.CSVWriter import CSVWriter
+import warnings
+import math
 
 class StatsCalculation():
     def __init__(self, test_identifier, approach_name):
@@ -26,8 +28,10 @@ class StatsCalculation():
     def receive_and_write_trace(self, trace_file, individual_result_times_queue):
         writer = CSVWriter(trace_file)
         result_stat = individual_result_times_queue.get()
+        received_results = 0
         while result_stat != 'EOF':
             if result_stat['topic'] ==  'new_xjoin_result':
+                received_results += 1
                 writer.writeMulti({"test_name": self.test_name, "approach": self.approach_name, "time": result_stat['time'] - self.global_start_time, "validation": 'valid' if result_stat['validation_result'] else 'invalid'})
                 self.last_result_timestamp = result_stat['time']
                 if not self.first_result_timestamp:
@@ -37,6 +41,8 @@ class StatsCalculation():
             else: 
                 raise Exception("received statistic with unknown topic")
             result_stat = individual_result_times_queue.get()
+        if self.number_of_results != received_results:
+            warnings.warn("Number of Result timestamps received is not equal to the number of results!")
         writer.close()
     
     def receive_global_stats(self, stats_out_queue):
@@ -62,8 +68,16 @@ class StatsCalculation():
         query_time = self.query_finished_time - self.task_start_time
         network_validation_time = self.validation_finished_time - self.task_start_time
         join_time = self.join_finished_time - self.join_started_time
-        first_result_time = self.first_result_timestamp - self.global_start_time
-        last_result_time = self.last_result_timestamp - self.global_start_time
+
+        if self.first_result_timestamp:
+            first_result_time = self.first_result_timestamp - self.global_start_time
+        else: 
+            first_result_time = "NaN"
+
+        if self.last_result_timestamp:
+            last_result_time = self.last_result_timestamp - self.global_start_time
+        else:
+            last_result_time = "NaN"
 
         matrix_entry = {"test_name": self.test_name, "approach": self.approach_name, "first_result_time": first_result_time, "last_result_time": last_result_time, "number_of_results": self.number_of_results}
         stats_entry = {"test_name": self.test_name, "approach": self.approach_name, "total_execution_time": total_execution_time, "query_time": query_time, "network_validation_time": network_validation_time, "join_time": join_time}
