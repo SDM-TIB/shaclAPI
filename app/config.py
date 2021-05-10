@@ -207,7 +207,7 @@ class Config:
         '''
         Number of tuples which can be stored in main memory
         '''
-        return int(self.config_dict.get('memory_size', 1000000))
+        return int(self.config_dict.get('memory_size', 100000000))
     
     @property
     def prune_shape_network(self):
@@ -222,6 +222,13 @@ class Config:
         The test identifier will be used in output files / Stats Output identifing the test run.
         '''
         return self.config_dict.get('test_identifier', str(uuid.uuid1()))
+    
+    @property
+    def join_implementation(self):
+        '''
+        Which join implementation to use: Xjoin or Xgjoin.
+        '''
+        return self.config_dict.get('join_implementation', 'Xgjoin')
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property

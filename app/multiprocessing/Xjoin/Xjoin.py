@@ -13,7 +13,7 @@ from tempfile import NamedTemporaryFile
 from threading import Timer
 from random import randint
 from os import remove
-from app.multiprocessing.OperatorStructures import Table, Partition, Record, FileDescriptor, isOverlapped
+from .OperatorStructures import Table, Partition, Record, FileDescriptor, isOverlapped
 
 
 class XJoin():

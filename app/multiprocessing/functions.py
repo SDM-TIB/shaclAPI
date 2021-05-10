@@ -1,7 +1,8 @@
 import multiprocessing as mp
 import app.colors as Colors
 from app.utils import prepare_validation
-from app.multiprocessing.Xjoin import XJoin
+from app.multiprocessing.Xjoin.Xjoin import XJoin
+from app.multiprocessing.Xgjoin.Xgjoin import Xgjoin
 import warnings, time
 
 
@@ -85,8 +86,15 @@ def mp_xjoin(left, right, out_queue, config):
     """
     Function to be executed with Runner to join the instances of the left with the right queue.
     """
-    join = XJoin(['instance'], config.memory_size)
-    join.execute(left, right, out_queue)
+    if config.join_implementation == 'Xjoin':
+        Join = XJoin
+    elif config.join_implementation == 'Xgjoin':
+        Join = Xgjoin
+    else:
+        raise NotImplementedError
+    
+    join_instance = Join(['instance'], config.memory_size)
+    join_instance.execute(left, right, out_queue)
 
 def proxy(in_queue, out_queue):
     """
