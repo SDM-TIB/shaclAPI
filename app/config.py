@@ -176,7 +176,7 @@ class Config:
     def transmission_strategy(self):
         '''
         Which strategy to use to communicate validation results from the backend to the api.
-        Can be one of "queue" (Uses multiprocessing.queue), "endpoint" (backend sends validation result via POST to the api) or "" (Results are returned by the backend after the full validation is done --> Only available for the travshacl backend!)
+        Can be one of "queue" (Uses multiprocessing.queue) or "" (Results are returned by the backend after the full validation is done --> Only available for the travshacl backend!)
         '''
         return self.config_dict.get('transmission_strategy') or "queue"
     
@@ -229,6 +229,17 @@ class Config:
         Which join implementation to use: Xjoin or Xgjoin.
         '''
         return self.config_dict.get('join_implementation', 'Xgjoin')
+    
+    @property
+    def queue_timeout(self):
+        '''
+        Seconds to wait for a new result in a multiprocessing queue.
+        '''
+        queue_timeout = self.config_dict.get('queue_timeout', None)
+        if queue_timeout:
+            return int(queue_timeout)
+        else:
+            return None
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property
