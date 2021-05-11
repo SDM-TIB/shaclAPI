@@ -27,6 +27,7 @@ class StatsCalculation():
 
     def receive_and_write_trace(self, trace_file, individual_result_times_queue):
         writer = CSVWriter(trace_file)
+        print('receive_and_write_trace started!')
         result_stat = individual_result_times_queue.get()
         received_results = 0
         while result_stat != 'EOF':
@@ -44,8 +45,11 @@ class StatsCalculation():
         if self.number_of_results != received_results:
             warnings.warn("Number of Result timestamps received is not equal to the number of results!")
         writer.close()
+        print('receive_and_write_trace finished!')
+
     
     def receive_global_stats(self, stats_out_queue):
+        print('receive_global_stats started!')
         needed_stats = {'mp_validate': False, 'contactSource': False, 'mp_xjoin': False, 'first_validation_result': False }
         while sum(needed_stats.values()) < len(needed_stats.keys()):
             statistic = stats_out_queue.get()
@@ -62,6 +66,8 @@ class StatsCalculation():
                 raise Exception("An Exception occured in " + statistic['location'])
             else:
                 raise Exception("received statistic with unknown topic")
+        print('receive_global_stats stopped!')
+
 
     def write_matrix_and_stats_files(self, matrix_file, stats_file):
         total_execution_time = self.global_end_time - self.global_start_time

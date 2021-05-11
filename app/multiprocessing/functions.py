@@ -20,9 +20,13 @@ def queue_output_to_table(join_result_queue, query_queue, individual_result_time
     """
     # Step 1: Gather joined Query Results with the same id
     table = {}
+    print("Step 1")
     item = join_result_queue.get()
     number_of_results = 0
     while item != 'EOF':
+        if item == 'STOP':
+            print("Stopped queue_output_to_table execution! (1)")
+            raise Exception("Stopped @ queue_output_to_table")
         # A new result is received:
         if individual_result_times_queue:
             individual_result_times_queue.put({"topic": "new_xjoin_result", "time": time.time(), "validation_result": item['validation'][1]})
@@ -38,7 +42,12 @@ def queue_output_to_table(join_result_queue, query_queue, individual_result_time
         individual_result_times_queue.put('EOF')
     # Step 2: Find variables with no matching validation result
     singles = []
+    print("Step 2")
     item = query_queue.get()
+
+    if item == 'STOP':
+        print("Stopped queue_output_to_table execution! (2)")
+        raise Exception("Stopped @ queue_output_to_table")
 
     if item == 'EOF':
         print("Initial Query Bindings were empty!!")
@@ -57,13 +66,18 @@ def queue_output_to_table(join_result_queue, query_queue, individual_result_time
         table[item_id] += [{'var': var, 'instance': instance}]
 
     # Step 3: Add Singles with instance to the matching joined validation result
+    print("Step 3")
     item = query_queue.get()
     while item != 'EOF':
+        if item == 'STOP':
+            print("Stopped queue_output_to_table execution! (3)")
+            raise Exception("Stopped @ queue_output_to_table")
         item_id = item['id']
         for single in singles:
             assert item_id in table
             table[item_id] += [{'var': single, 'instance': item['query_result'][single], 'validation': None}]
         item = query_queue.get()
+    print("Finished queue_output_to_table")
     return list(table.values())
 
 def mp_validate(out_queue, config, query, result_transmitter):

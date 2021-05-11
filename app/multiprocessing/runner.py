@@ -14,7 +14,6 @@ class Runner:
     def __init__(self,function, number_of_out_queues = 1, in_queues = list(), runner_stats_out_queue=None):
         self.context   = mp.get_context("spawn")
         self.manager = mp.Manager()
-        self.task_queue = self.context.Queue()
         self.out_queues = []
         for _ in range(number_of_out_queues):
             self.out_queues += [self.manager.Queue()]
@@ -25,13 +24,14 @@ class Runner:
         else:
             self.stats_out_queue = runner_stats_out_queue
         self.function = function
-        self.process = self.context.Process(target=mp_function, args=(self.task_queue, self.function, self.in_queues, self.out_queues, self.stats_out_queue))
     
     def start_process(self):
+        self.task_queue = self.context.Queue()
+        self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function, self.in_queues, self.out_queues, self.stats_out_queue))
         self.process.start()
     
     def stop_process(self):
-        self.task_queue.put('EOF')
+        self.process.terminate()
     
     def process_is_alive(self):
         return self.process.is_alive()
@@ -40,13 +40,33 @@ class Runner:
         return *self.out_queues, self.stats_out_queue
 
     def new_task(self, *task):
+        print(self.function.__name__,"new task put")
         self.task_queue.put(task)
+
+    def clear_queues(self):
+        self.clear_queue(self.stats_out_queue)
+        for q in self.out_queues:
+           self.clear_queue(q)
+        for q in self.in_queues:
+           self.clear_queue(q)
+
+    
+    def clear_queue(self,queue):
+        print("Clear queue!", str(queue))
+        while True:
+            try:
+                queue.get(timeout=0.5)
+            except:
+                break
+
 
 def mp_function(task_in_queue, function, in_queues, out_queues, stats_out_queue):
     speed_up_query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
     speed_up_query.namespace_manager.namespaces()
     try:
+        print(function.__name__, "started!")
         active_task = task_in_queue.get()
+        print(function.__name__, "received first task!")
         while active_task != 'EOF':
             try:
                 function(*in_queues, *out_queues, *active_task[1:])

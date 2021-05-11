@@ -151,10 +151,13 @@ def run_multiprocessing():
     XJOIN_RUNNER.new_task(config.output_format == "stats", config)
 
     # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
-    if config.output_format == "stats":
-        api_result = queue_output_to_table(out_queue, query_queue, result_timing_out_queue)
-    else:
-        api_result = queue_output_to_table(out_queue, query_queue)
+    try:
+        if config.output_format == "stats":
+            api_result = queue_output_to_table(out_queue, query_queue, result_timing_out_queue)
+        else:
+            api_result = queue_output_to_table(out_queue, query_queue)
+    except:
+        return "Stopped @ queue_output_to_table"
 
 
     # 4.) Output
@@ -223,6 +226,35 @@ def run():
 @app.route("/", methods=['GET'])
 def hello_world():
     return "Hello World"
+
+@app.route("/stop", methods=['GET'])
+def stop():
+    VALIDATION_RUNNER.stop_process()
+    CONTACT_SOURCE_RUNNER.stop_process()
+    XJOIN_RUNNER.stop_process()
+    time.sleep(0.1)
+    VALIDATION_RUNNER.clear_queues()
+    CONTACT_SOURCE_RUNNER.clear_queues()
+    XJOIN_RUNNER.clear_queues()
+    print("Clearing result timing queue")
+    VALIDATION_RUNNER.clear_queue(result_timing_out_queue)
+    out_queue.put('STOP')
+    query_queue.put('STOP')
+    time.sleep(1)
+    VALIDATION_RUNNER.clear_queue(out_queue)
+    VALIDATION_RUNNER.clear_queue(query_queue)
+    return str(VALIDATION_RUNNER.process_is_alive()) + str(CONTACT_SOURCE_RUNNER.process_is_alive()) + str(XJOIN_RUNNER.process_is_alive())
+
+
+@app.route("/start", methods=['GET'])
+def start():
+    VALIDATION_RUNNER.start_process()
+    CONTACT_SOURCE_RUNNER.start_process()
+    XJOIN_RUNNER.start_process()
+    time.sleep(0.1)
+    global result_timing_out_queue
+    result_timing_out_queue = mp.Queue()
+    return str(VALIDATION_RUNNER.process_is_alive()) + str(CONTACT_SOURCE_RUNNER.process_is_alive()) + str(XJOIN_RUNNER.process_is_alive())
 
 def start_profiling():
     g.profiler = Profiler()
