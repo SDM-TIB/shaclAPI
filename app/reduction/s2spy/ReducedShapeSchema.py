@@ -42,7 +42,7 @@ class ReducedShapeSchema(ShapeNetwork):
                 print(Colors.red("Starting with Shape set in Configuration"))
                 start = [self.start_shape_for_validation]
             else:
-                raise NotImplementedError
+                raise NotImplementedError("s2spy has no own logic which could determine a shape to start with. Set one with 'start_shape_for_validation' or set the 'start_with_target_shape' option to true")
         print("Starting Point is:" + start[0])
         # TODO: deal with more than one possible starting point
         node_order = self.graphTraversal.traverse_graph(

@@ -11,7 +11,6 @@ from app.utils import lookForException
 from app.output.simpleOutput import SimpleOutput
 from app.output.baseResult import BaseResult
 from app.output.testOutput import TestOutput
-from app.output.statsOutput import StatsOutput
 from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp_xjoin
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
@@ -157,9 +156,12 @@ def run_multiprocessing():
         else:
             api_result = queue_output_to_table(out_queue, query_queue, config.queue_timeout)
     except Exception as e:
-        print(e)
+        print(Colors.magenta(repr(e)))
         restart_processes()
-        return "Timeout while transforming join output to result bindings (according to queue_timeout config)!"
+        if str(repr(e)) == "Empty()":
+            return "Timeout while transforming join output to result bindings (according to queue_timeout config)!"
+        else:
+            return str(repr(e))
 
 
     # 4.) Output
@@ -182,9 +184,12 @@ def run_multiprocessing():
             statsCalc.receive_and_write_trace(trace_file, result_timing_out_queue, config.queue_timeout)
             statsCalc.receive_global_stats(stats_out_queue, config.queue_timeout)
         except Exception as e:
-            print(e)
+            print(Colors.magenta(repr(e)))
             restart_processes()
-            return "Timeout while calculating Statistics for the output (according to queue_timeout config)!"
+            if str(repr(e)) == "Empty()":
+                return "Timeout while calculating Statistics for the output (according to queue_timeout config)!"
+            else:
+                return str(repr(e))
 
         api_output = statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
 

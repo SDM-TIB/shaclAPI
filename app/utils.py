@@ -24,7 +24,7 @@ def prepare_validation(config, query, result_transmitter):
         SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
         ReducedShapeSchema = ReducedShapeSchemaS2Spy
     else:
-        raise NotImplementedError
+        raise NotImplementedError("The given backend {} is not implemented".format(config.backend))
     
     schema = ReducedShapeSchema.from_config(config, query, result_transmitter)
     return schema

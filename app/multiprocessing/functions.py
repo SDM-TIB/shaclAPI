@@ -46,7 +46,7 @@ def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individ
     
     item_id = item['id']
     del item['id']
-    assert item_id in table
+    assert item_id in table, "Query Result Binding without joined result found! {}".format(str(item))
     for val_result in table[item_id]:
         try:
             del item['query_result'][val_result['var']]
@@ -61,7 +61,7 @@ def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individ
     while item != 'EOF':
         item_id = item['id']
         for single in singles:
-            assert item_id in table
+            assert item_id in table, "Query Result Binding without joined result found! {}".format(str(item))
             table[item_id] += [{'var': single, 'instance': item['query_result'][single], 'validation': None}]
         item = query_queue.get(timeout=queue_timeout)
     return list(table.values())
@@ -91,7 +91,7 @@ def mp_xjoin(left, right, out_queue, config):
     elif config.join_implementation == 'Xgjoin':
         Join = Xgjoin
     else:
-        raise NotImplementedError
+        raise NotImplementedError("The given join {} is not implemented".format(config.join_implementation))
     
     join_instance = Join(['instance'], config.memory_size)
     join_instance.execute(left, right, out_queue)

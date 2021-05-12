@@ -175,7 +175,8 @@ class Config:
     @property
     def start_shape_for_validation(self):
         '''
-        The shape which is used as starting point for the validation in the backend. (only applies to s2spy and if start_with_target_shape is false) 
+        The shape which is used as starting point for the validation in the backend. 
+        (it will override the start point determined by the backend (in case of travshacl) and only applies if start_with_target_shape is false) 
         '''
         return self.config_dict.get('start_shape_for_validation', None)
     
@@ -244,7 +245,7 @@ class Config:
         '''
         queue_timeout = self.config_dict.get('queue_timeout', None)
         if queue_timeout:
-            return int(queue_timeout)
+            return float(queue_timeout)
         else:
             return None
 

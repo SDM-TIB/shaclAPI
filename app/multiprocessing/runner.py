@@ -1,6 +1,7 @@
 import multiprocessing as mp
 from app.query import Query
 import time
+import app.colors as Colors
 
 class Runner:
     """
@@ -62,7 +63,7 @@ def mp_function(task_in_queue, function):
                 function(*in_queues, *out_queues, *task_description)
             except Exception as e:
                 runner_stats_out_queue.put({"topic": "Exception", "location": function.__name__})
-                print(e)
+                print(Colors.magenta(repr(e)))
             finally:
                 for queue in out_queues:
                     queue.put('EOF') # Writing EOF here allows global error handling
