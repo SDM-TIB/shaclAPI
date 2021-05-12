@@ -156,7 +156,8 @@ def run_multiprocessing():
             api_result = queue_output_to_table(out_queue, query_queue, config.queue_timeout, result_timing_out_queue)
         else:
             api_result = queue_output_to_table(out_queue, query_queue, config.queue_timeout)
-    except:
+    except Exception as e:
+        print(e)
         restart_processes()
         return "Timeout while transforming join output to result bindings (according to queue_timeout config)!"
 
@@ -180,7 +181,8 @@ def run_multiprocessing():
         try:
             statsCalc.receive_and_write_trace(trace_file, result_timing_out_queue, config.queue_timeout)
             statsCalc.receive_global_stats(stats_out_queue, config.queue_timeout)
-        except:
+        except Exception as e:
+            print(e)
             restart_processes()
             return "Timeout while calculating Statistics for the output (according to queue_timeout config)!"
 

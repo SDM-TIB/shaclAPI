@@ -173,6 +173,13 @@ class Config:
         return self.config_dict.get('start_with_target_shape',True)
     
     @property
+    def start_shape_for_validation(self):
+        '''
+        The shape which is used as starting point for the validation in the backend. (only applies to s2spy and if start_with_target_shape is false) 
+        '''
+        return self.config_dict.get('start_shape_for_validation', None)
+    
+    @property
     def transmission_strategy(self):
         '''
         Which strategy to use to communicate validation results from the backend to the api.
