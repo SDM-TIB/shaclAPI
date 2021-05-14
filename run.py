@@ -85,7 +85,7 @@ def endpoint():
     return Response(jsonResult, mimetype='application/json')
 
 @app.route("/multiprocessing", methods=['POST'])
-def run_multiprocessing():
+def route_multiprocessing():
     '''
     Required Arguments:
         - query
@@ -94,11 +94,18 @@ def run_multiprocessing():
         - schemaDir
     See app/config.py for a full list of available arguments!
     '''
+    api_output, config = run_multiprocessing(request.form)
+    if type(api_output) != str:
+        return Response(api_output.to_json(config.target_shape), mimetype='application/json')
+    else:
+        return api_output
+
+def run_multiprocessing(pre_config):
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
 
     # Parse Config from POST Request and Config File
-    config = Config.from_request_form(request.form)
+    config = Config.from_request_form(pre_config)
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
 
@@ -159,10 +166,9 @@ def run_multiprocessing():
         print(Colors.magenta(repr(e)))
         restart_processes()
         if str(repr(e)) == "Empty()":
-            return "Timeout while transforming join output to result bindings (according to queue_timeout config)!"
+            return "Timeout while transforming join output to result bindings (according to queue_timeout config)!", config
         else:
-            return str(repr(e))
-
+            return str(repr(e)), config
 
     # 4.) Output
     if config.output_format == "test":
@@ -187,13 +193,13 @@ def run_multiprocessing():
             print(Colors.magenta(repr(e)))
             restart_processes()
             if str(repr(e)) == "Empty()":
-                return "Timeout while calculating Statistics for the output (according to queue_timeout config)!"
+                return "Timeout while calculating Statistics for the output (according to queue_timeout config)!", config
             else:
-                return str(repr(e))
+                return str(repr(e)), config
 
         api_output = statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
 
-    return Response(api_output.to_json(config.target_shape), mimetype='application/json')
+    return api_output, config
 
 
 @app.route("/singleprocessing", methods=['POST'])
