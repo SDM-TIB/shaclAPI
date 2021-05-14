@@ -6,7 +6,7 @@ from app.multiprocessing.Xgjoin.Xgjoin import Xgjoin
 import warnings, time
 
 
-def queue_output_to_table(join_result_queue, query_queue, individual_result_times_queue=None):
+def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individual_result_times_queue=None):
     """
     Transforms the joined output and the raw query result to the final output. Therefore we need to find the singles (literals with no shape associated)
     1.) First gather joined Query Results (Query Result + Validation Result) with the same id  --> hashtable (dict)
@@ -20,7 +20,7 @@ def queue_output_to_table(join_result_queue, query_queue, individual_result_time
     """
     # Step 1: Gather joined Query Results with the same id
     table = {}
-    item = join_result_queue.get()
+    item = join_result_queue.get(timeout=queue_timeout)
     number_of_results = 0
     while item != 'EOF':
         # A new result is received:
@@ -32,13 +32,13 @@ def queue_output_to_table(join_result_queue, query_queue, individual_result_time
         if item_id not in table:
             table[item_id] = []
         table[item_id] += [item]
-        item = join_result_queue.get()
+        item = join_result_queue.get(timeout=queue_timeout)
     if individual_result_times_queue:
         individual_result_times_queue.put({"topic": "number_of_results", "number": number_of_results})
         individual_result_times_queue.put('EOF')
     # Step 2: Find variables with no matching validation result
     singles = []
-    item = query_queue.get()
+    item = query_queue.get(timeout=queue_timeout)
 
     if item == 'EOF':
         print("Initial Query Bindings were empty!!")
@@ -46,7 +46,7 @@ def queue_output_to_table(join_result_queue, query_queue, individual_result_time
     
     item_id = item['id']
     del item['id']
-    assert item_id in table
+    assert item_id in table, "Query Result Binding without joined result found! {}".format(str(item))
     for val_result in table[item_id]:
         try:
             del item['query_result'][val_result['var']]
@@ -57,13 +57,13 @@ def queue_output_to_table(join_result_queue, query_queue, individual_result_time
         table[item_id] += [{'var': var, 'instance': instance}]
 
     # Step 3: Add Singles with instance to the matching joined validation result
-    item = query_queue.get()
+    item = query_queue.get(timeout=queue_timeout)
     while item != 'EOF':
         item_id = item['id']
         for single in singles:
-            assert item_id in table
+            assert item_id in table, "Query Result Binding without joined result found! {}".format(str(item))
             table[item_id] += [{'var': single, 'instance': item['query_result'][single], 'validation': None}]
-        item = query_queue.get()
+        item = query_queue.get(timeout=queue_timeout)
     return list(table.values())
 
 def mp_validate(out_queue, config, query, result_transmitter):
@@ -91,7 +91,7 @@ def mp_xjoin(left, right, out_queue, config):
     elif config.join_implementation == 'Xgjoin':
         Join = Xgjoin
     else:
-        raise NotImplementedError
+        raise NotImplementedError("The given join {} is not implemented".format(config.join_implementation))
     
     join_instance = Join(['instance'], config.memory_size)
     join_instance.execute(left, right, out_queue)

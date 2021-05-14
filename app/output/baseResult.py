@@ -31,7 +31,7 @@ class BaseResult:
     
     @staticmethod
     def from_shacl2sparql(validation_report, query, query_results):
-        raise NotImplementedError
+        raise NotImplementedError("/singleprocessing is only available for travshacl!")
 
 
 def parse_travshacl_report(report, namespace_manager):
