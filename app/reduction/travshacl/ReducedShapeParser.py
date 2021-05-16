@@ -97,6 +97,10 @@ class ReducedShapeParser(ShapeParser):
     """
 
     def shape_references(self, constraints):
+        '''
+        shape_references is used to get the references in self.currentShape to other shapes. 
+        It then returns ONE path of a constraint referencing to that shape (The other ones are ignored?!)
+        '''
         return {c.get("shape"): c.get("path") for c in constraints
                 if c.get("shape") and c.get("path") not in self.removed_constraints[self.currentShape]}
 
@@ -113,7 +117,11 @@ class ReducedShapeParser(ShapeParser):
             if refs:
                 name = s.get_id()
                 dependencies[name] = refs
-                for ref in refs:
-                    if ref == self.targetShape:
-                        reverse_dependencies[ref].append(name)
+                # Reverse Dependencies are needed if we have local semantics, in that case
+                # there might be an inverse path in the query pointing to a shape which isn't reachable otherwise.
+                # So we have to include all inverse dependencies from the target shape. (TODO: Is that really the case? Find example)
+                if self.remove_constraints:
+                    for ref in refs:
+                        if ref == self.targetShape:
+                            reverse_dependencies[ref].append(name)
         return dependencies, reverse_dependencies
