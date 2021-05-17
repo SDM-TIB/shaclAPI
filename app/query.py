@@ -1,6 +1,6 @@
 import re
+import warnings
 
-import rdflib.term
 from rdflib.namespace import RDF
 from rdflib.plugins import sparql
 from rdflib.paths import InvPath
@@ -133,15 +133,16 @@ class Query:
             string: target_variable
         """
         candidates = set(self.variables)
-        for t in self.get_triples(replace_prefixes=False):
-            candidates = set(t) & candidates
-            if len(candidates) == 1:
-                return candidates.pop()
-            if len(candidates) == 0:
-                break
-        if '?x' in self.variables:
-            return '?x'
-        raise Exception("Not a valid star-shaped query.")
+        for s,_,_ in self.get_triples():
+            candidates = {s} & candidates
+        if len(candidates) == 1:
+            return candidates.pop()
+        else:
+            if '?x' in self.variables:
+                warnings.warn("Using ?x as target variable as there wasn't a variable, which could be clearly identified as target variable e.g. occuring in each triple as subject.")
+                return '?x'
+            else:
+                raise Exception("Not a valid star-shaped query.")
 
     def as_target_query(self, replace_prefixes=False):
         """Creates a target query based on the given query_string, 
@@ -299,3 +300,14 @@ class Query:
             return [t.toTuple() for t in self.triples]
         else:
             return [t.toTuple(self.namespace_manager) for t in self.triples]
+
+    def get_variables_from_pred(self, pred):
+        vars_found = set()
+        for s,p,o in self.get_triples(replace_prefixes=False):
+            if s == self.target_var and p == pred:
+                vars_found.add(o)
+            elif o == self.target_var and pred.startswith('^') and p == pred[1:]:
+                vars_found.add(s)
+            elif o == self.target_var and p.startswith('^') and p[1:] == pred:
+                vars_found.add(s)
+        return vars_found
