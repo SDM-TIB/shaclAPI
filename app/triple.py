@@ -25,7 +25,7 @@ class Triple():
         return self.subject == other.subject and self.predicat == other.predicat and self.object == other.object and self.optional == other.optional
 
     def __lt__(self, other) -> bool:
-        if self.predicat == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type":
+        if self.predicat == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" or self.predicat == "a":
             if isinstance(self.object, rdflib.term.URIRef):
                 return True
             elif self.predicat == other.predicat and isinstance(other.object, rdflib.term.URIRef):
