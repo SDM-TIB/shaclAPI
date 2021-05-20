@@ -255,13 +255,6 @@ class Config:
             return float(queue_timeout)
         else:
             return None
-        
-    @property
-    def log_file(self):
-        '''
-        The file used by the logging utility to log to. (Its about the logging of the API.)
-        '''
-        return self.config_dict.get('log_file', os.path.join(self.output_directory,'api.log'))
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property

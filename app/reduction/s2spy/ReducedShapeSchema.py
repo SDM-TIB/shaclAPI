@@ -5,7 +5,6 @@ from app.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedVali
 from s2spy.validation.utils import fileManagement
 from travshacl.TravSHACL import parse_heuristics
 from travshacl.core.GraphTraversal import GraphTraversal
-import app.colors as Colors
 
 import logging
 logger = logging.getLogger(__name__)
@@ -35,11 +34,11 @@ class ReducedShapeSchema(ShapeNetwork):
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
         if start_with_target_shape:
-            logger.info(Colors.red("Starting with Target Shape"))
+            logger.info("Starting with Target Shape")
             start = [self.targetShape]  # The TargetShape has to be the first Node; because we are limiting the validation to a set of target instances via the star-shape query
         else:
             if self.start_shape_for_validation:
-                logger.warn(Colors.red("Starting with Shape set in Configuration"))
+                logger.warn("Starting with Shape set in Configuration")
                 start = [self.start_shape_for_validation]
             else:
                 raise NotImplementedError("s2spy has no own logic which could determine a shape to start with. Set one with 'start_shape_for_validation' or set the 'start_with_target_shape' option to true")

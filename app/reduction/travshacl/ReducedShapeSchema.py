@@ -4,7 +4,6 @@ from app.reduction.travshacl.ValidationResultStreaming import ValidationResultSt
 from travshacl.rule_based_validation.Validation import Validation
 from travshacl.TravSHACL import parse_heuristics
 from travshacl.core.GraphTraversal import GraphTraversal
-import app.colors as Colors
 
 import logging
 logger = logging.getLogger(__name__)
@@ -41,14 +40,14 @@ class ReducedShapeSchema(ShapeSchema):
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
         if start_with_target_shape:
-            logger.info(Colors.red("Starting with Target Shape"))
+            logger.info("Starting with Target Shape")
             start = [self.targetShape]  # The TargetShape has to be the first Node; because we are limiting the validation to a set of target instances via the star-shape query
         else:
             if self.start_shape_for_validation:
-                logger.warn(Colors.red("Starting with Shape set in Configuration"))
+                logger.warn("Starting with Shape set in Configuration")
                 start = [self.start_shape_for_validation]
             else:
-                logger.warn(Colors.red("Starting with Shape determined by TravShacl"))
+                logger.warn("Starting with Shape determined by TravShacl")
                 start = self.get_starting_point()
         logger.debug("Starting Point is:" + start[0])
         # TODO: deal with more than one possible starting point

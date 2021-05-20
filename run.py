@@ -1,12 +1,11 @@
 from flask import Flask, request, Response
 import time, logging, json
-
+import app.log_utils.logger_init
 import api
-import app.colors as Colors
 
 # Setup Logging
 logging.getLogger('werkzeug').disabled = True
-logging.basicConfig(filename="api.log", filemode='a', format="[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s", level=logging.DEBUG)
+
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -17,7 +16,7 @@ def endpoint():
     This is just an proxy endpoint to log the communication between the backend and the external sparql endpoint.
     '''
     api.EXTERNAL_SPARQL_ENDPOINT
-    logger.debug(Colors.headline('Received /endpoint request'))
+    logger.debug('Received /endpoint request')
     # Preprocessing of the Query
     if request.method == 'POST':
         query = request.form['query']
@@ -35,7 +34,6 @@ def endpoint():
 
     logger.debug("Got {} result bindings".format(len(result['results']['bindings'])))
     logger.debug("Execution took " + str((end - start)*1000) + ' ms')
-    logger.debug(Colors.headline(''))
 
     return Response(jsonResult, mimetype='application/json')
 
@@ -96,7 +94,6 @@ def restart_processes():
 # def start_profiling():
 #     g.profiler = Profiler()
 #     g.profiler.start()
-#     print(Colors.magenta(Colors.headline('New Validation Task')))
 
 # def stop_profiling():
 #     global global_request_count

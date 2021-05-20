@@ -78,7 +78,7 @@ def test_multiprocessing(file, config_file):
     test_api('multi', params, solution, log_file_path)
 
 @pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("backend", ["travshacl"])
+@pytest.mark.parametrize("backend", ["travshacl", "s2spy"])
 @pytest.mark.parametrize("prune_shape_network", [True, False])
 @pytest.mark.parametrize("remove_constraints", [True, False])
 @pytest.mark.parametrize("replace_target_query", [True, False])
@@ -89,6 +89,9 @@ def test_configurations_multiprocessing(file, backend, prune_shape_network,
                                                 start_with_target_shape, config_file):
 
     if backend == "s2spy" and start_with_target_shape == False:
+        pytest.skip("Not a valid combination!")
+
+    if prune_shape_network == False and remove_constraints:
         pytest.skip("Not a valid combination!")
 
     params, _, _ = test_setup_from_file(file, config_file, 'multi')

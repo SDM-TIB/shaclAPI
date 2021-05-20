@@ -104,14 +104,6 @@ def mp_xjoin(left, right, out_queue, config):
     join_instance = Join(['instance'], config.memory_size)
     join_instance.execute(left, right, out_queue)
 
-def logger_thread(q):
-    while True:
-        record = q.get()
-        if record is None:
-            break
-        logger = logging.getLogger(record.name)
-        logger.handle(record)
-
 # def proxy(in_queue, out_queue):
 #     """
 #     Debugging function to print the content of a queue during multiprocessing.
@@ -119,7 +111,7 @@ def logger_thread(q):
 #     actual_tuple = in_queue.get()
 #     while actual_tuple != 'EOF':
 #         out_queue.put(actual_tuple)
-#         print(Colors.yellow(str(actual_tuple)))
+#         print(str(actual_tuple))
 #         actual_tuple = in_queue.get()
     # out_queue.put('EOF')
 

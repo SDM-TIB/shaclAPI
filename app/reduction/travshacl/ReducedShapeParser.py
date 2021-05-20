@@ -1,6 +1,5 @@
 from travshacl.core.ShapeParser import ShapeParser
 from app.query import Query
-import app.colors as Colors
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,23 +27,21 @@ class ReducedShapeParser(ShapeParser):
         if prune_shape_network:
             self.involvedShapeIDs = self.graph_traversal.traverse_graph(
                 *self.computeReducedEdges(shapes), self.targetShape)
-            logger.debug("Involved Shapes:" + Colors.grey(str(self.involvedShapeIDs)))
+            logger.debug("Involved Shapes:" + str(self.involvedShapeIDs))
             shapes = [s for s in shapes if s.get_id() in self.involvedShapeIDs]
         else:
-            logger.warn(Colors.red("Shape Network is not pruned!"))
+            logger.warn("Shape Network is not pruned!")
 
-        logger.debug("Removed Constraints:" + Colors.grey(str(self.removed_constraints)))
+        logger.debug("Removed Constraints:" + str(self.removed_constraints))
         # Replacing old targetQuery with new one
         if replace_target_query:
-            logger.info(Colors.red("Using Shape Schema WITH replaced target query!"))
+            logger.info("Using Shape Schema WITH replaced target query!")
             for s in shapes:
                 if s.get_id() == self.targetShape:
                     # The Shape already has a target query
-                    logger.debug("Starshaped Query:\n" + Colors.grey(
-                        self.query.query_string))
+                    logger.debug("Starshaped Query:\n" + self.query.query_string)
                     if s.targetQuery and merge_old_target_query:
-                        logger.debug("Old TargetDef: \n" + Colors.grey(
-                            s.targetQuery))
+                        logger.debug("Old TargetDef: \n" + s.targetQuery)
                         oldTargetQuery = Query(s.targetQuery)
                         targetQuery = self.query.merge_as_target_query(
                             oldTargetQuery)
@@ -57,9 +54,9 @@ class ReducedShapeParser(ShapeParser):
                     s.targetQuery = s.get_prefix_string() + targetQuery
                     s.targetQueryNoPref = targetQuery
                     s._Shape__compute_target_queries()
-                    logger.debug("New TargetDef:\n" + Colors.grey(targetQuery))
+                    logger.debug("New TargetDef:\n" + targetQuery)
         else:
-            logger.warn(Colors.red("Using Shape Schema WITHOUT replaced target query!"))
+            logger.warn("Using Shape Schema WITHOUT replaced target query!")
         return shapes
 
     """

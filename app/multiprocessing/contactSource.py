@@ -119,6 +119,7 @@ def contactSourceAux(referer, server, path, port, query, queue, queue_copy, firs
                             except:
                                 x[key] = props['value'] + suffix
                             queue.put({'var': key, 'instance': x[key], 'id': id})
+                        logger.debug({'query_result': x, 'id': id})
                         queue_copy.put({'query_result': x, 'id': id})
                         id = id + 1
                         reslist += 1

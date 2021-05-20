@@ -2,7 +2,8 @@ import multiprocessing as mp
 from app.query import Query
 import time, atexit
 import logging 
-from logging.handlers import QueueHandler
+
+logger = logging.getLogger(__name__)
 
 class Runner:
     """
@@ -20,24 +21,23 @@ class Runner:
         self.number_of_out_queues = number_of_out_queues
         self.process = None
         self.task_queue = None
-        self.logger = logging.getLogger(__name__)
     
     def start_process(self):
-        self.logger.debug("Trying to start {}".format(self.function.__name__))
+        logger.debug("Trying to start {}".format(self.function.__name__))
         if self.process == None or not self.process_is_alive():
             self.task_queue = self.context.Queue()
             self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function), name=self.function.__name__ )
             self.process.start()
-            self.logger.info("Process {} started!".format(self.function.__name__))
+            logger.info("Process {} started!".format(self.function.__name__))
             atexit.register(self.stop_process)
 
     def stop_process(self):
-        self.logger.debug("Trying to stopp {}".format(self.function.__name__))
+        logger.debug("Trying to stopp {}".format(self.function.__name__))
         if self.process_is_alive():
             atexit.unregister(self.stop_process)
             self.task_queue.close()
             self.process.terminate()
-            self.logger.info("Process {} stopped!".format(self.function.__name__))
+            logger.info("Process {} stopped!".format(self.function.__name__))
     
     def process_is_alive(self):
         return self.process.is_alive()
@@ -52,9 +52,9 @@ class Runner:
         out_queues = tuple(out_queues)
         return out_queues
 
-    def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue, log_queue):
+    def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue):
         if self.process_is_alive():
-            self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, log_queue, task_description))
+            self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description))
         else:
             raise Exception("Start processes before using /multiprocessing")
 
@@ -64,15 +64,9 @@ def mp_function(task_in_queue, function):
     try:
         active_task = task_in_queue.get()
         while active_task != 'EOF':
-            in_queues, out_queues, runner_stats_out_queue, log_queue, task_description = active_task
-
-            # Register a new Logging Handler (logging is not made for mulitprocessing) (https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes)
-            root_logger = logging.getLogger()
-            qh = QueueHandler(log_queue)
-            root_logger.addHandler(qh)
+            in_queues, out_queues, runner_stats_out_queue, task_description = active_task
 
             # Now one can use logging as normal
-            logger = logging.getLogger(__name__)
             logger.debug(function.__name__ + " received task!")
             try:
                 function(*in_queues, *out_queues, *task_description)

@@ -1,0 +1,90 @@
+version: 1
+objects:
+  queue:
+    class: multiprocessing.Queue
+    maxsize: 1000
+formatters:
+  simple:
+    format: '[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+  file:
+    class: logging.FileHandler
+    level: WARNING
+    filename: 'api.log'
+    formatter: simple
+  queue_listener:
+    class: app.log_utils.logger_util.QueueListenerHandler
+    handlers:
+      - cfg://handlers.console
+      - cfg://handlers.file
+    queue: cfg://objects.queue
+loggers:
+  run:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  api:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.reduction.ValidationResultTransmitter:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.multiprocessing.contactSource:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.multiprocessing.runner:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.multiprocessing.functions:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.multiprocessing.Xgjoin.Xgjoin:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.multiprocessing.Xjoin.Xjoin:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.reduction.s2spy.ReducedShapeSchema:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.reduction.s2spy.ReducedShapeParser:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.reduction.travshacl.ReducedShapeSchema:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.reduction.travshacl.ReducedShapeParser:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+root:
+  level: WARNING
+  handlers:
+    - console
