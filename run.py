@@ -1,5 +1,5 @@
 from flask import Flask, request, Response
-import time, logging, json, sys
+import time, logging, json
 
 import api
 import app.colors as Colors

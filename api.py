@@ -1,6 +1,7 @@
 import os, logging, time, sys
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
+import threading
 
 from app.query import Query
 import app.colors as Colors
@@ -8,7 +9,7 @@ from app.config import Config
 from app.utils import lookForException
 from app.output.simpleOutput import SimpleOutput
 from app.output.testOutput import TestOutput
-from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp_xjoin
+from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp_xjoin, logger_thread
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
@@ -55,6 +56,7 @@ def run_multiprocessing(pre_config):
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
+    logging.basicConfig(filename=config.log_file, filemode='a', format="[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s", level=logging.DEBUG)
     logger.debug("Config: " +  str(config.config_dict))
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
@@ -66,7 +68,8 @@ def run_multiprocessing(pre_config):
 
     # Setup Multiprocessing Queues
     result_timing_out_queue = mp.Queue()
-    stats_out_queue = CONTACT_SOURCE_RUNNER.get_stats_out_queue()
+    stats_out_queue = CONTACT_SOURCE_RUNNER.get_new_queue()
+    log_queue = CONTACT_SOURCE_RUNNER.get_new_queue()
     contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues()
     transformed_query_queue, query_queue = contact_source_out_queues
     validation_out_queues = VALIDATION_RUNNER.get_new_out_queues()
@@ -95,17 +98,20 @@ def run_multiprocessing(pre_config):
     # 1.) Get the Data
     contact_source_task_description = (config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
     contact_source_in_queues = tuple()
-    CONTACT_SOURCE_RUNNER.new_task(contact_source_in_queues, contact_source_out_queues, contact_source_task_description, stats_out_queue)
+    CONTACT_SOURCE_RUNNER.new_task(contact_source_in_queues, contact_source_out_queues, contact_source_task_description, stats_out_queue,log_queue)
 
     validation_task_description = (config, query, result_transmitter)
     validation_in_queues = tuple()
-    VALIDATION_RUNNER.new_task(validation_in_queues, validation_out_queues, validation_task_description, stats_out_queue)
+    VALIDATION_RUNNER.new_task(validation_in_queues, validation_out_queues, validation_task_description, stats_out_queue, log_queue)
     
     # 2.) Join the Data
     xjoin_task_description = (config,)
     xjoin_in_queues = (transformed_query_queue, val_queue)
-    XJOIN_RUNNER.new_task(xjoin_in_queues, xjoin_out_queues, xjoin_task_description, stats_out_queue)
+    XJOIN_RUNNER.new_task(xjoin_in_queues, xjoin_out_queues, xjoin_task_description, stats_out_queue, log_queue)
 
+    # Setup Logging Thread
+    log_thread = threading.Thread(target=logger_thread, args=(log_queue,))
+    log_thread.start()
 
     # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
     try:
@@ -120,6 +126,9 @@ def run_multiprocessing(pre_config):
             return "Timeout while transforming join output to result bindings (according to queue_timeout config)!", config
         else:
             return str(repr(e)), config
+    finally:
+        log_queue.put(None)
+        log_thread.join()
 
     # 4.) Output
     if config.output_format == "test":
@@ -171,7 +180,7 @@ def run_singleprocessing(pre_config):
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
-    logging.basicConfig(filename=config.log_file)
+    logging.basicConfig(filename=config.log_file, filemode='a', format="[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s", level=logging.DEBUG)
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)

@@ -104,6 +104,14 @@ def mp_xjoin(left, right, out_queue, config):
     join_instance = Join(['instance'], config.memory_size)
     join_instance.execute(left, right, out_queue)
 
+def logger_thread(q):
+    while True:
+        record = q.get()
+        if record is None:
+            break
+        logger = logging.getLogger(record.name)
+        logger.handle(record)
+
 # def proxy(in_queue, out_queue):
 #     """
 #     Debugging function to print the content of a queue during multiprocessing.
