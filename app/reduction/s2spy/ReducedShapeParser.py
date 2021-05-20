@@ -1,12 +1,13 @@
-import re, sys
+import sys
 from s2spy.validation.ShapeParser import ShapeParser
 sys.path.append('./s2spy/validation')
 import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
 sys.path.remove('./s2spy/validation')
-from rdflib.paths import Path
-from rdflib import Namespace
 from app.query import Query
 import app.colors as Colors
+
+import logging
+logger = logging.getLogger(__name__)
 
 # Note the internal structure of ShapeParser:
 # parse_shapes_from_dir --> calls for each shape: parse_constraints (--> parse_constraint), shape_references; Afterwards we call computeReducedEdges to find the involvedShapeIDs.
@@ -31,23 +32,23 @@ class ReducedShapeParser(ShapeParser):
         if prune_shape_network:
             self.involvedShapeIDs = self.graph_traversal.traverse_graph(
                 *self.computeReducedEdges(shapes), self.targetShape)            
-            print("Involved Shapes:", Colors.grey(str(self.involvedShapeIDs)), sep='\n')
+            logger.debug("Involved Shapes:" + Colors.grey(str(self.involvedShapeIDs)))
             shapes = [s for s in shapes if s.getId() in self.involvedShapeIDs]
         else:
-            print(Colors.red("Shape Network is not pruned!"))
+            logger.warn(Colors.red("Shape Network is not pruned!"))
 
-        print("Removed Constraints:", Colors.grey(str(self.removed_constraints)), sep='\n')
+        logger.debug("Removed Constraints:" + Colors.grey(str(self.removed_constraints)))
         # Replacing old targetQuery with new one
         if replace_target_query:
-            print(Colors.red("Using Shape Schema WITH replaced target query!"))
+            logger.info(Colors.red("Using Shape Schema WITH replaced target query!"))
             for s in shapes:
                 if s.getId() == self.targetShape:
                     # The Shape already has a target query
-                    print("Starshaped Query:", Colors.grey(
-                        self.query.query_string), sep='\n')
+                    logger.debug("Starshaped Query:\n" + Colors.grey(
+                        self.query.query_string))
                     if s.targetQuery and merge_old_target_query:
-                        print("Old TargetDef:", Colors.grey(
-                            s.targetQuery), sep='\n')
+                        logger.debug("Old TargetDef: \n" + Colors.grey(
+                            s.targetQuery))
                         oldTargetQuery = Query(s.targetQuery)
                         targetQuery = self.query.merge_as_target_query(
                             oldTargetQuery)
@@ -58,9 +59,9 @@ class ReducedShapeParser(ShapeParser):
                         else:
                             targetQuery = self.query.query_string
                     s.targetQuery = SPARQLPrefixHandler.getPrefixString() + targetQuery
-                    print("New TargetDef:", Colors.grey(targetQuery), sep='\n')
+                    logger.debug("New TargetDef:\n" + Colors.grey(targetQuery))
         else:
-            print(Colors.red("Using Shape Schema WITHOUT replaced target query!"))
+            logger.warn(Colors.red("Using Shape Schema WITHOUT replaced target query!"))
         return shapes
 
     """

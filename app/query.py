@@ -1,10 +1,7 @@
 import re
 import warnings
 
-from rdflib.namespace import RDF
 from rdflib.plugins import sparql
-from rdflib.paths import InvPath
-from rdflib.term import URIRef
 from app.triple import Triple
 
 
@@ -71,7 +68,7 @@ class Query:
             Query: Valid Query-Object for further processing
         """
         # Remove ',' in a query's SELECT clause (i.e.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
-        select_clause = re.search("SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
+        select_clause = re.search(r"SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
         select_clause_new = select_clause.replace(',', ' ')
         query = query.replace(select_clause, select_clause_new)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
@@ -88,10 +85,10 @@ class Query:
         return self.__extract_triples_recursion(self.query_object.algebra)
 
     def extract_filter_terms(self):
-        return re.findall('FILTER\s*\(.*\)', self.query_string, re.DOTALL)
+        return re.findall(r'FILTER\s*\(.*\)', self.query_string, re.DOTALL)
 
     def extract_values_terms(self):
-        return re.findall('VALUES\s*[?].*\{[^}]*\}', self.query_string, re.DOTALL)
+        return re.findall(r'VALUES\s*[?].*\{[^}]*\}', self.query_string, re.DOTALL)
 
     def __extract_triples_recursion(self, algebra, is_optional=False):
         """Recursive function for triple pattern extraction.

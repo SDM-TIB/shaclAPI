@@ -1,7 +1,7 @@
 import rdflib.term
 from rdflib.paths import InvPath
 from rdflib.namespace import RDF
-from rdflib.term import URIRef, Variable
+from rdflib.term import URIRef
 from enum import IntEnum
 
 class TripleE(IntEnum):

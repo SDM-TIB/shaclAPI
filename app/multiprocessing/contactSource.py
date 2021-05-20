@@ -2,9 +2,9 @@ __author__ = 'Kemele M. Endris'
 
 import urllib.parse
 import urllib.request
+import logging
 
-from multiprocessing import Process, Queue
-
+logger = logging.getLogger(__name__)
 
 """
 Normal contactSource Implementation but queue is filled with an output, which is in a format which is joinable with validation results. Queue_copy contains the normal result but with an id.
@@ -128,13 +128,9 @@ def contactSourceAux(referer, server, path, port, query, queue, queue_copy, firs
                         #queue.put(elem)
 
             else:
-                print ("the source " + str(server) + " answered in " + res.getheader("content-type") + " format, instead of"
+                logger.warn("the source " + str(server) + " answered in " + res.getheader("content-type") + " format, instead of"
                        + " the JSON format required, then that answer will be ignored")
     except Exception as e:
-        print("Exception while sending request to ", referer, "msg:", e)
+        raise Exception("Exception while sending request to ", referer, "msg:", e)
 
-    # print "b - ", b
-    # print server, query, len(reslist)
-
-    # print "Contact Source returned: ", len(reslist), ' results'
     return b, reslist

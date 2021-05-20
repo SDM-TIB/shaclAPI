@@ -1,5 +1,4 @@
-import json
-import uuid
+import json, uuid, os
 
 
 class Config:
@@ -15,8 +14,16 @@ class Config:
         final_config.update(request_params)
         return Config(final_config)
 
-    def __getitem__(self, name):  # TODO: Remove! Just for convinence
-        return eval('self.' + name)
+    def entry_to_bool(self, item):
+        if type(item) == bool:
+            return item
+        else:
+            if item == 'True':
+                return True
+            elif item == 'False':
+                return False
+            else:
+                raise Exception("Could not interprete {}".format(item))
 
     # ------------------------------- Required Configs -------------------------------------------
     @property
@@ -64,7 +71,7 @@ class Config:
         '''
         Whether to save the validation output of the backend to a file.
         '''
-        return self.config_dict.get('outputs',False)
+        return self.entry_to_bool(self.config_dict.get('outputs',False))
 
     @property
     def output_directory(self):
@@ -85,14 +92,14 @@ class Config:
         '''
         Whether the backend should work in parallel.
         '''
-        return self.config_dict.get('work_in_parallel') or self.config_dict.get('workInParallel') or False
+        return self.entry_to_bool(self.config_dict.get('work_in_parallel', False)) or self.entry_to_bool(self.config_dict.get('workInParallel', False)) or False
 
     @property
     def use_selective_queries(self):
         '''
         The travshacl backend can use more selectiv queries. This options is used to turn that on or off.
         '''
-        return self.config_dict.get('useSelectiveQueries', True)
+        return self.entry_to_bool(self.config_dict.get('useSelectiveQueries', True))
 
     @property
     def max_split_size(self):
@@ -106,21 +113,21 @@ class Config:
         '''
         Whether to use Queries with a ORDER BY Clause.
         '''
-        return self.config_dict.get('ORDERBYinQueries', True)
+        return self.entry_to_bool(self.config_dict.get('ORDERBYinQueries', True))
 
     @property
     def SHACL2SPARQL_order(self):
         '''
         Whether to use the SHACL2SPARQL_order. (TODO: Not used in either case)
         '''
-        return self.config_dict.get('SHACL2SPARQLorder', False)
+        return self.entry_to_bool(self.config_dict.get('SHACL2SPARQLorder', False))
 
     @property
     def debugging(self):
         '''
         Whether debugging mode is activ. When using debugging mode the api is working as a proxy between the external endpoint and the backend; which allows writing received queries to the standard output.
         '''
-        return self.config_dict.get('debugging', False)
+        return self.entry_to_bool(self.config_dict.get('debugging', False))
 
     @property
     def backend(self):
@@ -155,7 +162,7 @@ class Config:
         '''
         Whether or not the api should replace the target query of the target shape.
         '''
-        return self.config_dict.get('replace_target_query', True)
+        return self.entry_to_bool(self.config_dict.get('replace_target_query', True))
     
     @property
     def merge_old_target_query(self):
@@ -163,14 +170,14 @@ class Config:
         Whether the api should merge the star shaped query with the given target query in the target shape file.
         If this option is inactive the target query of the target shape is basically replaced with the star shaped query.
         '''
-        return self.config_dict.get('merge_old_target_query',True) 
+        return self.entry_to_bool(self.config_dict.get('merge_old_target_query',True))
 
     @property
     def start_with_target_shape(self):
         '''
         Whether the backend is forced to start the validation process with the target shape.
         '''
-        return self.config_dict.get('start_with_target_shape',True)
+        return self.entry_to_bool(self.config_dict.get('start_with_target_shape',True))
     
     @property
     def start_shape_for_validation(self):
@@ -193,7 +200,7 @@ class Config:
         '''
         Whether the api should remove constraints of the target shape not mentioned in the query.
         '''
-        return self.config_dict.get('remove_constraints', False)
+        return self.entry_to_bool(self.config_dict.get('remove_constraints', False))
     
     @property
     def send_initial_query_over_internal_endpoint(self):
@@ -201,7 +208,7 @@ class Config:
         There might be problems with contactSource and some Sparql Endpoints. These can be fixed by routing through our internal endpoint.
         This will force the api todo so.
         '''
-        return self.config_dict.get('send_initial_query_over_internal_endpoint', False)
+        return self.entry_to_bool(self.config_dict.get('send_initial_query_over_internal_endpoint', False))
     
     @property
     def output_format(self):
@@ -222,7 +229,7 @@ class Config:
         '''
         Whether or not prune the shape_network to the from the target shape reachable shapes.
         '''
-        return self.config_dict.get('prune_shape_network', True)
+        return self.entry_to_bool(self.config_dict.get('prune_shape_network', True))
     
     @property
     def test_identifier(self):
@@ -248,6 +255,13 @@ class Config:
             return float(queue_timeout)
         else:
             return None
+        
+    @property
+    def log_file(self):
+        '''
+        The file used by the logging utility to log to. (Its about the logging of the API.)
+        '''
+        return self.config_dict.get('log_file', os.path.join(self.output_directory,'api.log'))
 
 # --------------------- Calculated Configs --------------------------------------------------
     @property

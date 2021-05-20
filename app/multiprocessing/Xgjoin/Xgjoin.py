@@ -13,6 +13,8 @@ from tempfile import NamedTemporaryFile
 from os import remove
 from .OperatorStructures import Record, RJTTail, FileDescriptor
 
+import logging
+logger = logging.getLogger(__name__)
 
 class Xgjoin():
 
@@ -75,7 +77,7 @@ class Xgjoin():
                     # Empty: in tuple1 = self.left.get(False), when the queue is empty.
                     pass
                 except TypeError as te:
-                    print("TypeError: in resource = resource + tuple[var]", tuple, te)
+                    logger.warn("TypeError: in resource = resource + tuple[var]" +  str(tuple) + str(te))
                     # TypeError: in resource = resource + tuple[var], when the tuple is "EOF".
                     pass
                 except IOError:
@@ -96,7 +98,7 @@ class Xgjoin():
                     # Empty: in tuple2 = self.right.get(False), when the queue is empty.
                     pass
                 except TypeError as te:
-                    print("TypeError: in resource = resource + tuple[var]", tuple, te)
+                    logger.warn("TypeError: in resource = resource + tuple[var]" +  str(tuple) + str(te))
                     # TypeError: in resource = resource + tuple[var], when the tuple is "EOF".
                     pass
                 except IOError:

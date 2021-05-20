@@ -1,4 +1,4 @@
-import time, json
+import json
 
 class StatsOutput():
     def __init__(self, output={}):

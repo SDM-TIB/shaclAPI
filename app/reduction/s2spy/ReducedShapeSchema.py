@@ -7,14 +7,14 @@ from travshacl.TravSHACL import parse_heuristics
 from travshacl.core.GraphTraversal import GraphTraversal
 import app.colors as Colors
 
+import logging
+logger = logging.getLogger(__name__)
 
 class ReducedShapeSchema(ShapeNetwork):
     def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query, remove_constraints, prune_shape_network, start_shape_for_validation, result_transmitter):
-        print(Colors.blue(Colors.headline("Shape Parsing and Reduction")))
         self.shapeParser = ReducedShapeParser(initial_query, target_shape, graph_traversal, remove_constraints)
         self.shapes = self.shapeParser.parseShapesFromDir(
             schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query, merge_old_target_query=merge_old_target_query, prune_shape_network=prune_shape_network)
-        print(Colors.blue(Colors.headline('')))
         self.schema_dir = schema_dir
         self.shapesDict = {shape.getId(): shape for shape in self.shapes}
         self.endpoint = SPARQLEndpoint(endpoint_url)
@@ -35,15 +35,15 @@ class ReducedShapeSchema(ShapeNetwork):
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
         if start_with_target_shape:
-            print(Colors.red("Starting with Target Shape"))
+            logger.info(Colors.red("Starting with Target Shape"))
             start = [self.targetShape]  # The TargetShape has to be the first Node; because we are limiting the validation to a set of target instances via the star-shape query
         else:
             if self.start_shape_for_validation:
-                print(Colors.red("Starting with Shape set in Configuration"))
+                logger.warn(Colors.red("Starting with Shape set in Configuration"))
                 start = [self.start_shape_for_validation]
             else:
                 raise NotImplementedError("s2spy has no own logic which could determine a shape to start with. Set one with 'start_shape_for_validation' or set the 'start_with_target_shape' option to true")
-        print("Starting Point is:" + start[0])
+        logger.debug("Starting Point is:" + start[0])
         # TODO: deal with more than one possible starting point
         node_order = self.graphTraversal.traverse_graph(
             self.dependencies, self.reverse_dependencies, start[0])
@@ -64,10 +64,6 @@ class ReducedShapeSchema(ShapeNetwork):
         ).exec()
         return {}
     
-    def to_json(self):
-        print(self.shapeParser.removed_constraints)
-        print(self.shapeParser.involvedShapeIDs)
-
     def compute_edges(self):
         """Computes the edges in the network."""
         dependencies = {s.getId(): [] for s in self.shapes}

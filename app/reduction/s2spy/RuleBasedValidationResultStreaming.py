@@ -1,5 +1,4 @@
 from s2spy.validation.RuleBasedValidation import RuleBasedValidation
-import requests
 
 class RuleBasedValidationResultStreaming(RuleBasedValidation):
 

@@ -1,6 +1,6 @@
 import time, sys
 import getopt
-from run import run_multiprocessing, stop_processes
+from api import run_multiprocessing, stop_processes
 
 def get_options(argv):
     try:
