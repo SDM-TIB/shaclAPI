@@ -1,6 +1,8 @@
-import time, sys
-import getopt
+import app.log_utils.logger_init # Has to be the first import!
+import time, sys, logging, getopt
 from api import run_multiprocessing, stop_processes
+
+logger = logging.getLogger(__name__)
 
 def get_options(argv):
     try:
@@ -51,7 +53,7 @@ def usage():
 
 def main(argv):
     pre_config = get_options(argv[1:])
-    print(pre_config)
+    logger.info(pre_config)
 
     # Starting the processes of the runners
     try:

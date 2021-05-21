@@ -14,16 +14,21 @@ handlers:
     stream: ext://sys.stdout
   file:
     class: logging.FileHandler
-    level: WARNING
+    level: DEBUG
     filename: 'api.log'
     formatter: simple
   queue_listener:
     class: app.log_utils.logger_util.QueueListenerHandler
     handlers:
-      - cfg://handlers.console
+      #- cfg://handlers.console --comment in to enable console logging
       - cfg://handlers.file
     queue: cfg://objects.queue
 loggers:
+  __main__:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
   run:
     level: WARNING
     handlers:

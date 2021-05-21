@@ -1,0 +1,9 @@
+PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>
+PREFIX :<http://example.com/>
+
+SELECT ?prof ?email ?uni WHERE {
+  ?prof a ub:FullProfessor .
+  ?prof ub:email ?email .
+  ?prof ub:worksFor :Dept0 .
+  ?prof ub:doctoralDegreeFrom ?uni
+}

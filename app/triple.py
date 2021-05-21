@@ -27,7 +27,7 @@ class Triple:
 
     def __eq__(self, other) -> bool:
         return self.subject == other.subject and \
-            self.predicate == other.predicat and \
+            self.predicate == other.predicate and \
             self.object == other.object and \
             self.optional == other.optional
 
@@ -35,7 +35,7 @@ class Triple:
         if self.predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" or self.predicate == "a":
             if isinstance(self.object, rdflib.term.URIRef):
                 return True
-            elif self.predicate == other.predicat and isinstance(other.object, rdflib.term.URIRef):
+            elif self.predicate == other.predicate and isinstance(other.object, rdflib.term.URIRef):
                 return False
         elif isinstance(self.predicate, rdflib.term.URIRef) and isinstance(self.object, rdflib.term.URIRef):
             return True

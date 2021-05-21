@@ -21,9 +21,6 @@ logging.config.dictConfig(logging_config)
 # Initialize Log Levels
 # log_level = logging.DEBUG
 
-# Check For Debug Flag
-# if config.DEBUG:
-#   log_level = logging.DEBUG
 
 # Set the logging level for all loggers in scope 
 # This level can be overwritten by the following in a file
