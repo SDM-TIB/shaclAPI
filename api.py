@@ -39,7 +39,7 @@ query.namespace_manager.namespaces()
 # stats_out_queue: one time statistics per run --> known number of statistics (also contains exception notifications in case a runner catches an exception)
 # result_timing_out_queue: variable number of result timestamps per run --> close with 'EOF' by queue_output_to_table
 
-VALIDATION_RUNNER = Runner(mp_validate, number_of_out_queues=1)
+VALIDATION_RUNNER = Runner(mp_validate, number_of_out_queues=2)
 CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
 XJOIN_RUNNER = Runner(mp_xjoin, number_of_out_queues=1)
 
@@ -69,7 +69,7 @@ def run_multiprocessing(pre_config):
     contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues()
     transformed_query_queue, query_queue = contact_source_out_queues
     validation_out_queues = VALIDATION_RUNNER.get_new_out_queues()
-    val_queue = validation_out_queues[0]
+    val_queue, shape_variables_queue = validation_out_queues
     xjoin_out_queues = XJOIN_RUNNER.get_new_out_queues()
     out_queue = xjoin_out_queues[0]
 
@@ -93,7 +93,7 @@ def run_multiprocessing(pre_config):
 
     # 1.) Get the Data
     contact_source_task_description = (config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
-    contact_source_in_queues = tuple()
+    contact_source_in_queues = (shape_variables_queue, )
     CONTACT_SOURCE_RUNNER.new_task(contact_source_in_queues, contact_source_out_queues, contact_source_task_description, stats_out_queue)
 
     validation_task_description = (config, query, result_transmitter)

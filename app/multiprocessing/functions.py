@@ -66,20 +66,25 @@ def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individ
         item = query_queue.get(timeout=queue_timeout)
     return list(table.values())
 
-def mp_validate(out_queue, config, query, result_transmitter):
+def mp_validate(out_queue, shape_variables_queue, config, query, result_transmitter):
     """
     Function to be executed with Runner to run the validation process of the backend.
     """
     schema = prepare_validation(config, query, result_transmitter)
 
-    # Here one could identify vars which referre to other shapes
-    # shape_vars = set()
-    # for obj,pred in schema.shapesDict[config.target_shape].referencedShapes.items():
-    #     print(config.target_shape,pred, obj)
-    #     shape_vars.update(query.get_variables_from_pred(pred))
-    # print(shape_vars)
+    # 1.) Identify Variables referring to shapes which we are going to validate.
+    shape_variables_queue.put((query.target_var,))
+    for obj,pred in schema.shapesDict[config.target_shape].referencedShapes.items():
+        logger.debug(str(config.target_shape) +", " + str(pred) + ", " + str(obj))
+        new_shape_vars = query.get_variables_from_pred(pred)
+        shape_variables_queue.put(new_shape_vars)
+    shape_variables_queue.put('EOF')
+    logger.info("Done finding shape vars!")
 
+    # 2.) Validate Schema
+    # When using the default transmission_strategy, validation results will be put into the out_queue during validation
     report = schema.validate(config.start_with_target_shape)
+
     # The following only works with travshacl backend --> s2spy don't provide results after validation terminates.
     if not result_transmitter.use_streaming():
         for shape, instance_dict in report.items():

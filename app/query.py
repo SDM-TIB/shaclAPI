@@ -3,6 +3,9 @@ import warnings
 
 from rdflib.plugins import sparql
 from app.triple import Triple
+from rdflib.term import URIRef, Variable
+from rdflib.paths import InvPath
+
 
 
 class Query:
@@ -122,6 +125,7 @@ class Query:
     def _get_target_var(self):
         """Retrieves the target_variable of a star-shaped query.
         Given by the star-shaped structure, the target_variable must appear in each triple of the query.
+        Assumption star-shaped query with target variables only as subject!
 
         Raises:
             Exception: If this function retrieves multiple or no candidates, the query is assumed to be a non-valid query.
@@ -300,12 +304,17 @@ class Query:
             return [t.toTuple(self.namespace_manager) for t in self.triples]
 
     def get_variables_from_pred(self, pred):
+        """
+        Assumption star-shaped query with target variables only as subject!
+        """
         vars_found = set()
-        for s, p, o in self.get_triples(replace_prefixes=False):
-            if s == self.target_var and p == pred:
-                vars_found.add(o)
-            elif o == self.target_var and pred.startswith('^') and p == pred[1:]:
-                vars_found.add(s)
-            elif o == self.target_var and p.startswith('^') and p[1:] == pred:
-                vars_found.add(s)
+        for s, p, o in self.triples:
+            if isinstance(p, InvPath):
+                p_short = '^'+URIRef(p.arg).n3(self.namespace_manager)
+                p_long = '^'+URIRef(p.arg).n3()
+            else:
+                p_short = p.n3(self.namespace_manager)
+                p_long = p.n3()
+            if s.n3() == self.target_var and (p_short == pred or p_long == pred) and isinstance(o, Variable):
+                vars_found.add(o.n3())
         return vars_found
