@@ -27,7 +27,7 @@ class SimpleOutput():
             for b in transformed_query_result:
                 pv_binding = {k: v for k, v in b.items() if '?' +
                               k in self.base.query.PV}
-                triples = [(b[t[TripleE.SUBJECT][1:]], t[TripleE.PREDICAT], b.get(t[TripleE.OBJECT][1:]) or t[TripleE.OBJECT])
+                triples = [(b[t[TripleE.SUBJECT][1:]], t[TripleE.PREDICATE], b.get(t[TripleE.OBJECT][1:]) or t[TripleE.OBJECT])
                            for t in self.base.query.get_triples(replace_prefixes=False) if t[TripleE.SUBJECT][1:] in b]
                 report_triples = [
                     t for t in transformed_report_triples if t[0] in b.values()]
@@ -47,7 +47,7 @@ class SimpleOutput():
             binding = {'?' + b['var']:URIRef(b['instance']).n3(query.namespace_manager) for b in query_result}
             filtered_bindings = {'?' + b['var']:URIRef(b['instance']).n3(query.namespace_manager) for b in query_result if '?' + b['var'] in query.PV}
 
-            triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICAT], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
+            triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
                            for t in query.get_triples(replace_prefixes=False) if t[TripleE.SUBJECT] in binding]
             report_triples = [(URIRef(b['instance']).n3(query.namespace_manager), (t_path_valid if b['validation'][1] else t_path_invalid), b['validation'][0])
                                for b in query_result if 'validation' in b and b['validation']]

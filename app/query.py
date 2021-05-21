@@ -53,8 +53,8 @@ class Query:
     @property
     def PV(self):
         if not self.__PV:
-            PV = self.query_object.algebra.get('PV') or []
-            self.__PV = [var.n3(self.namespace_manager) for var in PV]
+            pv = self.query_object.algebra.get('PV') or []
+            self.__PV = [var.n3(self.namespace_manager) for var in pv]
         return self.__PV
 
     @staticmethod
@@ -73,7 +73,7 @@ class Query:
         query = query.replace(select_clause, select_clause_new)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
         query = query.replace('\'', '"')
-        # Remove '.' if it is followed by '}', tarvshacl cannot handle these dots.
+        # Remove '.' if it is followed by '}', Trav-SHACL cannot handle these dots.
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
         return Query(query)
 
@@ -130,7 +130,7 @@ class Query:
             string: target_variable
         """
         candidates = set(self.variables)
-        for s,_,_ in self.get_triples():
+        for s, _, _ in self.get_triples():
             candidates = {s} & candidates
         if len(candidates) == 1:
             return candidates.pop()
@@ -159,39 +159,40 @@ class Query:
         return self.target_query
 
     def merge_as_target_query(self, oldTargetQuery) -> str:
-        '''
+        """
         Merges two queries using intersection
-        '''
+        """
 
         # Replace Target Variable
-        if not '?x' in self.query_string:
+        if '?x' not in self.query_string:
             new_query_string_renamed = self.as_valid_query().replace(self.target_var, '?x')
         else:
             new_query_string_renamed = self.query_string
 
-        if not '?x' in oldTargetQuery.query_string:
+        if '?x' not in oldTargetQuery.query_string:
             old_query_string_renamed = oldTargetQuery.as_valid_query().replace(
                 oldTargetQuery.target_var, '?x')
         else:
             old_query_string_renamed = oldTargetQuery.query_string
-        oldQuery = Query(old_query_string_renamed)
-        newQuery = Query(new_query_string_renamed)
+        old_query = Query(old_query_string_renamed)
+        new_query = Query(new_query_string_renamed)
 
         # Intersection of both queries
-        triples = oldQuery.triples
-        triples.extend(newQuery.triples)
+        triples = old_query.triples
+        triples.extend(new_query.triples)
         triples = set(triples)
 
-        filters = oldQuery.extract_filter_terms()
-        filters.extend(newQuery.extract_filter_terms())
+        filters = old_query.extract_filter_terms()
+        filters.extend(new_query.extract_filter_terms())
 
-        values = oldQuery.extract_values_terms()
-        values.extend(newQuery.extract_values_terms())
+        values = old_query.extract_values_terms()
+        values.extend(new_query.extract_values_terms())
 
-        return self.target_query_from_triples(triples, filters, values, namespace_manager=self.namespace_manager).query_string
+        return self.target_query_from_triples(triples, filters, values,
+                                              namespace_manager=self.namespace_manager).query_string
 
     @staticmethod
-    def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager = None):
+    def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager=None):
         triples = sorted(list(triples))
         query_string = "SELECT DISTINCT ?x WHERE {\n"
 
@@ -203,8 +204,8 @@ class Query:
             query_string += triple.n3(namespace_manager) + '\n'
 
         if filters:
-            for filter in filters:
-                query_string += filter + "\n"
+            for filter_ in filters:
+                query_string += filter_ + "\n"
 
         query_string += "}"
         return Query.prepare_query(query_string)
@@ -300,7 +301,7 @@ class Query:
 
     def get_variables_from_pred(self, pred):
         vars_found = set()
-        for s,p,o in self.get_triples(replace_prefixes=False):
+        for s, p, o in self.get_triples(replace_prefixes=False):
             if s == self.target_var and p == pred:
                 vars_found.add(o)
             elif o == self.target_var and pred.startswith('^') and p == pred[1:]:
