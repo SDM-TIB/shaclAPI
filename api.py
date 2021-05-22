@@ -7,7 +7,7 @@ from app.config import Config
 from app.utils import lookForException
 from app.output.simpleOutput import SimpleOutput
 from app.output.testOutput import TestOutput
-from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp_xjoin, mp_post_processing
+from app.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_processing
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
