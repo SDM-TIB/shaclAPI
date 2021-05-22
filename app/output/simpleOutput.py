@@ -36,14 +36,16 @@ class SimpleOutput():
         return self._output
 
     @staticmethod
-    def fromJoinedResults(result_list, query):
+    def fromJoinedResults(query, final_result_queue):
         output = []
         t_path = Namespace("//travshacl_path#")
         query.namespace_manager.bind('ts', t_path)
         t_path_valid = t_path['satisfiesShape'].n3(query.namespace_manager)
         t_path_invalid = t_path['violatesShape'].n3(query.namespace_manager)
         
-        for query_result in result_list:
+        result = final_result_queue.get()
+        while result != 'EOF':
+            query_result = result['result']
             binding = {'?' + b['var']:URIRef(b['instance']).n3(query.namespace_manager) for b in query_result}
             filtered_bindings = {'?' + b['var']:URIRef(b['instance']).n3(query.namespace_manager) for b in query_result if '?' + b['var'] in query.PV}
 
@@ -52,6 +54,7 @@ class SimpleOutput():
             report_triples = [(URIRef(b['instance']).n3(query.namespace_manager), (t_path_valid if b['validation'][1] else t_path_invalid), b['validation'][0])
                                for b in query_result if 'validation' in b and b['validation']]
             output += [(filtered_bindings, triples, report_triples)]
+            result = final_result_queue.get()
         return SimpleOutput(None, output)
 
     def __str__(self):

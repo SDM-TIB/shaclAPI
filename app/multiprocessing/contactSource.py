@@ -19,19 +19,11 @@ Example:
 
 """
 
-def contactSource(shape_variables_queue, queue, queue_copy, endpoint, query, limit=-1):
+def contactSource(queue, queue_copy, endpoint, query, limit=-1):
     # Contacts the datasource (i.e. real endpoint).
     # Every tuple in the answer is represented as Python dictionaries
     # and is stored in a queue.
     # print "in *NEW* contactSource"
-
-    # First wait for shape variables to be identified
-    shape_vars = set()
-    new_vars = shape_variables_queue.get()
-    while new_vars != 'EOF':
-        shape_vars.update(new_vars)
-        new_vars = shape_variables_queue.get()
-    logger.debug("Shape Variables identified! {}".format(str(shape_vars)))
 
     b = None
     cardinality = 0

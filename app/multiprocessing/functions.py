@@ -2,69 +2,92 @@ from app.utils import prepare_validation
 from app.multiprocessing.Xjoin.Xjoin import XJoin
 from app.multiprocessing.Xgjoin.Xgjoin import Xgjoin
 import time, logging
+from threading import Thread
 
 logger = logging.getLogger(__name__)
 
 
-def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individual_result_times_queue=None):
+def mp_post_processing(shape_variables_queue, joined_result_queue, query_result_queue, final_result_queue, timestamp_queue, queue_timeout):
     """
-    Transforms the joined output and the raw query result to the final output. Therefore we need to find the singles (literals with no shape associated)
-    1.) First gather joined Query Results (Query Result + Validation Result) with the same id  --> hashtable (dict)
-    2.) Find singles (vars)
-    3.) Extend the joined Query Results with the data from the query_queue for each single.
+    Transforms the joined output and the raw query result to the final output.
     Example:
     Input: 
-        Query Queue: {'var': 'x', 'instance': 'http://example.org/testGraph3b#nodeA_0', 'id': 0}, {'var': 'lit', 'instance': 'literal', 'id': 0},...
+        Query Queue: {'query_result': {'x': 'http://example.org/testGraph3b#nodeA_0', 'lit': 'literal' } , 'id': 0}, ...
         Joined Result Queue: {'instance': 'http://example.org/testGraph3b#nodeA_0', 'validation': ('ShapeA', True, 'unbound'), 'var': 'x', 'id': 0},...
     Output: [{'instance': 'http://example.org/testGraph3b#nodeA_0', 'validation': ('ShapeA', True, 'unbound'), 'var': 'x'}, {'var': 'lit', 'instance': 'literal'}], ...
     """
-    # Step 1: Gather joined Query Results with the same id
+    # First wait for shape variables to be identified
+    shape_vars = set()
+    new_vars = shape_variables_queue.get()
+    while new_vars != 'EOF':
+        shape_vars.update(new_vars)
+        new_vars = shape_variables_queue.get()
+    logger.debug("Shape Variables identified! {}".format(str(shape_vars)))
+
+    # Prepare Hashtable (id --> {result: _, need: "Set of Variables which will get a Validation Result from the Joined Validation Result queue", 
+    #                               got_query_result: "If we already received the binding from the query queue"})
     table = {}
-    item = join_result_queue.get(timeout=queue_timeout)
-    number_of_results = 0
+
+    # Start a Thread for both incoming Queues
+    t_query = Thread(target=mp_post_processing_query_thread, args=(table, query_result_queue, final_result_queue, timestamp_queue, shape_vars))
+    t_joined_results = Thread(target=mp_post_processing_joined_result_thread, args=(table, joined_result_queue, final_result_queue, timestamp_queue, shape_vars))
+    t_query.start()
+    t_joined_results.start()
+    t_query.join()
+    t_joined_results.join()
+
+    # Log results pending in hashtable after both threads finished
+    for item in table.values():
+        logger.warning("Found unfinished result {}".format(item))
+
+def mp_post_processing_query_thread(table, queue, out_queue, timestamp_queue, shape_vars):
+    item = queue.get()
     while item != 'EOF':
-        # A new result is received:
-        if individual_result_times_queue:
-            individual_result_times_queue.put({"topic": "new_xjoin_result", "time": time.time(), "validation_result": item['validation'][1]})
-        number_of_results += 1
         item_id = item['id']
         del item['id']
-        if item_id not in table:
-            table[item_id] = []
-        table[item_id] += [item]
-        item = join_result_queue.get(timeout=queue_timeout)
-    if individual_result_times_queue:
-        individual_result_times_queue.put({"topic": "number_of_results", "number": number_of_results})
-        individual_result_times_queue.put('EOF')
-    # Step 2: Find variables with no matching validation result
-    singles = []
-    item = query_queue.get(timeout=queue_timeout)
 
-    if item == 'EOF':
-        logger.info("Query Bindings were empty!!")
-        return list()
-    
-    item_id = item['id']
-    del item['id']
-    assert item_id in table, "Query Result Binding without joined result found! {}".format(str(item))
-    for val_result in table[item_id]:
-        try:
-            del item['query_result'][val_result['var']]
-        except:
-            logger.warn("Found duplicate Var!")
-    for var, instance in item['query_result'].items():
-        singles += [var]
-        table[item_id] += [{'var': var, 'instance': instance}]
+        # Initalize Hashtable Entry if necessary
+        if not item_id in table:
+            table[item_id] = {'result': [], 'need': shape_vars.copy(), 'got_query_result': False}
 
-    # Step 3: Add Singles with instance to the matching joined validation result
-    item = query_queue.get(timeout=queue_timeout)
+        # Add all query result bindings which will not be validated and therefore won't occure in the joined results.
+        logger.debug('Query Result {}'.format(item_id))
+        table[item_id]['result'].extend([{'var': var, 'instance': instance, 'validation': None} for var, instance in item['query_result'].items() if not "?" + var in shape_vars])
+        table[item_id]['got_query_result'] = True
+
+        # If the Hashtable Entry is complete put it into the output queue and remove it from the Hashtable
+        if len(table[item_id]['need']) == 0 and table[item_id]['got_query_result'] == True:
+            out_queue.put({'result': table[item_id]['result']})
+            timestamp_queue.put({'timestamp': time.time()})
+            del table[item_id]
+            logger.debug('Finished Result {}'.format(item_id))
+        item = queue.get()
+    logger.debug('Query thread is done!')
+
+def mp_post_processing_joined_result_thread(table, queue, out_queue, timestamp_queue, shape_vars):
+    item = queue.get()
     while item != 'EOF':
         item_id = item['id']
-        for single in singles:
-            assert item_id in table, "Query Result Binding without joined result found! {}".format(str(item))
-            table[item_id] += [{'var': single, 'instance': item['query_result'][single], 'validation': None}]
-        item = query_queue.get(timeout=queue_timeout)
-    return list(table.values())
+        del item['id']
+
+        # Initalize Hashtable Entry if necessary
+        if not item_id in table:
+            table[item_id] = {'result': [], 'need': shape_vars.copy(), 'got_query_result': False}
+        
+        # Add joined validation with binding to the result
+        logger.debug('Validation Result {}-{}'.format(item_id, item['var']))
+        table[item_id]['result'].append(item)
+        table[item_id]['need'].remove("?" + item['var'])
+
+        # If the Hashtable Entry is complete put it into the output queue and remove it from the Hashtable
+        if len(table[item_id]['need']) == 0 and table[item_id]['got_query_result'] == True:
+            out_queue.put({'result': table[item_id]['result']})
+            timestamp_queue.put({'timestamp': time.time()})
+            del table[item_id]
+            logger.debug('Finished Result {}'.format(item_id))
+        item = queue.get()
+    logger.debug('Joined Result thread is done!')
+
 
 def mp_validate(out_queue, shape_variables_queue, config, query, result_transmitter):
     """
@@ -74,10 +97,11 @@ def mp_validate(out_queue, shape_variables_queue, config, query, result_transmit
 
     # 1.) Identify Variables referring to shapes which we are going to validate.
     shape_variables_queue.put((query.target_var,))
+    logger.debug("Query PV: {}".format(query.PV))
     for obj,pred in schema.shapesDict[config.target_shape].referencedShapes.items():
         logger.debug(str(config.target_shape) +", " + str(pred) + ", " + str(obj))
         new_shape_vars = query.get_variables_from_pred(pred)
-        shape_variables_queue.put(new_shape_vars)
+        shape_variables_queue.put(new_shape_vars.intersection(query.PV))
     shape_variables_queue.put('EOF')
     logger.info("Done finding shape vars!")
 

@@ -69,12 +69,14 @@ def test_trav(file):
 @pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json'])
 def test_singleprocessing(file, config_file):
     params, solution, log_file_path = test_setup_from_file(file, config_file, 'single')
+    params['test_identifier'] = file
     test_api('single', params, solution, log_file_path)
 
 @pytest.mark.parametrize("file", get_all_files())
 @pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json', 'tests/configs/lubm_config_s2spy.json'])
 def test_multiprocessing(file, config_file):
     params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
+    params['test_identifier'] = file
     test_api('multi', params, solution, log_file_path)
 
 @pytest.mark.parametrize("file", get_all_files())
@@ -84,7 +86,7 @@ def test_multiprocessing(file, config_file):
 @pytest.mark.parametrize("replace_target_query", [True, False])
 @pytest.mark.parametrize("start_with_target_shape", [True, False])
 @pytest.mark.parametrize("config_file", ['tests/configs/configurationtest_base_config.json'])
-def test_configurations_multiprocessing(file, backend, prune_shape_network, 
+def test_configurations_multiprocessing(request, file, backend, prune_shape_network, 
                                             remove_constraints, replace_target_query, 
                                                 start_with_target_shape, config_file):
 
@@ -99,7 +101,8 @@ def test_configurations_multiprocessing(file, backend, prune_shape_network,
     params['prune_shape_network'] = prune_shape_network   
     params['remove_constraints'] = remove_constraints
     params['replace_target_query'] = replace_target_query
-    params['start_with_target_shape'] = start_with_target_shape                         
+    params['start_with_target_shape'] = start_with_target_shape    
+    params['test_identifier'] = 'tests/test_main.py::' + str(request.node.name)
     test_api('multi', params, None,'configtest_logfile.log')
 
 # route can be single or multi

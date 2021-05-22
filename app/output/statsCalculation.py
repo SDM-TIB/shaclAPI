@@ -12,11 +12,12 @@ class StatsCalculation:
         self.approach_name = approach_name.rsplit('.json', 1)[0]
         self.first_result_timestamp = None
         self.last_result_timestamp = None
-        self.number_of_results = None
         self.validation_finished_time = None
         self.query_finished_time = None
         self.join_finished_time = None
         self.join_started_time = None
+        self.number_of_results = None
+        self.post_processing_finished_time = None
 
     def globalCalculationStart(self):
         self.global_start_time = time.time()
@@ -27,27 +28,21 @@ class StatsCalculation:
     def taskCalculationStart(self):
         self.task_start_time = time.time()
 
-    def receive_and_write_trace(self, trace_file, individual_result_times_queue, queue_timeout):
+    def receive_and_write_trace(self, trace_file, timestamp_queue, queue_timeout):
         writer = CSVWriter(trace_file)
-        result_stat = individual_result_times_queue.get(timeout=queue_timeout)
         received_results = 0
-        while result_stat != 'EOF':
-            if result_stat['topic'] == 'new_xjoin_result':
-                received_results += 1
-                writer.writeMulti({"test": self.test_name,
-                                   "approach": self.approach_name,
-                                   "answer": received_results,
-                                   "time": result_stat['time'] - self.global_start_time})
-                self.last_result_timestamp = result_stat['time']
-                if not self.first_result_timestamp:
-                    self.first_result_timestamp = result_stat['time']
-            elif result_stat['topic'] == 'number_of_results':
-                self.number_of_results = result_stat['number']
-            else: 
-                raise Exception("received statistic with unknown topic")
-            result_stat = individual_result_times_queue.get(timeout=queue_timeout)
-        if self.number_of_results != received_results:
-            warnings.warn("Number of Result timestamps received is not equal to the number of results!")
+        result = timestamp_queue.get(timeout=queue_timeout)
+        while result != 'EOF':
+            received_results += 1
+            writer.writeMulti({"test": self.test_name,
+                               "approach": self.approach_name,
+                               "answer": received_results,
+                               "time": result['timestamp'] - self.global_start_time})
+            self.last_result_timestamp = result['timestamp']
+            if not self.first_result_timestamp:
+                self.first_result_timestamp = result['timestamp']
+            result = timestamp_queue.get(timeout=queue_timeout)
+        self.number_of_results = received_results
         writer.close()
 
     def receive_global_stats(self, stats_out_queue, queue_timeout):
@@ -66,10 +61,12 @@ class StatsCalculation:
                 self.join_finished_time = statistic['time']            
             elif statistic['topic'] == 'first_validation_result':
                 self.join_started_time = statistic['time']
+            elif statistic['topic'] == 'mp_post_processing':
+                self.post_processing_finished_time = statistic['time']
             elif statistic['topic'] == 'Exception':
                 raise Exception("An Exception occurred in " + statistic['location'])
             else:
-                raise Exception("received statistic with unknown topic")
+                raise Exception("received statistic with unknown topic: {}".format(statistic['topic']))
 
     def write_matrix_and_stats_files(self, matrix_file, stats_file):
         total_execution_time = self.global_end_time - self.global_start_time
