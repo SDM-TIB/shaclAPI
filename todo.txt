@@ -1,0 +1,10 @@
+Done:
+- Improved Logging -> But there are still some problems: Error Handling might be inconsistent, Threads Exceptions are not catched in the moment
+- Post Processing is now non-blocking --> Basically the variables from the query are split into these which link to shapes and the rest.
+                                      --> Now there is a Hashtable collecting results for ids (set of bindings)
+				      --> Two threads one waiting for the joined validation results for the first set of variables
+                                      --> The other one waits for the bindings for the rest of the variables
+
+To be done:
+- Single Processing really differs from the multiprocessig procedure this could be changed. --> This would make the Output Creation more obvious. !!!
+- ReducedShapeParser only differ in function names this is really annoying and leads to duplicate code.
