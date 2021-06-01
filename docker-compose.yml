@@ -1,13 +1,6 @@
 version: '3'
 
 services:
-  data_graph:
-    image: kemele/virtuoso:7-stable
-    container_name: sparql_endpoint
-    volumes:
-      - "./tests/setup/TestData:/data/toLoad"
-    ports:
-      - "14000:8890"
   api:
     build: .
     container_name: api

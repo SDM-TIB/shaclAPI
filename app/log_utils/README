@@ -1,0 +1,6 @@
+See https://github.com/civicsoft/ieddit/tree/master/app/utilities/log_utils
+
+
+Basic idea is to configure all loggers in logger_config.yaml
+Then import logger_init in the beginning.
+Afterwards logger is used as normal (only allowed to use loggers configured in logger_config.yaml).

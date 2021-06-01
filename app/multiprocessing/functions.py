@@ -1,9 +1,9 @@
-import multiprocessing as mp
-import app.colors as Colors
 from app.utils import prepare_validation
 from app.multiprocessing.Xjoin.Xjoin import XJoin
 from app.multiprocessing.Xgjoin.Xgjoin import Xgjoin
-import warnings, time
+import time, logging
+
+logger = logging.getLogger(__name__)
 
 
 def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individual_result_times_queue=None):
@@ -41,7 +41,7 @@ def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individ
     item = query_queue.get(timeout=queue_timeout)
 
     if item == 'EOF':
-        print("Initial Query Bindings were empty!!")
+        logger.info("Query Bindings were empty!!")
         return list()
     
     item_id = item['id']
@@ -51,7 +51,7 @@ def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individ
         try:
             del item['query_result'][val_result['var']]
         except:
-            warnings.warn("Found duplicate Var!")
+            logger.warn("Found duplicate Var!")
     for var, instance in item['query_result'].items():
         singles += [var]
         table[item_id] += [{'var': var, 'instance': instance}]
@@ -66,12 +66,25 @@ def queue_output_to_table(join_result_queue, query_queue, queue_timeout, individ
         item = query_queue.get(timeout=queue_timeout)
     return list(table.values())
 
-def mp_validate(out_queue, config, query, result_transmitter):
+def mp_validate(out_queue, shape_variables_queue, config, query, result_transmitter):
     """
     Function to be executed with Runner to run the validation process of the backend.
     """
     schema = prepare_validation(config, query, result_transmitter)
+
+    # 1.) Identify Variables referring to shapes which we are going to validate.
+    shape_variables_queue.put((query.target_var,))
+    for obj,pred in schema.shapesDict[config.target_shape].referencedShapes.items():
+        logger.debug(str(config.target_shape) +", " + str(pred) + ", " + str(obj))
+        new_shape_vars = query.get_variables_from_pred(pred)
+        shape_variables_queue.put(new_shape_vars)
+    shape_variables_queue.put('EOF')
+    logger.info("Done finding shape vars!")
+
+    # 2.) Validate Schema
+    # When using the default transmission_strategy, validation results will be put into the out_queue during validation
     report = schema.validate(config.start_with_target_shape)
+
     # The following only works with travshacl backend --> s2spy don't provide results after validation terminates.
     if not result_transmitter.use_streaming():
         for shape, instance_dict in report.items():
@@ -96,15 +109,15 @@ def mp_xjoin(left, right, out_queue, config):
     join_instance = Join(['instance'], config.memory_size)
     join_instance.execute(left, right, out_queue)
 
-def proxy(in_queue, out_queue):
-    """
-    Debugging function to print the content of a queue during multiprocessing.
-    """
-    actual_tuple = in_queue.get()
-    while actual_tuple != 'EOF':
-        out_queue.put(actual_tuple)
-        print(Colors.yellow(str(actual_tuple)))
-        actual_tuple = in_queue.get()
+# def proxy(in_queue, out_queue):
+#     """
+#     Debugging function to print the content of a queue during multiprocessing.
+#     """
+#     actual_tuple = in_queue.get()
+#     while actual_tuple != 'EOF':
+#         out_queue.put(actual_tuple)
+#         print(str(actual_tuple))
+#         actual_tuple = in_queue.get()
     # out_queue.put('EOF')
 
 # Not needed anymore! (Integrated into contactSource)

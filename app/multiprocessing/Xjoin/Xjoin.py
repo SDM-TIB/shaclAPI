@@ -15,6 +15,8 @@ from random import randint
 from os import remove
 from .OperatorStructures import Table, Partition, Record, FileDescriptor, isOverlapped
 
+import logging
+logger = logging.getLogger(__name__)
 
 class XJoin():
 

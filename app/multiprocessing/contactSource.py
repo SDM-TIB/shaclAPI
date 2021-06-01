@@ -2,9 +2,9 @@ __author__ = 'Kemele M. Endris'
 
 import urllib.parse
 import urllib.request
+import logging
 
-from multiprocessing import Process, Queue
-
+logger = logging.getLogger(__name__)
 
 """
 Normal contactSource Implementation but queue is filled with an output, which is in a format which is joinable with validation results. Queue_copy contains the normal result but with an id.
@@ -19,11 +19,20 @@ Example:
 
 """
 
-def contactSource(queue, queue_copy, endpoint, query, limit=-1):
+def contactSource(shape_variables_queue, queue, queue_copy, endpoint, query, limit=-1):
     # Contacts the datasource (i.e. real endpoint).
     # Every tuple in the answer is represented as Python dictionaries
     # and is stored in a queue.
     # print "in *NEW* contactSource"
+
+    # First wait for shape variables to be identified
+    shape_vars = set()
+    new_vars = shape_variables_queue.get()
+    while new_vars != 'EOF':
+        shape_vars.update(new_vars)
+        new_vars = shape_variables_queue.get()
+    logger.debug("Shape Variables identified! {}".format(str(shape_vars)))
+
     b = None
     cardinality = 0
 
@@ -119,6 +128,7 @@ def contactSourceAux(referer, server, path, port, query, queue, queue_copy, firs
                             except:
                                 x[key] = props['value'] + suffix
                             queue.put({'var': key, 'instance': x[key], 'id': id})
+                        logger.debug({'query_result': x, 'id': id})
                         queue_copy.put({'query_result': x, 'id': id})
                         id = id + 1
                         reslist += 1
@@ -128,13 +138,9 @@ def contactSourceAux(referer, server, path, port, query, queue, queue_copy, firs
                         #queue.put(elem)
 
             else:
-                print ("the source " + str(server) + " answered in " + res.getheader("content-type") + " format, instead of"
+                logger.warn("the source " + str(server) + " answered in " + res.getheader("content-type") + " format, instead of"
                        + " the JSON format required, then that answer will be ignored")
     except Exception as e:
-        print("Exception while sending request to ", referer, "msg:", e)
+        raise Exception("Exception while sending request to ", referer, "msg:", e)
 
-    # print "b - ", b
-    # print server, query, len(reslist)
-
-    # print "Contact Source returned: ", len(reslist), ' results'
     return b, reslist

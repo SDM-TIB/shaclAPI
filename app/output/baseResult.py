@@ -1,6 +1,4 @@
-from rdflib import Namespace, URIRef
 from enum import IntEnum
-import app.colors as Colors
 
 class ValReport(IntEnum):
     SHAPE = 0

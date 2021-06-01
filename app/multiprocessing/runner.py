@@ -1,7 +1,9 @@
 import multiprocessing as mp
 from app.query import Query
-import time
-import app.colors as Colors
+import time, atexit
+import logging 
+
+logger = logging.getLogger(__name__)
 
 class Runner:
     """
@@ -21,21 +23,26 @@ class Runner:
         self.task_queue = None
     
     def start_process(self):
+        logger.debug("Trying to start {}".format(self.function.__name__))
         if self.process == None or not self.process_is_alive():
             self.task_queue = self.context.Queue()
-            self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function))
+            self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function), name=self.function.__name__ )
             self.process.start()
-    
+            logger.info("Process {} started!".format(self.function.__name__))
+            atexit.register(self.stop_process)
+
     def stop_process(self):
+        logger.debug("Trying to stopp {}".format(self.function.__name__))
         if self.process_is_alive():
+            atexit.unregister(self.stop_process)
             self.task_queue.close()
             self.process.terminate()
-            print("Process {} stopped!".format(self.function.__name__))
+            logger.info("Process {} stopped!".format(self.function.__name__))
     
     def process_is_alive(self):
         return self.process.is_alive()
     
-    def get_stats_out_queue(self):
+    def get_new_queue(self):
         return self.manager.Queue()
     
     def get_new_out_queues(self):
@@ -55,20 +62,23 @@ def mp_function(task_in_queue, function):
     speed_up_query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
     speed_up_query.namespace_manager.namespaces()
     try:
-        print("Process", function.__name__, "started!")
         active_task = task_in_queue.get()
         while active_task != 'EOF':
             in_queues, out_queues, runner_stats_out_queue, task_description = active_task
+
+            # Now one can use logging as normal
+            logger.debug(function.__name__ + " received task!")
             try:
                 function(*in_queues, *out_queues, *task_description)
             except Exception as e:
                 runner_stats_out_queue.put({"topic": "Exception", "location": function.__name__})
-                print(Colors.magenta(repr(e)))
+                logger.exception(e)
             finally:
                 for queue in out_queues:
                     queue.put('EOF') # Writing EOF here allows global error handling
                 finished_timestamp = time.time()
                 runner_stats_out_queue.put({"topic": function.__name__, "time": finished_timestamp})
+                logger.debug(function.__name__ + " finished task; waiting for next one!")
                 active_task = task_in_queue.get()
     except KeyboardInterrupt:
         pass

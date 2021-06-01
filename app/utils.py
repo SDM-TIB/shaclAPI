@@ -1,7 +1,7 @@
-import sys, os
+import sys
 
 sys.path.append('./s2spy')
-sys.path.append('./Trav-SHACL') # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
+sys.path.append('./Trav-SHACL')  # Makes travshacl Package accesible without adding __init__.py to travshacl/ Directory
 from app.reduction.travshacl.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaTravShacl
 from app.reduction.s2spy.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaS2Spy
 from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
@@ -12,8 +12,6 @@ sys.path.append('./s2spy/validation')
 import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
 sys.path.remove('./s2spy/validation')
 
-import app.colors as Colors
-from SPARQLWrapper import SPARQLWrapper, JSON
 
 def prepare_validation(config, query, result_transmitter):
     if config.backend == "travshacl":
@@ -36,4 +34,4 @@ def lookForException(stats_queue):
         if item['topic'] == 'Exception':
             exceptions.append(item['location'])
     if len(exceptions) > 0:
-        raise Exception("An Exception occured in " + ' & '.join(exceptions))
+        raise Exception("An Exception occurred in " + ' & '.join(exceptions))

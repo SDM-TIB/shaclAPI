@@ -13,7 +13,7 @@ jobs:
         submodules: recursive
         token: ${{ secrets.ACCESS_TOKEN }}
     - name: Build the docker-compose stack
-      run: docker-compose up -d
+      run: docker-compose -f ./tests/docker-compose.yml up -d
     - name: Check running containers
       run: docker ps -a
 # Uncomment for ssh debugging      
@@ -23,7 +23,7 @@ jobs:
       run: sleep 10
     - name: Show API Log
       run: docker logs api
-    - name: Show Sparql-Endpoint Log
+    - name: Show SPARQL Endpoint Log
       run: docker logs sparql_endpoint
     - name: Run pytest
       run: docker exec api pytest

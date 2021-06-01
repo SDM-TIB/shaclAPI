@@ -1,11 +1,11 @@
 import re
 import warnings
 
-from rdflib.namespace import RDF
 from rdflib.plugins import sparql
-from rdflib.paths import InvPath
-from rdflib.term import URIRef
 from app.triple import Triple
+from rdflib.term import URIRef, Variable
+from rdflib.paths import InvPath
+
 
 
 class Query:
@@ -56,8 +56,8 @@ class Query:
     @property
     def PV(self):
         if not self.__PV:
-            PV = self.query_object.algebra.get('PV') or []
-            self.__PV = [var.n3(self.namespace_manager) for var in PV]
+            pv = self.query_object.algebra.get('PV') or []
+            self.__PV = [var.n3(self.namespace_manager) for var in pv]
         return self.__PV
 
     @staticmethod
@@ -71,12 +71,12 @@ class Query:
             Query: Valid Query-Object for further processing
         """
         # Remove ',' in a query's SELECT clause (i.e.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
-        select_clause = re.search("SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
+        select_clause = re.search(r"SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
         select_clause_new = select_clause.replace(',', ' ')
         query = query.replace(select_clause, select_clause_new)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
         query = query.replace('\'', '"')
-        # Remove '.' if it is followed by '}', tarvshacl cannot handle these dots.
+        # Remove '.' if it is followed by '}', Trav-SHACL cannot handle these dots.
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
         return Query(query)
 
@@ -88,10 +88,10 @@ class Query:
         return self.__extract_triples_recursion(self.query_object.algebra)
 
     def extract_filter_terms(self):
-        return re.findall('FILTER\s*\(.*\)', self.query_string, re.DOTALL)
+        return re.findall(r'FILTER\s*\(.*\)', self.query_string, re.DOTALL)
 
     def extract_values_terms(self):
-        return re.findall('VALUES\s*[?].*\{[^}]*\}', self.query_string, re.DOTALL)
+        return re.findall(r'VALUES\s*[?].*\{[^}]*\}', self.query_string, re.DOTALL)
 
     def __extract_triples_recursion(self, algebra, is_optional=False):
         """Recursive function for triple pattern extraction.
@@ -125,6 +125,7 @@ class Query:
     def _get_target_var(self):
         """Retrieves the target_variable of a star-shaped query.
         Given by the star-shaped structure, the target_variable must appear in each triple of the query.
+        Assumption star-shaped query with target variables only as subject!
 
         Raises:
             Exception: If this function retrieves multiple or no candidates, the query is assumed to be a non-valid query.
@@ -133,7 +134,7 @@ class Query:
             string: target_variable
         """
         candidates = set(self.variables)
-        for s,_,_ in self.get_triples():
+        for s, _, _ in self.get_triples():
             candidates = {s} & candidates
         if len(candidates) == 1:
             return candidates.pop()
@@ -162,39 +163,40 @@ class Query:
         return self.target_query
 
     def merge_as_target_query(self, oldTargetQuery) -> str:
-        '''
+        """
         Merges two queries using intersection
-        '''
+        """
 
         # Replace Target Variable
-        if not '?x' in self.query_string:
+        if '?x' not in self.query_string:
             new_query_string_renamed = self.as_valid_query().replace(self.target_var, '?x')
         else:
             new_query_string_renamed = self.query_string
 
-        if not '?x' in oldTargetQuery.query_string:
+        if '?x' not in oldTargetQuery.query_string:
             old_query_string_renamed = oldTargetQuery.as_valid_query().replace(
                 oldTargetQuery.target_var, '?x')
         else:
             old_query_string_renamed = oldTargetQuery.query_string
-        oldQuery = Query(old_query_string_renamed)
-        newQuery = Query(new_query_string_renamed)
+        old_query = Query(old_query_string_renamed)
+        new_query = Query(new_query_string_renamed)
 
         # Intersection of both queries
-        triples = oldQuery.triples
-        triples.extend(newQuery.triples)
+        triples = old_query.triples
+        triples.extend(new_query.triples)
         triples = set(triples)
 
-        filters = oldQuery.extract_filter_terms()
-        filters.extend(newQuery.extract_filter_terms())
+        filters = old_query.extract_filter_terms()
+        filters.extend(new_query.extract_filter_terms())
 
-        values = oldQuery.extract_values_terms()
-        values.extend(newQuery.extract_values_terms())
+        values = old_query.extract_values_terms()
+        values.extend(new_query.extract_values_terms())
 
-        return self.target_query_from_triples(triples, filters, values, namespace_manager=self.namespace_manager).query_string
+        return self.target_query_from_triples(triples, filters, values,
+                                              namespace_manager=self.namespace_manager).query_string
 
     @staticmethod
-    def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager = None):
+    def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager=None):
         triples = sorted(list(triples))
         query_string = "SELECT DISTINCT ?x WHERE {\n"
 
@@ -206,8 +208,8 @@ class Query:
             query_string += triple.n3(namespace_manager) + '\n'
 
         if filters:
-            for filter in filters:
-                query_string += filter + "\n"
+            for filter_ in filters:
+                query_string += filter_ + "\n"
 
         query_string += "}"
         return Query.prepare_query(query_string)
@@ -302,12 +304,17 @@ class Query:
             return [t.toTuple(self.namespace_manager) for t in self.triples]
 
     def get_variables_from_pred(self, pred):
+        """
+        Assumption star-shaped query with target variables only as subject!
+        """
         vars_found = set()
-        for s,p,o in self.get_triples(replace_prefixes=False):
-            if s == self.target_var and p == pred:
-                vars_found.add(o)
-            elif o == self.target_var and pred.startswith('^') and p == pred[1:]:
-                vars_found.add(s)
-            elif o == self.target_var and p.startswith('^') and p[1:] == pred:
-                vars_found.add(s)
+        for s, p, o in self.triples:
+            if isinstance(p, InvPath):
+                p_short = '^'+URIRef(p.arg).n3(self.namespace_manager)
+                p_long = '^'+URIRef(p.arg).n3()
+            else:
+                p_short = p.n3(self.namespace_manager)
+                p_long = p.n3()
+            if s.n3() == self.target_var and (p_short == pred or p_long == pred) and isinstance(o, Variable):
+                vars_found.add(o.n3())
         return vars_found

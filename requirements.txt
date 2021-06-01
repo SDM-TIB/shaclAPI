@@ -6,3 +6,4 @@ flask
 rdflib
 requests
 pyinstrument
+PyYaml

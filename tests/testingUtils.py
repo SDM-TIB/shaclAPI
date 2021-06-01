@@ -15,14 +15,6 @@ DEFAULT_PARAMS={
     "targetShape": "FullProfessor",
     "config": "tests/configs/lubm_config.json"
 }
-
-def executeTest(file):
-    with open(file,'r') as f:
-        result = json.load(f)
-    solution = result['result']
-    del result['result']
-    return (result, solution)
-    
 def get_trav_args(params_file):
     with open(params_file, 'r') as f:
         params = json.load(f)
