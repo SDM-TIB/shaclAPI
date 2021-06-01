@@ -264,6 +264,14 @@ class Config:
             return float(queue_timeout)
         else:
             return None
+    
+    @property    
+    def run_in_serial(self):
+        """
+        This option can be turned on to force the multiprocessing steps to be executed in serial.
+        This option is only used in multiprocessing route.
+        """
+        return self.entry_to_bool(self.config_dict.get('run_in_serial', True))
 
     # --------------------- Calculated Configs --------------------------------------------------
     @property

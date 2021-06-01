@@ -52,9 +52,17 @@ class Runner:
         out_queues = tuple(out_queues)
         return out_queues
 
-    def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue):
+    def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue, wait_for_finish=False):
         if self.process_is_alive():
-            self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description))
+            if wait_for_finish:
+                task_finished_recv, task_finished_send = self.context.Pipe()
+                self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send))
+                result = task_finished_recv.recv()
+                task_finished_send.close()
+                task_finished_recv.close()
+                return result
+            else:
+                self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, None))
         else:
             raise Exception("Start processes before using /multiprocessing")
 
@@ -64,7 +72,7 @@ def mp_function(task_in_queue, function):
     try:
         active_task = task_in_queue.get()
         while active_task != 'EOF':
-            in_queues, out_queues, runner_stats_out_queue, task_description = active_task
+            in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send = active_task
 
             # Now one can use logging as normal
             logger.debug(function.__name__ + " received task!")
@@ -79,6 +87,8 @@ def mp_function(task_in_queue, function):
                 finished_timestamp = time.time()
                 runner_stats_out_queue.put({"topic": function.__name__, "time": finished_timestamp})
                 logger.debug(function.__name__ + " finished task; waiting for next one!")
+                if task_finished_send:
+                    task_finished_send.send("Done")
                 active_task = task_in_queue.get()
     except KeyboardInterrupt:
         pass

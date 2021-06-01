@@ -97,22 +97,21 @@ def run_multiprocessing(pre_config):
     # 1.) Get the Data
     contact_source_task_description = (config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
     contact_source_in_queues = tuple()
-    CONTACT_SOURCE_RUNNER.new_task(contact_source_in_queues, contact_source_out_queues, contact_source_task_description, stats_out_queue)
+    CONTACT_SOURCE_RUNNER.new_task(contact_source_in_queues, contact_source_out_queues, contact_source_task_description, stats_out_queue, config.run_in_serial)
 
     validation_task_description = (config, Query(query_to_be_executed), result_transmitter)
     validation_in_queues = tuple()
-    VALIDATION_RUNNER.new_task(validation_in_queues, validation_out_queues, validation_task_description, stats_out_queue)
+    VALIDATION_RUNNER.new_task(validation_in_queues, validation_out_queues, validation_task_description, stats_out_queue, config.run_in_serial)
     
     # 2.) Join the Data
     xjoin_task_description = (config,)
     xjoin_in_queues = (transformed_query_queue, val_queue)
-    XJOIN_RUNNER.new_task(xjoin_in_queues, xjoin_out_queues, xjoin_task_description, stats_out_queue)
+    XJOIN_RUNNER.new_task(xjoin_in_queues, xjoin_out_queues, xjoin_task_description, stats_out_queue, config.run_in_serial)
 
     # 3.) Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))
     post_processing_task_description = (config.queue_timeout,)
     post_processing_in_queues = (shape_variables_queue, joined_results_queue, query_results_queue )
-    POST_PROCESSING_RUNNER.new_task(post_processing_in_queues, post_processing_out_queues, post_processing_task_description, stats_out_queue)
-
+    POST_PROCESSING_RUNNER.new_task(post_processing_in_queues, post_processing_out_queues, post_processing_task_description, stats_out_queue, config.run_in_serial)
 
     # 4.) Output
     if config.output_format == "test":
