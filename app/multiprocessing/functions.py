@@ -2,7 +2,7 @@ from app.utils import prepare_validation
 from app.multiprocessing.Xjoin.Xjoin import XJoin
 from app.multiprocessing.Xgjoin.Xgjoin import Xgjoin
 import time, logging
-from threading import Thread
+from app.multiprocessing.ThreadEx import ThreadEx
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +29,8 @@ def mp_post_processing(shape_variables_queue, joined_result_queue, query_result_
     table = {}
 
     # Start a Thread for both incoming Queues
-    t_query = Thread(target=mp_post_processing_query_thread, args=(table, query_result_queue, final_result_queue, timestamp_queue, shape_vars))
-    t_joined_results = Thread(target=mp_post_processing_joined_result_thread, args=(table, joined_result_queue, final_result_queue, timestamp_queue, shape_vars))
+    t_query = ThreadEx(target=mp_post_processing_query_thread, args=(table, query_result_queue, final_result_queue, timestamp_queue, shape_vars))
+    t_joined_results = ThreadEx(target=mp_post_processing_joined_result_thread, args=(table, joined_result_queue, final_result_queue, timestamp_queue, shape_vars))
     t_query.start()
     t_joined_results.start()
     t_query.join()
