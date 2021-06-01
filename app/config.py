@@ -271,7 +271,7 @@ class Config:
         This option can be turned on to force the multiprocessing steps to be executed in serial.
         This option is only used in multiprocessing route.
         """
-        return self.entry_to_bool(self.config_dict.get('run_in_serial', True))
+        return self.entry_to_bool(self.config_dict.get('run_in_serial', False))
 
     # --------------------- Calculated Configs --------------------------------------------------
     @property
