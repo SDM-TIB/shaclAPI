@@ -2,5 +2,6 @@
     "external_endpoint": "http://0.0.0.0:14000/sparql",
     "outputDirectory": "./output/",
     "shapeFormat": "JSON",
-    "output_format": "stats"
+    "output_format": "stats",
+    "run_in_serial": true
 }

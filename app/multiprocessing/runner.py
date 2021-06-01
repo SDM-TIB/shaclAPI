@@ -77,6 +77,7 @@ def mp_function(task_in_queue, function):
             # Now one can use logging as normal
             logger.debug(function.__name__ + " received task!")
             try:
+                start_timestamp = time.time()
                 function(*in_queues, *out_queues, *task_description)
             except Exception as e:
                 runner_stats_out_queue.put({"topic": "Exception", "location": function.__name__})
@@ -85,7 +86,7 @@ def mp_function(task_in_queue, function):
                 for queue in out_queues:
                     queue.put('EOF') # Writing EOF here allows global error handling
                 finished_timestamp = time.time()
-                runner_stats_out_queue.put({"topic": function.__name__, "time": finished_timestamp})
+                runner_stats_out_queue.put({"topic": function.__name__, "time": (start_timestamp, finished_timestamp)})
                 logger.debug(function.__name__ + " finished task; waiting for next one!")
                 if task_finished_send:
                     task_finished_send.send("Done")

@@ -24,7 +24,7 @@ def mp_post_processing(shape_variables_queue, joined_result_queue, query_result_
         new_vars = shape_variables_queue.get()
     logger.debug("Shape Variables identified! {}".format(str(shape_vars)))
 
-    # Prepare Hashtable (id --> {result: _, need: "Set of Variables which will get a Validation Result from the Joined Validation Result queue", 
+    # Prepare Hashtable (id --> {result: _, further_query_results: "Query Results which we only need if there are Shapes which don't need to be validated and thus won't occure in the joined results", need: "Set of Variables which will get a Validation Result from the Joined Validation Result queue", 
     #                               got_query_result: "If we already received the binding from the query queue"})
     table = {}
 
@@ -36,9 +36,14 @@ def mp_post_processing(shape_variables_queue, joined_result_queue, query_result_
     t_query.join()
     t_joined_results.join()
 
-    # Log results pending in hashtable after both threads finished
+    # Adding of results which where skipped in validation (for example because the matching target could be invalidated earlier)
     for item in table.values():
+        result = item['result']
+        missing_validation_results = [item['further_query_results'][var[1:]] for var in item['need']]
+        result.extend(missing_validation_results)
         logger.warning("Found unfinished result {}".format(item))
+        logger.debug("Instead using: {}".format(result))
+        final_result_queue.put({'result': result})
 
 def mp_post_processing_query_thread(table, queue, out_queue, timestamp_queue, shape_vars):
     item = queue.get()
@@ -48,19 +53,25 @@ def mp_post_processing_query_thread(table, queue, out_queue, timestamp_queue, sh
 
         # Initalize Hashtable Entry if necessary
         if not item_id in table:
-            table[item_id] = {'result': [], 'need': shape_vars.copy(), 'got_query_result': False}
+            table[item_id] = {'result': [], "further_query_results": {}, 'need': shape_vars.copy(), 'got_query_result': False}
 
         # Add all query result bindings which will not be validated and therefore won't occure in the joined results.
         logger.debug('Query Result {}'.format(item_id))
         table[item_id]['result'].extend([{'var': var, 'instance': instance, 'validation': None} for var, instance in item['query_result'].items() if not "?" + var in shape_vars])
+        table[item_id]['further_query_results'].update({var: {'var': var, 'instance': instance, 'validation': None} for var, instance in item['query_result'].items() if "?" + var in shape_vars})
         table[item_id]['got_query_result'] = True
 
         # If the Hashtable Entry is complete put it into the output queue and remove it from the Hashtable
         if len(table[item_id]['need']) == 0 and table[item_id]['got_query_result'] == True:
-            out_queue.put({'result': table[item_id]['result']})
-            timestamp_queue.put({'timestamp': time.time()})
-            del table[item_id]
-            logger.debug('Finished Result {}'.format(item_id))
+            try:
+                final_result_item = table[item_id]
+                del table[item_id]
+            except KeyError:
+                pass # Only the thread which deletes the item from the table is allowed to write it into the output
+            else:
+                out_queue.put({'result': final_result_item['result']})
+                timestamp_queue.put({'timestamp': time.time()})
+                logger.debug('Finished Result {}'.format(item_id))
         item = queue.get()
     logger.debug('Query thread is done!')
 
@@ -72,19 +83,27 @@ def mp_post_processing_joined_result_thread(table, queue, out_queue, timestamp_q
 
         # Initalize Hashtable Entry if necessary
         if not item_id in table:
-            table[item_id] = {'result': [], 'need': shape_vars.copy(), 'got_query_result': False}
+            table[item_id] = {'result': [], "further_query_results": {}, 'need': shape_vars.copy(), 'got_query_result': False}
         
         # Add joined validation with binding to the result
         logger.debug('Validation Result {}-{}'.format(item_id, item['var']))
         table[item_id]['result'].append(item)
-        table[item_id]['need'].remove("?" + item['var'])
+        try:
+            table[item_id]['need'].remove("?" + item['var'])
+        except KeyError:
+            logger.warning("Got unneeded validation result! {} --> {}".format(item, table[item_id]))
 
         # If the Hashtable Entry is complete put it into the output queue and remove it from the Hashtable
         if len(table[item_id]['need']) == 0 and table[item_id]['got_query_result'] == True:
-            out_queue.put({'result': table[item_id]['result']})
-            timestamp_queue.put({'timestamp': time.time()})
-            del table[item_id]
-            logger.debug('Finished Result {}'.format(item_id))
+            try:
+                final_result_item = table[item_id]
+                del table[item_id]
+            except KeyError:
+                pass # Only the thread which deletes the item from the table is allowed to write it into the output
+            else:
+                out_queue.put({'result': final_result_item['result']})
+                timestamp_queue.put({'timestamp': time.time()})
+                logger.debug('Finished Result {}'.format(item_id))
         item = queue.get()
     logger.debug('Joined Result thread is done!')
 
