@@ -10,8 +10,12 @@
 	"constraintDef":{
 		"conjunctions":[
 			[
-                { "path": "test5:refersTo", "max": 5, "shape": "ShapeB"},
-                { "path": "test5:refersTo2", "max": 2, "shape": "ShapeC"}
+                { "path": "test5:a", "max": 1},
+                { "path": "test5:b", "max": 2},
+                { "path": "test5:c", "max": 3},
+                { "path": "test5:c", "min": 1},
+                { "path": "test5:d", "max": 4},
+                { "path": "test5:e", "max": 5}
 			]
 		]
 	}

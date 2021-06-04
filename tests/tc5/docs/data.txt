@@ -1,0 +1,2 @@
+- If we see abcde as a binary encoding of the instance then a path i in {a,b,c,d,e} invalidates the instance if the binary number assigned to i is 0. 
+- There are 32 instances.
