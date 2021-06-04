@@ -1,0 +1,5 @@
+test1: Uses all 5 constraints with path a,b,c,d,e
+test2: Uses the constraints with path a,b,c,d
+test3: Uses the constraints with path a,b,c
+test4: Uses the constraints with path a,b
+test5: Uses the constraints with path a

@@ -3,13 +3,73 @@
     "traversalStrategie": "DFS",
     "schemaDir": "./tests/tc5/shapes",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test5:<http://example.org/testGraph5#>\nSELECT DISTINCT ?x WHERE {\n?x a test5:classA. \nOptional{?x test5:a ?a}. \nOptional{?x test5:b ?b.} \n ?x test5:c ?c. \nOptional{?x test5:d ?d.} \n Optional{?x test5:e ?e}}",
+    "query": "PREFIX test5:<http://example.org/testGraph5#>\nSELECT DISTINCT ?x WHERE {\n?x a test5:classA. \nOptional{?x test5:a ?a}}",
     "targetShape": "ShapeA",
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [
             [
                 "http://example.org/testGraph5#nodeA_31",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_30",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_28",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_29",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_24",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_25",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_26",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_27",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_16",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_17",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_18",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_19",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_20",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_21",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_22",
+                "ShapeA"
+            ],
+            [
+                "http://example.org/testGraph5#nodeA_23",
                 "ShapeA"
             ]
        ],
@@ -76,66 +136,6 @@
             ],
             [
                 "http://example.org/testGraph5#nodeA_15",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_16",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_17",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_18",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_19",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_20",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_21",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_22",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_23",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_24",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_25",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_26",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_27",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_28",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_29",
-                "ShapeA"
-            ],
-            [
-                "http://example.org/testGraph5#nodeA_30",
                 "ShapeA"
             ]
         ],
