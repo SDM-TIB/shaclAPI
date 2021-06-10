@@ -35,7 +35,7 @@ loggers:
       - queue_listener
     propagate: false
   api:
-    level: WARNING
+    level: DEBUG
     handlers:
       - queue_listener
     propagate: false
@@ -75,7 +75,7 @@ loggers:
       - queue_listener
     propagate: false
   app.reduction.s2spy.ReducedShapeParser:
-    level: WARNING
+    level: DEBUG
     handlers:
       - queue_listener
     propagate: false

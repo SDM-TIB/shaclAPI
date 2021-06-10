@@ -1,4 +1,4 @@
-import os, logging, time, sys
+import os, logging, time, sys, json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
 
@@ -87,7 +87,7 @@ def run_multiprocessing(pre_config):
     query = Query.prepare_query(config.query)
 
     # The information we need depends on the output format:
-    if config.output_format == "test":
+    if config.output_format == "test" or (not config.reasoning):
         query_to_be_executed = query.as_valid_query()
     else:
         query_to_be_executed = query.as_result_query()
@@ -121,7 +121,10 @@ def run_multiprocessing(pre_config):
         lookForException(stats_out_queue)
         api_output = SimpleOutput.fromJoinedResults(query, final_result_queue)
     elif config.output_format == "stats":
-        SimpleOutput.fromJoinedResults(query, final_result_queue)
+        api_output = SimpleOutput.fromJoinedResults(query, final_result_queue)
+        #with open("output/simpleOutput", "w") as d:
+        #    d.write(str(api_output))
+        #    #json.dump(api_output.to_json(config.target_shape),d)
         statsCalc.globalCalculationFinished()
 
         output_directory = os.path.join(os.getcwd(), config.output_directory)

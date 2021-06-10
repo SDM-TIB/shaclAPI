@@ -272,6 +272,13 @@ class Config:
         This option is only used in multiprocessing route.
         """
         return self.entry_to_bool(self.config_dict.get('run_in_serial', False))
+    
+    @property
+    def reasoning(self):
+        """
+        This option will turn reasoning in terms of extended output on and off. Default is on.
+        """
+        return self.entry_to_bool(self.config_dict.get('reasoning', True))
 
     # --------------------- Calculated Configs --------------------------------------------------
     @property
