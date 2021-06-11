@@ -89,6 +89,26 @@ loggers:
     handlers:
       - queue_listener
     propagate: false
+  app.output.simpleOutput:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.output.statsCalculation:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  rdflib.term:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  rdflib:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
 root:
   level: WARNING
   handlers:
