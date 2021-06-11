@@ -62,10 +62,9 @@ class SimpleOutput():
                 if '?' + b['var'] in query.PV:
                     filtered_bindings['?' + b['var']] = instance
 
-            #binding = {'?' + b['var']: URIRef(b['instance']).n3(query.namespace_manager) if "http" in b['instance'] else Literal(b['instance']) for b in query_result}
             logger.debug("Binding:" + str(binding))
-            #filtered_bindings = {'?' + b['var']: URIRef(b['instance']).n3(query.namespace_manager) if "http" in b['instance'] else Literal(b['instance']) for b in query_result if '?' + b['var'] in query.PV}
             logger.debug("Filtered Binding:" + str(filtered_bindings))
+
             triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
                            for t in query.get_triples(replace_prefixes=False) if t[TripleE.SUBJECT] in binding]
             logger.debug("Triples:" + str(triples))

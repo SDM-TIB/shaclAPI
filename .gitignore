@@ -142,8 +142,18 @@ dmypy.json
 # profiling data
 .prof
 
+### VisualStudioCode ###
+.vscode/*
+*.code-workspace
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 /output
 /timing
 test_output
+watdiv

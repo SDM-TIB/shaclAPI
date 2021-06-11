@@ -2,7 +2,7 @@ version: 1
 objects:
   queue:
     class: multiprocessing.Queue
-    maxsize: 1000
+    maxsize: 10000
 formatters:
   simple:
     format: '[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s'
