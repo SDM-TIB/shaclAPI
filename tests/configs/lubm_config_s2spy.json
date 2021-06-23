@@ -11,5 +11,6 @@
     "outputs": false,
     "backend": "s2spy",
     "remove_constraints": true,
-    "output_format": "test"
+    "output_format": "test",
+    "run_in_serial": true
 }

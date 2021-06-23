@@ -1,8 +1,9 @@
 from app.output.baseResult import BaseResult
-import json
-from rdflib import Namespace, URIRef
+import json, logging
+from rdflib import Namespace, URIRef, Literal
 from app.triple import TripleE
 
+logger = logging.getLogger(__name__)
 
 class SimpleOutput():
     """
@@ -36,22 +37,42 @@ class SimpleOutput():
         return self._output
 
     @staticmethod
-    def fromJoinedResults(result_list, query):
+    def fromJoinedResults(query, final_result_queue):
         output = []
         t_path = Namespace("//travshacl_path#")
         query.namespace_manager.bind('ts', t_path)
         t_path_valid = t_path['satisfiesShape'].n3(query.namespace_manager)
         t_path_invalid = t_path['violatesShape'].n3(query.namespace_manager)
         
-        for query_result in result_list:
-            binding = {'?' + b['var']:URIRef(b['instance']).n3(query.namespace_manager) for b in query_result}
-            filtered_bindings = {'?' + b['var']:URIRef(b['instance']).n3(query.namespace_manager) for b in query_result if '?' + b['var'] in query.PV}
+        result = final_result_queue.get()
+        while result != 'EOF':
+            logger.debug("Result:" + str(result))
+            query_result = result['result']
+
+            # Create Bindings
+            binding = {}
+            filtered_bindings = {}
+            for b in query_result:
+                try:
+                    instance = URIRef(b['instance']).n3(query.namespace_manager)
+                except:
+                    instance = b['instance']
+                binding['?' + b['var']] = instance
+
+                if '?' + b['var'] in query.PV:
+                    filtered_bindings['?' + b['var']] = instance
+
+            logger.debug("Binding:" + str(binding))
+            logger.debug("Filtered Binding:" + str(filtered_bindings))
 
             triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
                            for t in query.get_triples(replace_prefixes=False) if t[TripleE.SUBJECT] in binding]
+            logger.debug("Triples:" + str(triples))
             report_triples = [(URIRef(b['instance']).n3(query.namespace_manager), (t_path_valid if b['validation'][1] else t_path_invalid), b['validation'][0])
                                for b in query_result if 'validation' in b and b['validation']]
+            logger.debug("Report Triples:" + str(report_triples))
             output += [(filtered_bindings, triples, report_triples)]
+            result = final_result_queue.get()
         return SimpleOutput(None, output)
 
     def __str__(self):

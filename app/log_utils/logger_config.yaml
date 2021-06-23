@@ -2,7 +2,7 @@ version: 1
 objects:
   queue:
     class: multiprocessing.Queue
-    maxsize: 1000
+    maxsize: 10000
 formatters:
   simple:
     format: '[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s'
@@ -35,7 +35,7 @@ loggers:
       - queue_listener
     propagate: false
   api:
-    level: WARNING
+    level: DEBUG
     handlers:
       - queue_listener
     propagate: false
@@ -75,7 +75,7 @@ loggers:
       - queue_listener
     propagate: false
   app.reduction.s2spy.ReducedShapeParser:
-    level: WARNING
+    level: DEBUG
     handlers:
       - queue_listener
     propagate: false
@@ -85,6 +85,30 @@ loggers:
       - queue_listener
     propagate: false
   app.reduction.travshacl.ReducedShapeParser:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.output.simpleOutput:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  app.output.statsCalculation:
+    level: WARNING
+    handlers:
+      - queue_listener
+  app.query:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  rdflib.term:
+    level: WARNING
+    handlers:
+      - queue_listener
+    propagate: false
+  rdflib:
     level: WARNING
     handlers:
       - queue_listener

@@ -2,6 +2,7 @@ import multiprocessing as mp
 from app.query import Query
 import time, atexit
 import logging 
+from app.multiprocessing.PipeAdapter import PipeAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -48,13 +49,21 @@ class Runner:
     def get_new_out_queues(self):
         out_queues = []
         for _ in range(self.number_of_out_queues):
-            out_queues += [self.manager.Queue()]
+            out_queues += [PipeAdapter()]
         out_queues = tuple(out_queues)
         return out_queues
 
-    def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue):
+    def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue, wait_for_finish=False):
         if self.process_is_alive():
-            self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description))
+            if wait_for_finish:
+                task_finished_recv, task_finished_send = self.context.Pipe()
+                self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send))
+                result = task_finished_recv.recv()
+                task_finished_send.close()
+                task_finished_recv.close()
+                return result
+            else:
+                self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, None))
         else:
             raise Exception("Start processes before using /multiprocessing")
 
@@ -64,11 +73,12 @@ def mp_function(task_in_queue, function):
     try:
         active_task = task_in_queue.get()
         while active_task != 'EOF':
-            in_queues, out_queues, runner_stats_out_queue, task_description = active_task
+            in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send = active_task
 
             # Now one can use logging as normal
             logger.debug(function.__name__ + " received task!")
             try:
+                start_timestamp = time.time()
                 function(*in_queues, *out_queues, *task_description)
             except Exception as e:
                 runner_stats_out_queue.put({"topic": "Exception", "location": function.__name__})
@@ -77,8 +87,10 @@ def mp_function(task_in_queue, function):
                 for queue in out_queues:
                     queue.put('EOF') # Writing EOF here allows global error handling
                 finished_timestamp = time.time()
-                runner_stats_out_queue.put({"topic": function.__name__, "time": finished_timestamp})
+                runner_stats_out_queue.put({"topic": function.__name__, "time": (start_timestamp, finished_timestamp)})
                 logger.debug(function.__name__ + " finished task; waiting for next one!")
+                if task_finished_send:
+                    task_finished_send.send("Done")
                 active_task = task_in_queue.get()
     except KeyboardInterrupt:
         pass

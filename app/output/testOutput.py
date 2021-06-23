@@ -42,10 +42,12 @@ class TestOutput():
         return self._output
     
     @staticmethod
-    def fromJoinedResults(targetShapeID, result_list):
+    def fromJoinedResults(targetShapeID, final_result_queue):
         output = {"validTargets": [], "invalidTargets": [], "advancedValid": [], "advancedInvalid": []}
         instances = dict()
-        for query_result in result_list:
+        result = final_result_queue.get()
+        while result != 'EOF':
+            query_result = result['result']
             for binding in query_result:
                 if 'validation' in binding:
                     if binding['validation']:
@@ -61,6 +63,7 @@ class TestOutput():
                                     output['advancedValid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
                                 else:
                                     output['advancedInvalid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+            result = final_result_queue.get()
         return TestOutput(None, output=output)
 
     def to_string(self, targetShapeID):

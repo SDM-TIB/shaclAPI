@@ -10,13 +10,24 @@ class StatsCalculation:
     def __init__(self, test_identifier, approach_name):
         self.test_name = test_identifier
         self.approach_name = approach_name.rsplit('.json', 1)[0]
+
         self.first_result_timestamp = None
         self.last_result_timestamp = None
-        self.number_of_results = None
+
+        self.validation_started_time = None
         self.validation_finished_time = None
+
+        self.query_started_time = None
         self.query_finished_time = None
-        self.join_finished_time = None
+
         self.join_started_time = None
+        self.join_finished_time = None
+
+        self.post_processing_started_time = None
+        self.post_processing_finished_time = None
+
+        self.first_validation_result_time = None
+        self.number_of_results = None
 
     def globalCalculationStart(self):
         self.global_start_time = time.time()
@@ -27,55 +38,64 @@ class StatsCalculation:
     def taskCalculationStart(self):
         self.task_start_time = time.time()
 
-    def receive_and_write_trace(self, trace_file, individual_result_times_queue, queue_timeout):
+    def receive_and_write_trace(self, trace_file, timestamp_queue, queue_timeout):
+        '''
+        This assigns the timestamp of the first and the last result; writes the trace file and counts the number of results.
+        This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step) 
+        '''
         writer = CSVWriter(trace_file)
-        result_stat = individual_result_times_queue.get(timeout=queue_timeout)
         received_results = 0
-        while result_stat != 'EOF':
-            if result_stat['topic'] == 'new_xjoin_result':
-                received_results += 1
-                writer.writeMulti({"test": self.test_name,
-                                   "approach": self.approach_name,
-                                   "answer": received_results,
-                                   "time": result_stat['time'] - self.global_start_time})
-                self.last_result_timestamp = result_stat['time']
-                if not self.first_result_timestamp:
-                    self.first_result_timestamp = result_stat['time']
-            elif result_stat['topic'] == 'number_of_results':
-                self.number_of_results = result_stat['number']
-            else: 
-                raise Exception("received statistic with unknown topic")
-            result_stat = individual_result_times_queue.get(timeout=queue_timeout)
-        if self.number_of_results != received_results:
-            warnings.warn("Number of Result timestamps received is not equal to the number of results!")
+        result = timestamp_queue.get(timeout=queue_timeout)
+        while result != 'EOF':
+            received_results += 1
+            writer.writeMulti({"test": self.test_name,
+                               "approach": self.approach_name,
+                               "answer": received_results,
+                               "time": result['timestamp'] - self.global_start_time})
+            self.last_result_timestamp = result['timestamp']
+            if not self.first_result_timestamp:
+                self.first_result_timestamp = result['timestamp']
+            result = timestamp_queue.get(timeout=queue_timeout)
+        self.number_of_results = received_results
         writer.close()
 
     def receive_global_stats(self, stats_out_queue, queue_timeout):
+        '''
+        Receiving start and stop times of the different steps and also the time  of the first validation result.
+        '''
         needed_stats = {'mp_validate': False,
                         'contactSource': False,
                         'mp_xjoin': False,
+                        'mp_post_processing': False,
                         'first_validation_result': False}
         while sum(needed_stats.values()) < len(needed_stats.keys()):
             statistic = stats_out_queue.get(timeout=queue_timeout)
             needed_stats[statistic['topic']] = True
             if statistic['topic'] == 'mp_validate':
-                self.validation_finished_time = statistic['time']
+                self.validation_started_time, self.validation_finished_time = statistic['time']
             elif statistic['topic'] == 'contactSource':
-                self.query_finished_time = statistic['time']
+                self.query_started_time, self.query_finished_time = statistic['time']
             elif statistic['topic'] == 'mp_xjoin':
-                self.join_finished_time = statistic['time']            
+                self.join_started_time, self.join_finished_time = statistic['time']            
+            elif statistic['topic'] == 'mp_post_processing':
+                self.post_processing_started_time, self.post_processing_finished_time = statistic['time']
             elif statistic['topic'] == 'first_validation_result':
-                self.join_started_time = statistic['time']
+                self.first_validation_result_time = statistic['time']
             elif statistic['topic'] == 'Exception':
                 raise Exception("An Exception occurred in " + statistic['location'])
             else:
-                raise Exception("received statistic with unknown topic")
+                raise Exception("received statistic with unknown topic: {}".format(statistic['topic']))
 
     def write_matrix_and_stats_files(self, matrix_file, stats_file):
         total_execution_time = self.global_end_time - self.global_start_time
-        query_time = self.query_finished_time - self.task_start_time
-        network_validation_time = self.validation_finished_time - self.task_start_time
-        join_time = self.join_finished_time - self.join_started_time
+
+        query_time = self.query_finished_time - self.query_started_time
+        network_validation_time = self.validation_finished_time - self.validation_started_time
+        post_processing_time = self.post_processing_finished_time - self.post_processing_started_time
+
+        # Using the maximum of this timestamps because the later one better describes the "real" start of the join.
+        approximated_join_start = max(self.join_started_time, self.first_validation_result_time)
+        join_time = self.join_finished_time - approximated_join_start
 
         if self.first_result_timestamp:
             first_result_time = self.first_result_timestamp - self.global_start_time

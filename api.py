@@ -1,4 +1,4 @@
-import os, logging, time, sys
+import os, logging, time, sys, json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
 
@@ -7,7 +7,7 @@ from app.config import Config
 from app.utils import lookForException
 from app.output.simpleOutput import SimpleOutput
 from app.output.testOutput import TestOutput
-from app.multiprocessing.functions import queue_output_to_table, mp_validate, mp_xjoin
+from app.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_processing
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
@@ -25,28 +25,36 @@ query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELE
 query.namespace_manager.namespaces()
 
 # Building Multiprocessing Chain using Runners and Queries
-# Validation --> \
-#                 XJoin --> Output Generation
-# Query      --> /
+#   /––––––––––– shape vars ––\
+# Validation ––> \             \
+#                 XJoin ––> PostProcessing ––> Output Generation
+# Query      ––> /
 
 # Dataprocessing Queues --> 'EOF' is written by the runner class after function to execute finished
-# val_queue: Queue with validation results
-# transformed_query_queue: Query results in a joinable format
-# query_queue: All results in original binding format
-# out_queue: Joined results (literals/non-shape uris missing, and still need to collect bindings with similar id)
-# 
+
+# Name                      | Sender - Threads          | Receiver - Threads        | Queue/Pipe    | Description
+# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# val_queue                 | VALIDATION_RUNNER         | XJOIN_RUNNER              | Pipe (Todo)   | Queue with validation results
+# shape_variables_queue     | VALIDATION_RUNNER         | POST_PROCESSING_RUNNER    | Pipe (Todo)   |
+# transformed_query_queue   | CONTACT_SOURCE_RUNNER     | XJOIN_RUNNER              | Pipe (Todo)   | Query results in a joinable format 
+# query_results_queue       | CONTACT_SOURCE_RUNNER     | POST_PROCESSING_RUNNER    | Pipe (Todo)   | All results in original binding format
+# joined_results_queue      | XJOIN_RUNNER              | POST_PROCESSING_RUNNER    | Pipe (Todo)   | Joined results (literals/non-shape uris missing, and still need to collect bindings with similar id)
+# final_result_queue        | POST_PROCESSING_RUNNER    | Main Thread               | Pipe (Todo)   |
+
 # Queues to collect statistics: --> {"topic":...., "":....}
-# stats_out_queue: one time statistics per run --> known number of statistics (also contains exception notifications in case a runner catches an exception)
-# result_timing_out_queue: variable number of result timestamps per run --> close with 'EOF' by queue_output_to_table
+# stats_out_queue           | ALL_RUNNER                | Main Thread               | Queue         | one time statistics per run --> known number of statistics (also contains exception notifications in case a runner catches an exception)
+# timestamp_queue           | POST_PROCESSING_RUNNER    | Main Thread               | Pipe (Todo)   | variable number of result timestamps per run --> close with 'EOF' by queue_output_to_table
 
 VALIDATION_RUNNER = Runner(mp_validate, number_of_out_queues=2)
 CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
 XJOIN_RUNNER = Runner(mp_xjoin, number_of_out_queues=1)
+POST_PROCESSING_RUNNER = Runner(mp_post_processing, number_of_out_queues=2)
 
 # Starting the processes of the runners
 VALIDATION_RUNNER.start_process()
 CONTACT_SOURCE_RUNNER.start_process()
 XJOIN_RUNNER.start_process()
+POST_PROCESSING_RUNNER.start_process()
 
 def run_multiprocessing(pre_config):
     global EXTERNAL_SPARQL_ENDPOINT
@@ -64,19 +72,35 @@ def run_multiprocessing(pre_config):
     statsCalc.globalCalculationStart()
 
     # Setup Multiprocessing Queues
-    result_timing_out_queue = mp.Queue()
+    # 1.) Get Queues
     stats_out_queue = CONTACT_SOURCE_RUNNER.get_new_queue()
-    contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues()
-    transformed_query_queue, query_queue = contact_source_out_queues
+    contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues() 
     validation_out_queues = VALIDATION_RUNNER.get_new_out_queues()
-    val_queue, shape_variables_queue = validation_out_queues
     xjoin_out_queues = XJOIN_RUNNER.get_new_out_queues()
-    out_queue = xjoin_out_queues[0]
+    post_processing_out_queues = POST_PROCESSING_RUNNER.get_new_out_queues()
+
+    # 2.) Extract Out Queues
+    transformed_query_queue, query_results_queue = contact_source_out_queues # pylint: disable=unbalanced-tuple-unpacking
+    val_queue, shape_variables_queue = validation_out_queues # pylint: disable=unbalanced-tuple-unpacking
+    joined_results_queue = xjoin_out_queues[0]
+    final_result_queue, timestamp_queue = post_processing_out_queues # pylint: disable=unbalanced-tuple-unpacking
+
+    # 3.) Zip Out Connections
+    contact_source_out_connections = tuple((queue_adapter.sender for queue_adapter in contact_source_out_queues))
+    validation_out_connections = tuple((queue_adapter.sender for queue_adapter in validation_out_queues))
+    xjoin_out_connections = tuple((queue_adapter.sender for queue_adapter in xjoin_out_queues))
+    post_processing_out_connections = tuple((queue_adapter.sender for queue_adapter in post_processing_out_queues))
+
+    # 3.) Zip In Connections
+    contact_source_in_connections = tuple()
+    validation_in_connections = tuple()
+    xjoin_in_connections = (transformed_query_queue.receiver, val_queue.receiver)
+    post_processing_in_connections = (shape_variables_queue.receiver, joined_results_queue.receiver, query_results_queue.receiver)
 
 
     # Setup of the Validation Result Transmitting Strategie
     if config.transmission_strategy == 'queue':
-        result_transmitter = ValidationResultTransmitter(output_queue=val_queue, first_val_time_queue=stats_out_queue)
+        result_transmitter = ValidationResultTransmitter(output_queue=val_queue.sender, first_val_time_queue=stats_out_queue)
     else:
         result_transmitter = ValidationResultTransmitter(first_val_time_queue=stats_out_queue)
 
@@ -84,50 +108,41 @@ def run_multiprocessing(pre_config):
     query = Query.prepare_query(config.query)
 
     # The information we need depends on the output format:
-    if config.output_format == "test":
+    if config.output_format == "test" or (not config.reasoning):
         query_to_be_executed = query.as_valid_query()
     else:
         query_to_be_executed = query.as_result_query()
 
     statsCalc.taskCalculationStart()
 
+    # Start Processing Pipeline
     # 1.) Get the Data
     contact_source_task_description = (config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
-    contact_source_in_queues = (shape_variables_queue, )
-    CONTACT_SOURCE_RUNNER.new_task(contact_source_in_queues, contact_source_out_queues, contact_source_task_description, stats_out_queue)
+    CONTACT_SOURCE_RUNNER.new_task(contact_source_in_connections, contact_source_out_connections, contact_source_task_description, stats_out_queue, config.run_in_serial)
 
-    validation_task_description = (config, query, result_transmitter)
-    validation_in_queues = tuple()
-    VALIDATION_RUNNER.new_task(validation_in_queues, validation_out_queues, validation_task_description, stats_out_queue)
+    validation_task_description = (config, Query(query_to_be_executed), result_transmitter)
+    VALIDATION_RUNNER.new_task(validation_in_connections, validation_out_connections, validation_task_description, stats_out_queue, config.run_in_serial)
     
     # 2.) Join the Data
     xjoin_task_description = (config,)
-    xjoin_in_queues = (transformed_query_queue, val_queue)
-    XJOIN_RUNNER.new_task(xjoin_in_queues, xjoin_out_queues, xjoin_task_description, stats_out_queue)
+    XJOIN_RUNNER.new_task(xjoin_in_connections, xjoin_out_connections, xjoin_task_description, stats_out_queue, config.run_in_serial)
 
-    # 3.) Result Collection: Order the Data and Restore missing vars (these one which could not find a join partner (literals etc.))
-    try:
-        if config.output_format == "stats":
-            api_result = queue_output_to_table(out_queue, query_queue, config.queue_timeout, result_timing_out_queue)
-        else:
-            api_result = queue_output_to_table(out_queue, query_queue, config.queue_timeout)
-    except Exception as e:
-        logger.exception(repr(e))
-        restart_processes()
-        if str(repr(e)) == "Empty()":
-            return "Timeout while transforming join output to result bindings (according to queue_timeout config)!", config
-        else:
-            return str(repr(e)), config
+    # 3.) Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))
+    post_processing_task_description = (config.queue_timeout,)
+    POST_PROCESSING_RUNNER.new_task(post_processing_in_connections, post_processing_out_connections, post_processing_task_description, stats_out_queue, config.run_in_serial)
 
     # 4.) Output
     if config.output_format == "test":
         lookForException(stats_out_queue)
-        api_output = TestOutput.fromJoinedResults(config.target_shape, api_result)
+        api_output = TestOutput.fromJoinedResults(config.target_shape, final_result_queue.receiver)
     elif config.output_format == "simple":
         lookForException(stats_out_queue)
-        api_output = SimpleOutput.fromJoinedResults(api_result, query)
+        api_output = SimpleOutput.fromJoinedResults(query, final_result_queue.receiver)
     elif config.output_format == "stats":
-        TestOutput.fromJoinedResults(config.target_shape, api_result)
+        api_output = SimpleOutput.fromJoinedResults(query, final_result_queue.receiver)
+        #with open("output/simpleOutput", "w") as d:
+        #    d.write(str(api_output))
+        #    #json.dump(api_output.to_json(config.target_shape),d)
         statsCalc.globalCalculationFinished()
 
         output_directory = os.path.join(os.getcwd(), config.output_directory)
@@ -136,7 +151,7 @@ def run_multiprocessing(pre_config):
         stats_file = os.path.join(output_directory, "stats.csv")
 
         try:
-            statsCalc.receive_and_write_trace(trace_file, result_timing_out_queue, config.queue_timeout)
+            statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver, config.queue_timeout)
             statsCalc.receive_global_stats(stats_out_queue, config.queue_timeout)
         except Exception as e:
             logger.exception(repr(e))
@@ -200,12 +215,14 @@ def stop_processes():
     VALIDATION_RUNNER.stop_process()
     CONTACT_SOURCE_RUNNER.stop_process()
     XJOIN_RUNNER.stop_process()
+    POST_PROCESSING_RUNNER.stop_process()
     time.sleep(0.1)
-    return not (VALIDATION_RUNNER.process_is_alive() or CONTACT_SOURCE_RUNNER.process_is_alive() or XJOIN_RUNNER.process_is_alive())
+    return not (VALIDATION_RUNNER.process_is_alive() or CONTACT_SOURCE_RUNNER.process_is_alive() or XJOIN_RUNNER.process_is_alive() and POST_PROCESSING_RUNNER.process_is_alive())
 
 def start_processes():
     VALIDATION_RUNNER.start_process()
     CONTACT_SOURCE_RUNNER.start_process()
     XJOIN_RUNNER.start_process()
+    POST_PROCESSING_RUNNER.start_process()
     time.sleep(0.1)
-    return VALIDATION_RUNNER.process_is_alive() and CONTACT_SOURCE_RUNNER.process_is_alive() and XJOIN_RUNNER.process_is_alive()
+    return VALIDATION_RUNNER.process_is_alive() and CONTACT_SOURCE_RUNNER.process_is_alive() and XJOIN_RUNNER.process_is_alive() and POST_PROCESSING_RUNNER.process_is_alive()

@@ -33,7 +33,7 @@ def combineRDFGraphs(graph_file, new_json):
                         g.add((sub, pred, obj))
     g.serialize(destination=graph_file, format='pretty-xml')
 
-for tc in ['tc1', 'tc2', 'tc3', 'tc4']:
+for tc in ['tc1', 'tc2', 'tc3', 'tc4', 'tc5']:
     partGraph = path.join('tests/', tc,'data/partGraph.json')
     if path.exists(partGraph):
         combineRDFGraphs('tests/setup/TestData/fullTestGraph.owl', partGraph)

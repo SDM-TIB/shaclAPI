@@ -1,12 +1,13 @@
 import re
 import warnings
+import logging
 
 from rdflib.plugins import sparql
 from app.triple import Triple
 from rdflib.term import URIRef, Variable
 from rdflib.paths import InvPath
 
-
+logger = logging.getLogger(__name__)
 
 class Query:
     target_query = None
@@ -140,7 +141,7 @@ class Query:
             return candidates.pop()
         else:
             if '?x' in self.variables:
-                warnings.warn("Using ?x as target variable as there wasn't a variable, which could be clearly identified as target variable e.g. occuring in each triple as subject.")
+                logger.warn("Using ?x as target variable as there wasn't a variable, which could be clearly identified as target variable e.g. occuring in each triple as subject.")
                 return '?x'
             else:
                 raise Exception("Not a valid star-shaped query.")
