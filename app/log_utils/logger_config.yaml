@@ -98,6 +98,10 @@ loggers:
     level: WARNING
     handlers:
       - queue_listener
+  app.query:
+    level: WARNING
+    handlers:
+      - queue_listener
     propagate: false
   rdflib.term:
     level: WARNING

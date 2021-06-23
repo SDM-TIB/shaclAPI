@@ -2,6 +2,7 @@ import multiprocessing as mp
 from app.query import Query
 import time, atexit
 import logging 
+from app.multiprocessing.PipeAdapter import PipeAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class Runner:
     def get_new_out_queues(self):
         out_queues = []
         for _ in range(self.number_of_out_queues):
-            out_queues += [self.manager.Queue()]
+            out_queues += [PipeAdapter()]
         out_queues = tuple(out_queues)
         return out_queues
 
