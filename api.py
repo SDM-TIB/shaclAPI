@@ -30,20 +30,20 @@ query.namespace_manager.namespaces()
 #                 XJoin ––> PostProcessing ––> Output Generation
 # Query      ––> /
 
-# Dataprocessing Queues --> 'EOF' is written by the runner class after function to execute finished
+# Dataprocessing Queues/Pipes --> 'EOF' is written by the runner class after function to execute finished
 
 # Name                      | Sender - Threads          | Receiver - Threads        | Queue/Pipe    | Description
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-# val_queue                 | VALIDATION_RUNNER         | XJOIN_RUNNER              | Pipe (Todo)   | Queue with validation results
-# shape_variables_queue     | VALIDATION_RUNNER         | POST_PROCESSING_RUNNER    | Pipe (Todo)   |
-# transformed_query_queue   | CONTACT_SOURCE_RUNNER     | XJOIN_RUNNER              | Pipe (Todo)   | Query results in a joinable format 
-# query_results_queue       | CONTACT_SOURCE_RUNNER     | POST_PROCESSING_RUNNER    | Pipe (Todo)   | All results in original binding format
-# joined_results_queue      | XJOIN_RUNNER              | POST_PROCESSING_RUNNER    | Pipe (Todo)   | Joined results (literals/non-shape uris missing, and still need to collect bindings with similar id)
-# final_result_queue        | POST_PROCESSING_RUNNER    | Main Thread               | Pipe (Todo)   |
+# val_queue                 | VALIDATION_RUNNER         | XJOIN_RUNNER              | Pipe          | Queue with validation results
+# shape_variables_queue     | VALIDATION_RUNNER         | POST_PROCESSING_RUNNER    | Pipe          |
+# transformed_query_queue   | CONTACT_SOURCE_RUNNER     | XJOIN_RUNNER              | Pipe          | Query results in a joinable format 
+# query_results_queue       | CONTACT_SOURCE_RUNNER     | POST_PROCESSING_RUNNER    | Pipe          | All results in original binding format
+# joined_results_queue      | XJOIN_RUNNER              | POST_PROCESSING_RUNNER    | Pipe          | Joined results (literals/non-shape uris missing, and still need to collect bindings with similar id)
+# final_result_queue        | POST_PROCESSING_RUNNER    | Main Thread               | Pipe          |
 
 # Queues to collect statistics: --> {"topic":...., "":....}
 # stats_out_queue           | ALL_RUNNER                | Main Thread               | Queue         | one time statistics per run --> known number of statistics (also contains exception notifications in case a runner catches an exception)
-# timestamp_queue           | POST_PROCESSING_RUNNER    | Main Thread               | Pipe (Todo)   | variable number of result timestamps per run --> close with 'EOF' by queue_output_to_table
+# timestamp_queue           | POST_PROCESSING_RUNNER    | Main Thread               | Pipe          | variable number of result timestamps per run --> close with 'EOF' by queue_output_to_table
 
 VALIDATION_RUNNER = Runner(mp_validate, number_of_out_queues=2)
 CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
@@ -140,9 +140,9 @@ def run_multiprocessing(pre_config):
         api_output = SimpleOutput.fromJoinedResults(query, final_result_queue.receiver)
     elif config.output_format == "stats":
         api_output = SimpleOutput.fromJoinedResults(query, final_result_queue.receiver)
-        #with open("output/simpleOutput", "w") as d:
-        #    d.write(str(api_output))
-        #    #json.dump(api_output.to_json(config.target_shape),d)
+        # with open("output/simpleOutput", "w") as d:
+        #     d.write(str(api_output))
+        #     #json.dump(api_output.to_json(config.target_shape),d)
         statsCalc.globalCalculationFinished()
 
         output_directory = os.path.join(os.getcwd(), config.output_directory)
@@ -190,7 +190,7 @@ def run_singleprocessing(pre_config):
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(config.query)
-    schema = prepare_validation(config, query, result_transmitter) # True means replace TargetShape Query
+    schema = prepare_validation(config, query, result_transmitter)
     
     # Run the evaluation of the SHACL constraints over the specified endpoint
     report = schema.validate(start_with_target_shape=True)
@@ -226,3 +226,80 @@ def start_processes():
     POST_PROCESSING_RUNNER.start_process()
     time.sleep(0.1)
     return VALIDATION_RUNNER.process_is_alive() and CONTACT_SOURCE_RUNNER.process_is_alive() and XJOIN_RUNNER.process_is_alive() and POST_PROCESSING_RUNNER.process_is_alive()
+
+def compute_experiment_metrices(pre_config):
+    config = Config.from_request_form(pre_config)
+    endpoint = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
+    os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
+
+    # Parse query_string into a corresponding select_query
+    query = Query.prepare_query(config.query)
+    schema = prepare_validation(config, query, None)
+    shapes = [shape for shape in schema.shapes if shape]
+
+    print("Final Shape Schema consists of:", [shape.id for shape in shapes])
+
+    # 1.) Data Metrices
+    def query_endpoint(query):
+        endpoint.setQuery(query)
+        answer = endpoint.query().convert()
+        return answer['results']['bindings'][0]['callret-0']['value']
+
+    number_triples_in_graph = query_endpoint("SELECT COUNT(*) WHERE {?s ?p ?o.}")
+    print("number_of_triples", number_triples_in_graph)
+
+    id_to_targetTypes = {s.id: s.targetDef for s in shapes}
+    number_of_relevant_triples = query_endpoint("SELECT COUNT(*) WHERE {?s a ?t . ?s ?p ?o FILTER(?t in "+ str(tuple(id_to_targetTypes.values())).replace("'","") +" )}")
+    print("max_number_of_relevant_triples_induced_by_shape_network", number_of_relevant_triples)
+
+
+    referencing_predicates_per_shape = {s.id: [(c.shapeRef, c.path) for c in s.constraints if c.shapeRef] for s in shapes}
+
+    number_of_instances_per_type = dict()
+    for t in id_to_targetTypes.values():
+        number_of_instances_per_type[t] = query_endpoint("SELECT COUNT(DISTINCT ?s) WHERE{?s a " + t + " }")
+
+    print("number_of_instances", number_of_instances_per_type)
+
+    print("Connectivity induced by Shape Network")
+    for s_id, list_of_references in referencing_predicates_per_shape.items():
+        for ref in list_of_references:
+            s2_id, pred = ref
+            print(s_id, pred, s2_id, query_endpoint("SELECT COUNT(*) WHERE{?s a " + 
+                    id_to_targetTypes[s_id] + ". ?s " + pred + " ?o. ?o a " + id_to_targetTypes[s2_id] + " }"))
+
+    print("Connectivity induced by Query")
+    triples = [s.n3() + " " + p.n3() + " " + o.n3() for s,p,o in query.triples]
+    for str_triple, triple in zip(triples, query.triples):
+        print(config.target_shape, triple.predicate, triple.object, query_endpoint("SELECT COUNT(*) WHERE{ "+ query.target_var +" a " + 
+                    id_to_targetTypes[config.target_shape] + ". "+ str_triple +".}"))
+
+    # 2.) Shape Schema Metrices
+    print("Shape Schema Metrics")
+    def constraint_statistics(constraints):
+        number_of_constraints = len(constraints)
+
+        max_constraints = list(filter(lambda c: type(c).__name__ == "MaxOnlyConstraint", constraints))
+        max_values = [c.max for c in max_constraints] if len(max_constraints) > 0 else [-1]
+
+        min_constraints = list(filter(lambda c: type(c).__name__ == "MinOnlyConstraint", constraints))
+        min_values = [c.min for c in min_constraints] if len(min_constraints) > 0 else [-1]
+
+        min_max_constraints = list(filter(lambda c: type(c).__name__ == "MinMaxConstraint", constraints))
+        mm_min_values = [c.min for c in min_max_constraints] if len(min_max_constraints) > 0 else [-1]
+        mm_max_values = [c.max for c in min_max_constraints] if len(min_max_constraints) > 0 else [-1]
+
+
+        type_of_constraints = {"max": (len(max_constraints), max(max_values)), 
+                                "min": (len(min_constraints), max(min_values)), 
+                                "minmax": (len(min_max_constraints), max(mm_min_values), max(mm_max_values))}
+        return number_of_constraints, type_of_constraints
+
+    for shape in shapes:
+        print(shape.id)
+        inter_shape_constraints = [constraint for constraint in shape.constraints if constraint.shapeRef]
+        intra_shape_constraints = [constraint for constraint in shape.constraints if constraint.shapeRef is None]
+
+        print("Inter Shape Constraints: ", constraint_statistics(inter_shape_constraints))
+        print("Intra Shape Constraints: ", constraint_statistics(intra_shape_constraints))
+

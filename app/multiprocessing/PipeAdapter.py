@@ -1,6 +1,10 @@
 from multiprocessing import Pipe
 
 class ConnectionAdapter():
+    '''
+    The idea is to use a Connection Object with the functions of a Queue.
+    '''
+
     def __init__(self, connection, is_sender) -> None:
         self.is_sender = is_sender
         self.connection = connection
