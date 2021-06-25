@@ -4,7 +4,7 @@ import sys
 class ThreadEx(Thread):
     '''
     ThreadEx extends Thread with the capability to raise Exceptions,
-    which occured in the Thread in the main Thread.
+    which occured in the Thread, in the main Thread.
     See for something similar: https://nedbatchelder.com/blog/200711/rethrowing_exceptions_in_python.html
     '''
     def __init__(self, group=None, target=None, name=None,
