@@ -279,6 +279,13 @@ class Config:
         This option will turn reasoning in terms of extended output on and off. Default is on.
         """
         return self.entry_to_bool(self.config_dict.get('reasoning', True))
+    
+    @property
+    def use_pipes(self):
+        """
+        Whether to use Pipes or not (in that case Queues are used)
+        """
+        return self.entry_to_bool(self.config_dict.get('use_pipes', False))
 
     # --------------------- Calculated Configs --------------------------------------------------
     @property

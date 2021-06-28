@@ -74,10 +74,10 @@ def run_multiprocessing(pre_config):
     # Setup Multiprocessing Queues
     # 1.) Get Queues
     stats_out_queue = CONTACT_SOURCE_RUNNER.get_new_queue()
-    contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues() 
-    validation_out_queues = VALIDATION_RUNNER.get_new_out_queues()
-    xjoin_out_queues = XJOIN_RUNNER.get_new_out_queues()
-    post_processing_out_queues = POST_PROCESSING_RUNNER.get_new_out_queues()
+    contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues(config.use_pipes) 
+    validation_out_queues = VALIDATION_RUNNER.get_new_out_queues(config.use_pipes)
+    xjoin_out_queues = XJOIN_RUNNER.get_new_out_queues(config.use_pipes)
+    post_processing_out_queues = POST_PROCESSING_RUNNER.get_new_out_queues(config.use_pipes)
 
     # 2.) Extract Out Queues
     transformed_query_queue, query_results_queue = contact_source_out_queues # pylint: disable=unbalanced-tuple-unpacking

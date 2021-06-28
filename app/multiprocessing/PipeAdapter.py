@@ -52,3 +52,8 @@ class PipeAdapter():
         self.sender = ConnectionAdapter(conn1, True)
         self.receiver = ConnectionAdapter(conn2, False)
 
+class QueueAdapter():
+    def __init__(self, context):
+        queue = context.Queue()
+        self.sender = queue
+        self.receiver = queue

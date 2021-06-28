@@ -2,7 +2,7 @@ import multiprocessing as mp
 from app.query import Query
 import time, atexit
 import logging 
-from app.multiprocessing.PipeAdapter import PipeAdapter
+from app.multiprocessing.PipeAdapter import PipeAdapter, QueueAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class Runner:
         - SECOND: out_queues (number_of_out_queues specified in constructor of Runner)
         - FINALLY: variable number of parameters needed for the task (These ones which also needed to be passed to new_task)
     """
-    def __init__(self,function, number_of_out_queues = 1):
+    def __init__(self, function, number_of_out_queues = 1):
         self.context   = mp.get_context("spawn")
         self.manager = mp.Manager()
         self.function = function
@@ -46,10 +46,13 @@ class Runner:
     def get_new_queue(self):
         return self.manager.Queue()
     
-    def get_new_out_queues(self):
+    def get_new_out_queues(self, use_pipes):
         out_queues = []
         for _ in range(self.number_of_out_queues):
-            out_queues += [PipeAdapter()]
+            if use_pipes:
+                out_queues += [PipeAdapter()]
+            else:
+                out_queues += [QueueAdapter(self.manager)]
         out_queues = tuple(out_queues)
         return out_queues
 

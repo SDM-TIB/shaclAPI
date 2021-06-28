@@ -4,5 +4,6 @@
     "shapeFormat": "JSON",
     "output_format": "stats",
     "run_in_serial": true,
-    "reasoning": false
+    "reasoning": false,
+    "use_pipes": true
 }
