@@ -6,6 +6,7 @@ class Config:
     def __init__(self, config_dict):
         self.config_dict = config_dict
         self.INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
+        self.check()
 
     @staticmethod
     def from_request_form(request_params):
@@ -26,6 +27,14 @@ class Config:
                 return False
             else:
                 raise Exception("Could not interprete {}".format(item))
+
+    def check(self):
+        if self.backend == "s2spy" and self.start_with_target_shape == False:
+            raise Exception("backend s2spy needs to start with target shape; set start_with_target_shape to True")
+        if self.prune_shape_network == False and self.remove_constraints:
+            raise Exception("Its not possible to not prune the shape network but removing constraints (impling pruning the shape network...)")
+        if self.use_pipes and self.run_in_serial:
+            raise Exception("Pipes can only hold a limited amount of data and can therefore not be used in serial mode.")
 
     # ------------------------------- Required Configs -------------------------------------------
     @property

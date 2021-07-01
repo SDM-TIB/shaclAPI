@@ -1,4 +1,5 @@
 from multiprocessing import Pipe
+from queue import Empty
 
 class ConnectionAdapter():
     '''
@@ -27,17 +28,20 @@ class ConnectionAdapter():
             if block and timeout == None:
                 result = self.connection.recv()
             elif block and timeout != None:
-                result = self.connection.recv()
+                if self.connection.poll(timeout):
+                    result = self.connection.recv()
+                else:
+                    raise Empty
             elif not block and timeout == None:
                 if self.connection.poll():
                     result = self.connection.recv()
                 else:
-                    raise Exception("Pipe is empty!")
+                    raise Empty
             elif not block and timeout != None:
                 if self.connection.poll(timeout):
                     result = self.connection.recv()
                 else:
-                    raise Exception("Pipe is empty!")
+                    raise Empty
         else:
             raise Exception("Sender is not allowed to receive or Connection is closed!")
         if result == 'EOF':

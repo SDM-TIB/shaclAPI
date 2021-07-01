@@ -67,7 +67,7 @@ class Xgjoin():
             # Try to get and process tuple from left queue.
             if tuple1 != "EOF":
                 try:
-                    tuple1 = self.left.get(False)
+                    tuple1 = self.left.get(block=False)
                     # print "tuple1", tuple1
                     self.leftcount += 1
                     signal.alarm(self.timeoutSecondStage)
@@ -88,7 +88,7 @@ class Xgjoin():
             # Try to get and process tuple from right queue.
             if tuple2 != "EOF":
                 try:
-                    tuple2 = self.right.get(False)
+                    tuple2 = self.right.get(block=False)
                     # print "tuple2", tuple2
                     self.rightcount +=1
                     signal.alarm(self.timeoutSecondStage)

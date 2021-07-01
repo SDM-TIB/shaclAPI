@@ -27,25 +27,28 @@ def mp_post_processing(shape_variables_queue, joined_result_queue, query_result_
     # Prepare Hashtable (id --> {result: _, further_query_results: "Query Results which we only need if there are Shapes which don't need to be validated and thus won't occure in the joined results", need: "Set of Variables which will get a Validation Result from the Joined Validation Result queue", 
     #                               got_query_result: "If we already received the binding from the query queue"})
     table = {}
+    finished_set = set()
 
     # Start a Thread for both incoming Queues
-    t_query = ThreadEx(target=mp_post_processing_query_thread, args=(table, query_result_queue, final_result_queue, timestamp_queue, shape_vars))
-    t_joined_results = ThreadEx(target=mp_post_processing_joined_result_thread, args=(table, joined_result_queue, final_result_queue, timestamp_queue, shape_vars))
+    t_query = ThreadEx(target=mp_post_processing_query_thread, args=(table, query_result_queue, final_result_queue, timestamp_queue, shape_vars, finished_set))
+    t_joined_results = ThreadEx(target=mp_post_processing_joined_result_thread, args=(table, joined_result_queue, final_result_queue, timestamp_queue, shape_vars, finished_set))
     t_query.start()
     t_joined_results.start()
     t_query.join()
     t_joined_results.join()
 
     # Adding of results which where skipped in validation (for example because the matching target could be invalidated earlier)
-    for item in table.values():
-        result = item['result']
-        missing_validation_results = [item['further_query_results'][var[1:]] for var in item['need']]
-        result.extend(missing_validation_results)
-        logger.warning("Found unfinished result {}".format(item))
-        logger.debug("Instead using: {}".format(result))
-        final_result_queue.put({'result': result})
+    for id, item in table.items():
+        if id not in finished_set:
+            logger.debug("item {} ".format(id) + str(item))
+            result = item['result']
+            missing_validation_results = [item['further_query_results'][var[1:]] for var in item['need']]
+            result.extend(missing_validation_results)
+            logger.warning("Found unfinished result {}".format(item))
+            logger.debug("Instead using: {}".format(result))
+            final_result_queue.put({'result': result})
 
-def mp_post_processing_query_thread(table, queue, out_queue, timestamp_queue, shape_vars):
+def mp_post_processing_query_thread(table, queue, out_queue, timestamp_queue, shape_vars, finished_set):
     item = queue.get()
     while item != 'EOF':
         item_id = item['id']
@@ -61,9 +64,10 @@ def mp_post_processing_query_thread(table, queue, out_queue, timestamp_queue, sh
         table[item_id]['further_query_results'].update({var: {'var': var, 'instance': instance, 'validation': None} for var, instance in item['query_result'].items() if "?" + var in shape_vars})
         table[item_id]['got_query_result'] = True
 
-        # If the Hashtable Entry is complete put it into the output queue and remove it from the Hashtable
+        # If the Hashtable Entry is complete put it into the output queue; remove it from the Hashtable and add the id to the finished list
         if len(table[item_id]['need']) == 0 and table[item_id]['got_query_result'] == True:
             try:
+                finished_set.add(item_id)
                 final_result_item = table[item_id]
                 del table[item_id]
             except KeyError:
@@ -75,7 +79,7 @@ def mp_post_processing_query_thread(table, queue, out_queue, timestamp_queue, sh
         item = queue.get()
     logger.debug('Query thread is done!')
 
-def mp_post_processing_joined_result_thread(table, queue, out_queue, timestamp_queue, shape_vars):
+def mp_post_processing_joined_result_thread(table, queue, out_queue, timestamp_queue, shape_vars, finished_set):
     item = queue.get()
     while item != 'EOF':
         item_id = item['id']
@@ -93,9 +97,10 @@ def mp_post_processing_joined_result_thread(table, queue, out_queue, timestamp_q
         except KeyError:
             logger.warning("Got unneeded validation result! {} --> {}".format(item, table[item_id]))
 
-        # If the Hashtable Entry is complete put it into the output queue and remove it from the Hashtable
+        # If the Hashtable Entry is complete put it into the output queue; remove it from the Hashtable and add the id to the finished list
         if len(table[item_id]['need']) == 0 and table[item_id]['got_query_result'] == True:
             try:
+                finished_set.add(item_id)
                 final_result_item = table[item_id]
                 del table[item_id]
             except KeyError:
