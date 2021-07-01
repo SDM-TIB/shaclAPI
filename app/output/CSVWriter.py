@@ -32,7 +32,7 @@ class CSVWriter():
         self.__write_dict(input)
         self.__close_fd()
     
-    def writeMulti(self,input, finished=False):
+    def writeMulti(self,input):
         if self.__check_file_exists():
             self.__open_fd('a')
         else:
@@ -40,6 +40,16 @@ class CSVWriter():
             self.__write_header(input.keys())
         self.__write_dict(input)
     
+    def writeListOfDicts(self,input):
+        if self.__check_file_exists():
+            self.__open_fd('a')
+        else:
+            self.__open_fd('w')
+            self.__write_header(input[0].keys())
+        for item in input:
+            self.__write_dict(item)
+        self.__close_fd()
+
     def close(self):
         if self.fd:
             self.__close_fd()
