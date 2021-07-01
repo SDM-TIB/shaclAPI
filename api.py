@@ -1,8 +1,8 @@
-import os, logging, time, sys, json
+import os, logging, time, sys, json, re
 from SPARQLWrapper import SPARQLWrapper, JSON
 import multiprocessing as mp
 from rdflib.namespace import RDF
-from rdflib.term import Variable
+from rdflib.term import Variable, URIRef
 
 from app.query import Query
 from app.config import Config
@@ -237,8 +237,19 @@ def compute_experiment_metrices(pre_config):
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(config.query)
+
+    prefix_block = re.search(r'(PREFIX.*)SELECT', query.query_string, re.DOTALL)
+    if prefix_block:
+        query_without_prefix = Query(query.query_string[prefix_block.end(1):])
+    else:
+        query_without_prefix = query
+
     schema = prepare_validation(config, query, None)
     shapes = [shape for shape in schema.shapes if shape]
+
+    prefixes = {str(key): "<" + str(value) + ">" for (key, value) in query.namespace_manager.namespaces()}
+    prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in prefixes.items()]) + "\n"
+
 
     csv_writer = CSVWriter(os.path.join(config.output_directory, "connectivity.csv"))
     result_dict = []
@@ -246,43 +257,55 @@ def compute_experiment_metrices(pre_config):
     print("Final Shape Schema consists of:", [shape.id for shape in shapes])
 
     # 1.) Data Metrices
+    def URI(uri):
+        if uri == 'a':
+            return URI(RDF.type)
+        if uri.startswith('<'):
+            uri = uri[1:-1]
+        if uri.startswith('^'):
+            return '^'+URIRef(uri[1:]).n3(query.namespace_manager)
+        else:
+            return URIRef(uri).n3(query.namespace_manager)
+
     def query_endpoint(query):
+        query = prefixString + query
         endpoint.setQuery(query)
-        answer = endpoint.query().convert()
-        return int(answer['results']['bindings'][0]['callret-0']['value'])
+        try:
+            answer = endpoint.query().convert()
+            return int(answer['results']['bindings'][0]['callret-0']['value'])
+        except:
+            raise Exception("Query {} lead to a failure!".format(query))
     
     def get_all_predicates(target_class):
-        endpoint.setQuery("SELECT DISTINCT ?p { ?s ?p ?o. ?s a " + target_class + " }")
+        endpoint.setQuery(prefixString + "SELECT DISTINCT ?p { ?s ?p ?o. ?s a " + target_class + " }")
         answer = endpoint.query().convert()
-        return set(["<" + binding['p']['value'] + ">" for binding in answer['results']['bindings']])
+        return set([URI(binding['p']['value']) for binding in answer['results']['bindings']])
 
     def new_result(subject, predicate, object, num_conn, is_query):
         approach_name = os.path.basename(config.config).rsplit('.json', 1)[0]
         result_dict.append({"test_name": config.test_identifier , "approach_name": approach_name + ("_query" if is_query else "_network") , "RDF-Class1": subject, "Prop": predicate, "RDF-Class2/Instance": object, "NumOfConns": num_conn})
 
     # Connectivity induced by Shape Network
-    id_to_targetTypes = {s.id: s.targetDef for s in shapes}
-    number_of_relevant_triples = query_endpoint("SELECT COUNT(*) WHERE {?s a ?t . ?s ?p ?o FILTER(?t in "+ str(tuple(id_to_targetTypes.values())).replace("'","") +" )}")
+    id_to_targetTypes = {s.id: URI(s.targetDef) for s in shapes}
+    number_of_relevant_triples = query_endpoint("SELECT COUNT(*) WHERE {?s a ?t . ?s ?p ?o FILTER(?t in "+ str(tuple(id_to_targetTypes.values())).replace("'","").replace(",)",")") +" )}")
     number_of_relevant_triples_per_type = {s_id: query_endpoint("SELECT COUNT(*) WHERE {?s a "+ t +" . ?s ?p ?o }") for s_id,t in id_to_targetTypes.items()}
-    
+    checksum_per_type = number_of_relevant_triples_per_type.copy()
+
     assert number_of_relevant_triples == sum(number_of_relevant_triples_per_type.values())
 
     checksum = number_of_relevant_triples
 
-    referencing_predicates_per_shape = {s.id: set([(c.shapeRef, c.path) for c in s.constraints if c.shapeRef]) for s in shapes}
-    non_referencing_predicates_per_shape = {s.id: set([c.path for c in s.constraints if not c.shapeRef]).difference(set([item[1] for item in referencing_predicates_per_shape[s.id]])) for s in shapes}
-    other_predicates_per_shape = {s.id: get_all_predicates(id_to_targetTypes[s.id]).difference(set([c.path for c in s.constraints]),set(['<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>'])) for s in shapes}
+    referencing_predicates_per_shape = {s.id: set([(c.shapeRef, URI(c.path)) for c in s.constraints if c.shapeRef]) for s in shapes}
+    non_referencing_predicates_per_shape = {s.id: set([URI(c.path) for c in s.constraints if not c.shapeRef]).difference(set([item[1] for item in referencing_predicates_per_shape[s.id]])) for s in shapes}
+    other_predicates_per_shape = {s.id: get_all_predicates(id_to_targetTypes[s.id]).difference(set([URI(c.path) for c in s.constraints]),set([URI(RDF.type)])) for s in shapes}
 
 
-    checksum_per_type = {}
     for id, t in id_to_targetTypes.items():
         # Count number of instances in class
-        number_of_this_type = query_endpoint("SELECT COUNT(*) WHERE{?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " + t + " }")
-        new_result(t, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", "*", number_of_this_type, False)
-        checksum -= 2*number_of_this_type # Each type is contained twice in the checksum because of the way we count the number of triples
-        number_of_relevant_triples -= number_of_this_type
-        number_of_relevant_triples_per_type[id] -= number_of_this_type
-        checksum_per_type[id] = number_of_relevant_triples_per_type[id] - number_of_this_type
+        number_of_this_type = query_endpoint("SELECT COUNT(*) WHERE{?s a " + t + ". ?s a ?o }") # Here we do not count the number of instances but the instances paired with a type.
+        new_result(t, URI(RDF.type), "*", number_of_this_type, False)
+        checksum -= number_of_this_type # Each type is contained twice in the checksum because of the way we count the number of triples
+        checksum_per_type[id] -=number_of_this_type
 
         # Intra Shape Constraints
         for pred in non_referencing_predicates_per_shape[id]:
@@ -294,7 +317,9 @@ def compute_experiment_metrices(pre_config):
         # Other Predicates
         other_counts = 0
         for pred in other_predicates_per_shape[id]:
-            other_counts += query_endpoint("SELECT COUNT(*) WHERE{?s a " + t + ". ?s " + pred + " ?o }")
+            new_count = query_endpoint("SELECT COUNT(*) WHERE{?s a " + t + ". ?s " + pred + " ?o }")
+            #new_result(t, pred, "*", new_count, False)
+            other_counts += new_count
         new_result(t, "other", "*", other_counts, False)
         new_result(t, "*", "*", number_of_relevant_triples_per_type[id], False) 
         checksum -= other_counts
@@ -314,19 +339,13 @@ def compute_experiment_metrices(pre_config):
 
             checksum -= number_of_s_s2_references_via_ref
             checksum_per_type[s_id] -= number_of_s_s2_references_via_ref
-        print("Checksum",s_id, checksum_per_type[s_id])
-
     new_result("*","*","*", number_of_relevant_triples, False)
-
-    print("Checksum", checksum)
-    #assert checksum == 0
-
 
     # Connectivity induced by Query
     triples = [s.n3() + " " + p.n3() + " " + o.n3() for s,p,o in query.triples]
 
     # Number of bindings returned by the star-shaped query
-    new_result(id_to_targetTypes[config.target_shape], "*", "*", query_endpoint("SELECT COUNT(*) WHERE{" + query.as_result_query() +"}"), True)
+    new_result(id_to_targetTypes[config.target_shape], "*", "*", query_endpoint("SELECT COUNT(*) WHERE{" + query_without_prefix.as_result_query() +"}"), True)
 
     # Counting the number of triples per triple in star-shaped query
     for str_triple, triple in zip(triples, query.triples):
@@ -334,6 +353,13 @@ def compute_experiment_metrices(pre_config):
                     id_to_targetTypes[config.target_shape] + ". "+ str_triple +".}"), True)
 
     csv_writer.writeListOfDicts(result_dict)
+
+    for s in shapes:
+        if checksum_per_type[s.id] != 0:
+            raise Exception("Checksum of {} is {} instead of 0".format(s_id, checksum_per_type[s_id]))
+
+    if checksum != 0:
+        raise Exception("Global Checksum is {} instead of 0").format(checksum)
 
     # 2.) Shape Schema Metrices
     print("Shape Schema Metrics")

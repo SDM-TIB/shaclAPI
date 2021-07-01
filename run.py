@@ -71,6 +71,11 @@ def run():
     else:
         return Response(str(api_output))
 
+@app.route("/metrics", methods=['POST'])
+def route_metrics():
+    api.compute_experiment_metrices(request.form)
+    return "Done"
+
 @app.route("/", methods=['GET'])
 def hello_world():
     return "Hello World"

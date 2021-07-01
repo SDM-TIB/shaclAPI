@@ -107,6 +107,7 @@ def test_configurations_multiprocessing(request, file, backend, prune_shape_netw
     params['start_with_target_shape'] = start_with_target_shape    
     params['test_identifier'] = 'tests/test_main.py::' + str(request.node.name)
     test_api('multi', params, None,'configtest_logfile.log')
+    test_metrics(params)
 
 # route can be single or multi
 @pytest.mark.skip
@@ -135,6 +136,11 @@ def test_api(route, params, solution, log_file_path):
         finally:
             with open(log_file_path,"a") as outputfile:
                 outputfile.write(json.dumps(json_response,indent = 4))
+
+@pytest.mark.skip
+def test_metrics(params):
+    response = requests.post(FLASK_ENDPOINT + "metrics", data=params)
+    assert response.status_code == 200, "Server-sided error, check server output for details"
 
 @pytest.mark.skip
 def test_setup_from_file(file, config, route):
