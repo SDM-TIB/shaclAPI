@@ -1,6 +1,7 @@
 import os, logging, time, sys, json, re
 from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib.namespace import RDF
+from rdflib.term import Variable
 
 from app.connectivity import Connectivity
 from app.query import Query
@@ -242,9 +243,8 @@ def compute_experiment_metrices(pre_config):
     shapes = [shape for shape in schema.shapes if shape]
 
     approach_name = os.path.basename(config.config).rsplit('.json', 1)[0]
-    csv_writer = CSVWriter(os.path.join(config.output_directory, f"connectivity_{config.test_identifier}_{approach_name}.csv"))
     
-    # 1.) Connectivity
+    # 1.) Connectivity (Subgraph induced by Shape Schema --> only the shapes/vertices are reduced)
     id_to_targetTypes = {s.id: conn.URI(s.targetDef) for s in shapes}
 
     # Calculating some number used for checksums
@@ -285,7 +285,16 @@ def compute_experiment_metrices(pre_config):
             conn.new_result(id_to_targetTypes[s.id], pred, " ", result)
             checksum -= result
 
-    csv_writer.writeListOfDicts(conn.result_dict)
+    conn.write_to_file(os.path.join(config.output_directory, f"connectivity_{config.test_identifier}_{approach_name}_shape_schema.csv"))
+
+    # 1.2.) Connectivity (Subgraph induced by Query --> only contains all the triples that are used to answer the query: only target shape (one vertice) and all edges mentioned in the query)
+
+    # Counting the number of triples per triple in star-shaped query
+    for triple in query.triples:
+        result = conn.query_endpoint(conn.query_generator(subject_type=id_to_targetTypes[config.target_shape], extras=["?s " + triple.predicate.n3() + " " + triple.object.n3() + "."]))
+        conn.new_result(id_to_targetTypes[config.target_shape], triple.predicate.n3(), triple.object.n3() if not isinstance(triple.object, Variable) else " ", result)
+
+    conn.write_to_file(os.path.join(config.output_directory, f"connectivity_{config.test_identifier}_{approach_name}_query.csv"))
 
     if checksum != 0:
         raise Exception("Global Checksum is {} instead of 0").format(checksum)

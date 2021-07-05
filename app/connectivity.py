@@ -1,7 +1,8 @@
 from rdflib.term import Variable, URIRef
 from rdflib.namespace import RDF
 from app.query import Query
-import re
+import re, os
+from app.output.CSVWriter import CSVWriter
 
 
 class Connectivity():
@@ -53,12 +54,18 @@ class Connectivity():
     def new_result(self, subject, predicate, object, num_conn):
         self.result_dict.append({"Class1": subject, "Predicate": predicate, "Class2": object, "Cardinality": num_conn})
 
+    def write_to_file(self, path, clear=True):
+        csv_writer = CSVWriter(path)
+        csv_writer.writeListOfDicts(self.result_dict)
+        if clear:
+            self.result_dict = []
 
-    def query_generator(self, target="COUNT(*)", subject_type=None, predicate=None, object_type=None, add_spo=False):
+    def query_generator(self, target="COUNT(*)", subject_type=None, predicate=None, object_type=None, add_spo=False, extras=list()):
         return  self.prefixString + \
                 f"SELECT {target} WHERE " + "{" + \
                     (f"?s a {subject_type}. \n" if subject_type else "") + \
                     (f"?s {predicate} ?o. \n" if predicate else "") + \
                     (f"?o a {object_type}. \n" if object_type else "") + \
                     ("?s ?p ?o. \n" if add_spo else "") + \
+                    ("\n".join(extras)) + \
                 "}"
