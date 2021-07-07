@@ -94,7 +94,10 @@ class StatsCalculation:
         post_processing_time = self.post_processing_finished_time - self.post_processing_started_time
 
         # Using the maximum of this timestamps because the later one better describes the "real" start of the join.
-        approximated_join_start = max(self.join_started_time, self.first_validation_result_time)
+        if self.first_validation_result_time:
+            approximated_join_start = max(self.join_started_time, self.first_validation_result_time)
+        else: 
+            approximated_join_start = self.join_started_time
         join_time = self.join_finished_time - approximated_join_start
 
         if self.first_result_timestamp:

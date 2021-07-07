@@ -1,0 +1,16 @@
+{
+    "task": "a",
+    "traversalStrategie": "DFS",
+    "schemaDir": "./tests/tc_further_border_cases/shapes",
+    "heuristic": "TARGET IN BIG",
+    "query": "SELECT ?v0 ?v2 WHERE {\n?v0 <http://ogp.me/ns#tag> <http://db.uwaterloo.ca/~galuc/wsdbm/Topic93> .\n?v0 <http://schema.org/caption> ?v2 .\n}",
+    "targetShape": "ProductCategory",
+    "config": "tests/configs/lubm_config.json",
+    "result": {
+        "validTargets": [],
+        "invalidTargets": [],
+        "advancedValid": [],
+        "advancedInvalid": []
+    },
+    "test_type": "both"
+}

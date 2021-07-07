@@ -19,5 +19,6 @@ class ValidationResultStreaming(Validation):
         result = super().validation_output(shapes_state)
         for item in self.valid_targets_after_termination:
             self.result_transmitter.send(instance=item[1], shape=item[0], valid=True, reason='unbound')
+        self.result_transmitter.done()
         return result
 

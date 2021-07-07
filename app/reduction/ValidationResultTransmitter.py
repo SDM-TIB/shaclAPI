@@ -26,6 +26,10 @@ class ValidationResultTransmitter():
         else:
             pass
     
+    def done(self):
+        if not self.timestamp_of_first_result_send and self.first_val_time_queue:
+            self.first_val_time_queue.put({"topic": "first_validation_result", "time": None})
+    
     def use_streaming(self):
         return (self.output_queue != None)
         
