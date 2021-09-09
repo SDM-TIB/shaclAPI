@@ -146,6 +146,7 @@ def run_multiprocessing(pre_config):
         # with open("output/simpleOutput", "w") as d:
         #     d.write(str(api_output))
         #     #json.dump(api_output.to_json(config.target_shape),d)
+        logger.debug(api_output.to_json(config.target_shape))
         statsCalc.globalCalculationFinished()
 
         output_directory = os.path.join(os.getcwd(), config.output_directory)
