@@ -13,7 +13,7 @@ class SimpleOutput():
     output: [([bindings, ...], [triples, ...], [report, ...])]
     """
 
-    def __init__(self, baseResult, output=[]):
+    def __init__(self, baseResult, output=None):
         self.base: BaseResult = baseResult
         self._output = output
 
@@ -22,7 +22,8 @@ class SimpleOutput():
 
     def output(self):
         #TODO: eliminate duplicates
-        if not self._output:
+        if self._output == None:
+            self._output = []
             transformed_report_triples = self.transform_report_triples()
             transformed_query_result = [{k: URIRef(v).n3(self.base.query.namespace_manager) for k,v in bindings.items()} for bindings in self.base.query_results]
             for b in transformed_query_result:
@@ -76,7 +77,7 @@ class SimpleOutput():
         return SimpleOutput(None, output)
 
     def __str__(self):
-        if not self._output:
+        if self._output == None:
             self.output()
         string = "[\n"
         indent = 1
