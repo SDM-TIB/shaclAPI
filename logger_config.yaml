@@ -15,12 +15,12 @@ handlers:
   file:
     class: logging.FileHandler
     level: DEBUG
-    filename: 'api.log'
+    filename: 'logs/api.log'
     formatter: simple
   queue_listener:
     class: app.log_utils.logger_util.QueueListenerHandler
     handlers:
-      #- cfg://handlers.console --comment in to enable console logging
+      #- cfg://handlers.console
       - cfg://handlers.file
     queue: cfg://objects.queue
 loggers:

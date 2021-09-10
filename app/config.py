@@ -87,7 +87,7 @@ class Config:
     @property
     def output_directory(self):
         """
-        The directory which will be used by the backend to save the validation output of the backend to a file
+        The directory which will be used by the backend and the api to save the validation output and statistics to files (depending on the other configurations)
         """
         return self.config_dict.get('output_directory') or self.config_dict.get('outputDirectory') or "./output/"
 
