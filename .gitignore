@@ -160,3 +160,5 @@ output/*
 !output/.keep
 logs/*
 !logs/.keep
+inputs/*
+!inputs/.keep
