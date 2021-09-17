@@ -5,6 +5,7 @@ from app.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedVali
 from s2spy.validation.utils import fileManagement
 from travshacl.TravSHACL import parse_heuristics
 from travshacl.core.GraphTraversal import GraphTraversal
+import os
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ class ReducedShapeSchema(ShapeNetwork):
     def from_config(config, query_object, result_transmitter):
         return ReducedShapeSchema(config.schema_directory, config.schema_format, config.internal_endpoint, \
             GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, \
-                config.max_split_size, config.output_directory, config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
+                config.max_split_size, os.path.join(config.output_directory,'backend', config.test_identifier, ''), config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
                     config.target_shape, query_object, config.replace_target_query, config.merge_old_target_query, config.remove_constraints, config.prune_shape_network, config.start_shape_for_validation, result_transmitter)
 
     def validate(self, start_with_target_shape=True):

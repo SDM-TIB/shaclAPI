@@ -165,7 +165,7 @@ def run_multiprocessing(pre_config):
             else:
                 return str(repr(e)), config
 
-        api_output = statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
+        statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
 
     return api_output, config
 
