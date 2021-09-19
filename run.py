@@ -82,15 +82,20 @@ def hello_world():
 
 @app.route("/start", methods=['GET'])
 def start_processes():
-    return api.start_processes()
+    api.start_processes()
+    return "Done"
 
 @app.route("/stop", methods=['GET'])
 def stop_processes():
-    return api.stop_processes()
+    api.stop_processes()
+    return "Done"
+
 
 @app.route("/restart", methods=['GET'])
 def restart_processes():
-    return api.restart_processes()
+    api.restart_processes()
+    return "Done"
+
 
 # Profiling Code
 # from pyinstrument import Profiler

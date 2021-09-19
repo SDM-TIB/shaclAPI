@@ -69,6 +69,8 @@ def run_multiprocessing(pre_config):
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
+    os.makedirs(os.path.join(config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier)), exist_ok=True)
+
 
     # Setup Stats Calculation
     statsCalc = StatsCalculation(test_identifier = config.test_identifier, approach_name = os.path.basename(config.config))
@@ -211,9 +213,7 @@ def run_singleprocessing(pre_config):
 def restart_processes():
     done = stop_processes()
     time.sleep(0.5)
-    done = done and start_processes()
-    time.sleep(1)
-    return done
+    start_processes()
 
 def stop_processes():
     VALIDATION_RUNNER.stop_process()
@@ -221,7 +221,6 @@ def stop_processes():
     XJOIN_RUNNER.stop_process()
     POST_PROCESSING_RUNNER.stop_process()
     time.sleep(0.1)
-    return not (VALIDATION_RUNNER.process_is_alive() or CONTACT_SOURCE_RUNNER.process_is_alive() or XJOIN_RUNNER.process_is_alive() and POST_PROCESSING_RUNNER.process_is_alive())
 
 def start_processes():
     VALIDATION_RUNNER.start_process()
@@ -229,7 +228,6 @@ def start_processes():
     XJOIN_RUNNER.start_process()
     POST_PROCESSING_RUNNER.start_process()
     time.sleep(0.1)
-    return VALIDATION_RUNNER.process_is_alive() and CONTACT_SOURCE_RUNNER.process_is_alive() and XJOIN_RUNNER.process_is_alive() and POST_PROCESSING_RUNNER.process_is_alive()
 
 def compute_experiment_metrices(pre_config):
     config = Config.from_request_form(pre_config)

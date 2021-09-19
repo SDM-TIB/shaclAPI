@@ -1,6 +1,6 @@
 import requests
 import json
-from tests import testingUtils
+from tests import travshaclLocal
 import pytest
 import os, sys
 from glob import glob
@@ -8,8 +8,10 @@ import time
 import urllib
 
 TRAV_DIR = 'Trav-SHACL/'
-FLASK_ENDPOINT='http://localhost:5000/'
-MAX_NUMBER_OF_TRIES=10
+FLASK_ENDPOINT='http://0.0.0.0:5000/'
+EXTERNAL_ENDPOINT_DOCKER='http://valsparql_travshacl_api_testdata:8890/sparql'
+RESULT_DIR = 'output/test_results'
+
 TESTS_DIRS = [
     './tests/tc1/test_definitions/',
     './tests/tc2/test_definitions/',
@@ -27,7 +29,6 @@ required_prefixes = {
     "test5": "<http://example.org/testGraph5#>" 
     }
 
-RESULT_DIR = 'test_output'
 if not os.path.isdir(RESULT_DIR):
     os.mkdir(RESULT_DIR)
 
@@ -46,34 +47,26 @@ def test_api_up():
 
 @pytest.mark.parametrize("file", get_all_files())
 def test_trav(file):
-    namespace = testingUtils.get_trav_args(file)
+    namespace = travshaclLocal.get_trav_args(file)
     test_dir = os.getcwd()
     os.chdir(TRAV_DIR)
-    try_number = 0
-    while MAX_NUMBER_OF_TRIES > try_number:    
-        try:
-            sys.path.append(os.getcwd())
-            from travshacl.TravSHACL import eval_shape_schema
-            sys.path.remove(os.getcwd())
-            response = eval_shape_schema(namespace)
-        except Exception as e:
-            if MAX_NUMBER_OF_TRIES > try_number and isinstance(e,(ConnectionResetError,urllib.error.URLError)) :
-                print("An Error {} occured retry in 3s... ({}/{})".format(type(e),try_number + 1,MAX_NUMBER_OF_TRIES))
-                try_number = try_number + 1
-                time.sleep(3)
-                continue
-            else:
-                os.chdir(test_dir)
-                raise Exception(e)
-        else:
-            os.chdir(test_dir)
-            break
+    sys.path.append(os.getcwd())
+    from travshacl.TravSHACL import eval_shape_schema
+    sys.path.remove(os.getcwd())
+    try:
+        response = eval_shape_schema(namespace)
+    except Exception as e:
+        os.chdir(test_dir)
+        raise Exception(e)
+    else:
+        os.chdir(test_dir)
 
 @pytest.mark.parametrize("file", get_all_files())
 @pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json'])
 def test_singleprocessing(file, config_file):
     params, solution, log_file_path = test_setup_from_file(file, config_file, 'single')
     params['test_identifier'] = file
+    params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
     test_api('single', params, solution, log_file_path)
 
 @pytest.mark.parametrize("file", get_all_files())
@@ -81,6 +74,7 @@ def test_singleprocessing(file, config_file):
 def test_multiprocessing(file, config_file):
     params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
     params['test_identifier'] = file
+    params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
     test_api('multi', params, solution, log_file_path)
 
 @pytest.mark.parametrize("file", get_all_files())
@@ -107,6 +101,7 @@ def test_configurations_multiprocessing(request, file, backend, prune_shape_netw
     params['replace_target_query'] = replace_target_query
     params['start_with_target_shape'] = start_with_target_shape    
     params['test_identifier'] = 'tests/test_main.py::' + str(request.node.name)
+    params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
     test_api('multi', params, None,'configtest_logfile.log')
     # Here the metrics can also be tested, but need to disable file output for the metrics
     # test_metrics(params)

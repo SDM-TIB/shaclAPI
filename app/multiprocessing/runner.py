@@ -24,24 +24,19 @@ class Runner:
         self.task_queue = None
     
     def start_process(self):
-        logger.debug("Trying to start {}".format(self.function.__name__))
-        if self.process == None or not self.process_is_alive():
-            self.task_queue = self.context.Queue()
-            self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function), name=self.function.__name__ )
-            self.process.start()
-            logger.info("Process {} started!".format(self.function.__name__))
-            atexit.register(self.stop_process)
+        self.task_queue = self.context.Queue()
+        self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function), name=self.function.__name__ )
+        self.process.start()
+        logger.info("Process {} started!".format(self.function.__name__))
+        atexit.register(self.stop_process)
 
     def stop_process(self):
-        logger.debug("Trying to stopp {}".format(self.function.__name__))
-        if self.process_is_alive():
+        if self.process and self.process.is_alive():
             atexit.unregister(self.stop_process)
             self.task_queue.close()
             self.process.terminate()
+            self.process = None
             logger.info("Process {} stopped!".format(self.function.__name__))
-    
-    def process_is_alive(self):
-        return self.process.is_alive()
     
     def get_new_queue(self):
         return self.manager.Queue()
@@ -57,7 +52,7 @@ class Runner:
         return out_queues
 
     def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue, wait_for_finish=False):
-        if self.process_is_alive():
+        if self.process and self.process.is_alive():
             if wait_for_finish:
                 task_finished_recv, task_finished_send = self.context.Pipe()
                 self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send))
