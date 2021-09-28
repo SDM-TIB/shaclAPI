@@ -120,7 +120,8 @@ def mp_validate(out_queue, shape_variables_queue, config, query, result_transmit
     schema = prepare_validation(config, query, result_transmitter)
 
     # 1.) Identify Variables referring to shapes which we are going to validate.
-    shape_variables_queue.put((query.target_var,))
+    if query.target_var in query.PV:
+        shape_variables_queue.put((query.target_var,))
     logger.debug("Query PV: {}".format(query.PV))
     for obj,pred in schema.shapesDict[config.target_shape].referencedShapes.items():
         logger.debug(str(config.target_shape) +", " + str(pred) + ", " + str(obj))

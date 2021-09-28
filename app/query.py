@@ -6,6 +6,7 @@ from rdflib.plugins import sparql
 from app.triple import Triple
 from rdflib.term import URIRef, Variable
 from rdflib.paths import InvPath
+from functools import reduce
 
 logger = logging.getLogger(__name__)
 
@@ -81,18 +82,39 @@ class Query:
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
         return Query(query)
 
-    def extract_triples(self):
-        """Entry point for a recursive run over a sparql.algebra, which represents a query as nested dictionaries.
-        Returns:
-            list: List of triples (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
-        """
-        return self.__extract_triples_recursion(self.query_object.algebra)
+    def is_starshaped(self):
+        subject_intersection = reduce(set.intersection, [{t.subject} for t in self.triples])
+        logger.warning("Subject Intersection: " + str(subject_intersection))
+        if len(subject_intersection) == 1:
+            return subject_intersection.pop()
+        else:
+            return None
+    
+    def make_starshaped(self):
+        center = self.is_starshaped()
+        if isinstance(center, URIRef):
+            triples = set([t.set_subject(Variable('x')) for t in self.triples])
+            filters = self.extract_filter_terms()
+            values = self.extract_values_terms()
+            values.extend({"VALUES ?x{" + center.n3() + "}"})
+            return Query.query_from_parts(self.PV, "DISTINCT" in self.query_string ,triples,filters,values, namespace_manager=self.namespace_manager)
+        elif isinstance(center, Variable):
+            return self
+        else:
+            raise Exception("Query is not starshaped and cannot be made starshaped through rewriting!")
 
     def extract_filter_terms(self):
         return re.findall(r'FILTER\s*\(.*\)', self.query_string, re.DOTALL)
 
     def extract_values_terms(self):
         return re.findall(r'VALUES\s*[?].*\{[^}]*\}', self.query_string, re.DOTALL)
+
+    def extract_triples(self):
+        """Entry point for a recursive run over a sparql.algebra, which represents a query as nested dictionaries.
+        Returns:
+            list: List of triples (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable('?subject'))
+        """
+        return self.__extract_triples_recursion(self.query_object.algebra)
 
     def __extract_triples_recursion(self, algebra, is_optional=False):
         """Recursive function for triple pattern extraction.
@@ -125,8 +147,7 @@ class Query:
 
     def _get_target_var(self):
         """Retrieves the target_variable of a star-shaped query.
-        Given by the star-shaped structure, the target_variable must appear in each triple of the query.
-        Assumption star-shaped query with target variables only as subject!
+        Given by the star-shaped structure, the target_variable must appear in each triple of the query in the subject position.
 
         Raises:
             Exception: If this function retrieves multiple or no candidates, the query is assumed to be a non-valid query.
@@ -134,17 +155,11 @@ class Query:
         Returns:
             string: target_variable
         """
-        candidates = set(self.variables)
-        for s, _, _ in self.get_triples():
-            candidates = {s} & candidates
-        if len(candidates) == 1:
-            return candidates.pop()
+        center = self.is_starshaped()
+        if center != None and isinstance(center, Variable):
+            return center.n3()
         else:
-            if '?x' in self.variables:
-                logger.warn("Using ?x as target variable as there wasn't a variable, which could be clearly identified as target variable e.g. occuring in each triple as subject.")
-                return '?x'
-            else:
-                raise Exception("Not a valid star-shaped query.")
+            raise Exception("Not a valid star-shaped query: " + self.query_string)
 
     def as_target_query(self, replace_prefixes=False):
         """Creates a target query based on the given query_string, 
@@ -198,8 +213,12 @@ class Query:
 
     @staticmethod
     def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager=None):
+        return Query.query_from_parts(['?x'], True, triples, filters, values, namespace_manager)
+
+    @staticmethod
+    def query_from_parts(PV: list, distinct: bool, triples: set, filters: list = None, values: list = None, namespace_manager=None):
         triples = sorted(list(triples))
-        query_string = "SELECT DISTINCT ?x WHERE {\n"
+        query_string = "SELECT " + ("DISTINCT " if distinct else " ") + (" ".join(PV)) + " WHERE {\n"
 
         if values:
             for value in values:

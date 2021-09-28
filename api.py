@@ -111,6 +111,7 @@ def run_multiprocessing(pre_config):
 
     # Parse query_string into a corresponding Query Object
     query = Query.prepare_query(config.query)
+    query = query.make_starshaped()
 
     # The information we need depends on the output format:
     if config.output_format == "test" or (not config.reasoning):

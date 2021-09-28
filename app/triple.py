@@ -81,6 +81,10 @@ class Triple:
             return 'OPTIONAL{ ' + subject_n3 + ' ' + predicate_n3 + ' ' + object_n3 + ' }'
         else:
             return subject_n3 + ' ' + predicate_n3 + ' ' + object_n3 + '.'
+    
+    def set_subject(self, s):
+        self.subject = s
+        return self
 
     def __repr__(self) -> str:
         return str(tuple(self))
