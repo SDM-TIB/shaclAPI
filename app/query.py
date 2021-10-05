@@ -84,7 +84,6 @@ class Query:
 
     def is_starshaped(self):
         subject_intersection = reduce(set.intersection, [{t.subject} for t in self.triples])
-        logger.warning("Subject Intersection: " + str(subject_intersection))
         if len(subject_intersection) == 1:
             return subject_intersection.pop()
         else:

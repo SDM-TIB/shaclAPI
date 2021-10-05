@@ -51,7 +51,7 @@ def route_multiprocessing():
     if type(api_output) != str:
         return Response(api_output.to_json(config.target_shape), mimetype='application/json')
     else:
-        return api_output
+        return Response(api_output, mimetype='text/plain')
 
 @app.route("/singleprocessing", methods=['POST'])
 def run():
@@ -69,7 +69,7 @@ def run():
     if config.output_format == "test":
         return Response(api_output.to_json(config.target_shape), mimetype='application/json')
     else:
-        return Response(str(api_output))
+        return Response(str(api_output), mimetype='text/plain')
 
 @app.route("/metrics", methods=['POST'])
 def route_metrics():

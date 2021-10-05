@@ -19,7 +19,7 @@ with open(path, 'r') as stream:
 logging.config.dictConfig(logging_config)
 
 # Initialize Log Levels
-log_level = logging.DEBUG
+# log_level = logging.INFO
 
 
 # Set the logging level for all loggers in scope 
@@ -28,7 +28,7 @@ log_level = logging.DEBUG
 #   logger.setLevel(logging.INFO)
 
 # The following sets the log_level for all loggers
-loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-for log in loggers:
-  log.setLevel(log_level)
+# loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+# for log in loggers:
+#   log.setLevel(log_level)
 

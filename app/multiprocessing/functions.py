@@ -7,7 +7,7 @@ from app.multiprocessing.ThreadEx import ThreadEx
 logger = logging.getLogger(__name__)
 
 
-def mp_post_processing(shape_variables_queue, joined_result_queue, query_result_queue, final_result_queue, timestamp_queue, queue_timeout):
+def mp_post_processing(shape_variables_queue, joined_result_queue, query_result_queue, final_result_queue, timestamp_queue):
     """
     Transforms the joined output and the raw query result to the final output.
     Example:

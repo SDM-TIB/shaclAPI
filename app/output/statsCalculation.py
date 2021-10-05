@@ -38,14 +38,14 @@ class StatsCalculation:
     def taskCalculationStart(self):
         self.task_start_time = time.time()
 
-    def receive_and_write_trace(self, trace_file, timestamp_queue, queue_timeout):
+    def receive_and_write_trace(self, trace_file, timestamp_queue):
         '''
         This assigns the timestamp of the first and the last result; writes the trace file and counts the number of results.
         This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step) 
         '''
         writer = CSVWriter(trace_file)
         received_results = 0
-        result = timestamp_queue.get(timeout=queue_timeout)
+        result = timestamp_queue.get()
         while result != 'EOF':
             received_results += 1
             writer.writeMulti({"test": self.test_name,
@@ -55,11 +55,11 @@ class StatsCalculation:
             self.last_result_timestamp = result['timestamp']
             if not self.first_result_timestamp:
                 self.first_result_timestamp = result['timestamp']
-            result = timestamp_queue.get(timeout=queue_timeout)
+            result = timestamp_queue.get()
         self.number_of_results = received_results
         writer.close()
 
-    def receive_global_stats(self, stats_out_queue, queue_timeout):
+    def receive_global_stats(self, stats_out_queue):
         '''
         Receiving start and stop times of the different steps and also the time  of the first validation result.
         '''
@@ -69,7 +69,7 @@ class StatsCalculation:
                         'mp_post_processing': False,
                         'first_validation_result': False}
         while sum(needed_stats.values()) < len(needed_stats.keys()):
-            statistic = stats_out_queue.get(timeout=queue_timeout)
+            statistic = stats_out_queue.get()
             needed_stats[statistic['topic']] = True
             if statistic['topic'] == 'mp_validate':
                 self.validation_started_time, self.validation_finished_time = statistic['time']

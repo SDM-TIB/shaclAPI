@@ -263,17 +263,6 @@ class Config:
         """
         return self.config_dict.get('join_implementation', 'Xgjoin')
 
-    @property
-    def queue_timeout(self):
-        """
-        Seconds to wait for a new result in a multiprocessing queue.
-        """
-        queue_timeout = self.config_dict.get('queue_timeout', None)
-        if queue_timeout:
-            return float(queue_timeout)
-        else:
-            return None
-    
     @property    
     def run_in_serial(self):
         """

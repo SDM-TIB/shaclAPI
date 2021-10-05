@@ -134,7 +134,7 @@ def run_multiprocessing(pre_config):
     XJOIN_RUNNER.new_task(xjoin_in_connections, xjoin_out_connections, xjoin_task_description, stats_out_queue, config.run_in_serial)
 
     # 3.) Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))
-    post_processing_task_description = (config.queue_timeout,)
+    post_processing_task_description = tuple()
     POST_PROCESSING_RUNNER.new_task(post_processing_in_connections, post_processing_out_connections, post_processing_task_description, stats_out_queue, config.run_in_serial)
 
     # 4.) Output
@@ -158,15 +158,12 @@ def run_multiprocessing(pre_config):
         stats_file = os.path.join(output_directory, "stats.csv")
 
         try:
-            statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver, config.queue_timeout)
-            statsCalc.receive_global_stats(stats_out_queue, config.queue_timeout)
+            statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)
+            statsCalc.receive_global_stats(stats_out_queue)
         except Exception as e:
             logger.exception(repr(e))
             restart_processes()
-            if str(repr(e)) == "Empty()":
-                return "Timeout while calculating Statistics for the output (according to queue_timeout config)!", config
-            else:
-                return str(repr(e)), config
+            return str(repr(e)), config
 
         statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
 
