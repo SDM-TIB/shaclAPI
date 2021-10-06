@@ -17,7 +17,8 @@ class CSVWriter():
         self.fd.write(content)
     
     def __open_fd(self, mode):
-        self.fd = open(self.path, mode)
+        if self.fd is None:
+            self.fd = open(self.path, mode)
     
     def __close_fd(self):
         self.fd.close()
