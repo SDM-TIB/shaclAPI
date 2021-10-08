@@ -96,7 +96,7 @@ class Query:
             filters = self.extract_filter_terms()
             values = self.extract_values_terms()
             values.extend({"VALUES ?x{" + center.n3() + "}"})
-            return Query.query_from_parts(self.PV, "DISTINCT" in self.query_string ,triples,filters,values, namespace_manager=self.namespace_manager)
+            return Query.query_from_parts(self.PV, "DISTINCT" in self.query_string ,triples,filters,values)
         elif isinstance(center, Variable):
             return self
         else:
