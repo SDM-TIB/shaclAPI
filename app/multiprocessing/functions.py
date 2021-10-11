@@ -1,4 +1,4 @@
-from app.utils import prepare_validation
+from app.reduction import prepare_validation
 from app.multiprocessing.Xjoin.Xjoin import XJoin
 from app.multiprocessing.Xgjoin.Xgjoin import Xgjoin
 import time, logging
@@ -117,16 +117,24 @@ def mp_validate(out_queue, shape_variables_queue, config, query, result_transmit
     """
     Function to be executed with Runner to run the validation process of the backend.
     """
+    if config.target_shape == None:
+        out_queue.put('EOF')
+        shape_variables_queue.put('EOF')
+        result_transmitter.done()
+        return
+
     schema = prepare_validation(config, query, result_transmitter)
 
     # 1.) Identify Variables referring to shapes which we are going to validate.
     if query.target_var in query.PV:
         shape_variables_queue.put((query.target_var,))
     logger.debug("Query PV: {}".format(query.PV))
+    logger.info("{} - {}".format(query.target_var, config.target_shape))
     for obj,pred in schema.shapesDict[config.target_shape].referencedShapes.items():
         logger.debug(str(config.target_shape) +", " + str(pred) + ", " + str(obj))
         new_shape_vars = query.get_variables_from_pred(pred)
         shape_variables_queue.put(new_shape_vars.intersection(query.PV))
+        logger.info("{} - {}".format(new_shape_vars, obj))
     shape_variables_queue.put('EOF')
     logger.info("Done finding shape vars!")
 

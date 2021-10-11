@@ -15,7 +15,7 @@ from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 from app.output.statsCalculation import StatsCalculation
 from app.output.CSVWriter import CSVWriter
-from app.utils import prepare_validation
+from app.reduction import prepare_validation
 from app.output.baseResult import BaseResult
 
 logger = logging.getLogger(__name__)
@@ -149,7 +149,7 @@ def run_multiprocessing(pre_config):
         # with open("output/simpleOutput", "w") as d:
         #     d.write(str(api_output))
         #     #json.dump(api_output.to_json(config.target_shape),d)
-        logger.debug(api_output.to_json(config.target_shape))
+        logger.debug(api_output.to_json())
         statsCalc.globalCalculationFinished()
 
         output_directory = os.path.join(os.getcwd(), config.output_directory)
@@ -166,7 +166,7 @@ def run_multiprocessing(pre_config):
             return str(repr(e)), config
 
         statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
-
+        logger.debug("API Done!")
     return api_output, config
 
 def run_singleprocessing(pre_config):

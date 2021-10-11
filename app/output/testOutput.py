@@ -9,11 +9,11 @@ class TestOutput():
         self.base: BaseResult = baseResult
         self._output = output
 
-    def to_json(self,targetShapeID):
+    def to_json(self,targetShapeID=None):
         return json.dumps(self.output(targetShapeID))
 
     def output(self, targetShapeID):
-        if not self._output:
+        if not self._output and targetShapeID != None:
 
             transformed_query_results = {binding[self.base.query.target_var[1:]]
                 : binding for binding in self.base.query_results}

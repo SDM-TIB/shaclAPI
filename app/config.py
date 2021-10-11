@@ -10,10 +10,14 @@ class Config:
 
     @staticmethod
     def from_request_form(request_params):
-        config_file_path = request_params.get('config', './quickstart/config.json')
-        with open(config_file_path) as config_file:
-            final_config = json.load(config_file)
-        final_config.update(request_params)
+        config_file_path = request_params.get('config')
+        if config_file_path != None:
+            with open(config_file_path) as config_file:
+                final_config = json.load(config_file)
+            final_config.update(request_params)
+        else:
+            final_config = dict()
+            final_config.update(request_params)
         return Config(final_config)
 
     @staticmethod
@@ -36,17 +40,7 @@ class Config:
         if self.use_pipes and self.run_in_serial:
             raise Exception("Pipes can only hold a limited amount of data and can therefore not be used in serial mode.")
 
-    # ------------------------------- Required Configs -------------------------------------------
-    @property
-    def config(self):
-        """
-        config is the absolute or relativ (with respect to the location of run.py) path to a configuration file.
-        --> The Configuration file is json-formated file which can include the same options as the POST - Request.
-        --> The Options specified in the POST - Request will override the options in the configuration file.
-        """
-
-        return self.config_dict['config']
-
+    # ------------------------------- required configuration options -------------------------------------------
     @property
     def query(self):
         """
@@ -59,7 +53,7 @@ class Config:
         """
         The target shape to which the star shaped query refers.
         """
-        return self.config_dict['targetShape']
+        return self.config_dict.get('targetShape', None)
 
     @property
     def external_endpoint(self):
@@ -75,7 +69,15 @@ class Config:
         """
         return self.config_dict['schemaDir']
 
-    # ------------------------------- Optional Configs -------------------------------------------
+    # ------------------------------- optional configuration options (there are default values) -------------------------------------------
+    @property
+    def config(self):
+        """
+        config is the absolute or relativ (with respect to the location of run.py) path to a configuration file.
+        --> The Configuration file is json-formated file which can include the same options as the POST - Request.
+        --> The Options specified in the POST - Request will override the options in the configuration file.
+        """
+        return self.config_dict.get('config', 'config')
 
     @property
     def save_outputs(self):
