@@ -76,8 +76,8 @@ class Query:
         select_clause = re.search(r"SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
         select_clause_new = select_clause.replace(',', ' ')
         query = query.replace(select_clause, select_clause_new)
-        # Replace all ' occuring in URIs
-        query = re.sub(r"(?<=(<\S+))'(?=(\S+>))", r"%27", query)
+        # Replace all ' occuring in URIs or Literals
+        query = re.sub(r"(?<=((<|\")\S+))'(?=(\S+(>|\")))", r"%27", query)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
         query = query.replace('\'', '"')
         # Remove '.' if it is followed by '}', Trav-SHACL cannot handle these dots.
