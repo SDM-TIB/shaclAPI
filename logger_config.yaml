@@ -109,7 +109,12 @@ loggers:
       - queue_listener
     propagate: false
   rdflib:
-    level: WARNING
+    level: ERROR
+    handlers:
+      - queue_listener
+    propagate: false
+  rdflib.term:
+    level: ERROR
     handlers:
       - queue_listener
     propagate: false
