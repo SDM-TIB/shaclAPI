@@ -65,7 +65,7 @@ def run_multiprocessing(pre_config):
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
-    logger.debug("Config: " +  str(config.config_dict))
+    logger.info("To reproduce this call to the api run: docker exec valsparql_shacl_api python run_config.py -c '" +  json.dumps(config.config_dict) + "'")
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
