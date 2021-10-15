@@ -115,7 +115,7 @@ def run_multiprocessing(pre_config):
 
     # The information we need depends on the output format:
     if config.output_format == "test" or (not config.reasoning):
-        query_to_be_executed = query.as_valid_query()
+        query_to_be_executed = query.copy()
     else:
         query_to_be_executed = query.as_result_query()
 
@@ -123,10 +123,10 @@ def run_multiprocessing(pre_config):
 
     # Start Processing Pipeline
     # 1.) Get the Data
-    contact_source_task_description = (config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed, -1)
+    contact_source_task_description = (config.internal_endpoint if not config.send_initial_query_over_internal_endpoint else config.INTERNAL_SPARQL_ENDPOINT, query_to_be_executed.query_string, -1)
     CONTACT_SOURCE_RUNNER.new_task(contact_source_in_connections, contact_source_out_connections, contact_source_task_description, stats_out_queue, config.run_in_serial)
 
-    validation_task_description = (config, Query(query_to_be_executed), result_transmitter)
+    validation_task_description = (config, query_to_be_executed, result_transmitter)
     VALIDATION_RUNNER.new_task(validation_in_connections, validation_out_connections, validation_task_description, stats_out_queue, config.run_in_serial)
     
     # 2.) Join the Data
@@ -200,7 +200,7 @@ def run_singleprocessing(pre_config):
     report = schema.validate(start_with_target_shape=True)
     
     # Retrieve the complete result for the initial query
-    EXTERNAL_SPARQL_ENDPOINT.setQuery(query.as_result_query())
+    EXTERNAL_SPARQL_ENDPOINT.setQuery(query.as_result_query().query_string)
     results = EXTERNAL_SPARQL_ENDPOINT.query().convert()
     # stop_profiling()
     if config.output_format == "test":

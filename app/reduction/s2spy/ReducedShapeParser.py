@@ -51,7 +51,7 @@ class ReducedShapeParser(ShapeParser):
                             oldTargetQuery)
                     else:
                         if not '?x' in self.query.query_string:
-                            new_query_string = self.query.as_valid_query().replace(self.query.target_var, '?x')
+                            new_query_string = self.query.query_string.replace(self.query.target_var, '?x')
                             targetQuery = Query(new_query_string).as_target_query()
                         else:
                             targetQuery = self.query.query_string

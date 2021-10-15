@@ -13,14 +13,17 @@ logger = logging.getLogger(__name__)
 class Query:
     target_query = None
 
-    def __init__(self, query_string, target_var=None):
+    def __init__(self, query_string, target_var=None, namespace_manager = None):
         self.query_string = query_string
         self.__query_object = None
-        self.__namespace_manager = None
+        self.__namespace_manager = namespace_manager
         self.__variables = None
         self.__PV = None
         self.__triples = None
         self.__target_var = target_var
+    
+    def copy(self):
+        return Query(self.query_string, namespace_manager=self.namespace_manager)
 
     @property
     def query_object(self):
@@ -63,7 +66,7 @@ class Query:
         return self.__PV
 
     @staticmethod
-    def prepare_query(query):
+    def prepare_query(query, namespace_manager = None):
         """Query must be slightly modified to fit the conditions of travshacl, rdflib, ...
 
         Args:
@@ -85,7 +88,7 @@ class Query:
         # Remove '.' if it is followed by '}', Trav-SHACL cannot handle these dots.
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
         query = re.sub(r'\n', r'',query)
-        return Query(query)
+        return Query(query, namespace_manager=namespace_manager)
 
     def is_starshaped(self):
         subject_intersection = reduce(set.intersection, [{t.subject} for t in self.triples])
@@ -101,7 +104,7 @@ class Query:
             filters = self.extract_filter_terms()
             values = self.extract_values_terms()
             values.extend({"VALUES ?x{" + center.n3() + "}"})
-            return Query.query_from_parts(self.PV, "DISTINCT" in self.query_string ,triples,filters,values)
+            return Query.query_from_parts(self.PV, "DISTINCT" in self.query_string ,triples,filters,values, namespace_manager=self.namespace_manager)
         elif isinstance(center, Variable):
             return self
         else:
@@ -189,12 +192,12 @@ class Query:
 
         # Replace Target Variable
         if '?x' not in self.query_string:
-            new_query_string_renamed = self.as_valid_query().replace(self.target_var, '?x')
+            new_query_string_renamed = self.query_string.replace(self.target_var, '?x')
         else:
             new_query_string_renamed = self.query_string
 
         if '?x' not in oldTargetQuery.query_string:
-            old_query_string_renamed = oldTargetQuery.as_valid_query().replace(
+            old_query_string_renamed = oldTargetQuery.query_string.replace(
                 oldTargetQuery.target_var, '?x')
         else:
             old_query_string_renamed = oldTargetQuery.query_string
@@ -229,38 +232,26 @@ class Query:
                 query_string += value + "\n"
 
         for triple in triples:
-            query_string += triple.n3(namespace_manager) + '\n'
+            query_string += triple.n3() + '\n'
 
         if filters:
             for filter_ in filters:
                 query_string += filter_ + "\n"
 
         query_string += "}"
-        return Query.prepare_query(query_string)
+        return Query.prepare_query(query_string, namespace_manager=namespace_manager)
 
     def get_statement(self):
         start = self.query_string.index("{") + len("{")
         end = self.query_string.rfind("}")
         return self.query_string[start:end]
 
-    def as_valid_query(self):
-        """Returns the query as a valid query_string. 
-        Is is assumed that each Query-Object is created via prepare_query(), 
-        then the query_string itself is already a valid query_string.
-        Otherwise, this will NOT return a valid_query.
-        TODO: This is just a getter for self.query_string, make sure that it returns always a valid version of a query.
-
-        Returns:
-            string: A valid query_string
-        """
-        return self.query_string
-
     def as_result_query(self):
-        return re.sub(
+        return Query(re.sub(
             r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE',
             f'SELECT DISTINCT * WHERE',
             self.query_string
-        )
+        ), namespace_manager=self.namespace_manager)
 
     def _reduce_select(self, query):
         """
