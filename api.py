@@ -9,7 +9,7 @@ from app.config import Config
 from app.utils import lookForException
 from app.output.simpleOutput import SimpleOutput
 from app.output.testOutput import TestOutput
-from app.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_processing
+from app.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_processing, mp_output_completion
 from app.multiprocessing.runner import Runner
 from app.multiprocessing.contactSource import contactSource
 from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
@@ -52,14 +52,16 @@ VALIDATION_RUNNER = Runner(mp_validate, number_of_out_queues=2)
 CONTACT_SOURCE_RUNNER = Runner(contactSource, number_of_out_queues=2)
 XJOIN_RUNNER = Runner(mp_xjoin, number_of_out_queues=1)
 POST_PROCESSING_RUNNER = Runner(mp_post_processing, number_of_out_queues=2)
+OUTPUT_COMPLETION_RUNNER = Runner(mp_output_completion, number_of_out_queues=1)
 
 # Starting the processes of the runners
 VALIDATION_RUNNER.start_process()
 CONTACT_SOURCE_RUNNER.start_process()
 XJOIN_RUNNER.start_process()
 POST_PROCESSING_RUNNER.start_process()
+OUTPUT_COMPLETION_RUNNER.start_process()
 
-def run_multiprocessing(pre_config):
+def run_multiprocessing(pre_config, result_queue = None):
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
 
@@ -95,15 +97,16 @@ def run_multiprocessing(pre_config):
     validation_out_connections = tuple((queue_adapter.sender for queue_adapter in validation_out_queues))
     xjoin_out_connections = tuple((queue_adapter.sender for queue_adapter in xjoin_out_queues))
     post_processing_out_connections = tuple((queue_adapter.sender for queue_adapter in post_processing_out_queues))
+    output_completion_out_connections = (result_queue,)
 
     # 3.) Zip In Connections
     contact_source_in_connections = tuple()
     validation_in_connections = tuple()
     xjoin_in_connections = (transformed_query_queue.receiver, val_queue.receiver)
     post_processing_in_connections = (shape_variables_queue.receiver, joined_results_queue.receiver, query_results_queue.receiver)
+    output_completion_in_connections = (final_result_queue.receiver)
 
-
-    # Setup of the Validation Result Transmitting Strategie
+    # Setup of the Validation Result Transmitting Strategie (Backend --> API)
     if config.transmission_strategy == 'queue':
         result_transmitter = ValidationResultTransmitter(output_queue=val_queue.sender, first_val_time_queue=stats_out_queue)
     else:
@@ -137,7 +140,28 @@ def run_multiprocessing(pre_config):
     post_processing_task_description = tuple()
     POST_PROCESSING_RUNNER.new_task(post_processing_in_connections, post_processing_out_connections, post_processing_task_description, stats_out_queue, config.run_in_serial)
 
-    # 4.) Output
+
+    # Preparing logging files
+    output_directory = os.path.join(os.getcwd(), config.output_directory)
+    matrix_file = os.path.join(output_directory, "matrix.csv")
+    trace_file = os.path.join(output_directory, "trace.csv")
+    stats_file = os.path.join(output_directory, "stats.csv")
+
+    # 4.) Output TODO: Remove duplicate Code
+    if result_queue != None:
+        output_completion_description = (query,)
+        OUTPUT_COMPLETION_RUNNER.new_task(output_completion_in_connections, output_completion_out_connections, output_completion_description, stats_out_queue, config.run_in_serial)
+        try:
+            statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)
+            statsCalc.receive_global_stats(stats_out_queue, using_output_completion_runner=True)
+        except Exception as e:
+            logger.exception(repr(e))
+            restart_processes()
+            return str(repr(e))
+        statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
+        logger.debug("API Done!")
+        return None
+
     if config.output_format == "test":
         lookForException(stats_out_queue)
         api_output = TestOutput.fromJoinedResults(config.target_shape, final_result_queue.receiver)
@@ -151,11 +175,6 @@ def run_multiprocessing(pre_config):
         #     #json.dump(api_output.to_json(config.target_shape),d)
         logger.debug(api_output.to_json())
         statsCalc.globalCalculationFinished()
-
-        output_directory = os.path.join(os.getcwd(), config.output_directory)
-        matrix_file = os.path.join(output_directory, "matrix.csv")
-        trace_file = os.path.join(output_directory, "trace.csv")
-        stats_file = os.path.join(output_directory, "stats.csv")
 
         try:
             statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)

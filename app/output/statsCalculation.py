@@ -59,7 +59,7 @@ class StatsCalculation:
         self.number_of_results = received_results
         writer.close()
 
-    def receive_global_stats(self, stats_out_queue):
+    def receive_global_stats(self, stats_out_queue, using_output_completion_runner=False):
         '''
         Receiving start and stop times of the different steps and also the time  of the first validation result.
         '''
@@ -68,6 +68,10 @@ class StatsCalculation:
                         'mp_xjoin': False,
                         'mp_post_processing': False,
                         'first_validation_result': False}
+
+        if using_output_completion_runner:
+            needed_stats['mp_output_completion'] = False
+
         while sum(needed_stats.values()) < len(needed_stats.keys()):
             statistic = stats_out_queue.get()
             needed_stats[statistic['topic']] = True
@@ -81,6 +85,8 @@ class StatsCalculation:
                 self.post_processing_started_time, self.post_processing_finished_time = statistic['time']
             elif statistic['topic'] == 'first_validation_result':
                 self.first_validation_result_time = statistic['time']
+            elif statistic['toplic'] == 'mp_output_completion':
+                _, self.global_end_time = statistic['time']
             elif statistic['topic'] == 'Exception':
                 raise Exception("An Exception occurred in " + statistic['location'])
             else:
