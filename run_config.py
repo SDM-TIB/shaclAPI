@@ -1,6 +1,5 @@
-import app.log_utils.logger_init # Has to be the first import!
 import time, sys, logging, argparse
-from api import run_multiprocessing, stop_processes
+from app.api import run_multiprocessing, stop_processes
 from functools import reduce
 import json
 

@@ -5,9 +5,10 @@ import os
 import yaml
 import logging
 import app.log_utils.logger_util
+import pathlib
 
 # Pull in Logging Config
-path = os.path.join(os.getcwd(), 'logger_config.yaml')
+path = os.path.join(pathlib.Path(__file__).parent.parent.parent.resolve(), 'logger_config.yaml')
 with open(path, 'r') as stream:
     try:
       logging_config = yaml.load(stream, Loader=yaml.FullLoader)

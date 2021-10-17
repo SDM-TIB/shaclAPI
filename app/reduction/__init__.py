@@ -1,17 +1,22 @@
 import sys
+import pathlib
+
+PACKAGE_S2SPY_PATH = str(pathlib.Path(__file__).parent.parent.parent.joinpath('s2spy').resolve())
+PACKAGE_S2SPY_VALIDATION_PATH = str(pathlib.Path(__file__).parent.parent.parent.joinpath('s2spy/validation').resolve())
+PACKAGE_TRAVSHACL_PATH = str(pathlib.Path(__file__).parent.parent.parent.joinpath('Trav-SHACL').resolve())
 
 # Makes travshacl / s2spy packages accesible without adding __init__.py to the backend directories
-sys.path.append('./s2spy')
-sys.path.append('./Trav-SHACL')  
+sys.path.append(PACKAGE_S2SPY_PATH)
+sys.path.append(PACKAGE_TRAVSHACL_PATH)
 from app.reduction.travshacl.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaTravShacl
 from app.reduction.s2spy.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaS2Spy
 from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
-sys.path.remove('./Trav-SHACL')
-sys.path.remove('./s2spy')
+sys.path.remove(PACKAGE_TRAVSHACL_PATH)
+sys.path.remove(PACKAGE_S2SPY_PATH)
 
-sys.path.append('./s2spy/validation')
+sys.path.append(PACKAGE_S2SPY_VALIDATION_PATH)
 import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
-sys.path.remove('./s2spy/validation')
+sys.path.remove(PACKAGE_S2SPY_VALIDATION_PATH)
 
 def prepare_validation(config, query, result_transmitter):
     '''

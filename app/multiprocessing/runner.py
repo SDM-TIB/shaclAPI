@@ -52,7 +52,7 @@ class Runner:
         return out_queues
 
     def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue, wait_for_finish=False):
-        if self.process and self.process.is_alive():
+        if self.process:
             if wait_for_finish:
                 task_finished_recv, task_finished_send = self.context.Pipe()
                 self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send))

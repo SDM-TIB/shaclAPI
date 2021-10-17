@@ -1,7 +1,6 @@
 from flask import Flask, request, Response
 import time, logging, json
-import app.log_utils.logger_init
-import api
+import app.api as api
 
 # Setup Logging
 logging.getLogger('werkzeug').disabled = True

@@ -1,3 +1,4 @@
+import app.log_utils.logger_init # Has to be the first import!
 import os, logging, time, sys, json, re
 from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib.namespace import RDF
@@ -61,6 +62,9 @@ XJOIN_RUNNER.start_process()
 POST_PROCESSING_RUNNER.start_process()
 OUTPUT_COMPLETION_RUNNER.start_process()
 
+def get_result_queue():
+    return OUTPUT_COMPLETION_RUNNER.get_new_out_queues(use_pipes=False)[0]
+
 def run_multiprocessing(pre_config, result_queue = None):
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
@@ -85,6 +89,7 @@ def run_multiprocessing(pre_config, result_queue = None):
     validation_out_queues = VALIDATION_RUNNER.get_new_out_queues(config.use_pipes)
     xjoin_out_queues = XJOIN_RUNNER.get_new_out_queues(config.use_pipes)
     post_processing_out_queues = POST_PROCESSING_RUNNER.get_new_out_queues(config.use_pipes)
+    output_completion_out_queues = (result_queue, )
 
     # 2.) Extract Out Queues
     transformed_query_queue, query_results_queue = contact_source_out_queues # pylint: disable=unbalanced-tuple-unpacking
@@ -97,14 +102,14 @@ def run_multiprocessing(pre_config, result_queue = None):
     validation_out_connections = tuple((queue_adapter.sender for queue_adapter in validation_out_queues))
     xjoin_out_connections = tuple((queue_adapter.sender for queue_adapter in xjoin_out_queues))
     post_processing_out_connections = tuple((queue_adapter.sender for queue_adapter in post_processing_out_queues))
-    output_completion_out_connections = (result_queue,)
+    output_completion_out_connections = tuple((queue_adapter.sender for queue_adapter in output_completion_out_queues))
 
     # 3.) Zip In Connections
     contact_source_in_connections = tuple()
     validation_in_connections = tuple()
     xjoin_in_connections = (transformed_query_queue.receiver, val_queue.receiver)
     post_processing_in_connections = (shape_variables_queue.receiver, joined_results_queue.receiver, query_results_queue.receiver)
-    output_completion_in_connections = (final_result_queue.receiver)
+    output_completion_in_connections = (final_result_queue.receiver, )
 
     # Setup of the Validation Result Transmitting Strategie (Backend --> API)
     if config.transmission_strategy == 'queue':
@@ -149,8 +154,8 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     # 4.) Output TODO: Remove duplicate Code
     if result_queue != None:
-        output_completion_description = (query,)
-        OUTPUT_COMPLETION_RUNNER.new_task(output_completion_in_connections, output_completion_out_connections, output_completion_description, stats_out_queue, config.run_in_serial)
+        output_completion_task_description = (query.copy(),)
+        OUTPUT_COMPLETION_RUNNER.new_task(output_completion_in_connections, output_completion_out_connections, output_completion_task_description, stats_out_queue, config.run_in_serial)
         try:
             statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)
             statsCalc.receive_global_stats(stats_out_queue, using_output_completion_runner=True)

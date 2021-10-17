@@ -1,6 +1,5 @@
-import app.log_utils.logger_init # Has to be the first import!
 import time, sys, logging, getopt
-from api import compute_experiment_metrices, stop_processes
+from app.api import compute_experiment_metrices, stop_processes
 
 logger = logging.getLogger(__name__)
 

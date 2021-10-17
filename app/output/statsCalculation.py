@@ -85,7 +85,7 @@ class StatsCalculation:
                 self.post_processing_started_time, self.post_processing_finished_time = statistic['time']
             elif statistic['topic'] == 'first_validation_result':
                 self.first_validation_result_time = statistic['time']
-            elif statistic['toplic'] == 'mp_output_completion':
+            elif statistic['topic'] == 'mp_output_completion':
                 _, self.global_end_time = statistic['time']
             elif statistic['topic'] == 'Exception':
                 raise Exception("An Exception occurred in " + statistic['location'])

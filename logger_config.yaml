@@ -15,7 +15,7 @@ handlers:
   file:
     class: logging.FileHandler
     level: DEBUG
-    filename: 'logs/api.log'
+    filename: 'api.log'
     formatter: simple
   queue_listener:
     class: app.log_utils.logger_util.QueueListenerHandler
@@ -34,7 +34,7 @@ loggers:
     handlers:
       - queue_listener
     propagate: false
-  api:
+  app.api:
     level: WARNING
     handlers:
       - queue_listener

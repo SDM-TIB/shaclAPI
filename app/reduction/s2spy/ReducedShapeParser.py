@@ -1,8 +1,11 @@
 import sys
 from s2spy.validation.ShapeParser import ShapeParser
-sys.path.append('./s2spy/validation')
+import pathlib
+
+PACKAGE_S2SPY_VALIDATION_PATH = str(pathlib.Path(__file__).parent.parent.parent.parent.joinpath('s2spy/validation').resolve())
+sys.path.append(PACKAGE_S2SPY_VALIDATION_PATH)
 import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
-sys.path.remove('./s2spy/validation')
+sys.path.remove(PACKAGE_S2SPY_VALIDATION_PATH)
 from app.query import Query
 
 import logging
