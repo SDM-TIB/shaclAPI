@@ -22,20 +22,23 @@ class Runner:
         self.number_of_out_queues = number_of_out_queues
         self.process = None
         self.task_queue = None
+        self.process_running = False
     
     def start_process(self):
         self.task_queue = self.context.Queue()
         self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function), name=self.function.__name__ )
         self.process.start()
+        self.process_running = True
         logger.info("Process {} started!".format(self.function.__name__))
         atexit.register(self.stop_process)
 
     def stop_process(self):
-        if self.process and self.process.is_alive():
+        if self.process and self.process_running:
             atexit.unregister(self.stop_process)
             self.task_queue.close()
             self.process.terminate()
             self.process = None
+            self.process_running = False
             logger.info("Process {} stopped!".format(self.function.__name__))
     
     def get_new_queue(self):
@@ -52,7 +55,7 @@ class Runner:
         return out_queues
 
     def new_task(self, in_queues, out_queues, task_description, runner_stats_out_queue, wait_for_finish=False):
-        if self.process:
+        if self.process and self.process_running:
             if wait_for_finish:
                 task_finished_recv, task_finished_send = self.context.Pipe()
                 self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send))

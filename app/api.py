@@ -74,7 +74,7 @@ def run_multiprocessing(pre_config, result_queue = None):
     logger.info("To reproduce this call to the api run: docker exec valsparql_shacl_api python run_config.py -c '" +  json.dumps(config.config_dict) + "'")
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
-    os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
+    os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)
     os.makedirs(os.path.join(config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier)), exist_ok=True)
 
 
@@ -147,10 +147,9 @@ def run_multiprocessing(pre_config, result_queue = None):
 
 
     # Preparing logging files
-    output_directory = os.path.join(os.getcwd(), config.output_directory)
-    matrix_file = os.path.join(output_directory, "matrix.csv")
-    trace_file = os.path.join(output_directory, "trace.csv")
-    stats_file = os.path.join(output_directory, "stats.csv")
+    matrix_file = os.path.join(os.path.abspath(config.output_directory), "matrix.csv")
+    trace_file = os.path.join(os.path.abspath(config.output_directory), "trace.csv")
+    stats_file = os.path.join(os.path.abspath(config.output_directory), "stats.csv")
 
     # 4.) Output TODO: Remove duplicate Code
     if result_queue != None:
@@ -214,7 +213,7 @@ def run_singleprocessing(pre_config):
     config = Config.from_request_form(pre_config)
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
-    os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
+    os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(config.query)
@@ -254,7 +253,7 @@ def start_processes():
 def compute_experiment_metrices(pre_config):
     config = Config.from_request_form(pre_config)
     endpoint = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
-    os.makedirs(os.path.join(os.getcwd(), config.output_directory), exist_ok=True)
+    os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)
 
     # Parse query_string into a corresponding select_query
     query = Query.prepare_query(config.query)
