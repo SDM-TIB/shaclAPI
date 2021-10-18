@@ -161,6 +161,7 @@ def run_multiprocessing(pre_config, result_queue = None):
         except Exception as e:
             statsCalc.globalCalculationFinished()
             statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
+            result_queue.sender.put('EOF')
             logger.exception(repr(e))
             restart_processes()
             return str(repr(e))
