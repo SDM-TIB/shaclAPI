@@ -27,7 +27,7 @@ class StatsCalculation:
         self.post_processing_finished_time = None
 
         self.first_validation_result_time = None
-        self.number_of_results = None
+        self.number_of_results = 'Not Calculated'
 
     def globalCalculationStart(self):
         self.global_start_time = time.time()
@@ -95,16 +95,31 @@ class StatsCalculation:
     def write_matrix_and_stats_files(self, matrix_file, stats_file):
         total_execution_time = self.global_end_time - self.global_start_time
 
-        query_time = self.query_finished_time - self.query_started_time
-        network_validation_time = self.validation_finished_time - self.validation_started_time
-        post_processing_time = self.post_processing_finished_time - self.post_processing_started_time
+        if self.query_started_time != None and self.query_finished_time != None:
+            query_time = self.query_finished_time - self.query_started_time
+        else:
+            query_time = 'NaN'
+        
+        if self.validation_finished_time != None and self.validation_started_time != None:
+            network_validation_time = self.validation_finished_time - self.validation_started_time
+        else:
+            network_validation_time = 'NaN'
+        
+        if self.post_processing_finished_time != None and self.post_processing_started_time != None:
+            post_processing_time = self.post_processing_finished_time - self.post_processing_started_time
+        else:
+            post_processing_time = 'NaN'
 
         # Using the maximum of this timestamps because the later one better describes the "real" start of the join.
         if self.first_validation_result_time:
             approximated_join_start = max(self.join_started_time, self.first_validation_result_time)
         else: 
             approximated_join_start = self.join_started_time
-        join_time = self.join_finished_time - approximated_join_start
+        
+        if self.join_started_time != None and self.join_finished_time != None:
+            join_time = self.join_finished_time - approximated_join_start
+        else:
+            join_time = 'NaN'
 
         if self.first_result_timestamp:
             first_result_time = self.first_result_timestamp - self.global_start_time

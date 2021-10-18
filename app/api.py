@@ -156,9 +156,11 @@ def run_multiprocessing(pre_config, result_queue = None):
         output_completion_task_description = (query.copy(),)
         OUTPUT_COMPLETION_RUNNER.new_task(output_completion_in_connections, output_completion_out_connections, output_completion_task_description, stats_out_queue, config.run_in_serial)
         try:
-            statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)
+            #statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)
             statsCalc.receive_global_stats(stats_out_queue, using_output_completion_runner=True)
         except Exception as e:
+            statsCalc.globalCalculationFinished()
+            statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
             logger.exception(repr(e))
             restart_processes()
             return str(repr(e))
