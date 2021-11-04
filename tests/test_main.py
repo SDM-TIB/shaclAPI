@@ -62,15 +62,7 @@ def test_trav(file):
         os.chdir(test_dir)
 
 @pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json'])
-def test_singleprocessing(file, config_file):
-    params, solution, log_file_path = test_setup_from_file(file, config_file, 'single')
-    params['test_identifier'] = file
-    params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
-    test_api('single', params, solution, log_file_path)
-
-@pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json', 'tests/configs/lubm_config_s2spy.json'])
+@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json']) #'tests/configs/lubm_config_s2spy.json'
 def test_multiprocessing(file, config_file):
     params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
     params['test_identifier'] = file

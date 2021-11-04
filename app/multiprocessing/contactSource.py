@@ -19,7 +19,7 @@ Example:
 
 """
 
-def contactSource(queue, queue_copy, endpoint, query, limit=-1):
+def contactSource(queue, endpoint, query, limit=-1):
     # Contacts the datasource (i.e. real endpoint).
     # Every tuple in the answer is represented as Python dictionaries
     # and is stored in a queue.
@@ -46,7 +46,7 @@ def contactSource(queue, queue_copy, endpoint, query, limit=-1):
     port = 80 if len(host_port) == 1 else host_port[1]
     card = 0
     if limit == -1:
-        b, card = contactSourceAux(referer, server, path, port, query, queue, queue_copy)
+        b, card = contactSourceAux(referer, server, path, port, query, queue)
     else:
         # Contacts the datasource (i.e. real endpoint) incrementally,
         # retreiving partial result sets combining the SPARQL sequence
@@ -57,7 +57,7 @@ def contactSource(queue, queue_copy, endpoint, query, limit=-1):
 
         while True:
             query_copy = query + " LIMIT " + str(limit) + " OFFSET " + str(offset)
-            b, cardinality = contactSourceAux(referer, server, path, port, query_copy, queue,queue_copy, offset)
+            b, cardinality = contactSourceAux(referer, server, path, port, query_copy, queue, offset)
             card += cardinality
             if cardinality < limit:
                 break
@@ -70,7 +70,7 @@ def contactSource(queue, queue_copy, endpoint, query, limit=-1):
     return b
 
 
-def contactSourceAux(referer, server, path, port, query, queue, queue_copy, first_id=0):
+def contactSourceAux(referer, server, path, port, query, queue, first_id=0):
 
     # Setting variables to return.
     b = None
@@ -121,7 +121,6 @@ def contactSourceAux(referer, server, path, port, query, queue, queue_copy, firs
                                 x[key] = props['value'] + suffix
                             queue.put({'var': key, 'instance': x[key], 'id': id})
                         logger.debug({'query_result': x, 'id': id})
-                        queue_copy.put({'query_result': x, 'id': id})
                         id = id + 1
                         reslist += 1
                     # Every tuple is added to the queue.

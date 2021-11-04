@@ -52,24 +52,6 @@ def route_multiprocessing():
     else:
         return Response(api_output, mimetype='text/plain')
 
-@app.route("/singleprocessing", methods=['POST'])
-def run():
-    '''
-    ONLY COMPATIBLE WITH TRAVSHACL BACKEND!
-
-    Required Arguments:
-        - query
-        - targetShape
-        - external_endpoint
-        - schemaDir
-    See app/config.py for a full list of available arguments!
-    '''
-    api_output, config = api.run_singleprocessing(request.form)
-    if config.output_format == "test":
-        return Response(api_output.to_json(config.target_shape), mimetype='application/json')
-    else:
-        return Response(str(api_output), mimetype='text/plain')
-
 @app.route("/metrics", methods=['POST'])
 def route_metrics():
     api.compute_experiment_metrices(request.form)

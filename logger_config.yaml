@@ -59,7 +59,7 @@ loggers:
     handlers:
       - queue_listener
     propagate: false
-  app.multiprocessing.Xgjoin.Xgjoin:
+  app.multiprocessing.Xgoptional.Xgoptional:
     level: WARNING
     handlers:
       - queue_listener

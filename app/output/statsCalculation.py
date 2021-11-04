@@ -2,7 +2,6 @@ import time
 import warnings
 
 from app.output.CSVWriter import CSVWriter
-from app.output.statsOutput import StatsOutput
 
 
 class StatsCalculation:
@@ -144,4 +143,3 @@ class StatsCalculation:
                        "join_time": join_time}
         CSVWriter(matrix_file).writeSingle(matrix_entry)
         CSVWriter(stats_file).writeSingle(stats_entry)
-        return StatsOutput(output=stats_entry)

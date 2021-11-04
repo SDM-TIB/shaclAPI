@@ -208,14 +208,6 @@ class Config:
         return self.config_dict.get('start_shape_for_validation', None)
 
     @property
-    def transmission_strategy(self):
-        """
-        Which strategy to use to communicate validation results from the backend to the api.
-        Can be one of "queue" (Uses multiprocessing.queue) or "" (Results are returned by the backend after the full validation is done --> Only available for the travshacl backend!)
-        """
-        return self.config_dict.get('transmission_strategy') or "queue"
-
-    @property
     def remove_constraints(self):
         """
         Whether the api should remove constraints of the target shape not mentioned in the query.

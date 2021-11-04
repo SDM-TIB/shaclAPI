@@ -8,7 +8,7 @@ class ValidationResultTransmitter():
     This can be done via an endpoint or using a multiprocessing.Queue.
     """
 
-    def __init__(self, output_queue=None, first_val_time_queue=None):
+    def __init__(self, output_queue, first_val_time_queue=None):
         self.output_queue = output_queue
         self.timestamp_of_first_result_send = False
         self.first_val_time_queue = first_val_time_queue
@@ -20,16 +20,8 @@ class ValidationResultTransmitter():
             self.timestamp_of_first_result_send = True
             self.first_val_time_queue.put({"topic": "first_validation_result", "time": time.time()})
 
-        if self.output_queue:
-            self.output_queue.put({'instance': instance, 
-                        'validation': (shape, valid, reason)})
-        else:
-            pass
+        self.output_queue.put({'instance': instance, 'validation': (shape, valid, reason)})
     
     def done(self):
         if not self.timestamp_of_first_result_send and self.first_val_time_queue:
             self.first_val_time_queue.put({"topic": "first_validation_result", "time": None})
-    
-    def use_streaming(self):
-        return (self.output_queue != None)
-        
