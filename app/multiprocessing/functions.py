@@ -21,7 +21,6 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
     finished_set = set()
     item = joined_result_queue.get()
     while item != 'EOF':
-        logger.debug(item)
         item_id = item['id']
         del item['id']
 
@@ -70,7 +69,7 @@ def mp_xjoin(left, right, out_queue, config):
     """
     Function to be executed with Runner to join the instances of the left with the right queue.
     """
-    join_instance = Xgoptional(['var', 'instance', 'id'], ['instance', 'validation'])
+    join_instance = Xgoptional(['var', 'instance', 'id'], ['instance', 'validation'], config.memory_size)
     join_instance.execute(left, right, out_queue)
 
 def mp_output_completion(input_queue, output_queue, query):
