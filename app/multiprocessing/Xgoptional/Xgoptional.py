@@ -260,7 +260,6 @@ class Xgoptional():
                         res = record.tuple.copy()
                         res.update(tuple)
                         self.qresults.put(res)
-                        logger.warning(record.tuple)
 
                         # Delete tuple from bag.
                         try:

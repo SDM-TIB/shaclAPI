@@ -139,7 +139,7 @@ def run_multiprocessing(pre_config, result_queue = None):
     XJOIN_RUNNER.new_task(xjoin_in_connections, xjoin_out_connections, xjoin_task_description, stats_out_queue, config.run_in_serial)
 
     # 3.) Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))
-    post_processing_task_description = (query_to_be_executed.PV,)
+    post_processing_task_description = (query_to_be_executed.PV, config.target_shape, query_to_be_executed.target_var)
     POST_PROCESSING_RUNNER.new_task(post_processing_in_connections, post_processing_out_connections, post_processing_task_description, stats_out_queue, config.run_in_serial)
 
     # Preparing logging files

@@ -9,7 +9,7 @@ from app.triple import TripleE
 logger = logging.getLogger(__name__)
 
 
-def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, variables):
+def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, variables, target_shape, target_var):
     """
     When Xgoptional is used the post processing just has to collect all the results in a hashtable.
     Example Input:
@@ -34,8 +34,10 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
             table[item_id] = {'result': [], 'need': variables.copy()}
         
         try:
-            table[item_id]['need'].remove("?" + item['var'])
-            table[item_id]['result'].append(item)
+            # Target var only gets the validation result of the target shape
+            if '?' + item['var'] != target_var or item['validation'][0] == target_shape:
+                table[item_id]['need'].remove("?" + item['var'])
+                table[item_id]['result'].append(item)
         except ValueError:
             logger.debug("Received a duplicate mapping from xgoptional {} --> {}".format(item, table[item_id]))
             item = joined_result_queue.get()
@@ -48,7 +50,7 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
             finished_set.add(item_id)
             output_queue.put({'result': final_result_item['result']})
             timestamp_queue.put({'timestamp': time.time()})
-            logger.debug('Finished Result {}'.format(item_id))
+            logger.debug('Finished Result {}'.format(final_result_item['result']))
 
         item = joined_result_queue.get()
 
