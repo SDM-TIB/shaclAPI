@@ -39,6 +39,8 @@ class Config:
             raise Exception("Its not possible to not prune the shape network but removing constraints (impling pruning the shape network...)")
         if self.use_pipes and self.run_in_serial:
             raise Exception("Pipes can only hold a limited amount of data and can therefore not be used in serial mode.")
+        if self.target_shape == None and (self.replace_target_query or self.prune_shape_network or self.start_with_target_shape or self.remove_constraints):
+            raise Exception("A target shape is needed for the given options!")
 
     # ------------------------------- required configuration options -------------------------------------------
     @property

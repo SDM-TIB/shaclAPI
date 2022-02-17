@@ -20,8 +20,8 @@ handlers:
   queue_listener:
     class: app.log_utils.logger_util.QueueListenerHandler
     handlers:
-      #- cfg://handlers.console
-      - cfg://handlers.file
+      - cfg://handlers.console
+      #- cfg://handlers.file
     queue: cfg://objects.queue
 loggers:
   __main__:
