@@ -108,7 +108,8 @@ class Query:
         elif isinstance(center, Variable):
             return self
         else:
-            raise Exception("Query is not starshaped and cannot be made starshaped through rewriting!")
+            return None
+            #raise Exception("Query is not starshaped and cannot be made starshaped through rewriting!")
 
     def extract_filter_terms(self):
         return re.findall(r'FILTER\s*\(.*\)', self.query_string, re.DOTALL)
@@ -166,7 +167,7 @@ class Query:
         if center != None and isinstance(center, Variable):
             return center.n3()
         else:
-            raise Exception("Not a valid star-shaped query: " + self.query_string)
+            return None
 
     def as_target_query(self, replace_prefixes=False):
         """Creates a target query based on the given query_string, 

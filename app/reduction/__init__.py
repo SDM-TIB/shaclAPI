@@ -27,15 +27,15 @@ def prepare_validation(config, query, result_transmitter):
 
     # Prepare the backend and choose the matching inherited ShapeSchema.
     if config.backend == "travshacl":
-        ReducedShapeSchema = ReducedShapeSchemaTravShacl
+        ShapeSchema = ReducedShapeSchemaTravShacl
         SPARQLEndpoint.instance = None # The SPARQLEndpoint Object of Travshacl is a singleton, so we need to rest it otherwise it won't change
     elif config.backend == "s2spy":
         SPARQLPrefixHandler.prefixes = {str(key): "<" + str(value) + ">" for (key, value) in query.namespace_manager.namespaces()}
         SPARQLPrefixHandler.prefixString = "\n".join(["".join("PREFIX " + key + ":" + value) for (key, value) in SPARQLPrefixHandler.prefixes.items()]) + "\n"
-        ReducedShapeSchema = ReducedShapeSchemaS2Spy
+        ShapeSchema = ReducedShapeSchemaS2Spy
     else:
         raise NotImplementedError("The given backend {} is not implemented".format(config.backend))
     
     # Initalize the ShapeSchema, this will parse the Shapes from the files and reduce the network as configured. 
-    schema = ReducedShapeSchema.from_config(config, query, result_transmitter)
-    return schema
+    shape_schema = ShapeSchema.from_config(config, query, result_transmitter)
+    return shape_schema

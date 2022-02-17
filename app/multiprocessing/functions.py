@@ -9,7 +9,7 @@ from app.triple import TripleE
 logger = logging.getLogger(__name__)
 
 
-def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, variables, target_shape, target_var):
+def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, variables, target_shape, target_var, collect_all_results = False):
     """
     When Xgoptional is used the post processing just has to collect all the results in a hashtable.
     Example Input:
@@ -34,17 +34,24 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
             table[item_id] = {'result': [], 'need': variables.copy()}
         
         try:
-            # Target var only gets the validation result of the target shape
-            if '?' + item['var'] != target_var or item['validation'][0] == target_shape:
-                table[item_id]['need'].remove("?" + item['var'])
+            if collect_all_results:
+                # Collect all results
                 table[item_id]['result'].append(item)
+            else: 
+                # If only the first validation result per assignment is collected, the validation result of the target_var instance should be the one of the target_shape.
+                if ('?' + item['var'] != target_var or item['validation'][0] == target_shape):
+                    table[item_id]['need'].remove("?" + item['var'])
+                    table[item_id]['result'].append(item)
+                else:
+                    table[item_id]['result'].append(item)
+
         except ValueError:
             logger.debug("Received a duplicate mapping from xgoptional {} --> {}".format(item, table[item_id]))
             item = joined_result_queue.get()
             continue
 
         # If the Hashtable Entry is complete put it into the output queue; remove it from the Hashtable and add the id to the finished list
-        if len(table[item_id]['need']) == 0:
+        if len(table[item_id]['need']) == 0 and not collect_all_results:
             final_result_item = table[item_id]
             del table[item_id]
             finished_set.add(item_id)
@@ -53,16 +60,22 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
             logger.debug('Finished Result {}'.format(final_result_item['result']))
 
         item = joined_result_queue.get()
+    
+    if collect_all_results:
+        for mapping in table.values():
+            output_queue.put({'result': mapping['result']})
+            timestamp_queue.put({'timestamp': time.time()})
+            logger.debug('Finished Result {}'.format(mapping['result']))
 
 
 def mp_validate(out_queue, config, query, result_transmitter):
     """
     Function to be executed with Runner to run the validation process of the backend.
     """
-    if config.target_shape == None:
-        out_queue.put('EOF')
-        result_transmitter.done()
-        return
+    # if config.target_shape == None:
+    #     out_queue.put('EOF')
+    #     result_transmitter.done()
+    #     return
 
     schema = prepare_validation(config, query, result_transmitter)
     _ = schema.validate(config.start_with_target_shape) # Validate Schema --> validation results will be put into the out_queue during validation

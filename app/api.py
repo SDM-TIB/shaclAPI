@@ -63,6 +63,17 @@ OUTPUT_COMPLETION_RUNNER.start_process()
 def get_result_queue():
     return OUTPUT_COMPLETION_RUNNER.get_new_out_queues(use_pipes=False)[0]
 
+def queue_to_print(pre_config):
+        from threading import Thread
+        from app.Mapping import Mapping
+        in_queue = get_result_queue()
+        t_api = Thread(target=run_multiprocessing, args=(pre_config, in_queue))
+        t_api.start()
+        new_result = in_queue.receiver.get()
+        while new_result != 'EOF':
+            print(Mapping(new_result))
+            new_result = in_queue.receiver.get()
+
 def run_multiprocessing(pre_config, result_queue = None):
     global EXTERNAL_SPARQL_ENDPOINT
     EXTERNAL_SPARQL_ENDPOINT = None
@@ -116,7 +127,17 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     # Parse query_string into a corresponding Query Object
     query = Query.prepare_query(config.query)
-    query = query.make_starshaped()
+    query_starshaped = query.make_starshaped()
+
+    collect_all_validation_results = config.collect_all_validation_results
+
+    # Check if we got a non starshaped query
+    if query_starshaped == None or config.target_shape == None:
+        if collect_all_validation_results == False:
+            collect_all_validation_results = True
+            logger.warning('Running in blocking mode as the target variable or the target shape could not be identified!')
+    else:
+        query = query_starshaped
 
     # The information we need depends on the output format:
     if config.output_format == "test" or (not config.reasoning):
@@ -139,7 +160,7 @@ def run_multiprocessing(pre_config, result_queue = None):
     XJOIN_RUNNER.new_task(xjoin_in_connections, xjoin_out_connections, xjoin_task_description, stats_out_queue, config.run_in_serial)
 
     # 3.) Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))
-    post_processing_task_description = (query_to_be_executed.PV, config.target_shape, query_to_be_executed.target_var)
+    post_processing_task_description = (query_to_be_executed.PV, config.target_shape, query_to_be_executed.target_var, collect_all_validation_results)
     POST_PROCESSING_RUNNER.new_task(post_processing_in_connections, post_processing_out_connections, post_processing_task_description, stats_out_queue, config.run_in_serial)
 
     # Preparing logging files
@@ -172,7 +193,6 @@ def run_multiprocessing(pre_config, result_queue = None):
             api_output = SimpleOutput.fromJoinedResults(query, final_result_queue.receiver)
         elif config.output_format == "stats":
             api_output = SimpleOutput.fromJoinedResults(query, final_result_queue.receiver)
-            logger.debug(api_output.to_json())
             statsCalc.globalCalculationFinished()
             try:
                 statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)

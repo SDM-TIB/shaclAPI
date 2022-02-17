@@ -84,6 +84,10 @@ class ReturnShapeSchema(ShapeSchema): # Here the normal ShapeSchema is used and 
     #    heuristics, config['useSelectiveQueries'], config['maxSplit'], config['outputDirectory'],
     #    config['ORDERBYinQueries'], config['outputs'], config['workInParallel'])
     '''
+    @staticmethod
+    def from_config(config):
+        return ReturnShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, config.max_split_size, config.output_directory, config.order_by_in_queries, config.save_outputs, config.work_in_parallel)
+
     def validate(self):
         """Executes the validation of the shape network."""
         start = self.get_starting_point()

@@ -250,13 +250,6 @@ class Config:
         """
         return self.config_dict.get('test_identifier', str(uuid.uuid1()))
 
-    @property
-    def join_implementation(self):
-        """
-        Which join implementation to use: Xjoin or Xgjoin.
-        """
-        return self.config_dict.get('join_implementation', 'Xgjoin')
-
     @property    
     def run_in_serial(self):
         """
@@ -278,6 +271,14 @@ class Config:
         Whether to use Pipes or not (in that case Queues are used)
         """
         return self.entry_to_bool(self.config_dict.get('use_pipes', False))
+    
+    @property
+    def collect_all_validation_results(self):
+        """
+        Whether to collect all validation results for each mapping or at least one of the target_shape and one for each other mapping.
+        Collecting all results will make the approach blocking.
+        """
+        return self.entry_to_bool(self.config_dict.get('collect_all_validation_results', False))
 
     # --------------------- Calculated Configs --------------------------------------------------
     @property

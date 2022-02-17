@@ -51,6 +51,10 @@ def route_multiprocessing():
         return Response(api_output.to_json(config.target_shape), mimetype='application/json')
     else:
         return Response(api_output, mimetype='text/plain')
+@app.route("/print", methods=['POST'])
+def route_print():
+    api.queue_to_print(request.form)
+    return "Done"
 
 @app.route("/metrics", methods=['POST'])
 def route_metrics():
