@@ -39,7 +39,7 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
                 table[item_id]['result'].append(item)
             else: 
                 # If only the first validation result per assignment is collected, the validation result of the target_var instance should be the one of the target_shape.
-                if ('?' + item['var'] != target_var or item['validation'][0] == target_shape):
+                if item['validation'] == None or ('?' + item['var'] != target_var or item['validation'][0] == target_shape):
                     table[item_id]['need'].remove("?" + item['var'])
                     table[item_id]['result'].append(item)
                 else:

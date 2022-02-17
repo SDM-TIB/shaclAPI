@@ -9,7 +9,7 @@ import urllib
 
 TRAV_DIR = 'Trav-SHACL/'
 FLASK_ENDPOINT='http://0.0.0.0:5000/'
-EXTERNAL_ENDPOINT_DOCKER='http://valsparql_travshacl_api_testdata:8890/sparql'
+EXTERNAL_ENDPOINT_DOCKER='http://0.0.0.0:14000/sparql'
 RESULT_DIR = 'output/test_results'
 
 TESTS_DIRS = [
@@ -104,6 +104,7 @@ def test_api(route, params, solution, log_file_path):
     response = requests.post(FLASK_ENDPOINT + route + 'processing', data=params)
     assert response.status_code == 200, "Server-sided error, check server output for details"
     json_response = response.json()
+    print(json_response)
     if solution:
         try:
             for key in ['validTargets','invalidTargets']:

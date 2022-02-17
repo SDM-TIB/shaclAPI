@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  data_graph:
+  shacl_api_testdata:
     image: kemele/virtuoso:7-stable
     container_name: sparql_endpoint
     volumes:
@@ -10,5 +10,5 @@ services:
       - "14000:8890"
   api_test:
     build: ../
-    container_name: api
+    container_name: api_test
     network_mode: "host"
