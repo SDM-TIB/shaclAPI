@@ -1,5 +1,4 @@
 import regex as re
-import warnings
 import logging
 
 from rdflib.plugins import sparql

@@ -1,5 +1,4 @@
 import time
-import warnings
 
 from app.output.CSVWriter import CSVWriter
 

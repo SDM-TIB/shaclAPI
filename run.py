@@ -1,11 +1,20 @@
 from flask import Flask, request, Response
 import time, logging, json
-import app.api as api
+from multiprocessing_logging import install_mp_handler
 
 # Setup Logging
 logging.getLogger('werkzeug').disabled = True
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s'))
+handler.setLevel(logging.INFO)
+logger = logging.getLogger()
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+install_mp_handler(logger)
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
+
+import app.api as api
 
 app = Flask(__name__)
 

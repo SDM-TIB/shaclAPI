@@ -8,3 +8,4 @@ requests
 pyinstrument
 PyYaml
 regex
+multiprocessing-logging

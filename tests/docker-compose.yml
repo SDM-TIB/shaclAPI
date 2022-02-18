@@ -8,7 +8,8 @@ services:
       - "./setup/TestData:/data/toLoad"
     ports:
       - "14000:8890"
-  api_test:
-    build: ../
-    container_name: api_test
-    network_mode: "host"
+
+networks:
+  shacl_engine_tests:
+    driver: bridge
+    external: true

@@ -1,4 +1,3 @@
-import app.log_utils.logger_init # Has to be the first import!
 import os, logging, time, sys, json, re
 from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib.namespace import RDF
