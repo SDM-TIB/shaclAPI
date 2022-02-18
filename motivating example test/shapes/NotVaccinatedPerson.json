@@ -1,0 +1,17 @@
+{
+	"name": "NotVaccinatedPerson",
+	"targetDef": {
+		"query":"SELECT ?x WHERE { ?x a :Person}",
+		"class": ":Person"
+	},
+	"prefix":{
+		"":"<http://example.org/>"
+	},
+	"constraintDef":{
+		"conjunctions":[
+			[
+				{ "path": ":vaccinated", "min": 1, "value": false }
+			]
+		]
+	}
+}

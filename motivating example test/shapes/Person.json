@@ -1,0 +1,19 @@
+{
+	"name": "Person",
+	"targetDef": {
+		"query":"SELECT ?x WHERE { ?x a :Person}",
+		"class": ":Person"
+	},
+	"prefix":{
+		"":"<http://example.org/>"
+	},
+	"constraintDef":{
+		"conjunctions":[
+			[
+				{ "path": ":pregnant", "min": 1, "value": true },
+				{ "path": ":country", "min": 1, "value": "'Germany'" },
+				{ "path": ":contact_with", "min": 3, "shape": "NotVaccinatedPerson" }
+			]
+		]
+	}
+}
