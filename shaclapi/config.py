@@ -1,7 +1,6 @@
 import json
 import uuid
 
-
 class Config:
     def __init__(self, config_dict):
         self.config_dict = config_dict
@@ -39,8 +38,6 @@ class Config:
             raise Exception("Its not possible to not prune the shape network but removing constraints (impling pruning the shape network...)")
         if self.use_pipes and self.run_in_serial:
             raise Exception("Pipes can only hold a limited amount of data and can therefore not be used in serial mode.")
-        if self.target_shape == None and (self.replace_target_query or self.prune_shape_network or self.start_with_target_shape or self.remove_constraints):
-            raise Exception("A target shape is needed for the given options!")
 
     # ------------------------------- required configuration options -------------------------------------------
     @property
@@ -143,14 +140,6 @@ class Config:
         return self.entry_to_bool(self.config_dict.get('SHACL2SPARQLorder', False))
 
     @property
-    def debugging(self):
-        """
-        Whether debugging mode is active. When using debugging mode the api is working as a proxy between the
-        external endpoint and the backend; which allows writing received queries to the standard output.
-        """
-        return self.entry_to_bool(self.config_dict.get('debugging', False))
-
-    @property
     def backend(self):
         """
         The backend to use. Only "travshacl" or "s2spy" is implemented.
@@ -217,14 +206,6 @@ class Config:
         return self.entry_to_bool(self.config_dict.get('remove_constraints', False))
 
     @property
-    def send_initial_query_over_internal_endpoint(self):
-        """
-        There might be problems with contactSource and some Sparql Endpoints. These can be fixed by routing through our internal endpoint.
-        This will force the api todo so.
-        """
-        return self.entry_to_bool(self.config_dict.get('send_initial_query_over_internal_endpoint', False))
-
-    @property
     def output_format(self):
         """
         Which output format the api should use. This can be "test", "stats" or "simple"
@@ -281,8 +262,10 @@ class Config:
         Collecting all results will make the approach blocking.
         """
         return self.entry_to_bool(self.config_dict.get('collect_all_validation_results', False))
-
-    # --------------------- Calculated Configs --------------------------------------------------
+    
     @property
-    def internal_endpoint(self):
-        return self.INTERNAL_SPARQL_ENDPOINT if self.debugging else self.external_endpoint
+    def write_stats(self):
+        """
+        Whether to write statistics to the output directory.
+        """
+        return self.entry_to_bool(self.config_dict.get('write_stats', True))

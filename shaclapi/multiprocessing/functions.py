@@ -1,3 +1,4 @@
+from enum import IntEnum
 from shaclapi.reduction import prepare_validation
 from shaclapi.multiprocessing.Xgjoin.Xgjoin import Xgjoin
 from shaclapi.multiprocessing.Xgoptional.Xgoptional import Xgoptional
@@ -6,8 +7,12 @@ from shaclapi.multiprocessing.ThreadEx import ThreadEx
 from rdflib import Namespace, URIRef
 from shaclapi.triple import TripleE
 
-logger = logging.getLogger(__name__)
+class ValReport(IntEnum):
+    SHAPE = 0
+    IS_VALID = 1
+    REASON = 2
 
+logger = logging.getLogger(__name__)
 
 def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, variables, target_shape, target_var, collect_all_results = False):
     """
@@ -78,6 +83,7 @@ def mp_validate(out_queue, config, query, result_transmitter):
     #     return
 
     schema = prepare_validation(config, query, result_transmitter)
+    print(config.config_dict)
     _ = schema.validate(config.start_with_target_shape) # Validate Schema --> validation results will be put into the out_queue during validation
     
 def mp_xjoin(left, right, out_queue, config):
@@ -87,7 +93,7 @@ def mp_xjoin(left, right, out_queue, config):
     join_instance = Xgoptional(['var', 'instance', 'id'], ['instance', 'validation'], config.memory_size)
     join_instance.execute(left, right, out_queue)
 
-def mp_output_completion(input_queue, output_queue, query):
+def mp_output_completion(input_queue, output_queue, query, target_shape, is_test_output=False):
     t_path = Namespace("//travshacl_path#")
     query.namespace_manager.bind('ts', t_path)
     t_path_valid = t_path['satisfiesShape'].n3(query.namespace_manager)
@@ -99,24 +105,48 @@ def mp_output_completion(input_queue, output_queue, query):
     while result != 'EOF':
         logger.debug("Result:" + str(result))
         query_result = result['result']
-        # Create Bindings
-        binding = {}
-        filtered_bindings = {}
-        for b in query_result:
-            try:
-                instance = URIRef(b['instance']).n3(query.namespace_manager)
-            except:
-                instance = b['instance']
-            binding['?' + b['var']] = instance
-            if '?' + b['var'] in query.PV:
-                filtered_bindings['?' + b['var']] = instance
-        logger.debug("Binding:" + str(binding))
-        logger.debug("Filtered Binding:" + str(filtered_bindings))
-        triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
-                       for t in query_triples if t[TripleE.SUBJECT] in binding]
-        logger.debug("Triples:" + str(triples))
-        report_triples = [(URIRef(b['instance']).n3(query.namespace_manager), (t_path_valid if b['validation'][1] else t_path_invalid), b['validation'][0])
-                           for b in query_result if 'validation' in b and b['validation']]
-        logger.debug("Report Triples:" + str(report_triples))
-        output_queue.put((filtered_bindings, triples, report_triples))
+        
+        if not is_test_output:
+            # Create Bindings
+            binding = {}
+            filtered_bindings = {}
+            for b in query_result:
+                try:
+                    instance = URIRef(b['instance']).n3(query.namespace_manager)
+                except:
+                    instance = b['instance']
+                binding['?' + b['var']] = instance
+                if '?' + b['var'] in query.PV:
+                    filtered_bindings['?' + b['var']] = instance
+            logger.debug("Binding:" + str(binding))
+            logger.debug("Filtered Binding:" + str(filtered_bindings))
+            triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
+                        for t in query_triples if t[TripleE.SUBJECT] in binding]
+            logger.debug("Triples:" + str(triples))
+            report_triples = [(URIRef(b['instance']).n3(query.namespace_manager), (t_path_valid if b['validation'][1] else t_path_invalid), b['validation'][0])
+                            for b in query_result if 'validation' in b and b['validation']]
+            logger.debug("Report Triples:" + str(report_triples))
+            output_queue.put((filtered_bindings, triples, report_triples))
+        
+        else:
+            output = {"validTargets": [], "invalidTargets": [], "advancedValid": [], "advancedInvalid": []}
+            instances = dict()
+            for binding in query_result:
+                if 'validation' in binding:
+                    if binding['validation']:
+                        if binding['instance'] not in instances:
+                            instances[binding['instance']] = binding['validation']
+                            if target_shape == binding['validation'][ValReport.SHAPE]:
+                                if binding['validation'][ValReport.IS_VALID]:
+                                    output['validTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                                else:
+                                    output['invalidTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                            else:
+                                if binding['validation'][ValReport.IS_VALID]:
+                                    output['advancedValid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                                else:
+                                    output['advancedInvalid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
         result = input_queue.get()
+
+        if is_test_output:
+            output_queue.put(output)

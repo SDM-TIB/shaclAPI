@@ -6,6 +6,7 @@ import os, sys
 from glob import glob
 import time
 import urllib
+from pathlib import Path
 
 TRAV_DIR = 'Trav-SHACL/'
 FLASK_ENDPOINT='http://0.0.0.0:5000/'
@@ -29,8 +30,7 @@ required_prefixes = {
     "test5": "<http://example.org/testGraph5#>" 
     }
 
-if not os.path.isdir(RESULT_DIR):
-    os.mkdir(RESULT_DIR)
+Path(RESULT_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def get_all_files():
@@ -61,13 +61,13 @@ def test_trav(file):
     else:
         os.chdir(test_dir)
 
-@pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json']) #'tests/configs/lubm_config_s2spy.json'
-def test_multiprocessing(file, config_file):
-    params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
-    params['test_identifier'] = file
-    params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
-    test_api('multi', params, solution, log_file_path)
+# @pytest.mark.parametrize("file", get_all_files())
+# @pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json']) #'tests/configs/lubm_config_s2spy.json'
+# def test_multiprocessing(file, config_file):
+#     params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
+#     params['test_identifier'] = file
+#     params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
+#     test_api('multi', params, solution, log_file_path)
 
 @pytest.mark.parametrize("file", get_all_files())
 @pytest.mark.parametrize("backend", ["travshacl", "s2spy"])
@@ -76,9 +76,10 @@ def test_multiprocessing(file, config_file):
 @pytest.mark.parametrize("replace_target_query", [True, False])
 @pytest.mark.parametrize("start_with_target_shape", [True, False])
 @pytest.mark.parametrize("config_file", ['tests/configs/configurationtest_base_config.json'])
+@pytest.mark.parametrize("collect_all_validation_results", [True, False])
 def test_configurations_multiprocessing(request, file, backend, prune_shape_network, 
                                             remove_constraints, replace_target_query, 
-                                                start_with_target_shape, config_file):
+                                                start_with_target_shape, collect_all_validation_results, config_file):
 
     if backend == "s2spy" and start_with_target_shape == False:
         pytest.skip("Not a valid combination!")
@@ -94,6 +95,7 @@ def test_configurations_multiprocessing(request, file, backend, prune_shape_netw
     params['start_with_target_shape'] = start_with_target_shape    
     params['test_identifier'] = 'tests/test_main.py::' + str(request.node.name)
     params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
+    params['collect_all_validation_results'] = collect_all_validation_results
     test_api('multi', params, None,'configtest_logfile.log')
     # Here the metrics can also be tested, but need to disable file output for the metrics
     # test_metrics(params)

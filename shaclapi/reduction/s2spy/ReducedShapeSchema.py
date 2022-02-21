@@ -27,7 +27,7 @@ class ReducedShapeSchema(ShapeNetwork):
 
     @staticmethod
     def from_config(config, query_object, result_transmitter):
-        return ReducedShapeSchema(config.schema_directory, config.schema_format, config.internal_endpoint, \
+        return ReducedShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, \
             GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, \
                 config.max_split_size, os.path.join(config.output_directory,config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier), ''), config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
                     config.target_shape, query_object, config.replace_target_query, config.merge_old_target_query, config.remove_constraints, config.prune_shape_network, config.start_shape_for_validation, result_transmitter)

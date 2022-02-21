@@ -1,7 +1,4 @@
-import time
-
-from shaclapi.output.CSVWriter import CSVWriter
-
+import time, csv, os
 
 class StatsCalculation:
 
@@ -41,12 +38,15 @@ class StatsCalculation:
         This assigns the timestamp of the first and the last result; writes the trace file and counts the number of results.
         This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step) 
         '''
-        writer = CSVWriter(trace_file)
+        if trace_file != None:
+            f, writer = self._open_csv(trace_file, ['test','approach','answer', 'time'])
+            
         received_results = 0
         result = timestamp_queue.get()
         while result != 'EOF':
             received_results += 1
-            writer.writeMulti({"test": self.test_name,
+            if trace_file != None:
+                writer.writerow({"test": self.test_name,
                                "approach": self.approach_name,
                                "answer": received_results,
                                "time": result['timestamp'] - self.global_start_time})
@@ -55,7 +55,16 @@ class StatsCalculation:
                 self.first_result_timestamp = result['timestamp']
             result = timestamp_queue.get()
         self.number_of_results = received_results
-        writer.close()
+        if trace_file != None:
+            f.close()
+    
+    def _open_csv(self, file, fields):
+        mode = 'a' if os.path.isfile(file) else 'w'
+        f = open(file, mode)
+        writer = csv.DictWriter(f, fields)
+        if mode == 'w':
+            writer.writeheader()
+        return f, writer
 
     def receive_global_stats(self, stats_out_queue, using_output_completion_runner=False):
         '''
@@ -140,5 +149,12 @@ class StatsCalculation:
                        "query_time": query_time,
                        "network_validation_time": network_validation_time,
                        "join_time": join_time}
-        CSVWriter(matrix_file).writeSingle(matrix_entry)
-        CSVWriter(stats_file).writeSingle(stats_entry)
+        if matrix_file != None:
+            f, writer = self._open_csv(matrix_file, ['test','approach','tfft', 'totaltime', 'comp'])
+            writer.writerow(matrix_entry)
+            f.close()
+
+        if stats_file != None:
+            f, writer = self._open_csv(stats_file, ['test', 'approach','total_execution_time', 'query_time', 'network_validation_time', 'join_time'])
+            writer.writerow(stats_entry)
+            f.close()

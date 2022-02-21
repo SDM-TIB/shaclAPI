@@ -1,49 +1,17 @@
 from flask import Flask, request, Response
-import time, logging, json
-from multiprocessing_logging import install_mp_handler
+import logging
+from shaclapi import logger as shaclapi_logger
 
 # Setup Logging
 logging.getLogger('werkzeug').disabled = True
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('[%(asctime)s - %(levelname)s] %(name)s - %(processName)s: %(msg)s'))
-handler.setLevel(logging.INFO)
-logger = logging.getLogger()
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-install_mp_handler(logger)
+
+shaclapi_logger.setup()
 
 logger = logging.getLogger(__name__)
 
 import shaclapi.api as api
 
 app = Flask(__name__)
-
-@app.route("/endpoint", methods=['GET', 'POST'])
-def endpoint():
-    '''
-    This is just an proxy endpoint to log the communication between the backend and the external sparql endpoint.
-    '''
-    api.EXTERNAL_SPARQL_ENDPOINT
-    logger.debug('Received /endpoint request')
-    # Preprocessing of the Query
-    if request.method == 'POST':
-        query = request.form['query']
-    if request.method == 'GET':
-        query = request.args['query']
-
-    logger.debug("Received Query: ")
-    logger.debug(query)
-
-    start = time.time()
-    api.EXTERNAL_SPARQL_ENDPOINT.setQuery(query)
-    result = api.EXTERNAL_SPARQL_ENDPOINT.query().convert()
-    jsonResult = json.dumps(result)
-    end = time.time()
-
-    logger.debug("Got {} result bindings".format(len(result['results']['bindings'])))
-    logger.debug("Execution took " + str((end - start)*1000) + ' ms')
-
-    return Response(jsonResult, mimetype='application/json')
 
 @app.route("/multiprocessing", methods=['POST'])
 def route_multiprocessing():
@@ -55,20 +23,11 @@ def route_multiprocessing():
         - schemaDir
     See app/config.py for a full list of available arguments!
     '''
-    api_output, config = api.run_multiprocessing(request.form)
+    api_output = api.run_multiprocessing(request.form)
     if type(api_output) != str:
-        return Response(api_output.to_json(config.target_shape), mimetype='application/json')
+        return Response(api_output.to_json(), mimetype='application/json')
     else:
         return Response(api_output, mimetype='text/plain')
-@app.route("/print", methods=['POST'])
-def route_print():
-    api.queue_to_print(request.form)
-    return "Done"
-
-@app.route("/metrics", methods=['POST'])
-def route_metrics():
-    api.compute_experiment_metrices(request.form)
-    return "Done"
 
 @app.route("/", methods=['GET'])
 def hello_world():

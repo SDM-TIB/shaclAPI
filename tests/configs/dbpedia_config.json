@@ -7,7 +7,7 @@
     "maxSplit": 256,
     "ORDERBYinQueries": true,
     "SHACL2SPARQLorder": false,
-    "debugging": true,
     "outputs": false,
-    "backend": "travshacl"
+    "backend": "travshacl",
+    "write_stats": true
 }
