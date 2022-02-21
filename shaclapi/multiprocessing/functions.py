@@ -83,7 +83,6 @@ def mp_validate(out_queue, config, query, result_transmitter):
     #     return
 
     schema = prepare_validation(config, query, result_transmitter)
-    print(config.config_dict)
     _ = schema.validate(config.start_with_target_shape) # Validate Schema --> validation results will be put into the out_queue during validation
     
 def mp_xjoin(left, right, out_queue, config):

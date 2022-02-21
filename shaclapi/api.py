@@ -54,7 +54,6 @@ def run_multiprocessing(pre_config, result_queue = None):
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
     logger.info("To reproduce this call to the api run: run_config.py -c '" +  json.dumps(config.config_dict) + "'")
-    print("Name: " + __name__)
     os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)
     os.makedirs(os.path.join(config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier)), exist_ok=True)
 
@@ -166,7 +165,11 @@ def run_multiprocessing(pre_config, result_queue = None):
         statsCalc.receive_global_stats(stats_out_queue, using_output_completion_runner=True)
         statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
     except Exception as e:
-        logger.exception(repr(e))
+        import sys
+        import traceback
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        emsg = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
+        logger.exception(str(emsg))
         result_queue.sender.put('EOF')
 
     if QUEUE_OUTPUT == False:
