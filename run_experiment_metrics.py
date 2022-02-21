@@ -1,5 +1,5 @@
 import time, sys, logging, getopt
-from app.api import compute_experiment_metrices, stop_processes
+from shaclapi.api import compute_experiment_metrices, stop_processes
 
 logger = logging.getLogger(__name__)
 

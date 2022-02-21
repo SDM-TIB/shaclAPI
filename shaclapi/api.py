@@ -3,19 +3,19 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib.namespace import RDF
 from rdflib.term import Variable
 
-from app.connectivity import Connectivity
-from app.query import Query
-from app.config import Config
-from app.utils import lookForException
-from app.output.simpleOutput import SimpleOutput
-from app.output.testOutput import TestOutput
-from app.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_processing, mp_output_completion
-from app.multiprocessing.runner import Runner
-from app.multiprocessing.contactSource import contactSource
-from app.reduction.ValidationResultTransmitter import ValidationResultTransmitter
-from app.output.statsCalculation import StatsCalculation
-from app.output.CSVWriter import CSVWriter
-from app.reduction import prepare_validation
+from shaclapi.connectivity import Connectivity
+from shaclapi.query import Query
+from shaclapi.config import Config
+from shaclapi.utils import lookForException
+from shaclapi.output.simpleOutput import SimpleOutput
+from shaclapi.output.testOutput import TestOutput
+from shaclapi.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_processing, mp_output_completion
+from shaclapi.multiprocessing.runner import Runner
+from shaclapi.multiprocessing.contactSource import contactSource
+from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
+from shaclapi.output.statsCalculation import StatsCalculation
+from shaclapi.output.CSVWriter import CSVWriter
+from shaclapi.reduction import prepare_validation
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ def get_result_queue():
 
 def queue_to_print(pre_config):
         from threading import Thread
-        from app.Mapping import Mapping
+        from shaclapi.Mapping import Mapping
         in_queue = get_result_queue()
         t_api = Thread(target=run_multiprocessing, args=(pre_config, in_queue))
         t_api.start()
@@ -79,7 +79,7 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
-    logger.info("To reproduce this call to the api run: docker exec valsparql_engine python code/shacl-api/run_config.py -c '" +  json.dumps(config.config_dict) + "'")
+    logger.info("To reproduce this call to the api run: run_config.py -c '" +  json.dumps(config.config_dict) + "'")
 
     EXTERNAL_SPARQL_ENDPOINT = SPARQLWrapper(config.external_endpoint, returnFormat=JSON)
     os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)

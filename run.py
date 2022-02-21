@@ -12,9 +12,9 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 install_mp_handler(logger)
 
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-import app.api as api
+import shaclapi.api as api
 
 app = Flask(__name__)
 

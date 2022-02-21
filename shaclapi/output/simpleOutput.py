@@ -1,6 +1,6 @@
 import json, logging
 from rdflib import Namespace, URIRef, Literal
-from app.triple import TripleE
+from shaclapi.triple import TripleE
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
 import time, sys, logging, argparse
-from app.api import run_multiprocessing, stop_processes
+from shaclapi.api import run_multiprocessing, stop_processes
 from functools import reduce
 import json
 

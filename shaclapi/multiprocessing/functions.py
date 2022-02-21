@@ -1,10 +1,10 @@
-from app.reduction import prepare_validation
-from app.multiprocessing.Xgjoin.Xgjoin import Xgjoin
-from app.multiprocessing.Xgoptional.Xgoptional import Xgoptional
+from shaclapi.reduction import prepare_validation
+from shaclapi.multiprocessing.Xgjoin.Xgjoin import Xgjoin
+from shaclapi.multiprocessing.Xgoptional.Xgoptional import Xgoptional
 import time, logging
-from app.multiprocessing.ThreadEx import ThreadEx
+from shaclapi.multiprocessing.ThreadEx import ThreadEx
 from rdflib import Namespace, URIRef
-from app.triple import TripleE
+from shaclapi.triple import TripleE
 
 logger = logging.getLogger(__name__)
 

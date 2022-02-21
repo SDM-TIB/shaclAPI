@@ -1,8 +1,8 @@
 import multiprocessing as mp
-from app.query import Query
+from shaclapi.query import Query
 import time, atexit
 import logging 
-from app.multiprocessing.PipeAdapter import PipeAdapter, QueueAdapter
+from shaclapi.multiprocessing.PipeAdapter import PipeAdapter, QueueAdapter
 
 logger = logging.getLogger(__name__)
 

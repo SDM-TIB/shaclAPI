@@ -2,7 +2,7 @@ import regex as re
 import logging
 
 from rdflib.plugins import sparql
-from app.triple import Triple
+from shaclapi.triple import Triple
 from rdflib.term import URIRef, Variable
 from rdflib.paths import InvPath
 from functools import reduce

@@ -1,6 +1,6 @@
 import time
 
-from app.output.CSVWriter import CSVWriter
+from shaclapi.output.CSVWriter import CSVWriter
 
 
 class StatsCalculation:

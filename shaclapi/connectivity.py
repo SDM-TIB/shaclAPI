@@ -1,8 +1,8 @@
 from rdflib.term import Variable, URIRef
 from rdflib.namespace import RDF
-from app.query import Query
+from shaclapi.query import Query
 import re, os
-from app.output.CSVWriter import CSVWriter
+from shaclapi.output.CSVWriter import CSVWriter
 
 
 class Connectivity():
