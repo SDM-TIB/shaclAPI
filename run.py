@@ -5,7 +5,7 @@ from shaclapi import logger as shaclapi_logger
 # Setup Logging
 logging.getLogger('werkzeug').disabled = True
 
-shaclapi_logger.setup()
+shaclapi_logger.setup(level=logging.ERROR)
 
 logger = logging.getLogger(__name__)
 

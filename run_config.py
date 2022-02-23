@@ -1,8 +1,14 @@
 import time, sys, logging, argparse
-from shaclapi.api import run_multiprocessing, stop_processes
+
 from functools import reduce
 import json
+import shaclapi.logger as shaclapi_logger
 
+shaclapi_logger.setup(level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
+
+from shaclapi.api import run_multiprocessing, stop_processes
 # Use to reproduce calls to the api.
 
 logger = logging.getLogger(__name__)
@@ -10,10 +16,10 @@ logger = logging.getLogger(__name__)
 def main(pre_config):
     # Starting the processes of the runners
     try:
-        api_output, config = run_multiprocessing(pre_config)
+        api_output = run_multiprocessing(pre_config)
         time.sleep(1)
         if type(api_output) != str:
-            print(api_output.to_json(config.target_shape))
+            print(api_output.to_json())
         else:
             print(api_output)
     except KeyboardInterrupt:

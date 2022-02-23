@@ -173,15 +173,18 @@ def run_multiprocessing(pre_config, result_queue = None):
         result_queue.sender.put('EOF')
 
     if QUEUE_OUTPUT == False:
+        next_result = result_queue.receiver.get()
         if config.output_format == "test":
-            next_result = result_queue.receiver.get()
             while next_result != 'EOF':
                 output = next_result
+                next_result = result_queue.receiver.get()
         else:
             output = []
-            next_result = result_queue.receiver.get()
             while next_result != 'EOF':
                 output += [next_result]
+                next_result = result_queue.receiver.get()
+                #logger.debug(next_result)
+        logger.debug('Finished collecting results!')
         return Output(output)
     else:
         return None

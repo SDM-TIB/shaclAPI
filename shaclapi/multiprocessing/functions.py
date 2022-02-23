@@ -100,6 +100,7 @@ def mp_output_completion(input_queue, output_queue, query, target_shape, is_test
     
     query_triples = query.get_triples(replace_prefixes=False)
 
+    test_output = {"validTargets": [], "invalidTargets": [], "advancedValid": [], "advancedInvalid": []}    
     result = input_queue.get()
     while result != 'EOF':
         logger.debug("Result:" + str(result))
@@ -117,35 +118,28 @@ def mp_output_completion(input_queue, output_queue, query, target_shape, is_test
                 binding['?' + b['var']] = instance
                 if '?' + b['var'] in query.PV:
                     filtered_bindings['?' + b['var']] = instance
-            logger.debug("Binding:" + str(binding))
-            logger.debug("Filtered Binding:" + str(filtered_bindings))
             triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
                         for t in query_triples if t[TripleE.SUBJECT] in binding]
-            logger.debug("Triples:" + str(triples))
             report_triples = [(URIRef(b['instance']).n3(query.namespace_manager), (t_path_valid if b['validation'][1] else t_path_invalid), b['validation'][0])
                             for b in query_result if 'validation' in b and b['validation']]
             logger.debug("Report Triples:" + str(report_triples))
             output_queue.put((filtered_bindings, triples, report_triples))
         
         else:
-            output = {"validTargets": [], "invalidTargets": [], "advancedValid": [], "advancedInvalid": []}
-            instances = dict()
             for binding in query_result:
                 if 'validation' in binding:
                     if binding['validation']:
-                        if binding['instance'] not in instances:
-                            instances[binding['instance']] = binding['validation']
-                            if target_shape == binding['validation'][ValReport.SHAPE]:
-                                if binding['validation'][ValReport.IS_VALID]:
-                                    output['validTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
-                                else:
-                                    output['invalidTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                        if target_shape == binding['validation'][ValReport.SHAPE]:
+                            if binding['validation'][ValReport.IS_VALID]:
+                                test_output['validTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
                             else:
-                                if binding['validation'][ValReport.IS_VALID]:
-                                    output['advancedValid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
-                                else:
-                                    output['advancedInvalid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                                test_output['invalidTargets'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                        else:
+                            if binding['validation'][ValReport.IS_VALID]:
+                                test_output['advancedValid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
+                            else:
+                                test_output['advancedInvalid'].append((binding['instance'], binding['validation'][ValReport.REASON]))
         result = input_queue.get()
 
-        if is_test_output:
-            output_queue.put(output)
+    if is_test_output:
+        output_queue.put(test_output)
