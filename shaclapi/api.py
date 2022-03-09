@@ -107,21 +107,29 @@ def run_multiprocessing(pre_config, result_queue = None):
     collect_all_validation_results = config.collect_all_validation_results
 
     # Check if we got a non starshaped query
-    if query_starshaped == None or config.target_shape == None:
+    if query_starshaped == None:
         if collect_all_validation_results == False:
             collect_all_validation_results = True
-            logger.warning('Running in blocking mode as the target variable or the target shape could not be identified!')
+            logger.warning('Running in blocking mode as the target variable could not be identified!')
         if config.replace_target_query == True:
             config.config_dict['replace_target_query'] = False
-            logger.warning('Can only replace target query if target shape is given and query is starshaped!')
-        if config.prune_shape_network == True:
-            config.config_dict['prune_shape_network'] = False
-            logger.warning('Can only prune shape schema if target shape is given and query is starshaped!')
-        if config.start_with_target_shape == True:
-            config.config_dict['start_with_target_shape'] = False
-            logger.warning('Can only start with target shape if target shape is given and query is starshaped!')
+            logger.warning('Can only replace target query if query is starshaped!')
     else:
         query = query_starshaped
+    
+    if config.target_shape == None:
+        if collect_all_validation_results == False:
+            collect_all_validation_results = True
+            logger.warning('Running in blocking mode as the target shape is not given!')
+        if config.replace_target_query == True:
+            config.config_dict['replace_target_query'] = False
+            logger.warning('Can only replace target query if target shape is given!')
+        if config.prune_shape_network == True:
+            config.config_dict['prune_shape_network'] = False
+            logger.warning('Can only prune shape schema if target shape is given!')
+        if config.start_with_target_shape == True:
+            config.config_dict['start_with_target_shape'] = False
+            logger.warning('Can only start with target shape if target shape is given!')
 
     # The information we need depends on the output format:
     if config.output_format == "test" or (not config.reasoning):
@@ -178,6 +186,7 @@ def run_multiprocessing(pre_config, result_queue = None):
             while next_result != 'EOF':
                 output = next_result
                 next_result = result_queue.receiver.get()
+                print(len(output['validTargets']), len(output['invalidTargets']))
         else:
             output = []
             while next_result != 'EOF':
