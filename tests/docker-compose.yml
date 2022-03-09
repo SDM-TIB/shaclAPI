@@ -8,6 +8,8 @@ services:
       - "./setup/TestData:/data/toLoad"
     ports:
       - "14000:8890"
+    networks:
+      - shacl_engine_tests
 
 networks:
   shacl_engine_tests:
