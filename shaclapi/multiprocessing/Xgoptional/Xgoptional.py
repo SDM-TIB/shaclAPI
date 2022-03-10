@@ -13,6 +13,7 @@ from tempfile import NamedTemporaryFile
 from time import time
 from os import remove
 from .OperatorStructures import Record, RJTTail, FileDescriptor
+import json
 
 import logging
 logger = logging.getLogger(__name__) 
@@ -23,7 +24,7 @@ class Xgoptional():
         self.left_table  = dict()
         self.right_table = dict()
         self.qresults    = Queue()
-        self.bag         = [] # used to store results, which not have found a join partner, such that the result can be added in stage 3
+        self.bag         = set() # used to store results, which not have found a join partner, such that the result can be added in stage 3
         self.vars_left   = set(vars_left)
         self.vars_right  = set(vars_right)
         self.vars        = list(self.vars_left & self.vars_right)
@@ -43,7 +44,29 @@ class Xgoptional():
 
         self.leftcount = 0
         self.rightcount = 0
+    
+    def add_to_bag(self, item):
+        try:
+            json_enc = json.dumps(item, sort_keys=True)
+            self.bag.add(json_enc)
+        except (KeyError,ValueError) as e:
+            pass
+        except Exception as e:
+            raise e
 
+    def remove_from_bag(self, item):
+        try:
+            json_enc = json.dumps(item, sort_keys=True)
+            self.bag.remove(json_enc)
+        except (KeyError,ValueError) as e:
+            pass
+        except Exception as e:
+            raise e
+
+
+    def iterate_bag(self):
+        for item in self.bag:
+            yield json.loads(item)
 
     def instantiate(self, d):
         newvars_left = self.vars_left - set(d.keys())
@@ -78,7 +101,7 @@ class Xgoptional():
                 try:
                     tuple1 = self.left.get(block=False)
                     if not(tuple1 == "EOF"):
-                        self.bag.append(tuple1)
+                        self.add_to_bag(tuple1)
                     self.leftcount += 1
                     signal.alarm(self.timeoutSecondStage)
                     self.stage1(tuple1, self.left_table, self.right_table, self.vars_right)
@@ -231,7 +254,7 @@ class Xgoptional():
             remove(self.fileDescriptor_right[resource].file.name)
 
 
-        for tuple in self.bag:
+        for tuple in self.iterate_bag():
             vars_to_add = self.vars_right.difference(set(tuple.keys()))
             for var in vars_to_add:
                 tuple.update({var: None})
@@ -249,10 +272,7 @@ class Xgoptional():
                 rjttable.get(resource).setRJTProbeTS(probeTS)
                 list_records = rjttable[resource].records
                 # Delete tuple from bag.
-                try:
-                    self.bag.remove(tuple)
-                except ValueError:
-                    pass
+                self.remove_from_bag(tuple)
 
                 for record in list_records:
                     #print "record: ", type(record.tuple), record.tuple
@@ -262,10 +282,7 @@ class Xgoptional():
                         self.qresults.put(res)
 
                         # Delete tuple from bag.
-                        try:
-                            self.bag.remove(record.tuple)
-                        except ValueError:
-                            pass
+                        self.remove_from_bag(record.tuple)
         except Exception as e:
             pass
         return probeTS
@@ -301,15 +318,8 @@ class Xgoptional():
                 self.qresults.put(res)
 
                 # Delete tuple from bag.
-                try:
-                    self.bag.remove(rjt1.tuple)
-                except ValueError:
-                    pass
-
-                try:
-                    self.bag.remove(tuple2_evaluated)
-                except ValueError:
-                    pass
+                self.remove_from_bag(rjt1.tuple)
+                self.remove_from_bag(tuple2_evaluated)
 
                 probed = True
 
