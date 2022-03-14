@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class ReducedShapeSchema(ShapeSchema):
     def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query, remove_constraints, prune_shape_network, start_shape_for_validation, result_transmitter):
         self.shapeParser = ReducedShapeParser(initial_query, target_shape, graph_traversal, remove_constraints)
-        self.shapes = self.shapeParser.parse_shapes_from_dir(
+        self.shapes, self.node_order = self.shapeParser.parse_shapes_from_dir(
             schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query, merge_old_target_query=merge_old_target_query, prune_shape_network=prune_shape_network)
         self.schema_dir = schema_dir
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
@@ -41,7 +41,7 @@ class ReducedShapeSchema(ShapeSchema):
         """Executes the validation of the shape network."""
         if start_with_target_shape:
             logger.info("Starting with Target Shape")
-            start = [self.targetShape]  # The TargetShape has to be the first Node; because we are limiting the validation to a set of target instances via the star-shape query
+            node_order = self.node_order
         else:
             if self.start_shape_for_validation:
                 logger.warn("Starting with Shape set in Configuration")
@@ -49,10 +49,10 @@ class ReducedShapeSchema(ShapeSchema):
             else:
                 logger.warn("Starting with Shape determined by TravShacl")
                 start = self.get_starting_point()
-        logger.debug("Starting Point is:" + start[0])
-        # TODO: deal with more than one possible starting point
-        node_order = self.graphTraversal.traverse_graph(
-            self.dependencies, self.reverse_dependencies, start[0])
+                logger.debug("Starting Point is:" + start[0])
+                # TODO: deal with more than one possible starting point
+                node_order = self.graphTraversal.traverse_graph(
+                    self.dependencies, self.reverse_dependencies, start[0])
 
         for s in self.shapes:
             s.compute_constraint_queries()

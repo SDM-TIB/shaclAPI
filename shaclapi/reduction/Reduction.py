@@ -42,3 +42,19 @@ class Reduction:
                             targetQuery = query.query_string
                     self.parser.replace_target_query(s, targetQuery)
                     logger.debug("New TargetDef:\n" + targetQuery)
+    
+    def node_order(self, target_shape_ids):
+        node_order = list(target_shape_ids)
+        for target_shape in target_shape_ids:
+            node_order = node_order + list(self.involvedShapesPerTarget[target_shape])
+        
+        unique_node_order = []
+        unique_nodes = set()
+        for node in node_order:
+            if node not in unique_nodes:
+                unique_node_order.append(node)
+                unique_nodes.add(node)
+        logger.debug('Node Order estimated by the shaclapi: ' + str(node_order))
+        return unique_node_order
+        
+

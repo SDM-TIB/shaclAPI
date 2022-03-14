@@ -45,8 +45,12 @@ class ReducedShapeParser(ShapeParser):
             reducer.replace_target_query(shapes, self.query, self.targetShapes, merge_old_target_query)
         else:
             logger.warn("Using Shape Schema WITHOUT replaced target query!")
-        return shapes
-
+        
+        if None not in self.targetShapes:
+            return shapes, reducer.node_order(self.targetShapes)
+        else:
+            return shapes, None
+    
     def replace_target_query(self, shape, query):
         shape.targetQuery = SPARQLPrefixHandler.getPrefixString() + query
     

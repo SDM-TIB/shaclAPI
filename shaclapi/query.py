@@ -163,6 +163,10 @@ class Query:
             string: target_variable
         """
         center = self.is_starshaped()
+
+        if center == None and len(self.PV) == 1:
+            return self.PV[0]
+
         if center != None and isinstance(center, Variable):
             return center.n3()
         else:
