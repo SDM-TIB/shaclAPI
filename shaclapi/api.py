@@ -108,9 +108,9 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     # Check if we got a non starshaped query
     if query_starshaped == None:
-        if collect_all_validation_results == False:
+        if collect_all_validation_results == False and not isinstance(config.target_shape, dict):
             collect_all_validation_results = True
-            logger.warning('Running in blocking mode as the target variable could not be identified!')
+            logger.warning('Running in blocking mode as the target variable(s) could not be identified!')
         if config.replace_target_query == True:
             config.config_dict['replace_target_query'] = False
             logger.warning('Can only replace target query if query is starshaped!')

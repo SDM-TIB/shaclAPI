@@ -12,7 +12,7 @@ class Reduction:
     def reduce_shape_network(self, shapes, target_shape_ids):
         involvedShapes = set()
         for target_shape in target_shape_ids:
-            shapeIds = set(self.parser.graph_traversal.traverse_graph(
+            shapeIds = list(self.parser.graph_traversal.traverse_graph(
                 *self.parser.computeReducedEdges(shapes), target_shape))
             self.involvedShapesPerTarget[target_shape] = shapeIds
             involvedShapes = involvedShapes.union(shapeIds)
@@ -44,7 +44,7 @@ class Reduction:
                     logger.debug("New TargetDef:\n" + targetQuery)
     
     def node_order(self, target_shape_ids):
-        node_order = list(target_shape_ids)
+        node_order = target_shape_ids
         for target_shape in target_shape_ids:
             node_order = node_order + list(self.involvedShapesPerTarget[target_shape])
         
@@ -54,7 +54,7 @@ class Reduction:
             if node not in unique_nodes:
                 unique_node_order.append(node)
                 unique_nodes.add(node)
-        logger.debug('Node Order estimated by the shaclapi: ' + str(node_order))
+        logger.debug('Node Order estimated by the shaclapi: ' + str(unique_node_order))
         return unique_node_order
         
 

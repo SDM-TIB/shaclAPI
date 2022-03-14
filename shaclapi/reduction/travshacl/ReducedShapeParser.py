@@ -11,7 +11,8 @@ class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShapes, graph_traversal, remove_constraints):
         super().__init__()
         self.query = query
-        self.targetShapes = targetShapes if type(targetShapes) == list else [targetShapes]
+        self.targetShapes = targetShapes if isinstance(targetShapes,list) else (list(targetShapes.values()) if isinstance(targetShapes,dict) else [targetShapes])
+        self.target_shape_to_var = targetShapes if isinstance(targetShapes, dict) else ({str(query.target_var): targetShapes} if isinstance(targetShapes, str) else dict())
         self.currentShape = None
         self.removed_constraints = {}
         self.involvedShapesPerTarget = {}
