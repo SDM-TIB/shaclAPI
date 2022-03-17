@@ -90,6 +90,16 @@ class Shape:
     def get_shape_refs(self):
         return [c.get_shape_ref() for c in self.constraints if c.get_shape_ref() is not None]
 
+    def is_max_zero_ref(self, other_shape_id):
+        """ Checks if a referenced shape occurs in a constraint with max zero cardinality """
+        ref_constraints = [c for c in self.constraints if c.get_shape_ref() == other_shape_id and c.max == 0]
+        return True if ref_constraints else False
+
+    def is_max_ref(self, other_shape_id):
+        """ Checks if a referenced shape occurs in a max cardinality constraint """
+        ref_constraints = [c for c in self.constraints if c.get_shape_ref() == other_shape_id and c.max != -1]
+        return True if ref_constraints else False
+
     def get_rule_pattern(self):
         return self.rulePattern
 
@@ -128,15 +138,16 @@ class Shape:
 
         # Build a unique set of triples (+ filter) for all min constraints
         min_id = self.constraintsId + "_pos"
-        self.minQuery = self.QueryGenerator.generate_query(
-                min_id,
-                [c for c in min_constraints if c.get_shape_ref() is not None],
-                self.useSelectiveQueries,
-                self.targetQueryNoPref,
-                self.includePrefixes,
-                self.ORDERBYinQueries,
-                subquery
-        )
+        if len(min_constraints) > 0:
+            self.minQuery = self.QueryGenerator.generate_query(
+                    min_id,
+                    [c for c in min_constraints if c.get_shape_ref() is not None],
+                    self.useSelectiveQueries,
+                    self.targetQueryNoPref,
+                    self.includePrefixes,
+                    self.ORDERBYinQueries,
+                    subquery
+            )
 
         # Build one set of triples (+ filter) for each max constraint (only one max constraint per query is allowed)
         max_ids = [self.constraintsId + "_max_" + str(i) for i in range(1, len(max_constraints) + 1)]
@@ -167,7 +178,7 @@ class Shape:
 
     def __get_disjunct_rp_body(self):
         focus_node_var = VariableGenerator.get_focus_node_var()
-        min_query = [(self.minQuery.get_id(), focus_node_var, True)]
+        min_query = [(self.minQuery.get_id(), focus_node_var, True)] if self.minQuery is not None else []
         max_queries = [(s, focus_node_var, False) for s in [q.get_id() for q in self.maxQueries]]
         return min_query + max_queries
 
