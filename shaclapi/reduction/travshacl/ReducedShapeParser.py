@@ -11,8 +11,8 @@ class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShapes, graph_traversal, remove_constraints):
         super().__init__()
         self.query = query
-        self.targetShapes = targetShapes if isinstance(targetShapes,list) else (list(targetShapes.values()) if isinstance(targetShapes,dict) else [targetShapes])
-        self.target_shape_to_var = targetShapes if isinstance(targetShapes, dict) else ({str(query.target_var): targetShapes} if isinstance(targetShapes, str) else dict())
+        self.targetShapes = targetShapes if isinstance(targetShapes, dict) else {'UNDEF': targetShapes}
+        self.targetShapeList = reduce(lambda a,b: a + b, self.targetShapes.values())
         self.currentShape = None
         self.removed_constraints = {}
         self.involvedShapesPerTarget = {}
@@ -24,28 +24,30 @@ class ReducedShapeParser(ShapeParser):
     """
 
     def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True, prune_shape_network=True):
-        shapes = super().parse_shapes_from_dir(path, shapeFormat,
+        all_shapes = super().parse_shapes_from_dir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         reducer = Reduction(self)
+
         # Step 1: Prune not reachable shapes
+        reduced_shapes = reducer.reduce_shape_network(all_shapes, self.targetShapeList)
         if prune_shape_network:
-            shapes = reducer.reduce_shape_network(shapes, self.targetShapes)
+            shapes = reduced_shapes
         else:
+            shapes = all_shapes
             logger.warn("Shape Network is not pruned!")
 
         logger.debug("Removed Constraints:" + str(self.removed_constraints))
 
         # Step 2: Replace appropriate target queries
-        if replace_target_query:
-            reducer.replace_target_query(shapes, self.query, self.targetShapes, merge_old_target_query)
+        if replace_target_query and 'UNDEF' not in self.targetShapes:
+            reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, merge_old_target_query)
         else:
             logger.warn("Using Shape Schema WITHOUT replaced target query!")
         
-        if None not in self.targetShapes:
-            return shapes, reducer.node_order(self.targetShapes)
+        if None not in self.targetShapeList:
+            return shapes, reducer.node_order(self.targetShapeList), self.targetShapeList
         else:
-            return shapes, None
-    
+            return shapes, None, self.targetShapeList
 
     def replace_target_query(self, shape, query):
         shape.targetQuery = shape.get_prefix_string() + query
@@ -74,7 +76,7 @@ class ReducedShapeParser(ShapeParser):
     """
 
     def parse_constraint(self, varGenerator, obj, id, targetDef):
-        if self.remove_constraints and (self.currentShape in self.targetShapes or obj.get('shape') in self.targetShapes):
+        if self.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
             path = obj['path'][obj['path'].startswith('^'):]
             if path in self.query.get_predicates(replace_prefixes=False):
                 return super().parse_constraint(varGenerator, obj, id, targetDef)
@@ -115,6 +117,6 @@ class ReducedShapeParser(ShapeParser):
                 # So we have to include all inverse dependencies from the target shape. (TODO: Is that really the case? Find example)
                 if self.remove_constraints:
                     for ref in refs:
-                        if ref in self.targetShapes:
+                        if ref in self.targetShapeList:
                             reverse_dependencies[ref].append(name)
         return dependencies, reverse_dependencies

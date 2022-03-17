@@ -9,9 +9,9 @@ class Reduction:
         self.parser = parser
         self.involvedShapesPerTarget = {}
 
-    def reduce_shape_network(self, shapes, target_shape_ids):
+    def reduce_shape_network(self, shapes, target_shape_list):
         involvedShapes = set()
-        for target_shape in target_shape_ids:
+        for target_shape in target_shape_list:
             shapeIds = list(self.parser.graph_traversal.traverse_graph(
                 *self.parser.computeReducedEdges(shapes), target_shape))
             self.involvedShapesPerTarget[target_shape] = shapeIds
@@ -20,20 +20,26 @@ class Reduction:
         shapes = [s for s in shapes if self.parser.shape_get_id(s) in involvedShapes]
         return shapes
     
-    def replace_target_query(self, shapes, query, target_shape_ids, merge_old_target_query):
+    def replace_target_query(self, shapes, query, target_shapes, target_shape_list, merge_old_target_query):
         logger.info("Using Shape Schema WITH replaced target query!")
+
+        # Build target shape to variable mapping
+        target_shapes_to_var = {}
+        for var in target_shapes.keys():
+            for target_shape in target_shapes[var]:
+                target_shapes_to_var[target_shape] = var #TODO: What is with a target shape occuring more then once?
+            
         for s in shapes:
             s_id = self.parser.shape_get_id(s)
-            if s_id in target_shape_ids:
+            if s_id in target_shape_list:
                 # If there isn't a shape based on the target shape, reduce the target definition
-                if len(target_shape_ids) == 1 or s_id not in reduce(lambda a,b: a+b, [self.involvedShapesPerTarget[targetShape] for targetShape in target_shape_ids if targetShape != s_id]):
+                if len(target_shape_list) == 1 or s_id not in reduce(lambda a,b: a+b, [self.involvedShapesPerTarget[targetShape] for targetShape in target_shape_list if targetShape != s_id]):
                     # The Shape already has a target query
-                    logger.debug("Starshaped Query:\n" + query.query_string)
+                    logger.debug("Original Query:\n" + query.query_string)
                     if s.targetQuery and merge_old_target_query:
                         logger.debug("Old TargetDef: \n" + s.targetQuery)
                         oldTargetQuery = Query(s.targetQuery)
-                        targetQuery = query.merge_as_target_query(
-                            oldTargetQuery)
+                        targetQuery = query.intersect(target_shapes_to_var[s_id],oldTargetQuery)
                     else:
                         if not '?x' in query.query_string:
                             new_query_string = query.query_string.replace(query.target_var, '?x')
@@ -43,11 +49,11 @@ class Reduction:
                     self.parser.replace_target_query(s, targetQuery)
                     logger.debug("New TargetDef:\n" + targetQuery)
     
-    def node_order(self, target_shape_ids):
-        node_order = target_shape_ids
-        for target_shape in target_shape_ids:
+    def node_order(self, target_shape_list):
+        node_order = target_shape_list
+        for target_shape in target_shape_list:
             node_order = node_order + list(self.involvedShapesPerTarget[target_shape])
-        
+    
         unique_node_order = []
         unique_nodes = set()
         for node in node_order:

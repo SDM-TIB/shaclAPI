@@ -10,7 +10,6 @@ from functools import reduce
 logger = logging.getLogger(__name__)
 
 class Query:
-    target_query = None
 
     def __init__(self, query_string, target_var=None, namespace_manager = None):
         self.query_string = query_string
@@ -172,7 +171,7 @@ class Query:
         else:
             return None
 
-    def as_target_query(self, replace_prefixes=False):
+    def as_target_query(self, target_var, replace_prefixes=False):
         """Creates a target query based on the given query_string, 
         where the projection is reduced to the target_var only and 
         (optionally) the prefixes are replaced and removed.
@@ -183,44 +182,53 @@ class Query:
         Returns:
             string: A target query corresponding to the query_string
         """
-        if not self.target_query:
-            self.target_query = self._reduce_select(self.query_string)
+        target_query = self._reduce_select(self.query_string, target_var)
         if replace_prefixes:
-            return self._replace_prefixes_in_query(self.target_query)
-        return self.target_query
+            return self._replace_prefixes_in_query(target_query)
+        return target_query
 
-    def merge_as_target_query(self, oldTargetQuery) -> str:
+    def intersect(self, target_var, oldTargetQuery) -> str:
         """
         Merges two queries using intersection
         """
+        target_query = self.as_target_query(target_var)
 
-        # Replace Target Variable
-        if '?x' not in self.query_string:
-            new_query_string_renamed = self.query_string.replace(self.target_var, '?x')
-        else:
-            new_query_string_renamed = self.query_string
+        if '?x' in target_query and target_var != '?x':
+            # Replace old ?x in target_query
+            new_var = '?yx'
+            while new_var in target_query:
+                new_var = new_var + 'x' 
+            target_query = target_query.replace('?x', new_var)
+        
+        # Replace target_var with '?x'
+        target_query = target_query.replace(target_var, '?x')
 
         if '?x' not in oldTargetQuery.query_string:
-            old_query_string_renamed = oldTargetQuery.query_string.replace(
+            old_target_query = oldTargetQuery.query_string.replace(
                 oldTargetQuery.target_var, '?x')
         else:
-            old_query_string_renamed = oldTargetQuery.query_string
-        old_query = Query(old_query_string_renamed)
-        new_query = Query(new_query_string_renamed)
+            old_target_query = oldTargetQuery.query_string 
 
-        # Intersection of both queries
-        triples = old_query.triples
-        triples.extend(new_query.triples)
-        triples = set(triples)
 
-        filters = old_query.extract_filter_terms()
-        filters.extend(new_query.extract_filter_terms())
+        if target_query.upper().count('SELECT') == 1 and old_target_query.upper().count('SELECT') == 1:
+            old_query = Query(old_target_query)
+            new_query = Query(target_query)
 
-        values = old_query.extract_values_terms()
-        values.extend(new_query.extract_values_terms())
+            # Intersection of both queries
+            triples = old_query.triples
+            triples.extend(new_query.triples)
+            triples = set(triples)
 
-        return self.target_query_from_triples(triples, filters, values,
-                                              namespace_manager=self.namespace_manager).query_string
+            filters = old_query.extract_filter_terms()
+            filters.extend(new_query.extract_filter_terms())
+
+            values = old_query.extract_values_terms()
+            values.extend(new_query.extract_values_terms())
+            return self.target_query_from_triples(triples, filters, values, namespace_manager=self.namespace_manager).query_string
+        else:
+            logger.warning('Unable to merge query with target query!')
+            return old_target_query
+        
 
     @staticmethod
     def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager=None):
@@ -254,10 +262,11 @@ class Query:
         return Query(re.sub(
             r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE',
             f'SELECT DISTINCT * WHERE',
-            self.query_string
+            self.query_string,
+            count = 1
         ), namespace_manager=self.namespace_manager)
 
-    def _reduce_select(self, query):
+    def _reduce_select(self, query, target_var):
         """
         Reduces the full SELECT part of the target_query to the relevant target var.
         Regex based on: https://www.w3.org/TR/rdf-sparql-query/#select
@@ -265,8 +274,9 @@ class Query:
         """
         query = re.sub(
             r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE',
-            f'SELECT DISTINCT {self.target_var} WHERE',
-            query
+            f'SELECT DISTINCT {target_var} WHERE',
+            query,
+            count=1
         )
         return query
 

@@ -112,7 +112,7 @@ def run_multiprocessing(pre_config, result_queue = None):
             collect_all_validation_results = True
             logger.warning('Running in blocking mode as the target variable(s) could not be identified!')
         if config.replace_target_query == True:
-            config.config_dict['replace_target_query'] = False
+            config.replace_target_query = False
             logger.warning('Can only replace target query if query is starshaped!')
     else:
         query = query_starshaped
@@ -122,14 +122,26 @@ def run_multiprocessing(pre_config, result_queue = None):
             collect_all_validation_results = True
             logger.warning('Running in blocking mode as the target shape is not given!')
         if config.replace_target_query == True:
-            config.config_dict['replace_target_query'] = False
+            config.replace_target_query = False
             logger.warning('Can only replace target query if target shape is given!')
         if config.prune_shape_network == True:
-            config.config_dict['prune_shape_network'] = False
+            config.prune_shape_network = False
             logger.warning('Can only prune shape schema if target shape is given!')
         if config.start_with_target_shape == True:
-            config.config_dict['start_with_target_shape'] = False
+            config.start_with_target_shape = False
             logger.warning('Can only start with target shape if target shape is given!')
+
+    # Unify target shape -> {?var: list of shapes}
+    make_list = lambda x: (x if isinstance(x, list) else [x])
+    target_shape = config.target_shape
+    if isinstance(target_shape, dict):
+        config.target_shape = {var.lower(): make_list(shape)  for var,shape in target_shape.items()}
+    elif query_starshaped != None:
+        config.target_shape = {query_starshaped.target_var: make_list(target_shape)}
+    else:
+        config.target_shape = {'UNDEF': make_list(target_shape)}
+    logger.debug(f'Unified target shape: {config.target_shape}')
+
 
     # The information we need depends on the output format:
     if config.output_format == "test" or (not config.reasoning):
@@ -182,13 +194,13 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     if QUEUE_OUTPUT == False:
         next_result = result_queue.receiver.get()
+        output = []
         if config.output_format == "test":
             while next_result != 'EOF':
                 output = next_result
                 next_result = result_queue.receiver.get()
                 print(len(output['validTargets']), len(output['invalidTargets']))
         else:
-            output = []
             while next_result != 'EOF':
                 output += [next_result]
                 next_result = result_queue.receiver.get()

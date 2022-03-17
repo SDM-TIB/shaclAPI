@@ -53,6 +53,10 @@ class Config:
         The target shape to which the star shaped query refers.
         """
         return self.config_dict.get('targetShape', None)
+    @target_shape.setter
+    def target_shape(self, target_shape):
+        self.config_dict['targetShape'] = target_shape
+
 
     @property
     def external_endpoint(self):
@@ -174,6 +178,9 @@ class Config:
         Whether or not the api should replace the target query of the target shape.
         """
         return self.entry_to_bool(self.config_dict.get('replace_target_query', True))
+    @replace_target_query.setter
+    def replace_target_query(self, replace):
+        self.config_dict['replace_target_query'] = replace
 
     @property
     def merge_old_target_query(self):
@@ -182,6 +189,9 @@ class Config:
         If this option is inactive the target query of the target shape is basically replaced with the star shaped query.
         """
         return self.entry_to_bool(self.config_dict.get('merge_old_target_query', True))
+    @merge_old_target_query.setter
+    def merge_old_target_query(self, merge):
+        self.config_dict['merge_old_target_query'] = merge
 
     @property
     def start_with_target_shape(self):
@@ -189,6 +199,9 @@ class Config:
         Whether the backend is forced to start the validation process with the target shape.
         """
         return self.entry_to_bool(self.config_dict.get('start_with_target_shape', True))
+    @start_with_target_shape.setter
+    def start_with_target_shape(self, start):
+        self.config_dict['start_with_target_shape'] = start
 
     @property
     def start_shape_for_validation(self):
@@ -225,6 +238,9 @@ class Config:
         Whether or not prune the shape_network to the from the target shape reachable shapes.
         """
         return self.entry_to_bool(self.config_dict.get('prune_shape_network', True))
+    @prune_shape_network.setter
+    def prune_shape_network(self, prune):
+        self.config_dict['prune_shape_network'] = prune
 
     @property
     def test_identifier(self):

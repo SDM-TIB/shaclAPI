@@ -8,6 +8,7 @@ sys.path.append(PACKAGE_S2SPY_VALIDATION_PATH)
 import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
 sys.path.remove(PACKAGE_S2SPY_VALIDATION_PATH)
 from shaclapi.query import Query
+from functools import reduce
 
 import logging
 logger = logging.getLogger(__name__)
@@ -18,7 +19,8 @@ class ReducedShapeParser(ShapeParser):
     def __init__(self, query, targetShapes, graph_traversal, remove_constraints):
         super().__init__()
         self.query = query
-        self.targetShapes = targetShapes if type(targetShapes) == list else [targetShapes]
+        self.targetShapes = targetShapes if isinstance(targetShapes, dict) else {'UNDEF': targetShapes}
+        self.targetShapeList = reduce(lambda a,b: a + b, self.targetShapes.values())
         self.currentShape = None
         self.removed_constraints = {}
         self.involvedShapeIDs = []
@@ -30,26 +32,32 @@ class ReducedShapeParser(ShapeParser):
     """
 
     def parseShapesFromDir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True, prune_shape_network=True):
-        shapes = super().parseShapesFromDir(path, shapeFormat,
+        all_shapes = super().parseShapesFromDir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         
         reducer = Reduction(self)
+
+        # Step 1: Prune not reachable shapes
+        reduced_shapes = reducer.reduce_shape_network(all_shapes, self.targetShapeList)
         if prune_shape_network:
-            shapes = reducer.reduce_shape_network(shapes, self.targetShapes)
+            shapes = reduced_shapes
         else:
+            shapes = all_shapes
             logger.warn("Shape Network is not pruned!")
 
         logger.debug("Removed Constraints:" + str(self.removed_constraints))
-        # Replacing old targetQuery with new one
-        if replace_target_query:
-            reducer.replace_target_query(shapes, self.query, self.targetShapes, merge_old_target_query)
+
+        # Step 2: Replace appropriate target queries
+        if replace_target_query and 'UNDEF' not in self.targetShapes:
+            reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, merge_old_target_query)
         else:
             logger.warn("Using Shape Schema WITHOUT replaced target query!")
         
-        if None not in self.targetShapes:
-            return shapes, reducer.node_order(self.targetShapes)
+        if None not in self.targetShapeList:
+            return shapes, reducer.node_order(self.targetShapeList), self.targetShapeList
         else:
-            return shapes, None
+            return shapes, None, self.targetShapeList
+
     
     def replace_target_query(self, shape, query):
         shape.targetQuery = SPARQLPrefixHandler.getPrefixString() + query
@@ -75,7 +83,7 @@ class ReducedShapeParser(ShapeParser):
     """
 
     def parseConstraint(self, varGenerator, obj, id, targetDef):
-        if self.remove_constraints and (self.currentShape in self.targetShapes or obj.get('shape') in self.targetShapes):
+        if self.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
             path = obj['path'][obj['path'].startswith('^'):]
             if path in self.query.get_predicates(replace_prefixes=False):
                 return super().parseConstraint(varGenerator, obj, id, targetDef)
@@ -116,6 +124,6 @@ class ReducedShapeParser(ShapeParser):
                 # So we have to include all inverse dependencies from the target shape. (TODO: Is that really the case? Find example)
                 if self.remove_constraints:
                     for ref in refs:
-                        if ref in self.targetShapes:
+                        if ref in self.targetShapeList:
                             reverse_dependencies[ref].append(name)
         return dependencies, reverse_dependencies
