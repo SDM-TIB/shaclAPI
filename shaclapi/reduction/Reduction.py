@@ -35,6 +35,7 @@ class Reduction:
                 # If there isn't a shape based on the target shape, reduce the target definition
                 if len(target_shape_list) == 1 or s_id not in reduce(lambda a,b: a+b, [self.involvedShapesPerTarget[targetShape] for targetShape in target_shape_list if targetShape != s_id]):
                     # The Shape already has a target query
+                    logger.debug(f"Reducing target definition of {s_id}")
                     logger.debug("Original Query:\n" + query.query_string)
                     if s.targetQuery and merge_old_target_query:
                         logger.debug("Old TargetDef: \n" + s.targetQuery)

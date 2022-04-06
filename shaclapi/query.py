@@ -226,8 +226,17 @@ class Query:
             values.extend(new_query.extract_values_terms())
             return self.target_query_from_triples(triples, filters, values, namespace_manager=self.namespace_manager).query_string
         else:
-            logger.warning('Unable to merge query with target query!')
-            return old_target_query
+            target_query = f'''SELECT ?x WHERE {{  
+                {{
+                    {old_target_query}
+                }}
+                {{
+                    {target_query}
+                }}
+            }}  
+            '''
+            logger.warning('Generated target query may be slow, try to make the target defintion and the given query more simple is possible.')
+            return target_query
         
 
     @staticmethod
