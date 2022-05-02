@@ -226,12 +226,14 @@ class Query:
             values.extend(new_query.extract_values_terms())
             return self.target_query_from_triples(triples, filters, values, namespace_manager=self.namespace_manager).query_string
         else:
+            old_target_query_prefix_free = re.sub("(.*?)PREFIX(.*?)\n", "", old_target_query)
+            new_target_query_prefix_free = re.sub("(.*?)PREFIX(.*?)\n", "", target_query)
             target_query = f'''SELECT ?x WHERE {{  
                 {{
-                    {old_target_query}
+                    {old_target_query_prefix_free}
                 }}
                 {{
-                    {target_query}
+                    {new_target_query_prefix_free}
                 }}
             }}  
             '''
