@@ -20,3 +20,4 @@ def setup(handler = logging.StreamHandler(), level=logging.INFO, format='[%(asct
     logger.addHandler(handler)
     logger.setLevel(level)
     install_mp_handler(logger)
+    print('shaclAPI logger assigned!')

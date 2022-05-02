@@ -11,10 +11,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ReducedShapeSchema(ShapeNetwork):
-    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, target_shape, initial_query, replace_target_query, merge_old_target_query, remove_constraints, prune_shape_network, start_shape_for_validation, result_transmitter):
-        self.shapeParser = ReducedShapeParser(initial_query, target_shape, graph_traversal, remove_constraints)
+    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, query, config, result_transmitter):
+        self.shaclAPIConfig = config
+        self.shapeParser = ReducedShapeParser(query, graph_traversal, config)
         self.shapes, self.node_order, self.target_shape_list = self.shapeParser.parseShapesFromDir(
-            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, replace_target_query=replace_target_query, merge_old_target_query=merge_old_target_query, prune_shape_network=prune_shape_network)
+            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, self.shaclAPIConfig)
         self.schema_dir = schema_dir
         self.shapesDict = {shape.getId(): shape for shape in self.shapes}
         self.endpoint = SPARQLEndpoint(endpoint_url)
@@ -22,23 +23,22 @@ class ReducedShapeSchema(ShapeNetwork):
         self.dependencies, self.reverse_dependencies = self.compute_edges()
         self.outputDirName = output_dir
         self.result_transmitter = result_transmitter
-        self.start_shape_for_validation = start_shape_for_validation
 
     @staticmethod
     def from_config(config, query_object, result_transmitter):
         return ReducedShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, \
             GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, \
                 config.max_split_size, os.path.join(config.output_directory,config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier), ''), config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
-                    config.target_shape, query_object, config.replace_target_query, config.merge_old_target_query, config.remove_constraints, config.prune_shape_network, config.start_shape_for_validation, result_transmitter)
+                    query_object, config, result_transmitter)
 
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
         #logger.debug(f'Target Shapes:{self.target_shape_list}\nNode Order:{self.node_order}\nStart with Target Shape: {start_with_target_shape}\nStart Shape Config: {self.start_shape_for_validation}')
 
         start = None
-        if self.start_shape_for_validation:
+        if self.shaclAPIConfig.start_shape_for_validation:
             logger.info("Starting with Shape set in Configuration")
-            start = [self.start_shape_for_validation]
+            start = [self.shaclAPIConfig.start_shape_for_validation]
         elif self.node_order != None:
             logger.info("Using Node Order provided by the shaclapi")
             node_order = self.node_order

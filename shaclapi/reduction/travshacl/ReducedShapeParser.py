@@ -8,16 +8,16 @@ logger = logging.getLogger(__name__)
 # Note the internal structure of ShapeParser:
 # parse_shapes_from_dir --> calls for each shape: parse_constraints (--> parse_constraint), shape_references; Afterwards we call computeReducedEdges to find the involvedShapeIDs.
 class ReducedShapeParser(ShapeParser):
-    def __init__(self, query, targetShapes, graph_traversal, remove_constraints):
+    def __init__(self, query, graph_traversal, config):
         super().__init__()
         self.query = query
-        self.targetShapes = targetShapes if isinstance(targetShapes, dict) else {'UNDEF': targetShapes}
+        self.targetShapes = config.target_shape if isinstance(config.target_shape, dict) else {'UNDEF': config.target_shape}
         self.targetShapeList = reduce(lambda a,b: a + b, self.targetShapes.values())
         self.currentShape = None
         self.removed_constraints = {}
         self.involvedShapesPerTarget = {}
         self.graph_traversal = graph_traversal
-        self.remove_constraints = remove_constraints
+        self.config = config
 
     """
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
@@ -40,7 +40,7 @@ class ReducedShapeParser(ShapeParser):
 
         # Step 2: Replace appropriate target queries
         if replace_target_query and 'UNDEF' not in self.targetShapes:
-            reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, merge_old_target_query)
+            reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, merge_old_target_query, self.config.query_extension_per_target_shape)
         else:
             logger.warn("Using Shape Schema WITHOUT replaced target query!")
         
@@ -76,7 +76,7 @@ class ReducedShapeParser(ShapeParser):
     """
 
     def parse_constraint(self, varGenerator, obj, id, targetDef):
-        if self.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
+        if self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
             path = obj['path'][obj['path'].startswith('^'):]
             if path in self.query.get_predicates(replace_prefixes=False):
                 return super().parse_constraint(varGenerator, obj, id, targetDef)
@@ -115,7 +115,7 @@ class ReducedShapeParser(ShapeParser):
                 # Reverse Dependencies are needed if we have local semantics, in that case
                 # there might be an inverse path in the query pointing to a shape which isn't reachable otherwise.
                 # So we have to include all inverse dependencies from the target shape. (TODO: Is that really the case? Find example)
-                if self.remove_constraints:
+                if self.config.remove_constraints:
                     for ref in refs:
                         if ref in self.targetShapeList:
                             reverse_dependencies[ref].append(name)

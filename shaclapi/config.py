@@ -50,7 +50,7 @@ class Config:
     @property
     def target_shape(self):
         """
-        The target shape to which the star shaped query refers.
+        The target shape to which the star shaped query refers. Can also be a dictionary mapping variables in the query to a list of shapes.
         """
         return self.config_dict.get('targetShape', None)
     @target_shape.setter
@@ -285,3 +285,10 @@ class Config:
         Whether to write statistics to the output directory.
         """
         return self.entry_to_bool(self.config_dict.get('write_stats', True))
+
+    @property
+    def query_extension_per_target_shape(self):
+        """
+        For each given target shape a query extension can be given. The given query is extended, when merged or replaced with the target definition of the target shape. The query is extended by replacing the last '}' in the query with the extension followed by a '}'.
+        """
+        return self.config_dict.get('query_extension_per_target_shape', None)
