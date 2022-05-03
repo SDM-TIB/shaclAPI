@@ -6,6 +6,7 @@ from s2spy.validation.utils import fileManagement
 from travshacl.TravSHACL import parse_heuristics
 from travshacl.core.GraphTraversal import GraphTraversal
 import os, re
+from pathlib import Path
 
 import logging
 logger = logging.getLogger(__name__)
@@ -55,6 +56,10 @@ class ReducedShapeSchema(ShapeNetwork):
         
         for s in self.shapes:
             s.computeConstraintQueries()
+
+        os.makedirs(self.outputDirName, exist_ok=True)
+        for file in ["validation.log", "targets_valid.log","targets_violated.log","stats.txt","traces.csv"]:
+            Path(self.outputDirName, file).touch()
 
         RuleBasedValidationResultStreaming(
             self.endpoint,
