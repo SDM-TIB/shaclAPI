@@ -1,0 +1,7 @@
+[submodule "Trav-SHACL"]
+	path = Trav-SHACL
+	url = git@github.com:SDM-TIB/Trav-SHACL.git
+[submodule "s2spy"]
+	path = s2spy
+	url = git@github.com:SDM-TIB/SDM-SHACL.git
+	branch = S2Spy
