@@ -44,7 +44,7 @@ class ReducedShapeParser(ShapeParser):
         else:
             logger.warn("Using Shape Schema WITHOUT replaced target query!")
         
-        if None not in self.targetShapeList:
+        if self.config.start_with_target_shape:
             return shapes, reducer.node_order(self.targetShapeList), self.targetShapeList
         else:
             return shapes, None, self.targetShapeList
