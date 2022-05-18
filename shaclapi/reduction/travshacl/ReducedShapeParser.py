@@ -23,14 +23,14 @@ class ReducedShapeParser(ShapeParser):
     Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.
     """
 
-    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries, replace_target_query=True, merge_old_target_query=True, prune_shape_network=True):
+    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
         all_shapes = super().parse_shapes_from_dir(path, shapeFormat,
                                                useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         reducer = Reduction(self)
 
         # Step 1: Prune not reachable shapes
         reduced_shapes = reducer.reduce_shape_network(all_shapes, self.targetShapeList)
-        if prune_shape_network:
+        if self.config.prune_shape_network:
             shapes = reduced_shapes
         else:
             shapes = all_shapes
@@ -39,8 +39,8 @@ class ReducedShapeParser(ShapeParser):
         logger.debug("Removed Constraints:" + str(self.removed_constraints))
 
         # Step 2: Replace appropriate target queries
-        if replace_target_query and 'UNDEF' not in self.targetShapes:
-            reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, merge_old_target_query, self.config.query_extension_per_target_shape)
+        if self.config.replace_target_query and 'UNDEF' not in self.targetShapes:
+            reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, self.config.merge_old_target_query, self.config.query_extension_per_target_shape)
         else:
             logger.warn("Using Shape Schema WITHOUT replaced target query!")
         

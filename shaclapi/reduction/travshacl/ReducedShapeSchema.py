@@ -14,7 +14,7 @@ class ReducedShapeSchema(ShapeSchema):
         self.shaclAPIConfig = config
         self.shapeParser = ReducedShapeParser(query, graph_traversal,self.shaclAPIConfig)
         self.shapes, self.node_order, self.target_shape_list = self.shapeParser.parse_shapes_from_dir(
-            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, self.shaclAPIConfig)
+            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
         self.schema_dir = schema_dir
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
         self.endpointURL = endpoint_url

@@ -16,7 +16,7 @@ class ReducedShapeSchema(ShapeNetwork):
         self.shaclAPIConfig = config
         self.shapeParser = ReducedShapeParser(query, graph_traversal, config)
         self.shapes, self.node_order, self.target_shape_list = self.shapeParser.parseShapesFromDir(
-            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries, self.shaclAPIConfig)
+            schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
         self.schema_dir = schema_dir
         self.shapesDict = {shape.getId(): shape for shape in self.shapes}
         self.endpoint = SPARQLEndpoint(endpoint_url)
