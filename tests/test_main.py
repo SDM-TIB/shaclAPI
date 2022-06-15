@@ -4,8 +4,6 @@ from tests import travshaclLocal
 import pytest
 import os, sys
 from glob import glob
-import time
-import urllib
 from pathlib import Path
 
 TRAV_DIR = 'Trav-SHACL/'

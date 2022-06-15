@@ -20,8 +20,11 @@ class Reduction:
         shapes = [s for s in shapes if self.parser.shape_get_id(s) in involvedShapes]
         return shapes
     
-    def replace_target_query(self, shapes, query, target_shapes, target_shape_list, merge_old_target_query, query_extension_per_target_shape = {}):
+    def replace_target_query(self, shapes, query, target_shapes, target_shape_list, merge_old_target_query, query_extension_per_target_shape):
         logger.info("Using Shape Schema WITH replaced target query!")
+
+        if query_extension_per_target_shape == None:
+            query_extension_per_target_shape = {}
     
         # Build target shape to variable mapping
         target_shapes_to_var = {}

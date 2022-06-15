@@ -221,7 +221,7 @@ class Config:
     @property
     def output_format(self):
         """
-        Which output format the api should use. This can be "test", "stats" or "simple"
+        Which output format the api should use. This can be "test" or "simple"
         """
         return self.config_dict.get('output_format', "simple")
 

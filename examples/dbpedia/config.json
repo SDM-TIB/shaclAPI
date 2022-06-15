@@ -2,7 +2,8 @@
     "external_endpoint": "http://dbpedia.org/sparql",
     "outputDirectory": "./output/",
     "query": "PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>\nPREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX dbo:<http://dbpedia.org/ontology/>\nPREFIX dbr:<http://dbpedia.org/resource/>\nPREFIX dbp:<http://dbpedia.org/property/>\nPREFIX yago:<http://dbpedia.org/class/yago/>\nPREFIX foaf:<http://xmlns.com/foaf/0.1/>\nPREFIX :<http://example.org/>\nSELECT DISTINCT ?x WHERE {\n    ?x a dbo:Film. \n    ?x dbo:starring ?varnameistegal.\n    ?x dbo:imdbId ?p_2.\n    ?x dbp:studio dbr:Walt_Disney_Pictures\n}\n\n",
-    "schemaDir": "./quickstart/shapes/",
+    "schemaDir": "./examples/dbpedia/shapes/",
     "targetShape": "MovieShape",
-    "backend": "travshacl"
+    "backend": "travshacl",
+    "run_in_serial": false
 }

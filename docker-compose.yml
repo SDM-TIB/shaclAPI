@@ -5,3 +5,5 @@ services:
     build: .
     container_name: api
     network_mode: "host"
+    volumes:
+      - ./examples:/shaclAPI/examples

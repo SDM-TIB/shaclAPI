@@ -1,7 +1,6 @@
-__author__ = 'Kemele M. Endris'
+__author__ = 'Kemele M. Endris' # modified version uses requests instead of urllib
 
-import urllib.parse
-import urllib.request
+import requests
 import logging
 
 logger = logging.getLogger(__name__)
@@ -85,49 +84,39 @@ def contactSourceAux(referer, server, path, port, query, queue, first_id=0):
                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",
                "Accept": js}
     try:
-        data = urllib.parse.urlencode(params)
-        data = data.encode('utf-8')
-        req = urllib.request.Request(referer, data, headers)
-        with urllib.request.urlopen(req) as response:
-            resp = response.read()
-            resp = resp.decode()
-            res = resp.replace("false", "False")
-            res = res.replace("true", "True")
-            res = eval(res)
-            reslist = 0
-            if type(res) == dict:
-                b = res.get('boolean', None)
-
-                if 'results' in res:
-                    # print "raw results from endpoint", res
-                    id = first_id
-                    for x in res['results']['bindings']:
-                        for key, props in x.items():
-                            # Handle typed-literals and language tags
-                            suffix = ''
-                            if props['type'] == 'typed-literal':
-                                if isinstance(props['datatype'], bytes):
-                                    suffix = "^^<" + props['datatype'].decode('utf-8') + ">"
-                                else:
-                                    suffix = "^^<" + props['datatype'] + ">"
-                            elif "xml:lang" in props:
-                                suffix = '@' + props['xml:lang']
-                            try:
-                                if isinstance(props['value'], bytes):
-                                    x[key] = props['value'].decode('utf-8') + suffix
-                                else:
-                                    x[key] = props['value'] + suffix
-                            except:
+        r = requests.get(referer, params=params, headers=headers)
+        res = r.text
+        res = res.replace("false", "False")
+        res = res.replace("true", "True")
+        res = eval(res)
+        reslist = 0
+        if type(res) == dict:
+            b = res.get('boolean', None)
+            if 'results' in res:
+                # print "raw results from endpoint", res
+                id = first_id
+                for x in res['results']['bindings']:
+                    for key, props in x.items():
+                        # Handle typed-literals and language tags
+                        suffix = ''
+                        if props['type'] == 'typed-literal':
+                            if isinstance(props['datatype'], bytes):
+                                suffix = "^^<" + props['datatype'].decode('utf-8') + ">"
+                            else:
+                                suffix = "^^<" + props['datatype'] + ">"
+                        elif "xml:lang" in props:
+                            suffix = '@' + props['xml:lang']
+                        try:
+                            if isinstance(props['value'], bytes):
+                                x[key] = props['value'].decode('utf-8') + suffix
+                            else:
                                 x[key] = props['value'] + suffix
-                            queue.put({'var': key, 'instance': x[key], 'id': id})
-                        logger.debug({'query_result': x, 'id': id})
-                        id = id + 1
-                        reslist += 1
-                    # Every tuple is added to the queue.
-                    #for elem in reslist:
-                        # print elem
-                        #queue.put(elem)
-
+                        except:
+                            x[key] = props['value'] + suffix
+                        queue.put({'var': key, 'instance': x[key], 'id': id})
+                    logger.debug({'query_result': x, 'id': id})
+                    id = id + 1
+                    reslist += 1
             else:
                 logger.warn("the source " + str(server) + " answered in " + res.getheader("content-type") + " format, instead of"
                        + " the JSON format required, then that answer will be ignored")
