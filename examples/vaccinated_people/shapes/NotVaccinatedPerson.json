@@ -10,7 +10,7 @@
 	"constraintDef":{
 		"conjunctions":[
 			[
-				{ "path": ":vaccinated", "min": 1, "value": false }
+				{ "path": ":vaccinated", "min": 1, "value": "false" }
 			]
 		]
 	}

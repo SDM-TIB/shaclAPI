@@ -10,7 +10,7 @@
 	"constraintDef":{
 		"conjunctions":[
 			[
-				{ "path": ":pregnant", "min": 1, "value": true },
+				{ "path": ":pregnant", "min": 1, "value": "true" },
 				{ "path": ":country", "min": 1, "value": "'Germany'" },
 				{ "path": ":contact_with", "min": 3, "shape": "NotVaccinatedPerson" }
 			]

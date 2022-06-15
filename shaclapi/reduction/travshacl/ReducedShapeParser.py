@@ -12,7 +12,7 @@ class ReducedShapeParser(ShapeParser):
         super().__init__()
         self.query = query
         self.targetShapes = config.target_shape if isinstance(config.target_shape, dict) else {'UNDEF': config.target_shape}
-        self.targetShapeList = reduce(lambda a,b: a + b, self.targetShapes.values())
+        self.targetShapeList = [shape for shape in reduce(lambda a,b: a + b, self.targetShapes.values()) if shape != None]
         self.currentShape = None
         self.removed_constraints = {}
         self.involvedShapesPerTarget = {}
