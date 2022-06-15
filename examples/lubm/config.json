@@ -1,5 +1,5 @@
 {
-    "external_endpoint": "http://0.0.0.0:14000/sparql",
+    "external_endpoint": "http://shacl_api_testdata:8890/sparql",
     "query": "PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>\nPREFIX :<http://example.com/>\n\nSELECT ?prof ?email ?uni WHERE {\n  ?prof a ub:FullProfessor .\n  ?prof ub:email ?email .\n  ?prof ub:worksFor :Dept0 .\n ?prof ub:doctoralDegreeFrom ?uni\n}",
     "schemaDir": "./examples/lubm/shapes/",
     "targetShape": "FullProfessor",

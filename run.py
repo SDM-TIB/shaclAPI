@@ -3,7 +3,7 @@ import logging
 from shaclapi import logger as shaclapi_logger
 
 # Setup Logging
-logging.getLogger('werkzeug').disabled = True
+# logging.getLogger('werkzeug').disabled = True
 
 shaclapi_logger.setup(level=logging.INFO)
 

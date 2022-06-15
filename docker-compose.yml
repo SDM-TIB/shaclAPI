@@ -4,6 +4,14 @@ services:
   api:
     build: .
     container_name: api
-    network_mode: "host"
+    ports:
+      - "9999:5000"
     volumes:
       - ./examples:/shaclAPI/examples
+    networks:
+      - shacl_engine_tests
+
+networks:
+  shacl_engine_tests:
+    driver: bridge
+    external: true

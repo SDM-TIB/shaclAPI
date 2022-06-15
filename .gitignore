@@ -162,3 +162,5 @@ logs/*
 !logs/.keep
 inputs/*
 !inputs/.keep
+
+/.idea/
