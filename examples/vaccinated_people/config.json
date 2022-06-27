@@ -1,5 +1,5 @@
 {
-    "external_endpoint": "http://0.0.0.0:14000/sparql",
+    "external_endpoint": "http://shacl_api_testdata:8890/sparql",
     "query": "SELECT ?x ?y WHERE {?x <http://example.org/contact_with> ?y . ?y <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Person> . ?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Person>.} LIMIT 1",
     "schemaDir": "./examples/vaccinated_people/shapes/",
     "backend": "travshacl",

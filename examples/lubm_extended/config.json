@@ -1,0 +1,10 @@
+{
+    "external_endpoint": "http://shacl_api_testdata:8890/sparql",
+    "query": "PREFIX ub:<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>\nPREFIX :<http://example.com/>\n\nSELECT ?x WHERE {?x a ub:FullProfessor}",
+    "schemaDir": "./examples/lubm_extended/shapes/",
+    "targetShape": "FullProfessor",
+    "backend": "travshacl",
+    "start_with_target_shape": false,
+    "replace_target_query": false,
+    "remove_constraints": false
+}

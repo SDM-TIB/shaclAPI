@@ -1,0 +1,19 @@
+{
+	"name": "ResearchGroup",
+	"targetDef": {
+		"query":"SELECT ?x WHERE {?x a ub:ResearchGroup}",
+		"class": "ub:ResearchGroup"
+	},
+	"prefix": {
+		"ub": "<http://swat.cse.lehigh.edu/onto/univ-bench.owl#>",
+        "": "<http://example.com/>"
+	},
+	"constraintDef": {
+		"conjunctions": [
+			[
+				{ "path": "ub:subOrganizationOf", "min": 1, "shape": "Department" },
+				{ "path": "ub:subOrganizationOf", "max": 1, "shape": "Department" }
+            ]
+		]
+	}
+}

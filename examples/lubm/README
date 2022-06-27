@@ -1,3 +1,8 @@
-API can be tested with 
-- curl -X POST -H "Accept:application/sparql-results+json" -d "config=./examples/lubm/config.json" http://127.0.0.1:5000/multiprocessing
+First remove tests/setup/TestData/lubm-skg.ttl
+then copy examples/lubm/data/test_data.ttl
+to tests/setup/TestData/test_data.ttl
+then stop and delete the "Tests" docker-compose and run it again
+
+API can be tested with
+- curl -X POST -H "Accept:application/sparql-results+json" -d "config=./examples/lubm/config.json" http://127.0.0.1:9999/multiprocessing
 which will start the validation with the given config.json with the shapes provided in ./shapes/
