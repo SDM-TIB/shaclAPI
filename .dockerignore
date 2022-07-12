@@ -3,3 +3,5 @@ test_output/
 .vscode/
 .github/
 docs/
+venv/
+.idea/
