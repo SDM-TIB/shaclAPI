@@ -1,6 +1,0 @@
-[submodule "Trav-SHACL"]
-	path = Trav-SHACL
-	url = https://github.com/SDM-TIB/Trav-SHACL.git
-[submodule "s2spy"]
-	path = s2spy
-	url = https://github.com/SDM-TIB/S2Spy.git

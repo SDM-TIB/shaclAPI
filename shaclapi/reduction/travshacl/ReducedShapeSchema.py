@@ -1,9 +1,9 @@
 from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
-from travshacl.core.ShapeSchema import ShapeSchema
+from TravSHACL.core.ShapeSchema import ShapeSchema
 from shaclapi.reduction.travshacl.ValidationResultStreaming import ValidationResultStreaming
-from travshacl.rule_based_validation.Validation import Validation
-from travshacl.TravSHACL import parse_heuristics
-from travshacl.core.GraphTraversal import GraphTraversal
+from TravSHACL.rule_based_validation.Validation import Validation
+from TravSHACL.TravSHACL import parse_heuristics
+from TravSHACL.core.GraphTraversal import GraphTraversal
 import os, re
 
 import logging

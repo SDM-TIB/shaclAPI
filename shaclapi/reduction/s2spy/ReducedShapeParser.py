@@ -1,17 +1,11 @@
-import sys
-from s2spy.validation.ShapeParser import ShapeParser
-import pathlib
+from SHACL2SPARQLpy.ShapeParser import ShapeParser
 from shaclapi.reduction.Reduction import Reduction
 
-PACKAGE_S2SPY_VALIDATION_PATH = str(pathlib.Path(__file__).parent.parent.parent.parent.joinpath('s2spy/validation').resolve())
-sys.path.append(PACKAGE_S2SPY_VALIDATION_PATH)
-import validation.sparql.SPARQLPrefixHandler as SPARQLPrefixHandler
-sys.path.remove(PACKAGE_S2SPY_VALIDATION_PATH)
-from shaclapi.query import Query
 from functools import reduce
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 # Note the internal structure of ShapeParser:
 # parse_shapes_from_dir --> calls for each shape: parse_constraints (--> parse_constraint), shape_references; Afterwards we call computeReducedEdges to find the involvedShapeIDs.
@@ -58,9 +52,8 @@ class ReducedShapeParser(ShapeParser):
         else:
             return shapes, None, self.targetShapeList
 
-    
     def replace_target_query(self, shape, query):
-        shape.targetQuery = SPARQLPrefixHandler.getPrefixString() + query
+        shape.targetQuery = shape.prefix_string + query
     
     def shape_get_id(self, shape):
         return shape.getId()

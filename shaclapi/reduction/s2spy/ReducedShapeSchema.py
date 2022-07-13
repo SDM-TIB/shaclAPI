@@ -1,15 +1,16 @@
 from shaclapi.reduction.s2spy.ReducedShapeParser import ReducedShapeParser
-from s2spy.validation.ShapeNetwork import ShapeNetwork
-from s2spy.validation.sparql.SPARQLEndpoint import SPARQLEndpoint
+from SHACL2SPARQLpy.ShapeNetwork import ShapeNetwork
+from SHACL2SPARQLpy.sparql.SPARQLEndpoint import SPARQLEndpoint
 from shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedValidationResultStreaming
-from s2spy.validation.utils import fileManagement
-from travshacl.TravSHACL import parse_heuristics
-from travshacl.core.GraphTraversal import GraphTraversal
+from SHACL2SPARQLpy.utils import fileManagement
+from TravSHACL.TravSHACL import parse_heuristics
+from TravSHACL.core.GraphTraversal import GraphTraversal
 import os, re
 from pathlib import Path
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 class ReducedShapeSchema(ShapeNetwork):
     def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, query, config, result_transmitter):
@@ -47,7 +48,9 @@ class ReducedShapeSchema(ShapeNetwork):
             logger.info("Starting with Target Shape")
             start = self.target_shape_list
         else:
-            raise NotImplementedError("s2spy has no own logic which could determine a shape to start with. Set one with 'start_shape_for_validation' or set the 'start_with_target_shape' option to true")
+            logger.warning("Starting with Shape determined by S2Spy")
+            from SHACL2SPARQLpy.utils.globals import PARSING_ORDER
+            node_order = PARSING_ORDER
 
         if start != None:
             logger.debug("Starting Point is:" + start[0])

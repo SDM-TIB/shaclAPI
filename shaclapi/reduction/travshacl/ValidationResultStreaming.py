@@ -1,5 +1,4 @@
-from travshacl.rule_based_validation.Validation import Validation
-import requests
+from TravSHACL.rule_based_validation.Validation import Validation
 
 
 class ValidationResultStreaming(Validation):
@@ -14,11 +13,9 @@ class ValidationResultStreaming(Validation):
         super().register_target(t, t_type, invalidating_shape_name, shapes_state)
         self.result_transmitter.send(instance=t[1], shape= t[0], valid=(t_type == 'valid'), reason=invalidating_shape_name)
 
-    
     def validation_output(self,shapes_state):
         result = super().validation_output(shapes_state)
         for item in self.valid_targets_after_termination:
             self.result_transmitter.send(instance=item[1], shape=item[0], valid=True, reason='unbound')
         self.result_transmitter.done()
         return result
-
