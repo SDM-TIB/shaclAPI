@@ -2,11 +2,10 @@ import requests
 import json
 from tests import travshaclLocal
 import pytest
-import os, sys
+import os
 from glob import glob
 from pathlib import Path
 
-TRAV_DIR = 'Trav-SHACL/'
 FLASK_ENDPOINT='http://0.0.0.0:5000/'
 EXTERNAL_ENDPOINT_DOCKER='http://0.0.0.0:14000/sparql'
 RESULT_DIR = 'output/test_results'
@@ -46,18 +45,11 @@ def test_api_up():
 @pytest.mark.parametrize("file", get_all_files())
 def test_trav(file):
     namespace = travshaclLocal.get_trav_args(file)
-    test_dir = os.getcwd()
-    os.chdir(TRAV_DIR)
-    sys.path.append(os.getcwd())
     from TravSHACL.TravSHACL import eval_shape_schema
-    sys.path.remove(os.getcwd())
     try:
         response = eval_shape_schema(namespace)
     except Exception as e:
-        os.chdir(test_dir)
         raise Exception(e)
-    else:
-        os.chdir(test_dir)
 
 # @pytest.mark.parametrize("file", get_all_files())
 # @pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json']) #'tests/configs/lubm_config_s2spy.json'
