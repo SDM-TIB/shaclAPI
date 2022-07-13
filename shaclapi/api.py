@@ -132,15 +132,7 @@ def run_multiprocessing(pre_config, result_queue = None):
             logger.warning('Can only start with target shape if target shape is given!')
 
     # Unify target shape -> {?var: list of shapes}
-    make_list = lambda x: (x if isinstance(x, list) else [x])
-    target_shape = config.target_shape
-    if isinstance(target_shape, dict):
-        config.target_shape = {var.lower(): make_list(shape)  for var,shape in target_shape.items()}
-    elif query_starshaped != None:
-        config.target_shape = {query_starshaped.target_var: make_list(target_shape)}
-    else:
-        config.target_shape = {'UNDEF': make_list(target_shape)}
-    logger.debug(f'Unified target shape: {config.target_shape}')
+    config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
 
 
     # The information we need depends on the output format:
@@ -210,7 +202,21 @@ def run_multiprocessing(pre_config, result_queue = None):
         return Output(output)
     else:
         return None
-    
+
+def unify_target_shape(target_shape,query):
+    make_list = lambda x: (x if isinstance(x, list) else [x])
+    if isinstance(target_shape, dict):
+        target_shape = {var.lower(): make_list(shape)  for var,shape in target_shape.items()}
+    elif query != None:
+        target_shape = {query.target_var: make_list(target_shape)}
+    else:
+        target_shape = {'UNDEF': make_list(target_shape)}
+    logger.debug(f'Unified target shape: {target_shape}')
+    return target_shape
+
+
+
+
 def restart_processes():
     done = stop_processes()
     time.sleep(0.5)
