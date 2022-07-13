@@ -191,6 +191,7 @@ def run_multiprocessing(pre_config, result_queue = None):
         emsg = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
         logger.exception(str(emsg))
         result_queue.sender.put('EOF')
+        return emsg
 
     if QUEUE_OUTPUT == False:
         next_result = result_queue.receiver.get()

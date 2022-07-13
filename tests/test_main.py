@@ -6,8 +6,8 @@ import os
 from glob import glob
 from pathlib import Path
 
-FLASK_ENDPOINT='http://0.0.0.0:5000/'
-EXTERNAL_ENDPOINT_DOCKER='http://0.0.0.0:14000/sparql'
+FLASK_ENDPOINT='http://0.0.0.0:9999/'
+EXTERNAL_ENDPOINT_DOCKER='http://shacl_api_testdata:8890/sparql'
 RESULT_DIR = 'output/test_results'
 
 TESTS_DIRS = [
@@ -37,7 +37,6 @@ def get_all_files():
         all_files.extend(test_files)
     return all_files
 
-@pytest.mark.dependency()
 def test_api_up():
     result = requests.get(FLASK_ENDPOINT)
     assert result.ok == True
@@ -51,13 +50,24 @@ def test_trav(file):
     except Exception as e:
         raise Exception(e)
 
-# @pytest.mark.parametrize("file", get_all_files())
-# @pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json']) #'tests/configs/lubm_config_s2spy.json'
-# def test_multiprocessing(file, config_file):
-#     params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
-#     params['test_identifier'] = file
-#     params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
-#     test_api('multi', params, solution, log_file_path)
+@pytest.mark.parametrize("file", get_all_files())
+@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json']) #'tests/configs/lubm_config_s2spy.json'
+def test_multiprocessing(file, config_file):
+    """For each testcase check the correctness of the results the API generates. 
+
+    Parameters
+    ----------
+    file : str
+        The path to the testcase file
+    config_file : str
+        The path to the configuration of the shaclAPI.
+    """
+    params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
+    params['test_identifier'] = file
+    params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
+    test_api('multi', params, solution, log_file_path)
+
+
 
 @pytest.mark.parametrize("file", get_all_files())
 @pytest.mark.parametrize("backend", ["travshacl", "s2spy"])
@@ -70,6 +80,27 @@ def test_trav(file):
 def test_configurations_multiprocessing(request, file, backend, prune_shape_network, 
                                             remove_constraints, replace_target_query, 
                                                 start_with_target_shape, collect_all_validation_results, config_file):
+    """Test cases checking for exceptions for different setups of the shaclAPI.
+
+    Parameters
+    ----------
+    file : string   
+        The testcase file.
+    backend : string
+        The SHACL engine to use.
+    prune_shape_network : bool
+        Whether to prune the shape network.
+    remove_constraints : bool
+        Whether to remove constraints
+    replace_target_query : bool
+        Whether to replace the target query.
+    start_with_target_shape : bool
+        Whether to start with the target shape or leave the decision to the SHACL engine.
+    collect_all_validation_results : bool
+        Whether to force the collection of at least one validation result per target shape.
+    config_file : string
+        The basic api configuration file.
+    """
 
     if backend == "s2spy" and start_with_target_shape == False:
         pytest.skip("Not a valid combination!")
