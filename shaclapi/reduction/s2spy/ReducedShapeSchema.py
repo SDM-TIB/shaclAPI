@@ -1,8 +1,8 @@
 from shaclapi.reduction.s2spy.ReducedShapeParser import ReducedShapeParser
-from S2Spy.ShapeNetwork import ShapeNetwork
-from S2Spy.sparql.SPARQLEndpoint import SPARQLEndpoint
+from SHACL2SPARQLpy.ShapeNetwork import ShapeNetwork
+from SHACL2SPARQLpy.sparql.SPARQLEndpoint import SPARQLEndpoint
 from shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedValidationResultStreaming
-from S2Spy.utils import fileManagement
+from SHACL2SPARQLpy.utils import fileManagement
 from travshacl.TravSHACL import parse_heuristics
 from travshacl.core.GraphTraversal import GraphTraversal
 import os, re
@@ -49,7 +49,7 @@ class ReducedShapeSchema(ShapeNetwork):
             start = self.target_shape_list
         else:
             logger.warning("Starting with Shape determined by S2Spy")
-            from S2Spy.utils.globals import PARSING_ORDER
+            from SHACL2SPARQLpy.utils.globals import PARSING_ORDER
             node_order = PARSING_ORDER
 
         if start != None:

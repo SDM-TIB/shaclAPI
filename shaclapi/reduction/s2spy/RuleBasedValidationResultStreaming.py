@@ -1,4 +1,4 @@
-from S2Spy.RuleBasedValidation import RuleBasedValidation
+from SHACL2SPARQLpy.RuleBasedValidation import RuleBasedValidation
 
 
 class RuleBasedValidationResultStreaming(RuleBasedValidation):

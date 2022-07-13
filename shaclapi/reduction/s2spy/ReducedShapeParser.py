@@ -1,10 +1,11 @@
-from S2Spy.ShapeParser import ShapeParser
+from SHACL2SPARQLpy.ShapeParser import ShapeParser
 from shaclapi.reduction.Reduction import Reduction
 
 from functools import reduce
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 # Note the internal structure of ShapeParser:
 # parse_shapes_from_dir --> calls for each shape: parse_constraints (--> parse_constraint), shape_references; Afterwards we call computeReducedEdges to find the involvedShapeIDs.
@@ -51,7 +52,6 @@ class ReducedShapeParser(ShapeParser):
         else:
             return shapes, None, self.targetShapeList
 
-    
     def replace_target_query(self, shape, query):
         shape.targetQuery = shape.prefix_string + query
     
