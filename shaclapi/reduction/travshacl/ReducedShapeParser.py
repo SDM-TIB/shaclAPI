@@ -1,9 +1,10 @@
-from travshacl.core.ShapeParser import ShapeParser
+from TravSHACL.core.ShapeParser import ShapeParser
 from shaclapi.query import Query
 from functools import reduce
 from shaclapi.reduction.Reduction import Reduction
 import logging
 logger = logging.getLogger(__name__)
+
 
 # Note the internal structure of ShapeParser:
 # parse_shapes_from_dir --> calls for each shape: parse_constraints (--> parse_constraint), shape_references; Afterwards we call computeReducedEdges to find the involvedShapeIDs.

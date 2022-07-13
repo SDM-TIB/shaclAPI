@@ -49,7 +49,7 @@ def test_trav(file):
     test_dir = os.getcwd()
     os.chdir(TRAV_DIR)
     sys.path.append(os.getcwd())
-    from travshacl.TravSHACL import eval_shape_schema
+    from TravSHACL.TravSHACL import eval_shape_schema
     sys.path.remove(os.getcwd())
     try:
         response = eval_shape_schema(namespace)

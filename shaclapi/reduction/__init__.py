@@ -10,7 +10,7 @@ sys.path.append(PACKAGE_S2SPY_PATH)
 sys.path.append(PACKAGE_TRAVSHACL_PATH)
 from shaclapi.reduction.travshacl.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaTravShacl
 from shaclapi.reduction.s2spy.ReducedShapeSchema import ReducedShapeSchema as ReducedShapeSchemaS2Spy
-from travshacl.sparql.SPARQLEndpoint import SPARQLEndpoint
+from TravSHACL.sparql.SPARQLEndpoint import SPARQLEndpoint
 sys.path.remove(PACKAGE_TRAVSHACL_PATH)
 sys.path.remove(PACKAGE_S2SPY_PATH)
 

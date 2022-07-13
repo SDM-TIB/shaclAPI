@@ -3,8 +3,8 @@ from SHACL2SPARQLpy.ShapeNetwork import ShapeNetwork
 from SHACL2SPARQLpy.sparql.SPARQLEndpoint import SPARQLEndpoint
 from shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedValidationResultStreaming
 from SHACL2SPARQLpy.utils import fileManagement
-from travshacl.TravSHACL import parse_heuristics
-from travshacl.core.GraphTraversal import GraphTraversal
+from TravSHACL.TravSHACL import parse_heuristics
+from TravSHACL.core.GraphTraversal import GraphTraversal
 import os, re
 from pathlib import Path
 
