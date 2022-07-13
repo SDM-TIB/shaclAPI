@@ -1,21 +1,20 @@
 import json
-from enum import Enum
-import requests
 from argparse import Namespace
 import os
 
-FLASK_ENDPOINT='http://0.0.0.0:5000/'
-EXTERNAL_ENDPOINT_LOCALHOST='http://0.0.0.0:14000/sparql'
+EXTERNAL_ENDPOINT_LOCALHOST = 'http://0.0.0.0:14000/sparql'
 
-DEFAULT_PARAMS={
-    "task":"a",
-    "traversalStrategie":"DFS",
+DEFAULT_PARAMS = {
+    "task": "a",
+    "traversalStrategie": "DFS",
     "schemaDir": "shapes/lubm",
     "heuristic": "TARGET IN BIG",
     "query": "QUERY",
     "targetShape": "FullProfessor",
     "config": "tests/configs/lubm_config.json"
 }
+
+
 def get_trav_args(params_file):
     with open(params_file, 'r') as f:
         params = json.load(f)
@@ -52,5 +51,6 @@ def get_trav_args(params_file):
         's': 's' == task,
         't': 't' == task,
         'f': 'f' == task,
+        'json': True
     }
     return Namespace(**args)
