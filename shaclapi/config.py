@@ -52,7 +52,13 @@ class Config:
         """
         The target shape to which the star shaped query refers. Can also be a dictionary mapping variables in the query to a list of shapes.
         """
-        return self.config_dict.get('targetShape', None)
+        if 'targetShape' in self.config_dict:
+            return self.config_dict['targetShape']
+        elif 'target_shape' in self.config_dict:
+            return self.config_dict['target_shape']
+        else:
+            return None
+
     @target_shape.setter
     def target_shape(self, target_shape):
         self.config_dict['targetShape'] = target_shape
@@ -80,7 +86,10 @@ class Config:
         --> The Configuration file is json-formated file which can include the same options as the POST - Request.
         --> The Options specified in the POST - Request will override the options in the configuration file.
         """
-        return self.config_dict.get('config', 'config')
+        if 'config' in self.config_dict:
+            return self.config_dict['config']
+        else:
+            return None
 
     @property
     def save_outputs(self):
@@ -94,33 +103,48 @@ class Config:
         """
         The directory which will be used by the backend and the api to save the validation output and statistics to files (depending on the other configurations)
         """
-        return self.config_dict.get('output_directory') or self.config_dict.get('outputDirectory') or "./output/"
+        if 'outputDirectory' in self.config_dict:
+            return self.config_dict['outputDirectory']
+        elif 'output_directory' in self.config_dict:
+            return self.config_dict['output_directory']
+        else:
+            return "./output/"
 
     @property
     def schema_format(self):
         """
-        The format of the shape files. Only JSON is supported.
+        The format of the shape files. Only JSON and TTL is supported.
         """
-        return self.config_dict.get('shape_format') or \
-            self.config_dict.get('shapeFormat') or \
-            self.config_dict.get('schema_format') or \
-            "JSON"
+        if 'shapeFormat' in self.config_dict:
+            return self.config_dict['shapeFormat']
+        elif 'shape_format' in self.config_dict:
+            return self.config_dict['shape_format']
+        else:
+            return "JSON"
 
     @property
     def work_in_parallel(self):
         """
         Whether the backend should work in parallel.
         """
-        return self.entry_to_bool(self.config_dict.get('work_in_parallel', False)) or \
-            self.entry_to_bool(self.config_dict.get('workInParallel', False)) or \
-            False
+        if 'workInParallel' in self.config_dict:
+            return self.entry_to_bool(self.config_dict['workInParallel'])
+        elif 'work_in_parallel' in self.config_dict:
+            return self.entry_to_bool(self.config_dict['work_in_parallel'])
+        else:
+            return False
 
     @property
     def use_selective_queries(self):
         """
         The travshacl backend can use more selectiv queries. This options is used to turn that on or off.
         """
-        return self.entry_to_bool(self.config_dict.get('useSelectiveQueries', True))
+        if 'useSelectiveQueries' in self.config_dict:
+            return self.entry_to_bool(self.config_dict['useSelectiveQueries'])
+        elif 'use_selective_queries' in self.config_dict:
+            return self.entry_to_bool(self.config_dict['use_selective_queries'])
+        else:
+            return True
 
     @property
     def max_split_size(self):
@@ -134,14 +158,12 @@ class Config:
         """
         Whether to use Queries with a ORDER BY Clause.
         """
-        return self.entry_to_bool(self.config_dict.get('ORDERBYinQueries', True))
-
-    @property
-    def SHACL2SPARQL_order(self):
-        """
-        Whether to use the SHACL2SPARQL_order. (TODO: Not used in either case)
-        """
-        return self.entry_to_bool(self.config_dict.get('SHACL2SPARQLorder', False))
+        if 'ORDERBYinQueries' in self.config_dict:
+            return self.entry_to_bool(self.config_dict['ORDERBYinQueries'])
+        elif 'order_by_in_queries' in self.config_dict:
+            return self.entry_to_bool(self.config_dict['order_by_in_queries'])
+        else:
+            return True
 
     @property
     def backend(self):
@@ -151,19 +173,17 @@ class Config:
         return self.config_dict.get('backend', "travshacl")
 
     @property
-    def task(self):
-        """
-        The task to be done by the backend. (TODO: Only 'a' makes sense here.)
-        """
-        return self.config_dict.get('task', 'a')
-
-    @property
     def traversal_strategy(self):
         """
         The traversal strategy used by the backend to reduce the shape graph and by the backend
         to find the execution order. Can be "DFS" or "BFS".
         """
-        return self.config_dict.get('traversalStrategy') or 'DFS'
+        if 'traversalStrategy' in self.config_dict:
+            return self.config_dict.get('traversalStrategy')
+        elif 'traversal_strategy' in self.config_dict:
+            return self.config_dict.get('traversal_strategy')
+        else: 
+            return 'DFS'
 
     @property
     def heuristic(self):
@@ -253,7 +273,6 @@ class Config:
     def run_in_serial(self):
         """
         This option can be turned on to force the multiprocessing steps to be executed in serial.
-        This option is only used in multiprocessing route.
         """
         return self.entry_to_bool(self.config_dict.get('run_in_serial', False))
     
