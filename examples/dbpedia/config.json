@@ -5,6 +5,6 @@
     "schemaDir": "./examples/dbpedia/shapes/",
     "targetShape": "MovieShape",
     "backend": "travshacl",
-    "run_in_serial": false,
-    "output_format": "test"
+    "output_format": "simple",
+    "outputs": true
 }
