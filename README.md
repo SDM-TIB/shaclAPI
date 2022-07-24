@@ -6,23 +6,34 @@ The shaclAPI is a project meant to integrate the **SHACL** validation  into the 
 ### Webservice
 #### Docker
 In order to run the shaclAPI, build the Docker image from the source code:
+
 ``docker build . -t juliangercke/shaclAPI:latest``
+
 Once the Docker image is built, you can start the shaclAPI:
+
 ``docker run --name api -d -p 9999:5000 juliangercke/shaclAPI:latest``
+
 The shaclAPI will be reachable at http://localhost:9999. For the following examples execute:
+
 ``API=localhost:9999``
 
 #### Docker Compose
 A docker-compose file is provided, therefore the shaclAPI can be run using:
+
 ``docker-compose up --build -d``
+
 The shaclAPI will be accessible at http://localhost:9999. For the following examples execute:
+
 ``API=localhost:9999``
 
 #### Python
 To run the shaclAPI directly using python 3.8.11 with the flask development server, the python dependencies need to be installed:
+
 ``pip install -r requirements.txt``
+
 Depending on the operating system ``start.bat`` or ``start.sh`` can now be used to start the shaclAPI.
 The shaclAPI will be accessible at http://localhost:5000. For the following examples execute:
+
 ``API=localhost:5000``
 
 ### Library
