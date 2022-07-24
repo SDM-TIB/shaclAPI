@@ -213,26 +213,3 @@ def unify_target_shape(target_shape,query):
         target_shape = {'UNDEF': make_list(target_shape)}
     logger.debug(f'Unified target shape: {target_shape}')
     return target_shape
-
-
-
-
-def restart_processes():
-    done = stop_processes()
-    time.sleep(0.5)
-    start_processes()
-
-def stop_processes():
-    VALIDATION_RUNNER.stop_process()
-    CONTACT_SOURCE_RUNNER.stop_process()
-    XJOIN_RUNNER.stop_process()
-    POST_PROCESSING_RUNNER.stop_process()
-    time.sleep(0.1)
-
-def start_processes():
-    VALIDATION_RUNNER.start_process()
-    CONTACT_SOURCE_RUNNER.start_process()
-    XJOIN_RUNNER.start_process()
-    POST_PROCESSING_RUNNER.start_process()
-    time.sleep(0.1)
-

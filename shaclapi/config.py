@@ -4,7 +4,6 @@ import uuid
 class Config:
     def __init__(self, config_dict):
         self.config_dict = config_dict
-        self.INTERNAL_SPARQL_ENDPOINT = "http://localhost:5000/endpoint"
         self.check()
 
     @staticmethod
@@ -33,7 +32,7 @@ class Config:
 
     def check(self):
         if self.backend == "s2spy" and self.start_with_target_shape == False:
-            raise Exception("backend s2spy needs to start with target shape; set start_with_target_shape to True")
+            raise Exception("backend s2spy needs to start with the target shape; set start_with_target_shape to True")
         if self.prune_shape_network == False and self.remove_constraints:
             raise Exception("Its not possible to not prune the shape network but removing constraints (impling pruning the shape network...)")
         if self.use_pipes and self.run_in_serial:
@@ -45,8 +44,34 @@ class Config:
         """
         The starshaped query to be executed.
         """
-        return self.config_dict['query']
+        if 'query' in self.config_dict:
+            return self.config_dict['query']
+        else:
+            raise Exception('The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.')
 
+    @property
+    def external_endpoint(self):
+        """
+        The SPARQL endpoint, which contains the data to be validated and retrieved.
+        """
+        if 'external_endpoint' in self.config_dict:
+            return self.config_dict['external_endpoint']
+        else:
+            raise Exception('The URL of the SPARQL endpoint the shape schema will be validated against and data retrieved, needs to be provided to the shaclAPI using the option external_endpoint.')
+
+    @property
+    def schema_directory(self):
+        """
+        The directory which contains the shape files.
+        """
+        if 'schemaDir' in self.config_dict:        
+            return self.config_dict['schemaDir']
+        elif 'schema_directory' in self.config_dict:
+            return self.config_dict['schema_directory']
+        else:
+            raise Exception('A directory containing the shape files needs to be provided to the shaclAPI using the option schema_directory or schema_directory!')
+
+    # ------------------------------- optional configuration options (there are default values) -------------------------------------------
     @property
     def target_shape(self):
         """
@@ -63,22 +88,6 @@ class Config:
     def target_shape(self, target_shape):
         self.config_dict['targetShape'] = target_shape
 
-
-    @property
-    def external_endpoint(self):
-        """
-        The external sparql endpoint, which contains the data to be validated.
-        """
-        return self.config_dict['external_endpoint']
-
-    @property
-    def schema_directory(self):
-        """
-        The directory which contains the shape files.
-        """
-        return self.config_dict['schemaDir']
-
-    # ------------------------------- optional configuration options (there are default values) -------------------------------------------
     @property
     def config(self):
         """

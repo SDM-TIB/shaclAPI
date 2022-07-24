@@ -27,7 +27,6 @@ def route_multiprocessing():
     '''
     Required Arguments:
         - query
-        - targetShape
         - external_endpoint
         - schemaDir
     See app/config.py for a full list of available arguments!
@@ -77,22 +76,6 @@ def route_validation():
 @app.route("/", methods=['GET'])
 def hello_world():
     return "Hello World"
-
-@app.route("/start", methods=['GET'])
-def start_processes():
-    api.start_processes()
-    return "Done"
-
-@app.route("/stop", methods=['GET'])
-def stop_processes():
-    api.stop_processes()
-    return "Done"
-
-
-@app.route("/restart", methods=['GET'])
-def restart_processes():
-    api.restart_processes()
-    return "Done"
 
 
 # Profiling Code
