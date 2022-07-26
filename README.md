@@ -118,6 +118,23 @@ Example output:
 {"MovieShape":{"invalid":50,"valid":0}}
 ```
 
+
+#### POST: /reduce
+This API call can be used to retrieve the shape names of the reduced shape schema given a starting shape.
+The options for this call can be provided as parameters of the HTTP POST request or as a JSON file using the config option.
+HTTP POST parameters will override the options configured in the configuration file.
+
+Example call:
+```bash
+curl -X POST -d "schemaDir=./examples/lubm/shapes/" -d "targetShape=Department" $API/reduce
+```
+
+Example output:
+```json
+{"shapes":["Department","University"]}
+```
+
+
 ### Library
 
 

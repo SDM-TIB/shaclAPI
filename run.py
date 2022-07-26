@@ -73,6 +73,26 @@ def route_validation():
     queue.cancel_join_thread()
     return val_results
 
+
+@app.route('/reduce', methods=['POST'])
+def reduced_schema_only():
+    from flask import jsonify
+    try:
+        from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
+        from TravSHACL.core.GraphTraversal import GraphTraversal
+        config = Config.from_request_form(request.form)
+        shape_parser = ReducedShapeParser(None, GraphTraversal.DFS, config)
+        _, node_order, _ = shape_parser.parse_shapes_from_dir(
+            config.schema_directory, config.schema_format, True, 256, False)
+        return jsonify({'shapes': node_order})
+    except Exception as e:
+        import sys
+        import traceback
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        emsg = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
+        return jsonify({"result": [], "error": str(emsg)})
+
+
 @app.route("/", methods=['GET'])
 def hello_world():
     return "Hello World"
