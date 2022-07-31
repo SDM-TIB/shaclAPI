@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>shaclapi.reduction.travshacl.ReducedShapeSchema &#8212; shaclAPI  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../../../../index.html">
+<p class="title">shaclAPI</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../modules.html">
+  shaclapi
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for shaclapi.reduction.travshacl.ReducedShapeSchema</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ReducedShapeParser</span> <span class="kn">import</span> <span class="n">ReducedShapeParser</span>
+<span class="kn">from</span> <span class="nn">TravSHACL.core.ShapeSchema</span> <span class="kn">import</span> <span class="n">ShapeSchema</span>
+<span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ValidationResultStreaming</span> <span class="kn">import</span> <span class="n">ValidationResultStreaming</span>
+<span class="kn">from</span> <span class="nn">TravSHACL.rule_based_validation.Validation</span> <span class="kn">import</span> <span class="n">Validation</span>
+<span class="kn">from</span> <span class="nn">TravSHACL.TravSHACL</span> <span class="kn">import</span> <span class="n">parse_heuristics</span>
+<span class="kn">from</span> <span class="nn">TravSHACL.core.GraphTraversal</span> <span class="kn">import</span> <span class="n">GraphTraversal</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReducedShapeSchema"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema">[docs]</a><span class="k">class</span> <span class="nc">ReducedShapeSchema</span><span class="p">(</span><span class="n">ShapeSchema</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema_dir</span><span class="p">,</span> <span class="n">schema_format</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">graph_traversal</span><span class="p">,</span> <span class="n">heuristics</span><span class="p">,</span> <span class="n">use_selective_queries</span><span class="p">,</span> <span class="n">max_split_size</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">order_by_in_queries</span><span class="p">,</span> <span class="n">save_outputs</span><span class="p">,</span> <span class="n">work_in_parallel</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shapeParser</span> <span class="o">=</span> <span class="n">ReducedShapeParser</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">graph_traversal</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_shape_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapeParser</span><span class="o">.</span><span class="n">parse_shapes_from_dir</span><span class="p">(</span>
+            <span class="n">schema_dir</span><span class="p">,</span> <span class="n">schema_format</span><span class="p">,</span> <span class="n">use_selective_queries</span><span class="p">,</span> <span class="n">max_split_size</span><span class="p">,</span> <span class="n">order_by_in_queries</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema_dir</span> <span class="o">=</span> <span class="n">schema_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span> <span class="o">=</span> <span class="p">{</span><span class="n">shape</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="n">shape</span> <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapes</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpointURL</span> <span class="o">=</span> <span class="n">endpoint_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphTraversal</span> <span class="o">=</span> <span class="n">graph_traversal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="n">work_in_parallel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_dependencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_edges</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_in_and_outdegree</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heuristics</span> <span class="o">=</span> <span class="n">heuristics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectivityEnabled</span> <span class="o">=</span> <span class="n">use_selective_queries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveStats</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveTargetsToFile</span> <span class="o">=</span> <span class="n">save_outputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_transmitter</span> <span class="o">=</span> <span class="n">result_transmitter</span>
+    
+<div class="viewcode-block" id="ReducedShapeSchema.from_config"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema.from_config">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query_object</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ReducedShapeSchema</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">schema_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_format</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">external_endpoint</span><span class="p">,</span> \
+            <span class="n">GraphTraversal</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">traversal_strategy</span><span class="p">],</span> <span class="n">parse_heuristics</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">heuristic</span><span class="p">),</span> <span class="n">config</span><span class="o">.</span><span class="n">use_selective_queries</span><span class="p">,</span> \
+                <span class="n">config</span><span class="o">.</span><span class="n">max_split_size</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span><span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^\w\-_\. ]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="n">config</span><span class="o">.</span><span class="n">order_by_in_queries</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">save_outputs</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">work_in_parallel</span><span class="p">,</span> \
+                    <span class="n">query_object</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReducedShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_with_target_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
+        <span class="c1">#logger.debug(f&#39;Target Shapes:{self.target_shape_list}\nNode Order:{self.node_order}\nStart with Target Shape: {start_with_target_shape}\nStart Shape Config: {self.start_shape_for_validation}&#39;)</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span><span class="o">.</span><span class="n">start_shape_for_validation</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting with Shape set in Configuration&quot;</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span><span class="o">.</span><span class="n">start_shape_for_validation</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_order</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using Node Order provided by the shaclapi&quot;</span><span class="p">)</span>
+            <span class="n">node_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_order</span>
+        <span class="k">elif</span> <span class="n">start_with_target_shape</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting with Target Shape&quot;</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_shape_list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Starting with Shape determined by TravShacl&quot;</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_starting_point</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">start</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting Point is:&quot;</span> <span class="o">+</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">node_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphTraversal</span><span class="o">.</span><span class="n">traverse_graph</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_dependencies</span><span class="p">,</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapes</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">compute_constraint_queries</span><span class="p">()</span>
+
+        <span class="n">target_shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">get_target_query</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">target_shape_predicates</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">target_shapes</span><span class="p">]</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ValidationResultStreaming</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endpointURL</span><span class="p">,</span>
+            <span class="n">node_order</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="p">,</span>
+            <span class="n">target_shape_predicates</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selectivityEnabled</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saveStats</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saveTargetsToFile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result_transmitter</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+    
+
+
+<div class="viewcode-block" id="ReturnShapeSchema"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema">[docs]</a><span class="k">class</span> <span class="nc">ReturnShapeSchema</span><span class="p">(</span><span class="n">ShapeSchema</span><span class="p">):</span> <span class="c1"># Here the normal ShapeSchema is used and not the reduced one!</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    # Use with:</span>
+<span class="sd">    # schema = ReturnShapeSchema(</span>
+<span class="sd">    #    schema_directory, config[&#39;shapeFormat&#39;], config[&#39;external_endpoint&#39;], traversal_strategie,</span>
+<span class="sd">    #    heuristics, config[&#39;useSelectiveQueries&#39;], config[&#39;maxSplit&#39;], config[&#39;outputDirectory&#39;],</span>
+<span class="sd">    #    config[&#39;ORDERBYinQueries&#39;], config[&#39;outputs&#39;], config[&#39;workInParallel&#39;])</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="ReturnShapeSchema.from_config"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema.from_config">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ReturnShapeSchema</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">schema_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_format</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">external_endpoint</span><span class="p">,</span> <span class="n">GraphTraversal</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">traversal_strategy</span><span class="p">],</span> <span class="n">parse_heuristics</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">heuristic</span><span class="p">),</span> <span class="n">config</span><span class="o">.</span><span class="n">use_selective_queries</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">max_split_size</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">order_by_in_queries</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">save_outputs</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">work_in_parallel</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReturnShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_starting_point</span><span class="p">()</span>
+        <span class="n">node_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphTraversal</span><span class="o">.</span><span class="n">traverse_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_dependencies</span><span class="p">,</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># TODO: deal with more than one possible starting point</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapes</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">compute_constraint_queries</span><span class="p">()</span>
+
+        <span class="n">target_shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">get_target_query</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">target_shape_predicates</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">target_shapes</span><span class="p">]</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Validation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endpointURL</span><span class="p">,</span>
+            <span class="n">node_order</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="p">,</span>
+            <span class="n">target_shape_predicates</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selectivityEnabled</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saveStats</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saveTargetsToFile</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, Julian Gercke, Philipp D. Rohde, Fabian Johannsen.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

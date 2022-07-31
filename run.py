@@ -13,6 +13,7 @@ from shaclapi.api import unify_target_shape
 # Use for debugging:
 # shaclapi_logger.setup(level=logging.DEBUG, handler=logging.FileHandler('/shaclAPI/examples/api.log'))
 # logging.getLogger('werkzeug').disabled = True
+
 # Use for production:
 shaclapi_logger.setup(level=logging.INFO)
 
@@ -96,20 +97,3 @@ def reduced_schema_only():
 @app.route("/", methods=['GET'])
 def hello_world():
     return "Hello World"
-
-
-# Profiling Code
-# from pyinstrument import Profiler
-# global_request_count = 0
-
-# def start_profiling():
-#     g.profiler = Profiler()
-#     g.profiler.start()
-
-# def stop_profiling():
-#     global global_request_count
-#     g.profiler.stop()
-#     output_html = g.profiler.output_html()
-#     global_request_count = global_request_count + 1
-#     with open("timing/api_profil{}.html".format(global_request_count - 1),"w") as f:
-#         f.write(output_html)

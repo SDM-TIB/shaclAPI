@@ -137,6 +137,7 @@ Example output:
 
 ### Library
 
+See the available sphinx documentation: 
 
 ## Configuration
 The shaclAPI is highly configurable and supports the following options.
@@ -160,7 +161,7 @@ The shaclAPI is highly configurable and supports the following options.
 | | replace_target_query | True | Whether or not the shaclAPI should replace the target query of the target shape.|
 | | start_with_target_shape | True | Whether the SHACL engine is forced to start the validation process with the target shape. |
 | | start_shape_for_validation | None | The shape which is used as starting point for the validation in the backend. It will override the start point determined by the SHACL engine (in case of Trav-SHACL) and only applies if start_with_target_shape is false)|
-| | merge_old_target_query  | True | Whether the api should merge the query with the given target query in the target shape file. If this option is inactive the target query of the target shape is basically replaced with the star shaped query. |
+| | merge_old_target_query  | True | Whether the shaclAPI should merge the query with the given target query in the target shape file. If this option is inactive the target query of the target shape is basically replaced with the star shaped query. |
 | | remove_constraints  | False |  Whether the shaclAPI should remove constraints of the target shape not mentioned in the query. |
 | | output_format  | simple  | Which output format the api should use. This can be "test" or "simple". |
 | | memory_size | 100000000 | Number of tuples, which can be stored in main memory during the join process. |

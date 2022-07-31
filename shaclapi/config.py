@@ -42,7 +42,7 @@ class Config:
     @property
     def query(self):
         """
-        The starshaped query to be executed.
+        The query to be executed over the SPARQL endpoint.
         """
         if 'query' in self.config_dict:
             return self.config_dict['query']
@@ -52,7 +52,7 @@ class Config:
     @property
     def external_endpoint(self):
         """
-        The SPARQL endpoint, which contains the data to be validated and retrieved.
+        The URL of the SPARQL endpoint, which contains the data to be validated and retrieved.
         """
         if 'external_endpoint' in self.config_dict:
             return self.config_dict['external_endpoint']
@@ -62,7 +62,7 @@ class Config:
     @property
     def schema_directory(self):
         """
-        The directory which contains the shape files.
+        The directory containing the shape files (.ttl or .json)
         """
         if 'schemaDir' in self.config_dict:        
             return self.config_dict['schemaDir']
@@ -75,7 +75,7 @@ class Config:
     @property
     def target_shape(self):
         """
-        The target shape to which the star shaped query refers. Can also be a dictionary mapping variables in the query to a list of shapes.
+        The target shape selected for the given query and the given shape schema.
         """
         if 'targetShape' in self.config_dict:
             return self.config_dict['targetShape']
@@ -91,9 +91,9 @@ class Config:
     @property
     def config(self):
         """
-        config is the absolute or relativ (with respect to the location of run.py) path to a configuration file.
-        --> The Configuration file is json-formated file which can include the same options as the POST - Request.
-        --> The Options specified in the POST - Request will override the options in the configuration file.
+        The path to a json formatted configuration file. Has to be absolute or relative w.r.t. run.py.
+        The file can include all the properties in :py:mod:`shaclapi.config` as configuration options.
+        The options which are specified in the HTTP POST - request will override the options configured in the configuration file.
         """
         if 'config' in self.config_dict:
             return self.config_dict['config']
@@ -109,8 +109,7 @@ class Config:
 
     @property
     def output_directory(self):
-        """
-        The directory which will be used by the backend and the api to save the validation output and statistics to files (depending on the other configurations)
+        """The directory which will be used by the SHACL engine and the shaclAPI to save the validation output and statistics to files (depending on the other configurations)
         """
         if 'outputDirectory' in self.config_dict:
             return self.config_dict['outputDirectory']
@@ -122,19 +121,21 @@ class Config:
     @property
     def schema_format(self):
         """
-        The format of the shape files. Only JSON and TTL is supported.
+        The format of the shape files. Can be JSON or TTL
         """
         if 'shapeFormat' in self.config_dict:
             return self.config_dict['shapeFormat']
         elif 'shape_format' in self.config_dict:
             return self.config_dict['shape_format']
+        elif 'schema_format' in self.config_dict:
+            return self.config_dict['schema_format']
         else:
             return "JSON"
 
     @property
     def work_in_parallel(self):
         """
-        Whether the backend should work in parallel.
+        Whether the SHACL engine should work in parallel
         """
         if 'workInParallel' in self.config_dict:
             return self.entry_to_bool(self.config_dict['workInParallel'])
@@ -146,7 +147,7 @@ class Config:
     @property
     def use_selective_queries(self):
         """
-        The travshacl backend can use more selectiv queries. This options is used to turn that on or off.
+        Whether the SHACL engine should use more selective queries.
         """
         if 'useSelectiveQueries' in self.config_dict:
             return self.entry_to_bool(self.config_dict['useSelectiveQueries'])
@@ -158,14 +159,14 @@ class Config:
     @property
     def max_split_size(self):
         """
-        The max split size.
+        The maximal number of entities in FILTER or VALUES clause of a SPARQL query, used by the SHACL engine.
         """
         return int(self.config_dict.get('maxSplit', 256))
 
     @property
     def order_by_in_queries(self):
         """
-        Whether to use Queries with a ORDER BY Clause.
+        Whether the SHACL engine should use queries with a ORDER BY clause.
         """
         if 'ORDERBYinQueries' in self.config_dict:
             return self.entry_to_bool(self.config_dict['ORDERBYinQueries'])
@@ -177,7 +178,7 @@ class Config:
     @property
     def backend(self):
         """
-        The backend to use. Only "travshacl" or "s2spy" is implemented.
+        The SHACL engine, which will be used by the shaclAPI. Can be "travshacl" or "s2spy".
         """
         return self.config_dict.get('backend', "travshacl")
 
@@ -197,14 +198,14 @@ class Config:
     @property
     def heuristic(self):
         """
-        Heuristics which the travshacl backend should use.
+        Only if Trav-SHACL is used as backend. The heuristic used to determine the validation order of the shapes.
         """
         return self.config_dict.get('heuristic') or 'TARGET IN BIG'
 
     @property
     def replace_target_query(self):
         """
-        Whether or not the api should replace the target query of the target shape.
+        Whether or not the shaclAPI should replace the target query of the target shape.
         """
         return self.entry_to_bool(self.config_dict.get('replace_target_query', True))
     @replace_target_query.setter
@@ -214,7 +215,7 @@ class Config:
     @property
     def merge_old_target_query(self):
         """
-        Whether the api should merge the star shaped query with the given target query in the target shape file.
+        Whether the shaclAPI should merge the star shaped query with the given target query in the target shape file.
         If this option is inactive the target query of the target shape is basically replaced with the star shaped query.
         """
         return self.entry_to_bool(self.config_dict.get('merge_old_target_query', True))
@@ -225,7 +226,7 @@ class Config:
     @property
     def start_with_target_shape(self):
         """
-        Whether the backend is forced to start the validation process with the target shape.
+        Whether the SHACL engine is forced to start the validation process with the target shape.
         """
         return self.entry_to_bool(self.config_dict.get('start_with_target_shape', True))
     @start_with_target_shape.setter
@@ -235,36 +236,35 @@ class Config:
     @property
     def start_shape_for_validation(self):
         """
-        The shape which is used as starting point for the validation in the backend.
-        (it will override the start point determined by the backend (in case of travshacl) and only applies if start_with_target_shape is false)
+        The shape which is used as starting point for the validation in the backend. It will override the start point determined by the SHACL engine (in case of Trav-SHACL) and only applies if :attr:`start_with_target_shape` is false).
         """
         return self.config_dict.get('start_shape_for_validation', None)
 
     @property
     def remove_constraints(self):
         """
-        Whether the api should remove constraints of the target shape not mentioned in the query.
+        Whether the shaclAPI should remove constraints of the target shape not mentioned in the query.
         """
         return self.entry_to_bool(self.config_dict.get('remove_constraints', False))
 
     @property
     def output_format(self):
         """
-        Which output format the api should use. This can be "test" or "simple"
+        Which output format the shaclAPI should use. This can be "test" or "simple".
         """
         return self.config_dict.get('output_format', "simple")
 
     @property
     def memory_size(self):
         """
-        Number of tuples which can be stored in main memory
+        Number of tuples, which can be stored in main memory during the join process.
         """
         return int(self.config_dict.get('memory_size', 100000000))
 
     @property
     def prune_shape_network(self):
         """
-        Whether or not prune the shape_network to the from the target shape reachable shapes.
+        Whether or not prune the shape schema to the shapes reachable from the target shapes.
         """
         return self.entry_to_bool(self.config_dict.get('prune_shape_network', True))
     @prune_shape_network.setter
@@ -274,36 +274,35 @@ class Config:
     @property
     def test_identifier(self):
         """
-        The test identifier will be used in output files / Stats Output identifying the test run.
+        The test identifier will be used in output files identifing the run.
         """
         return self.config_dict.get('test_identifier', str(uuid.uuid1()))
 
     @property    
     def run_in_serial(self):
         """
-        This option can be turned on to force the multiprocessing steps to be executed in serial.
+        This option can be turned on to force the steps of the shaclAPI to be executed in serial.
         """
         return self.entry_to_bool(self.config_dict.get('run_in_serial', False))
     
     @property
     def reasoning(self):
         """
-        This option will turn reasoning in terms of extended output on and off. Default is on.
+        This option will turn reasoning in terms of extended output on and off.
         """
         return self.entry_to_bool(self.config_dict.get('reasoning', True))
     
     @property
     def use_pipes(self):
         """
-        Whether to use Pipes or not (in that case Queues are used)
+        Whether to use pipes during the multiprocessing. Otherwise the shaclAPI will use queues.
         """
         return self.entry_to_bool(self.config_dict.get('use_pipes', False))
     
     @property
     def collect_all_validation_results(self):
         """
-        Whether to collect all validation results for each mapping or at least one of the target_shape and one for each other mapping.
-        Collecting all results will make the approach blocking.
+        Whether to collect all validation results for each mapping. Otherwise at least one validation result is collected for each given target_shape.  Collecting all results will make the approach blocking.
         """
         return self.entry_to_bool(self.config_dict.get('collect_all_validation_results', False))
     

@@ -1,0 +1,434 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>shaclapi.multiprocessing.functions module &#8212; shaclAPI  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="shaclapi.multiprocessing.runner module" href="shaclapi.multiprocessing.runner.html" />
+    <link rel="prev" title="shaclapi.multiprocessing.contactSource module" href="shaclapi.multiprocessing.contactSource.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="index.html">
+<p class="title">shaclAPI</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="modules.html">
+  shaclapi
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="shaclapi.html">
+   shaclapi package
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="shaclapi.multiprocessing.html">
+     shaclapi.multiprocessing package
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="shaclapi.multiprocessing.Xgjoin.html">
+       shaclapi.multiprocessing.Xgjoin package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.multiprocessing.Xgjoin.OperatorStructures.html">
+         shaclapi.multiprocessing.Xgjoin.OperatorStructures module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.multiprocessing.Xgjoin.Xgjoin.html">
+         shaclapi.multiprocessing.Xgjoin.Xgjoin module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="shaclapi.multiprocessing.PipeAdapter.html">
+       shaclapi.multiprocessing.PipeAdapter module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="shaclapi.multiprocessing.ThreadEx.html">
+       shaclapi.multiprocessing.ThreadEx module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="shaclapi.multiprocessing.contactSource.html">
+       shaclapi.multiprocessing.contactSource module
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="#">
+       shaclapi.multiprocessing.functions module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="shaclapi.multiprocessing.runner.html">
+       shaclapi.multiprocessing.runner module
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="shaclapi.reduction.html">
+     shaclapi.reduction package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+    <label for="toctree-checkbox-4">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="shaclapi.reduction.s2spy.html">
+       shaclapi.reduction.s2spy package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.reduction.s2spy.ReducedShapeParser.html">
+         shaclapi.reduction.s2spy.ReducedShapeParser module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.reduction.s2spy.ReducedShapeSchema.html">
+         shaclapi.reduction.s2spy.ReducedShapeSchema module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming.html">
+         shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="shaclapi.reduction.travshacl.html">
+       shaclapi.reduction.travshacl package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.reduction.travshacl.ReducedShapeParser.html">
+         shaclapi.reduction.travshacl.ReducedShapeParser module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.reduction.travshacl.ReducedShapeSchema.html">
+         shaclapi.reduction.travshacl.ReducedShapeSchema module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.reduction.travshacl.ValidationResultStreaming.html">
+         shaclapi.reduction.travshacl.ValidationResultStreaming module
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="shaclapi.reduction.Reduction.html">
+       shaclapi.reduction.Reduction module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="shaclapi.reduction.ValidationResultTransmitter.html">
+       shaclapi.reduction.ValidationResultTransmitter module
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="shaclapi.api.html">
+     shaclapi.api module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="shaclapi.config.html">
+     shaclapi.config module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="shaclapi.logger.html">
+     shaclapi.logger module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="shaclapi.output.html">
+     shaclapi.output module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="shaclapi.query.html">
+     shaclapi.query module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="shaclapi.statsCalculation.html">
+     shaclapi.statsCalculation module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="shaclapi.triple.html">
+     shaclapi.triple module
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="module-shaclapi.multiprocessing.functions">
+<span id="shaclapi-multiprocessing-functions-module"></span><h1>shaclapi.multiprocessing.functions module<a class="headerlink" href="#module-shaclapi.multiprocessing.functions" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.ValReport">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shaclapi.multiprocessing.functions.</span></span><span class="sig-name descname"><span class="pre">ValReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/multiprocessing/functions.html#ValReport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.multiprocessing.functions.ValReport" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.ValReport.SHAPE">
+<span class="sig-name descname"><span class="pre">SHAPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#shaclapi.multiprocessing.functions.ValReport.SHAPE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.ValReport.IS_VALID">
+<span class="sig-name descname"><span class="pre">IS_VALID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#shaclapi.multiprocessing.functions.ValReport.IS_VALID" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.ValReport.REASON">
+<span class="sig-name descname"><span class="pre">REASON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#shaclapi.multiprocessing.functions.ValReport.REASON" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.mp_post_processing">
+<span class="sig-prename descclassname"><span class="pre">shaclapi.multiprocessing.functions.</span></span><span class="sig-name descname"><span class="pre">mp_post_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joined_result_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collect_all_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/multiprocessing/functions.html#mp_post_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.multiprocessing.functions.mp_post_processing" title="Permalink to this definition">#</a></dt>
+<dd><p>The post processing collects all the bindings belonging to a SPARQL result mapping.
+Example Input:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Joined Result Queue: {‘instance’: ‘<a class="reference external" href="http://example.org/testGraph3b#nodeA_0">http://example.org/testGraph3b#nodeA_0</a>’, ‘validation’: (‘ShapeA’, True, ‘unbound’), ‘var’: ‘x’, ‘id’: 0},…</dt><dd><p>{‘instance’: ‘literal’, ‘validation’: None, ‘var’: ‘lit’, ‘id’: 0} &lt;– without validation result, produced by the xgoptional.</p>
+</dd>
+</dl>
+<p>Output: [{‘instance’: ‘<a class="reference external" href="http://example.org/testGraph3b#nodeA_0">http://example.org/testGraph3b#nodeA_0</a>’, ‘validation’: (‘ShapeA’, True, ‘unbound’), ‘var’: ‘x’}, {‘var’: ‘lit’, ‘instance’: ‘literal’}], …</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.mp_validate">
+<span class="sig-prename descclassname"><span class="pre">shaclapi.multiprocessing.functions.</span></span><span class="sig-name descname"><span class="pre">mp_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_transmitter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/multiprocessing/functions.html#mp_validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.multiprocessing.functions.mp_validate" title="Permalink to this definition">#</a></dt>
+<dd><p>Function to be executed with Runner to run the validation process of the backend.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.mp_xjoin">
+<span class="sig-prename descclassname"><span class="pre">shaclapi.multiprocessing.functions.</span></span><span class="sig-name descname"><span class="pre">mp_xjoin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/multiprocessing/functions.html#mp_xjoin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.multiprocessing.functions.mp_xjoin" title="Permalink to this definition">#</a></dt>
+<dd><p>Function to be executed with Runner to join the instances of the left with the right queue.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shaclapi.multiprocessing.functions.mp_output_completion">
+<span class="sig-prename descclassname"><span class="pre">shaclapi.multiprocessing.functions.</span></span><span class="sig-name descname"><span class="pre">mp_output_completion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_test_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/multiprocessing/functions.html#mp_output_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.multiprocessing.functions.mp_output_completion" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="shaclapi.multiprocessing.contactSource.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">shaclapi.multiprocessing.contactSource module</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="shaclapi.multiprocessing.runner.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">shaclapi.multiprocessing.runner module</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, Julian Gercke, Philipp D. Rohde, Fabian Johannsen.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

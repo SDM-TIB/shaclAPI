@@ -1,3 +1,10 @@
+"""This module offers the main functionalities of the shaclAPI to the user.
+
+The shaclAPI uses python's multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.
+Due to delays occuring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process. 
+"""
+
+
 import os, logging, time, json, re
 
 from shaclapi.query import Query
@@ -48,9 +55,32 @@ POST_PROCESSING_RUNNER.start_process()
 OUTPUT_COMPLETION_RUNNER.start_process()
 
 def get_result_queue():
+    """Convenience function to get a multiprocessing queue object, which can be used as a result_queue in :func:`shaclapi.api.run_multiprocessing`.
+    
+    Returns
+    -------
+    python.multiprocessing.Queue
+        A queue usable in :func:`shaclapi.api.run_multiprocessing`.
+    """
     return OUTPUT_COMPLETION_RUNNER.get_new_out_queues(use_pipes=False)[0]
 
 def run_multiprocessing(pre_config, result_queue = None):
+    """Main function of the shaclAPI: Given a dictionary of configuration keys (properties in :py:mod:`shaclapi.config`) with the configured values, the shaclAPI starts the parallel execution of the SHACL validation during SPARQL query execution, while applying the activated heuristics.
+
+    The following directed graph demonstrates the principal procedure. (Nodes represent tasks/processes and edges represent queues for colaboration):
+    
+    .. graphviz::
+
+       digraph multiprocessing_chain {
+           "SHACL validation" -> "Join";
+           "SPARQL query execution" -> "Join";
+           "Join" -> "Postprocessing";
+           "Postprocessing" -> "Output generation";
+       }    
+
+    """
+
+
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
     logger.info("To reproduce this call to the api run: run_config.py -c '" +  json.dumps(config.config_dict) + "'")
@@ -62,14 +92,15 @@ def run_multiprocessing(pre_config, result_queue = None):
     statsCalc = StatsCalculation(test_identifier = config.test_identifier, approach_name = os.path.basename(config.config))
     statsCalc.globalCalculationStart()
 
-    # Setup Multiprocessing Queues
+    # Setup the multiprocessing queue, which will give the final output.
     if result_queue != None:
         QUEUE_OUTPUT = True
     else:
         result_queue = OUTPUT_COMPLETION_RUNNER.get_new_out_queues(config.use_pipes)[0]
         QUEUE_OUTPUT = False
 
-    # 1.) Get Queues
+    # Preparing the multiprocessing queues
+    # 1.) Create new queues for the given request
     stats_out_queue = CONTACT_SOURCE_RUNNER.get_new_queue()
     contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues(config.use_pipes) 
     validation_out_queues = VALIDATION_RUNNER.get_new_out_queues(config.use_pipes)
@@ -83,21 +114,21 @@ def run_multiprocessing(pre_config, result_queue = None):
     joined_results_queue = xjoin_out_queues[0]
     final_result_queue, timestamp_queue = post_processing_out_queues # pylint: disable=unbalanced-tuple-unpacking
 
-    # 3.) Zip Out Connections
+    # 3.) Collect the sender parts of the queues.
     contact_source_out_connections = tuple((queue_adapter.sender for queue_adapter in contact_source_out_queues))
     validation_out_connections = tuple((queue_adapter.sender for queue_adapter in validation_out_queues))
     xjoin_out_connections = tuple((queue_adapter.sender for queue_adapter in xjoin_out_queues))
     post_processing_out_connections = tuple((queue_adapter.sender for queue_adapter in post_processing_out_queues))
     output_completion_out_connections = tuple((queue_adapter.sender for queue_adapter in output_completion_out_queues))
 
-    # 3.) Zip In Connections
+    # 3.) Collect the receiver parts of the queues.
     contact_source_in_connections = tuple()
     validation_in_connections = tuple()
     xjoin_in_connections = (transformed_query_queue.receiver, val_queue.receiver)
     post_processing_in_connections = (joined_results_queue.receiver, )
     output_completion_in_connections = (final_result_queue.receiver, )
 
-    # Setup of the Validation Result Transmitting Strategie (Backend --> API)
+    # Setup of the Validation Result Transmitting Strategie (SHACL engine --> API). This allows to process SHACL validation results directly, when they are arriving.
     result_transmitter = ValidationResultTransmitter(output_queue=val_queue.sender, first_val_time_queue=stats_out_queue)
 
     # Parse query_string into a corresponding Query Object
@@ -106,7 +137,7 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     collect_all_validation_results = config.collect_all_validation_results
 
-    # Check if we got a non starshaped query
+    # Sanitizing the input  
     if query_starshaped == None:
         if collect_all_validation_results == False and not isinstance(config.target_shape, dict):
             collect_all_validation_results = True
@@ -143,7 +174,7 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     statsCalc.taskCalculationStart()
 
-    # Start Processing Pipeline
+    # Start Processing Pipeline e.g. assigining each process a new task.
     # 1.) Get the Data
     contact_source_task_description = (config.external_endpoint, query_to_be_executed.query_string, -1)
     CONTACT_SOURCE_RUNNER.new_task(contact_source_in_connections, contact_source_out_connections, contact_source_task_description, stats_out_queue, config.run_in_serial)
@@ -204,6 +235,17 @@ def run_multiprocessing(pre_config, result_queue = None):
         return None
 
 def unify_target_shape(target_shape,query):
+    """Given a target shape configuration (see :py:attr:`shaclapi.config.target_shape`) and a SPARQL query :class:`shaclapi.query.Query` a reformatted version of the target shape configuration is returned. The format is {?var: list of target shapes}, where ?var is a variable occuring in the query.
+    
+    Parameters
+    ----------
+    target_shape : dict, list or string
+        A target shape configuration (see :py:attr:`shaclapi.config.target_shape`)
+
+    query : shaclapi.query.Query
+        The SPARQL query.
+    """
+
     make_list = lambda x: (x if isinstance(x, list) else [x])
     if isinstance(target_shape, dict):
         target_shape = {var.lower(): make_list(shape)  for var,shape in target_shape.items()}
