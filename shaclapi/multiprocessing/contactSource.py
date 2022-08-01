@@ -1,24 +1,28 @@
-__author__ = 'Kemele M. Endris' # modified version uses requests instead of urllib
+__author__ = 'Kemele M. Endris'  # modified version uses requests instead of urllib
 
 import requests
 import logging
 
 logger = logging.getLogger(__name__)
 
-"""
-Normal contactSource Implementation but queue is filled with an output, which is in a format which is joinable with validation results. Queue_copy contains the normal result but with an id.
-Example:
-    Input: {var1: instance1, var2: instance2, var3: instance3} 
-    Output queue:
-           {'instance': instance1, 'var': var1, 'id': UNIQUE_RESULT_ID}, 
-           {'instance': instance2, 'var': var2, 'id': UNIQUE_RESULT_ID}, 
-           {'instance': instance3, 'var': var3, 'id': UNIQUE_RESULT_ID}
-    Output queue_copy:
-           {'query_result': {'var1': instance1, 'var2': instance2, 'var3': instance3}, 'id': UNIQUE_RESULT_ID}
-
-"""
 
 def contactSource(queue, endpoint, query, limit=-1):
+    """
+    Normal contactSource implementation but queue is filled with an output, which is in a format which is joinable
+    with validation results. Queue_copy contains the normal result but with an ID.
+
+    Example:
+        Input:
+            {var1: instance1, var2: instance2, var3: instance3}
+
+        Output queue:
+            {'instance': instance1, 'var': var1, 'id': UNIQUE_RESULT_ID},
+            {'instance': instance2, 'var': var2, 'id': UNIQUE_RESULT_ID},
+            {'instance': instance3, 'var': var3, 'id': UNIQUE_RESULT_ID}
+
+        Output queue_copy:
+            {'query_result': {'var1': instance1, 'var2': instance2, 'var3': instance3}, 'id': UNIQUE_RESULT_ID}
+    """
     # Contacts the datasource (i.e. real endpoint).
     # Every tuple in the answer is represented as Python dictionaries
     # and is stored in a queue.
@@ -48,7 +52,7 @@ def contactSource(queue, endpoint, query, limit=-1):
         b, card = contactSourceAux(referer, server, path, port, query, queue)
     else:
         # Contacts the datasource (i.e. real endpoint) incrementally,
-        # retreiving partial result sets combining the SPARQL sequence
+        # retrieving partial result sets combining the SPARQL sequence
         # modifiers LIMIT and OFFSET.
 
         # Set up the offset.
@@ -70,7 +74,6 @@ def contactSource(queue, endpoint, query, limit=-1):
 
 
 def contactSourceAux(referer, server, path, port, query, queue, first_id=0):
-
     # Setting variables to return.
     b = None
     reslist = 0
@@ -80,8 +83,7 @@ def contactSourceAux(referer, server, path, port, query, queue, first_id=0):
 
     js = "application/sparql-results+json"
     params = {'query': query, 'format': js}
-    headers = {"User-Agent":
-                   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",
                "Accept": js}
     try:
         r = requests.get(referer, params=params, headers=headers)

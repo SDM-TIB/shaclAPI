@@ -15,13 +15,18 @@ class ValReport(IntEnum):
 
 logger = logging.getLogger(__name__)
 
+
 def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, variables, target_shape, target_var, collect_all_results = False):
     """
-    The post processing collects all the bindings belonging to a SPARQL result mapping.
-    Example Input:
-        Joined Result Queue: {'instance': 'http://example.org/testGraph3b#nodeA_0', 'validation': ('ShapeA', True, 'unbound'), 'var': 'x', 'id': 0},...
-                                {'instance': 'literal', 'validation': None, 'var': 'lit', 'id': 0} <-- without validation result, produced by the xgoptional.
-        Output: [{'instance': 'http://example.org/testGraph3b#nodeA_0', 'validation': ('ShapeA', True, 'unbound'), 'var': 'x'}, {'var': 'lit', 'instance': 'literal'}], ...
+    The post-processing collects all the bindings belonging to a SPARQL result mapping.
+
+    Example:
+        Joined Result Queue (input):
+            {'instance': 'http://example.org/testGraph3b#nodeA_0', 'validation': ('ShapeA', True, 'unbound'), 'var': 'x', 'id': 0},...
+            {'instance': 'literal', 'validation': None, 'var': 'lit', 'id': 0} <-- without validation result, produced by the xgoptional.
+
+        Output:
+            [{'instance': 'http://example.org/testGraph3b#nodeA_0', 'validation': ('ShapeA', True, 'unbound'), 'var': 'x'}, {'var': 'lit', 'instance': 'literal'}], ...
     """
     if 'UNDEF' in target_shape and not collect_all_results:
         collect_all_results = True

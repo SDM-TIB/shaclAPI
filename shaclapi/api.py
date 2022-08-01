@@ -69,17 +69,10 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     The following directed graph demonstrates the principal procedure. (Nodes represent tasks/processes and edges represent queues for colaboration):
     
-    .. graphviz::
-
-       digraph multiprocessing_chain {
-           "SHACL validation" -> "Join";
-           "SPARQL query execution" -> "Join";
-           "Join" -> "Postprocessing";
-           "Postprocessing" -> "Output generation";
-       }    
+    .. image:: procedure.png
+       :align: center
 
     """
-
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
