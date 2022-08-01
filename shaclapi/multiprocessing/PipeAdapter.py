@@ -1,10 +1,11 @@
 from multiprocessing import Pipe
 from queue import Empty
 
-class ConnectionAdapter():
-    '''
+
+class ConnectionAdapter:
+    """
     The idea is to use a Connection Object with the functions of a Queue.
-    '''
+    """
 
     def __init__(self, connection, is_sender) -> None:
         self.is_sender = is_sender
@@ -25,19 +26,19 @@ class ConnectionAdapter():
     def get(self, block=True, timeout=None):
         result = None
         if not self.is_sender and not self.closed:
-            if block and timeout == None:
+            if block and timeout is None:
                 result = self.connection.recv()
-            elif block and timeout != None:
+            elif block and timeout is not None:
                 if self.connection.poll(timeout):
                     result = self.connection.recv()
                 else:
                     raise Empty
-            elif not block and timeout == None:
+            elif not block and timeout is None:
                 if self.connection.poll():
                     result = self.connection.recv()
                 else:
                     raise Empty
-            elif not block and timeout != None:
+            elif not block and timeout is not None:
                 if self.connection.poll(timeout):
                     result = self.connection.recv()
                 else:
@@ -50,13 +51,14 @@ class ConnectionAdapter():
         return result
 
 
-class PipeAdapter():
+class PipeAdapter:
     def __init__(self) -> None:
         conn1, conn2 = Pipe()
         self.sender = ConnectionAdapter(conn1, True)
         self.receiver = ConnectionAdapter(conn2, False)
 
-class QueueAdapter():
+
+class QueueAdapter:
     def __init__(self, context):
         queue = context.Queue()
         self.sender = queue

@@ -1,14 +1,17 @@
-from shaclapi.reduction.s2spy.ReducedShapeParser import ReducedShapeParser
+import logging
+import os
+import re
+from pathlib import Path
+
 from SHACL2SPARQLpy.ShapeNetwork import ShapeNetwork
 from SHACL2SPARQLpy.sparql.SPARQLEndpoint import SPARQLEndpoint
-from shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedValidationResultStreaming
 from SHACL2SPARQLpy.utils import fileManagement
 from TravSHACL.TravSHACL import parse_heuristics
 from TravSHACL.core.GraphTraversal import GraphTraversal
-import os, re
-from pathlib import Path
 
-import logging
+from shaclapi.reduction.s2spy.ReducedShapeParser import ReducedShapeParser
+from shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming import RuleBasedValidationResultStreaming
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,13 +38,11 @@ class ReducedShapeSchema(ShapeNetwork):
 
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
-        #logger.debug(f'Target Shapes:{self.target_shape_list}\nNode Order:{self.node_order}\nStart with Target Shape: {start_with_target_shape}\nStart Shape Config: {self.start_shape_for_validation}')
-
         start = None
         if self.shaclAPIConfig.start_shape_for_validation:
             logger.info("Starting with Shape set in Configuration")
             start = [self.shaclAPIConfig.start_shape_for_validation]
-        elif self.node_order != None:
+        elif self.node_order is not None:
             logger.info("Using Node Order provided by the shaclapi")
             node_order = self.node_order
         elif start_with_target_shape:
@@ -52,7 +53,7 @@ class ReducedShapeSchema(ShapeNetwork):
             from SHACL2SPARQLpy.utils.globals import PARSING_ORDER
             node_order = PARSING_ORDER
 
-        if start != None:
+        if start is not None:
             logger.debug("Starting Point is:" + start[0])
             node_order = self.graphTraversal.traverse_graph(
                 self.dependencies, self.reverse_dependencies, start[0])
@@ -61,7 +62,7 @@ class ReducedShapeSchema(ShapeNetwork):
             s.computeConstraintQueries()
 
         os.makedirs(self.outputDirName, exist_ok=True)
-        for file in ["validation.log", "targets_valid.log","targets_violated.log","stats.txt","traces.csv"]:
+        for file in ["validation.log", "targets_valid.log", "targets_violated.log", "stats.txt", "traces.csv"]:
             Path(self.outputDirName, file).touch()
 
         RuleBasedValidationResultStreaming(

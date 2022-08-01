@@ -1,17 +1,19 @@
-import regex as re
 import logging
-
-from rdflib.plugins import sparql
-from shaclapi.triple import Triple
-from rdflib.term import URIRef, Variable
-from rdflib.paths import InvPath
 from functools import reduce
+
+import regex as re
+from rdflib.paths import InvPath
+from rdflib.plugins import sparql
+from rdflib.term import URIRef, Variable
+
+from shaclapi.triple import Triple
 
 logger = logging.getLogger(__name__)
 
+
 class Query:
 
-    def __init__(self, query_string, target_var=None, namespace_manager = None):
+    def __init__(self, query_string, target_var=None, namespace_manager=None):
         self.query_string = query_string
         self.__query_object = None
         self.__namespace_manager = namespace_manager
@@ -64,7 +66,7 @@ class Query:
         return self.__PV
 
     @staticmethod
-    def prepare_query(query, namespace_manager = None):
+    def prepare_query(query, namespace_manager=None):
         """Query must be slightly modified to fit the conditions of travshacl, rdflib, ...
 
         Args:
@@ -79,13 +81,13 @@ class Query:
         query = query.replace(select_clause, select_clause_new)
         # Replace all ' occuring in URIs or Literals
         query = re.sub(r"(?<=((<|\")\S+))'(?=(\S+(>|\")))", r"%27", query)
-        query = re.sub(r"'\"",r'%27"', query)
-        query = re.sub(r"\"'",r'"%27', query)
+        query = re.sub(r"'\"", r'%27"', query)
+        query = re.sub(r"\"'", r'"%27', query)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
         query = query.replace('\'', '"')
         # Remove '.' if it is followed by '}', Trav-SHACL cannot handle these dots.
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
-        query = re.sub(r'\n', r'',query)
+        query = re.sub(r'\n', r'', query)
         return Query(query, namespace_manager=namespace_manager)
 
     def is_starshaped(self):
@@ -107,7 +109,6 @@ class Query:
             return self
         else:
             return None
-            #raise Exception("Query is not starshaped and cannot be made starshaped through rewriting!")
 
     def extract_filter_terms(self):
         return re.findall(r'FILTER\s*\(.*\)', self.query_string, re.DOTALL)
@@ -163,10 +164,10 @@ class Query:
         """
         center = self.is_starshaped()
 
-        if center == None and len(self.PV) == 1:
+        if center is None and len(self.PV) == 1:
             return self.PV[0]
 
-        if center != None and isinstance(center, Variable):
+        if center is not None and isinstance(center, Variable):
             return center.n3()
         else:
             return None
@@ -209,7 +210,6 @@ class Query:
         else:
             old_target_query = oldTargetQuery.query_string 
 
-
         if target_query.upper().count('SELECT') == 1 and old_target_query.upper().count('SELECT') == 1:
             old_query = Query(old_target_query)
             new_query = Query(target_query)
@@ -240,7 +240,6 @@ class Query:
             logger.warning('Generated target query may be slow, try to make the target defintion and the given query more simple is possible.')
             return target_query
         
-
     @staticmethod
     def target_query_from_triples(triples: set, filters: list = None, values: list = None, namespace_manager=None):
         return Query.query_from_parts(['?x'], True, triples, filters, values, namespace_manager)
@@ -274,7 +273,7 @@ class Query:
             r'(SELECT\s+(DISTINCT|REDUCED)?).*WHERE',
             f'SELECT DISTINCT * WHERE',
             self.query_string,
-            count = 1
+            count=1
         ), namespace_manager=self.namespace_manager)
 
     def _reduce_select(self, query, target_var):

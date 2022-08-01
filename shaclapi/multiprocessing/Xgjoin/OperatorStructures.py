@@ -4,8 +4,6 @@ Implements the structures used by the ANAPSID Operators.
 @author: Maribel Acosta Deibe
 """
 
-# from time import time
-
 
 class Record(object):
     """
@@ -52,13 +50,6 @@ class FileDescriptor(object):
         self.file = file
         self.size = size
         self.lastFlushTS = lastFlushTS
-        # self.table = table
 
     def getSize(self):
         return self.size
-
-#    def setSize(self, size):
-#        self.size = size
-#
-#    def setLastFlushTS(self, lastFlushTS):
-#        self.lastFlushTS = lastFlushTS

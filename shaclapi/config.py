@@ -1,6 +1,7 @@
 import json
 import uuid
 
+
 class Config:
     def __init__(self, config_dict):
         self.config_dict = config_dict
@@ -9,7 +10,7 @@ class Config:
     @staticmethod
     def from_request_form(request_params):
         config_file_path = request_params.get('config')
-        if config_file_path != None:
+        if config_file_path is not None:
             with open(config_file_path) as config_file:
                 final_config = json.load(config_file)
             final_config.update(request_params)
@@ -28,13 +29,13 @@ class Config:
             elif item == 'False':
                 return False
             else:
-                raise Exception("Could not interprete {}".format(item))
+                raise Exception("Could not interpret {}".format(item))
 
     def check(self):
-        if self.backend == "s2spy" and self.start_with_target_shape == False:
+        if self.backend == "s2spy" and not self.start_with_target_shape:
             raise Exception("backend s2spy needs to start with the target shape; set start_with_target_shape to True")
-        if self.prune_shape_network == False and self.remove_constraints:
-            raise Exception("Its not possible to not prune the shape network but removing constraints (impling pruning the shape network...)")
+        if not self.prune_shape_network and self.remove_constraints:
+            raise Exception("It's not possible to not prune the shape network but removing constraints (impling pruning the shape network...)")
         if self.use_pipes and self.run_in_serial:
             raise Exception("Pipes can only hold a limited amount of data and can therefore not be used in serial mode.")
 
@@ -71,7 +72,7 @@ class Config:
         else:
             raise Exception('A directory containing the shape files needs to be provided to the shaclAPI using the option schema_directory or schema_directory!')
 
-    # ------------------------------- optional configuration options (there are default values) -------------------------------------------
+    # -------------------------- optional configuration options (there are default values) --------------------------
     @property
     def target_shape(self):
         """
@@ -205,9 +206,10 @@ class Config:
     @property
     def replace_target_query(self):
         """
-        Whether or not the shaclAPI should replace the target query of the target shape.
+        Whether the shaclAPI should replace the target query of the target shape.
         """
         return self.entry_to_bool(self.config_dict.get('replace_target_query', True))
+
     @replace_target_query.setter
     def replace_target_query(self, replace):
         self.config_dict['replace_target_query'] = replace
@@ -219,6 +221,7 @@ class Config:
         If this option is inactive the target query of the target shape is basically replaced with the star shaped query.
         """
         return self.entry_to_bool(self.config_dict.get('merge_old_target_query', True))
+
     @merge_old_target_query.setter
     def merge_old_target_query(self, merge):
         self.config_dict['merge_old_target_query'] = merge
@@ -229,6 +232,7 @@ class Config:
         Whether the SHACL engine is forced to start the validation process with the target shape.
         """
         return self.entry_to_bool(self.config_dict.get('start_with_target_shape', True))
+
     @start_with_target_shape.setter
     def start_with_target_shape(self, start):
         self.config_dict['start_with_target_shape'] = start
@@ -264,9 +268,10 @@ class Config:
     @property
     def prune_shape_network(self):
         """
-        Whether or not prune the shape schema to the shapes reachable from the target shapes.
+        Whether prune the shape schema to the shapes reachable from the target shapes.
         """
         return self.entry_to_bool(self.config_dict.get('prune_shape_network', True))
+
     @prune_shape_network.setter
     def prune_shape_network(self, prune):
         self.config_dict['prune_shape_network'] = prune
@@ -274,7 +279,7 @@ class Config:
     @property
     def test_identifier(self):
         """
-        The test identifier will be used in output files identifing the run.
+        The test identifier will be used in output files identifying the run.
         """
         return self.config_dict.get('test_identifier', str(uuid.uuid1()))
 
@@ -295,14 +300,14 @@ class Config:
     @property
     def use_pipes(self):
         """
-        Whether to use pipes during the multiprocessing. Otherwise the shaclAPI will use queues.
+        Whether to use pipes during the multiprocessing. Otherwise, the shaclAPI will use queues.
         """
         return self.entry_to_bool(self.config_dict.get('use_pipes', False))
     
     @property
     def collect_all_validation_results(self):
         """
-        Whether to collect all validation results for each mapping. Otherwise at least one validation result is collected for each given target_shape.  Collecting all results will make the approach blocking.
+        Whether to collect all validation results for each mapping. Otherwise, at least one validation result is collected for each given target_shape.  Collecting all results will make the approach blocking.
         """
         return self.entry_to_bool(self.config_dict.get('collect_all_validation_results', False))
     

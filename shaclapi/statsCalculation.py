@@ -1,4 +1,7 @@
-import time, csv, os
+import csv
+import os
+import time
+
 
 class StatsCalculation:
 
@@ -24,6 +27,10 @@ class StatsCalculation:
         self.first_validation_result_time = None
         self.number_of_results = 'Not Calculated'
 
+        self.global_start_time = None
+        self.global_end_time = None
+        self.task_start_time = None
+
     def globalCalculationStart(self):
         self.global_start_time = time.time()
     
@@ -34,31 +41,34 @@ class StatsCalculation:
         self.task_start_time = time.time()
 
     def receive_and_write_trace(self, trace_file, timestamp_queue):
-        '''
+        """
         This assigns the timestamp of the first and the last result; writes the trace file and counts the number of results.
-        This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step) 
-        '''
-        if trace_file != None:
-            f, writer = self._open_csv(trace_file, ['test','approach','answer', 'time'])
+        This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step)
+        """
+        if trace_file is not None:
+            f, writer = self._open_csv(trace_file, ['test', 'approach', 'answer', 'time'])
             
         received_results = 0
         result = timestamp_queue.get()
         while result != 'EOF':
             received_results += 1
-            if trace_file != None:
-                writer.writerow({"test": self.test_name,
-                               "approach": self.approach_name,
-                               "answer": received_results,
-                               "time": result['timestamp'] - self.global_start_time})
+            if trace_file is not None:
+                writer.writerow({
+                    "test": self.test_name,
+                    "approach": self.approach_name,
+                    "answer": received_results,
+                    "time": result['timestamp'] - self.global_start_time
+                })
             self.last_result_timestamp = result['timestamp']
             if not self.first_result_timestamp:
                 self.first_result_timestamp = result['timestamp']
             result = timestamp_queue.get()
         self.number_of_results = received_results
-        if trace_file != None:
+        if trace_file is not None:
             f.close()
-    
-    def _open_csv(self, file, fields):
+
+    @staticmethod
+    def _open_csv(file, fields):
         mode = 'a' if os.path.isfile(file) else 'w'
         f = open(file, mode)
         writer = csv.DictWriter(f, fields)
@@ -67,9 +77,9 @@ class StatsCalculation:
         return f, writer
 
     def receive_global_stats(self, stats_out_queue, using_output_completion_runner=False):
-        '''
+        """
         Receiving start and stop times of the different steps and also the time  of the first validation result.
-        '''
+        """
         needed_stats = {'mp_validate': False,
                         'contactSource': False,
                         'mp_xjoin': False,
@@ -102,28 +112,28 @@ class StatsCalculation:
     def write_matrix_and_stats_files(self, matrix_file, stats_file):
         total_execution_time = self.global_end_time - self.global_start_time
 
-        if self.query_started_time != None and self.query_finished_time != None:
+        if self.query_started_time is not None and self.query_finished_time is not None:
             query_time = self.query_finished_time - self.query_started_time
         else:
             query_time = 'NaN'
         
-        if self.validation_finished_time != None and self.validation_started_time != None:
+        if self.validation_finished_time is not None and self.validation_started_time is not None:
             network_validation_time = self.validation_finished_time - self.validation_started_time
         else:
             network_validation_time = 'NaN'
         
-        if self.post_processing_finished_time != None and self.post_processing_started_time != None:
+        if self.post_processing_finished_time is not None and self.post_processing_started_time is not None:
             post_processing_time = self.post_processing_finished_time - self.post_processing_started_time
         else:
             post_processing_time = 'NaN'
 
-        # Using the maximum of this timestamps because the later one better describes the "real" start of the join.
+        # Using the maximum of these timestamps because the later one better describes the "real" start of the join.
         if self.first_validation_result_time:
             approximated_join_start = max(self.join_started_time, self.first_validation_result_time)
         else: 
             approximated_join_start = self.join_started_time
         
-        if self.join_started_time != None and self.join_finished_time != None:
+        if self.join_started_time is not None and self.join_finished_time is not None:
             join_time = self.join_finished_time - approximated_join_start
         else:
             join_time = 'NaN'
@@ -149,12 +159,12 @@ class StatsCalculation:
                        "query_time": query_time,
                        "network_validation_time": network_validation_time,
                        "join_time": join_time}
-        if matrix_file != None:
-            f, writer = self._open_csv(matrix_file, ['test','approach','tfft', 'totaltime', 'comp'])
+        if matrix_file is not None:
+            f, writer = self._open_csv(matrix_file, ['test', 'approach', 'tfft', 'totaltime', 'comp'])
             writer.writerow(matrix_entry)
             f.close()
 
-        if stats_file != None:
-            f, writer = self._open_csv(stats_file, ['test', 'approach','total_execution_time', 'query_time', 'network_validation_time', 'join_time'])
+        if stats_file is not None:
+            f, writer = self._open_csv(stats_file, ['test', 'approach', 'total_execution_time', 'query_time', 'network_validation_time', 'join_time'])
             writer.writerow(stats_entry)
             f.close()

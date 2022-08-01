@@ -1,13 +1,15 @@
-import requests
 import json
-from tests import travshaclLocal
-import pytest
 import os
 from glob import glob
 from pathlib import Path
 
-FLASK_ENDPOINT='http://0.0.0.0:9999/'
-EXTERNAL_ENDPOINT_DOCKER='http://shacl_api_testdata:8890/sparql'
+import pytest
+import requests
+
+from tests import travshaclLocal
+
+FLASK_ENDPOINT = 'http://0.0.0.0:9999/'
+EXTERNAL_ENDPOINT_DOCKER = 'http://shacl_api_testdata:8890/sparql'
 RESULT_DIR = 'output/test_results'
 
 TESTS_DIRS = [
@@ -37,9 +39,11 @@ def get_all_files():
         all_files.extend(test_files)
     return all_files
 
+
 def test_api_up():
     result = requests.get(FLASK_ENDPOINT)
-    assert result.ok == True
+    assert result.ok
+
 
 @pytest.mark.parametrize("file", get_all_files())
 def test_trav(file):
@@ -50,8 +54,9 @@ def test_trav(file):
     except Exception as e:
         raise Exception(e)
 
+
 @pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json']) #'tests/configs/lubm_config_s2spy.json'
+@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json'])  # 'tests/configs/lubm_config_s2spy.json'
 def test_multiprocessing(file, config_file):
     """For each testcase check the correctness of the results the API generates. 
 
@@ -68,7 +73,6 @@ def test_multiprocessing(file, config_file):
     test_api('multi', params, solution, log_file_path)
 
 
-
 @pytest.mark.parametrize("file", get_all_files())
 @pytest.mark.parametrize("backend", ["travshacl", "s2spy"])
 @pytest.mark.parametrize("prune_shape_network", [True, False])
@@ -78,8 +82,8 @@ def test_multiprocessing(file, config_file):
 @pytest.mark.parametrize("config_file", ['tests/configs/configurationtest_base_config.json'])
 @pytest.mark.parametrize("collect_all_validation_results", [True, False])
 def test_configurations_multiprocessing(request, file, backend, prune_shape_network, 
-                                            remove_constraints, replace_target_query, 
-                                                start_with_target_shape, collect_all_validation_results, config_file):
+                                        remove_constraints, replace_target_query,
+                                        start_with_target_shape, collect_all_validation_results, config_file):
     """Test cases checking for exceptions for different setups of the shaclAPI.
 
     Parameters
@@ -101,11 +105,10 @@ def test_configurations_multiprocessing(request, file, backend, prune_shape_netw
     config_file : string
         The basic api configuration file.
     """
-
-    if backend == "s2spy" and start_with_target_shape == False:
+    if backend == "s2spy" and not start_with_target_shape:
         pytest.skip("Not a valid combination!")
 
-    if prune_shape_network == False and remove_constraints:
+    if not prune_shape_network and remove_constraints:
         pytest.skip("Not a valid combination!")
 
     params, _, _ = test_setup_from_file(file, config_file, 'multi')
@@ -117,9 +120,10 @@ def test_configurations_multiprocessing(request, file, backend, prune_shape_netw
     params['test_identifier'] = 'tests/test_main.py::' + str(request.node.name)
     params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
     params['collect_all_validation_results'] = collect_all_validation_results
-    test_api('multi', params, None,'configtest_logfile.log')
+    test_api('multi', params, None, 'configtest_logfile.log')
     # Here the metrics can also be tested, but need to disable file output for the metrics
     # test_metrics(params)
+
 
 # route can be single or multi
 @pytest.mark.skip
@@ -130,7 +134,7 @@ def test_api(route, params, solution, log_file_path):
     print(json_response)
     if solution:
         try:
-            for key in ['validTargets','invalidTargets']:
+            for key in ['validTargets', 'invalidTargets']:
                 json_set_of_tuples = sorted([(item[0], item[1]) for item in json_response[key]], key=lambda x: x[0])
                 test_set_of_tuples = sorted([(item[0], item[1]) for item in solution[key]], key=lambda x: x[0])
 
@@ -141,26 +145,28 @@ def test_api(route, params, solution, log_file_path):
                     # if json_set_of_shapes != test_set_of_shapes:
                     #     differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
                     #     warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
-                assert len(json_set_of_tuples) == len(test_set_of_tuples) , "Reported instances differ from expected result for: {}".format(key)
+                assert len(json_set_of_tuples) == len(test_set_of_tuples), "Reported instances differ from expected result for: {}".format(key)
         except Exception as identifier:
-            with open(log_file_path,"w") as outputfile:
+            with open(log_file_path, "w") as outputfile:
                 outputfile.write(str(identifier))
             raise Exception(str(identifier))
         finally:
-            with open(log_file_path,"a") as outputfile:
-                outputfile.write(json.dumps(json_response,indent = 4))
+            with open(log_file_path, "a") as outputfile:
+                outputfile.write(json.dumps(json_response, indent=4))
+
 
 @pytest.mark.skip
 def test_metrics(params):
     response = requests.post(FLASK_ENDPOINT + "metrics", data=params)
     assert response.status_code == 200, "Server-sided error, check server output for details"
 
+
 @pytest.mark.skip
 def test_setup_from_file(file, config, route):
-    log_file_name = str(file).replace('/','_')
-    log_file_name = log_file_name.replace('.','',1)
+    log_file_name = str(file).replace('/', '_')
+    log_file_name = log_file_name.replace('.', '', 1)
     log_file_name = route + log_file_name
-    log_file_path = os.path.join(RESULT_DIR,log_file_name)
+    log_file_path = os.path.join(RESULT_DIR, log_file_name)
     if os.path.isfile(log_file_path):
         os.remove(log_file_path)
     test, solution = readTest(file)
@@ -171,9 +177,10 @@ def test_setup_from_file(file, config, route):
     params['log_file'] = log_file_path
     return params, solution, log_file_path
 
+
 @pytest.mark.skip
 def readTest(file):
-    with open(file,'r') as f:
+    with open(file, 'r') as f:
         result = json.load(f)
     solution = result['result']
     del result['result']

@@ -1,20 +1,23 @@
 """This module offers the main functionalities of the shaclAPI to the user.
 
-The shaclAPI uses python's multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.
-Due to delays occuring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process. 
+The shaclAPI uses Python's multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.
+Due to delays occurring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process.
 """
 
 
-import os, logging, time, json, re
+import json
+import logging
+import os
+import re
 
-from shaclapi.query import Query
 from shaclapi.config import Config
+from shaclapi.multiprocessing.contactSource import contactSource
 from shaclapi.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_processing, mp_output_completion
 from shaclapi.multiprocessing.runner import Runner
-from shaclapi.multiprocessing.contactSource import contactSource
+from shaclapi.output import Output
+from shaclapi.query import Query
 from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 from shaclapi.statsCalculation import StatsCalculation
-from shaclapi.output import Output
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +57,7 @@ XJOIN_RUNNER.start_process()
 POST_PROCESSING_RUNNER.start_process()
 OUTPUT_COMPLETION_RUNNER.start_process()
 
+
 def get_result_queue():
     """Convenience function to get a multiprocessing queue object, which can be used as a result_queue in :func:`shaclapi.api.run_multiprocessing`.
     
@@ -64,7 +68,8 @@ def get_result_queue():
     """
     return OUTPUT_COMPLETION_RUNNER.get_new_out_queues(use_pipes=False)[0]
 
-def run_multiprocessing(pre_config, result_queue = None):
+
+def run_multiprocessing(pre_config, result_queue=None):
     """Main function of the shaclAPI: Given a dictionary of configuration keys (properties in :py:mod:`shaclapi.config`) with the configured values, the shaclAPI starts the parallel execution of the SHACL validation during SPARQL query execution, while applying the activated heuristics.
 
     The following directed graph demonstrates the principal procedure. (Nodes represent tasks/processes and edges represent queues for colaboration):
@@ -76,17 +81,16 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
-    logger.info("To reproduce this call to the api run: run_config.py -c '" +  json.dumps(config.config_dict) + "'")
+    logger.info("To reproduce this call to the API run: run_config.py -c '" + json.dumps(config.config_dict) + "'")
     os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)
     os.makedirs(os.path.join(config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier)), exist_ok=True)
 
-
     # Setup Stats Calculation
-    statsCalc = StatsCalculation(test_identifier = config.test_identifier, approach_name = os.path.basename(config.config))
+    statsCalc = StatsCalculation(test_identifier=config.test_identifier, approach_name=os.path.basename(config.config))
     statsCalc.globalCalculationStart()
 
-    # Setup the multiprocessing queue, which will give the final output.
-    if result_queue != None:
+    # Set up the multiprocessing queue, which will give the final output.
+    if result_queue is not None:
         QUEUE_OUTPUT = True
     else:
         result_queue = OUTPUT_COMPLETION_RUNNER.get_new_out_queues(config.use_pipes)[0]
@@ -95,7 +99,7 @@ def run_multiprocessing(pre_config, result_queue = None):
     # Preparing the multiprocessing queues
     # 1.) Create new queues for the given request
     stats_out_queue = CONTACT_SOURCE_RUNNER.get_new_queue()
-    contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues(config.use_pipes) 
+    contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues(config.use_pipes)
     validation_out_queues = VALIDATION_RUNNER.get_new_out_queues(config.use_pipes)
     xjoin_out_queues = XJOIN_RUNNER.get_new_out_queues(config.use_pipes)
     post_processing_out_queues = POST_PROCESSING_RUNNER.get_new_out_queues(config.use_pipes)
@@ -131,33 +135,32 @@ def run_multiprocessing(pre_config, result_queue = None):
     collect_all_validation_results = config.collect_all_validation_results
 
     # Sanitizing the input  
-    if query_starshaped == None:
-        if collect_all_validation_results == False and not isinstance(config.target_shape, dict):
+    if query_starshaped is None:
+        if not collect_all_validation_results and not isinstance(config.target_shape, dict):
             collect_all_validation_results = True
             logger.warning('Running in blocking mode as the target variable(s) could not be identified!')
-        if config.replace_target_query == True:
+        if config.replace_target_query:
             config.replace_target_query = False
             logger.warning('Can only replace target query if query is starshaped!')
     else:
         query = query_starshaped
-    
-    if config.target_shape == None:
-        if collect_all_validation_results == False:
+
+    if config.target_shape is None:
+        if not collect_all_validation_results:
             collect_all_validation_results = True
             logger.warning('Running in blocking mode as the target shape is not given!')
-        if config.replace_target_query == True:
+        if config.replace_target_query:
             config.replace_target_query = False
             logger.warning('Can only replace target query if target shape is given!')
-        if config.prune_shape_network == True:
+        if config.prune_shape_network:
             config.prune_shape_network = False
             logger.warning('Can only prune shape schema if target shape is given!')
-        if config.start_with_target_shape == True:
+        if config.start_with_target_shape:
             config.start_with_target_shape = False
             logger.warning('Can only start with target shape if target shape is given!')
 
     # Unify target shape -> {?var: list of shapes}
     config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
-
 
     # The information we need depends on the output format:
     if config.output_format == "test" or (not config.reasoning):
@@ -167,14 +170,14 @@ def run_multiprocessing(pre_config, result_queue = None):
 
     statsCalc.taskCalculationStart()
 
-    # Start Processing Pipeline e.g. assigining each process a new task.
+    # Start Processing Pipeline e.g. assigning each process a new task.
     # 1.) Get the Data
     contact_source_task_description = (config.external_endpoint, query_to_be_executed.query_string, -1)
     CONTACT_SOURCE_RUNNER.new_task(contact_source_in_connections, contact_source_out_connections, contact_source_task_description, stats_out_queue, config.run_in_serial)
 
     validation_task_description = (config, query_to_be_executed.copy(), result_transmitter)
     VALIDATION_RUNNER.new_task(validation_in_connections, validation_out_connections, validation_task_description, stats_out_queue, config.run_in_serial)
-    
+
     # 2.) Join the Data
     xjoin_task_description = (config,)
     XJOIN_RUNNER.new_task(xjoin_in_connections, xjoin_out_connections, xjoin_task_description, stats_out_queue, config.run_in_serial)
@@ -209,7 +212,7 @@ def run_multiprocessing(pre_config, result_queue = None):
         result_queue.sender.put('EOF')
         return emsg
 
-    if QUEUE_OUTPUT == False:
+    if not QUEUE_OUTPUT:
         next_result = result_queue.receiver.get()
         output = []
         if config.output_format == "test":
@@ -221,13 +224,18 @@ def run_multiprocessing(pre_config, result_queue = None):
             while next_result != 'EOF':
                 output += [next_result]
                 next_result = result_queue.receiver.get()
-                #logger.debug(next_result)
         logger.debug('Finished collecting results!')
         return Output(output)
     else:
         return None
 
-def unify_target_shape(target_shape,query):
+
+def _make_list(x):
+    """Creates a list from the object passed."""
+    return x if isinstance(x, list) else [x]
+
+
+def unify_target_shape(target_shape, query):
     """Given a target shape configuration (see :py:attr:`shaclapi.config.target_shape`) and a SPARQL query :class:`shaclapi.query.Query` a reformatted version of the target shape configuration is returned. The format is {?var: list of target shapes}, where ?var is a variable occuring in the query.
     
     Parameters
@@ -238,13 +246,11 @@ def unify_target_shape(target_shape,query):
     query : shaclapi.query.Query
         The SPARQL query.
     """
-
-    make_list = lambda x: (x if isinstance(x, list) else [x])
     if isinstance(target_shape, dict):
-        target_shape = {var.lower(): make_list(shape)  for var,shape in target_shape.items()}
-    elif query != None:
-        target_shape = {query.target_var: make_list(target_shape)}
+        target_shape = {var.lower(): _make_list(shape) for var, shape in target_shape.items()}
+    elif query is not None:
+        target_shape = {query.target_var: _make_list(target_shape)}
     else:
-        target_shape = {'UNDEF': make_list(target_shape)}
+        target_shape = {'UNDEF': _make_list(target_shape)}
     logger.debug(f'Unified target shape: {target_shape}')
     return target_shape

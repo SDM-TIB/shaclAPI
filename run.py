@@ -1,13 +1,15 @@
-from flask import Flask, request, Response
 import logging
-from shaclapi import logger as shaclapi_logger
-
-from shaclapi.config import Config
 from multiprocessing import Queue
-from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
-from shaclapi.reduction import prepare_validation
-from shaclapi.query import Query
+
+from flask import Flask, request, Response
+
+import shaclapi.api as api
+from shaclapi import logger as shaclapi_logger
 from shaclapi.api import unify_target_shape
+from shaclapi.config import Config
+from shaclapi.query import Query
+from shaclapi.reduction import prepare_validation
+from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 
 # Setup Logging
 # Use for debugging:
@@ -19,24 +21,24 @@ shaclapi_logger.setup(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-import shaclapi.api as api
-
 app = Flask(__name__)
+
 
 @app.route("/multiprocessing", methods=['POST'])
 def route_multiprocessing():
-    '''
+    """
     Required Arguments:
         - query
         - external_endpoint
         - schemaDir
     See app/config.py for a full list of available arguments!
-    '''
+    """
     api_output = api.run_multiprocessing(request.form)
     if type(api_output) != str:
         return Response(api_output.to_json(), mimetype='application/json')
     else:
         return Response(api_output, mimetype='text/plain')
+
 
 @app.route("/validation", methods=['POST'])
 def route_validation():

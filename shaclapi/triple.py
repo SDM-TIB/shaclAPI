@@ -1,8 +1,9 @@
-import rdflib.term
-from rdflib.paths import InvPath
-from rdflib.namespace import RDF
-from rdflib.term import URIRef
 from enum import IntEnum
+
+import rdflib.term
+from rdflib.namespace import RDF
+from rdflib.paths import InvPath
+from rdflib.term import URIRef
 
 
 class TripleE(IntEnum):
@@ -14,7 +15,7 @@ class TripleE(IntEnum):
 class Triple:
     """
     Representation of a Triple, which consists of a subject, a predicate and an object.
-    Additionally a triple can be marked as optional.
+    Additionally, a triple can be marked as optional.
     Subject, predicate and objects need to be rdflib objects with n3() functions, which accept
     rdflib namespace_manager objects for shortening URIs.
     """

@@ -1,6 +1,7 @@
 import json
 
-class Output():
+
+class Output:
     def __init__(self, output):
         self.output = output
 

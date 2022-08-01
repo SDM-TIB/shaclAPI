@@ -1,7 +1,8 @@
-from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal
-from rdflib.namespace import RDF, OWL
+from rdflib import ConjunctiveGraph, Namespace, Literal
+from rdflib.namespace import RDF
 import json
 from os import path
+
 
 def combineRDFGraphs(graph_file, new_json):
     g = ConjunctiveGraph()
@@ -13,8 +14,8 @@ def combineRDFGraphs(graph_file, new_json):
         json_data = json.load(json_file)
     NAMESPACE = Namespace(json_data['namespace'])
     g.bind(json_data['bind'], NAMESPACE)
-    for c, specs in json_data['classes'].items(): #for each class
-        RAW_NODE = c.replace('class', 'node') +'_{}'
+    for c, specs in json_data['classes'].items():  #for each class
+        RAW_NODE = c.replace('class', 'node') + '_{}'
         for i in range(specs['nodeAmount']):
             sub = NAMESPACE[RAW_NODE.format(i)]
             g.add((sub, RDF.type, NAMESPACE[c]))
@@ -33,8 +34,9 @@ def combineRDFGraphs(graph_file, new_json):
                         g.add((sub, pred, obj))
     g.serialize(destination=graph_file, format='pretty-xml')
 
+
 if __name__ == "__main__":
     for tc in ['tc1', 'tc2', 'tc3', 'tc4', 'tc5']:
-        partGraph = path.join('tests/', tc,'data/partGraph.json')
+        partGraph = path.join('tests/', tc, 'data/partGraph.json')
         if path.exists(partGraph):
             combineRDFGraphs('tests/setup/TestData/fullTestGraph.owl', partGraph)

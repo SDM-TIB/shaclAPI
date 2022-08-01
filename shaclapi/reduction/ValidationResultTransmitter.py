@@ -1,8 +1,10 @@
-import time, logging
+import logging
+import time
 
 logger = logging.getLogger(__name__)
 
-class ValidationResultTransmitter():
+
+class ValidationResultTransmitter:
     """
     Class used to transmit validation results from a backend to the api.
     This can be done via an endpoint or using a multiprocessing.Queue.
@@ -15,7 +17,7 @@ class ValidationResultTransmitter():
 
     def send(self, instance, shape, valid, reason):
         logger.debug({'instance': instance, 
-                        'validation': (shape, valid, reason)})
+                      'validation': (shape, valid, reason)})
         if not self.timestamp_of_first_result_send and self.first_val_time_queue:
             self.timestamp_of_first_result_send = True
             self.first_val_time_queue.put({"topic": "first_validation_result", "time": time.time()})

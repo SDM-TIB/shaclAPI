@@ -1,17 +1,16 @@
-import time, sys, logging, argparse
-
-from functools import reduce
+import argparse
 import json
+import logging
+import sys
+import time
+
 import shaclapi.logger as shaclapi_logger
+from shaclapi.api import run_multiprocessing
 
 shaclapi_logger.setup(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
-from shaclapi.api import run_multiprocessing, stop_processes
-# Use to reproduce calls to the api.
-
-logger = logging.getLogger(__name__)
 
 def main(pre_config):
     # Starting the processes of the runners
@@ -28,8 +27,7 @@ def main(pre_config):
     except Exception as e:
         print(e)
         pass
-    finally:
-        stop_processes()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

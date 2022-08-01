@@ -1,17 +1,20 @@
+import logging
+import time
 from enum import IntEnum
-from shaclapi.reduction import prepare_validation
-from shaclapi.multiprocessing.Xgjoin.Xgjoin import Xgjoin
-from shaclapi.multiprocessing.Xgoptional.Xgoptional import Xgoptional
-import time, logging
-from shaclapi.multiprocessing.ThreadEx import ThreadEx
-from rdflib import Namespace, URIRef
-from shaclapi.triple import TripleE
 from functools import reduce
+
+from rdflib import Namespace, URIRef
+
+from shaclapi.multiprocessing.Xgoptional.Xgoptional import Xgoptional
+from shaclapi.reduction import prepare_validation
+from shaclapi.triple import TripleE
+
 
 class ValReport(IntEnum):
     SHAPE = 0
     IS_VALID = 1
     REASON = 2
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,9 +33,8 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
     """
     if 'UNDEF' in target_shape and not collect_all_results:
         collect_all_results = True
-        logger.warn('Running in blocking mode as the target variable could not be identified!')
-        
-        
+        logger.warning('Running in blocking mode as the target variable could not be identified!')
+
     table = {}
     finished_set = set()
     item = joined_result_queue.get()
@@ -45,9 +47,9 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
             item = joined_result_queue.get()
             continue
 
-        # Initalize Hashtable Entry if necessary
-        if not item_id in table:
-            table[item_id] = {'result': [], 'need': variables.copy()} #TODO: Deal with multiple targets for one variable
+        # Initialize Hashtable Entry if necessary
+        if item_id not in table:
+            table[item_id] = {'result': [], 'need': variables.copy()}  # TODO: Deal with multiple targets for one variable
         
         try:
             if collect_all_results:
@@ -59,14 +61,13 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
                 #  - a binding not occuring in the target_shape mapping 
                 #  - a binding with a validation result matching the target_shape
                 binding_var = '?' + item['var']
-                if item['validation'] == None or (binding_var not in target_shape.keys() or  item['validation'][0] in target_shape[binding_var]):
+                if item['validation'] is None or (binding_var not in target_shape.keys() or item['validation'][0] in target_shape[binding_var]):
                     table[item_id]['need'].remove("?" + item['var'])
                     table[item_id]['result'].append(item)
                     logger.debug(f"New Mapping matching target shape: {item}")
                 else:
                     table[item_id]['result'].append(item)
                     logger.debug(f"New Mapping not matching target shape: {item}")
-
         except ValueError:
             logger.debug("Received a duplicate mapping from xgoptional {} --> {}".format(item, table[item_id]))
             item = joined_result_queue.get()
@@ -94,10 +95,10 @@ def mp_validate(out_queue, config, query, result_transmitter):
     """
     Function to be executed with Runner to run the validation process of the backend.
     """
-
     schema = prepare_validation(config, query, result_transmitter)
-    _ = schema.validate(config.start_with_target_shape) # Validate Schema --> validation results will be put into the out_queue during validation
-    
+    _ = schema.validate(config.start_with_target_shape)  # Validate Schema --> validation results will be put into the out_queue during validation
+
+
 def mp_xjoin(left, right, out_queue, config):
     """
     Function to be executed with Runner to join the instances of the left with the right queue.
@@ -105,8 +106,9 @@ def mp_xjoin(left, right, out_queue, config):
     join_instance = Xgoptional(['var', 'instance', 'id'], ['instance', 'validation'], config.memory_size)
     join_instance.execute(left, right, out_queue)
 
+
 def mp_output_completion(input_queue, output_queue, query, target_shape, is_test_output=False):
-    target_shape_list = reduce(lambda a,b: a + b, target_shape.values())
+    target_shape_list = reduce(lambda a, b: a + b, target_shape.values())
     t_path = Namespace("//travshacl_path#")
     query.namespace_manager.bind('ts', t_path)
     t_path_valid = t_path['satisfiesShape'].n3(query.namespace_manager)
@@ -133,13 +135,20 @@ def mp_output_completion(input_queue, output_queue, query, target_shape, is_test
                 binding['?' + b['var']] = instance
                 if '?' + b['var'] in query.PV:
                     filtered_bindings['?' + b['var']] = instance
-            triples = [(binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
-                        for t in query_triples if t[TripleE.SUBJECT] in binding]
-            report_triples = [(URIRef(b['instance']).n3(query.namespace_manager), (t_path_valid if b['validation'][1] else t_path_invalid), b['validation'][0])
-                            for b in query_result if 'validation' in b and b['validation']]
+            triples = [
+                (binding[t[TripleE.SUBJECT]], t[TripleE.PREDICATE], binding.get(t[TripleE.OBJECT]) or t[TripleE.OBJECT])
+                for t in query_triples if t[TripleE.SUBJECT] in binding
+            ]
+            report_triples = [
+                (
+                    URIRef(b['instance']).n3(query.namespace_manager),
+                    (t_path_valid if b['validation'][1] else t_path_invalid),
+                    b['validation'][0]
+                )
+                for b in query_result if 'validation' in b and b['validation']
+            ]
             logger.debug("Report Triples:" + str(report_triples))
             output_queue.put((filtered_bindings, triples, report_triples))
-        
         else:
             for binding in query_result:
                 if 'validation' in binding:

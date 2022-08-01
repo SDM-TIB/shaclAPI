@@ -1,7 +1,8 @@
-__author__ = 'Kemele M. Endris'  # modified version uses requests instead of urllib
+__author__ = 'Gabriela Montoya, Kemele M. Endris, Julian Gercke'  # modified version uses requests instead of urllib
+
+import logging
 
 import requests
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,6 @@ def contactSource(queue, endpoint, query, limit=-1):
     # Every tuple in the answer is represented as Python dictionaries
     # and is stored in a queue.
     # print "in *NEW* contactSource"
-
     b = None
     cardinality = 0
 
@@ -120,8 +120,8 @@ def contactSourceAux(referer, server, path, port, query, queue, first_id=0):
                     id = id + 1
                     reslist += 1
             else:
-                logger.warn("the source " + str(server) + " answered in " + res.getheader("content-type") + " format, instead of"
-                       + " the JSON format required, then that answer will be ignored")
+                logger.warning("the source " + str(server) + " answered in " + res.getheader("content-type") +
+                               " format, instead of the JSON format required, then that answer will be ignored")
     except Exception as e:
         raise Exception("Exception while sending request to ", referer, "msg:", e)
 

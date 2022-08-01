@@ -1,18 +1,22 @@
-from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
-from TravSHACL.core.ShapeSchema import ShapeSchema
-from shaclapi.reduction.travshacl.ValidationResultStreaming import ValidationResultStreaming
-from TravSHACL.rule_based_validation.Validation import Validation
+import logging
+import os
+import re
+
 from TravSHACL.TravSHACL import parse_heuristics
 from TravSHACL.core.GraphTraversal import GraphTraversal
-import os, re
+from TravSHACL.core.ShapeSchema import ShapeSchema
+from TravSHACL.rule_based_validation.Validation import Validation
 
-import logging
+from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
+from shaclapi.reduction.travshacl.ValidationResultStreaming import ValidationResultStreaming
+
 logger = logging.getLogger(__name__)
+
 
 class ReducedShapeSchema(ShapeSchema):
     def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, query, config, result_transmitter):
         self.shaclAPIConfig = config
-        self.shapeParser = ReducedShapeParser(query, graph_traversal,self.shaclAPIConfig)
+        self.shapeParser = ReducedShapeParser(query, graph_traversal, self.shaclAPIConfig)
         self.shapes, self.node_order, self.target_shape_list = self.shapeParser.parse_shapes_from_dir(
             schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
         self.schema_dir = schema_dir
@@ -38,23 +42,21 @@ class ReducedShapeSchema(ShapeSchema):
 
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
-        #logger.debug(f'Target Shapes:{self.target_shape_list}\nNode Order:{self.node_order}\nStart with Target Shape: {start_with_target_shape}\nStart Shape Config: {self.start_shape_for_validation}')
-
         start = None
         if self.shaclAPIConfig.start_shape_for_validation:
             logger.info("Starting with Shape set in Configuration")
             start = [self.shaclAPIConfig.start_shape_for_validation]
-        elif self.node_order != None:
+        elif self.node_order is not None:
             logger.info("Using Node Order provided by the shaclapi")
             node_order = self.node_order
         elif start_with_target_shape:
             logger.info("Starting with Target Shape")
             start = self.target_shape_list
         else:
-            logger.warn("Starting with Shape determined by TravShacl")
+            logger.warning("Starting with Shape determined by TravShacl")
             start = self.get_starting_point()
 
-        if start != None:
+        if start is not None:
             logger.debug("Starting Point is:" + start[0])
             node_order = self.graphTraversal.traverse_graph(
                 self.dependencies, self.reverse_dependencies, start[0])
@@ -78,17 +80,16 @@ class ReducedShapeSchema(ShapeSchema):
             self.result_transmitter
         ).exec()
         return result
-    
 
 
-class ReturnShapeSchema(ShapeSchema): # Here the normal ShapeSchema is used and not the reduced one!
-    '''
-    # Use with:
-    # schema = ReturnShapeSchema(
-    #    schema_directory, config['shapeFormat'], config['external_endpoint'], traversal_strategie,
-    #    heuristics, config['useSelectiveQueries'], config['maxSplit'], config['outputDirectory'],
-    #    config['ORDERBYinQueries'], config['outputs'], config['workInParallel'])
-    '''
+class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and not the reduced one!
+    """
+    Use with:
+    schema = ReturnShapeSchema(
+        schema_directory, config['shapeFormat'], config['external_endpoint'], traversal_strategy,
+        heuristics, config['useSelectiveQueries'], config['maxSplit'], config['outputDirectory'],
+        config['ORDERBYinQueries'], config['outputs'], config['workInParallel'])
+    """
     @staticmethod
     def from_config(config):
         return ReturnShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, config.max_split_size, config.output_directory, config.order_by_in_queries, config.save_outputs, config.work_in_parallel)
