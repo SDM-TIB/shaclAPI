@@ -1,8 +1,8 @@
-FROM python:3.8.11-slim-buster
+FROM python:3.8.13-slim-bullseye
 
 # install dependencies
 COPY requirements.txt /shaclAPI/requirements.txt
-RUN python -m pip install --upgrade --no-cache-dir pip==21.1.* setuptools==57.0.0 gunicorn==20.1.* && \
+RUN python -m pip install --upgrade --no-cache-dir pip==22.2.* gunicorn==20.1.* && \
     python -m pip install --no-cache-dir -r /shaclAPI/requirements.txt
 
 # copy the source code into the container

@@ -15,4 +15,4 @@ docker-compose.yml
 start.bat
 start.sh
 startdocker.bat
-requirements.txt
+requirements-dev.txt
