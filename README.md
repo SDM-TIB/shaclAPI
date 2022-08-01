@@ -137,7 +137,7 @@ Example output:
 
 ### Library
 
-See the available sphinx documentation: 
+See the available sphinx documentation: [https://sdm-tib.github.io/shaclAPI/html/index.html](https://sdm-tib.github.io/shaclAPI/html/index.html)
 
 ## Configuration
 The shaclAPI is highly configurable and supports the following options.
