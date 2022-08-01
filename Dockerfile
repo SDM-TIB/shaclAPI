@@ -7,7 +7,6 @@ RUN python -m pip install --upgrade --no-cache-dir pip==21.1.* setuptools==57.0.
 
 # copy the source code into the container
 COPY . /shaclAPI
-RUN cd /shaclAPI && python3 setup.py install
 WORKDIR /shaclAPI
 
 # start the Flask app
