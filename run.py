@@ -1,11 +1,7 @@
 import logging
 from multiprocessing import Queue
-
 from flask import Flask, request, Response
-
-import shaclapi.api as api
 from shaclapi import logger as shaclapi_logger
-from shaclapi.api import unify_target_shape
 from shaclapi.config import Config
 from shaclapi.query import Query
 from shaclapi.reduction import prepare_validation
@@ -20,6 +16,10 @@ from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTrans
 shaclapi_logger.setup(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+# Due to the processes starting, when importing something from shaclapi.api, its necessary to call shaclapi_logger.setup(...) before otherwise logging from the processes do not work.
+from shaclapi.api import unify_target_shape
+import shaclapi.api as api
 
 app = Flask(__name__)
 
