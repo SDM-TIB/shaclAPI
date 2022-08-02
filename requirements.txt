@@ -7,4 +7,4 @@ requests==2.27.1
 setuptools==58.0.4
 SPARQLWrapper==2.0.0
 SHACL2SPARQLpy==1.1.1
-TravSHACL==1.0.0
+TravSHACL==1.0.1
