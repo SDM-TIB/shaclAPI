@@ -228,14 +228,14 @@ class Query:
         else:
             old_target_query_prefix_free = re.sub("(.*?)PREFIX(.*?)\n", "", old_target_query)
             new_target_query_prefix_free = re.sub("(.*?)PREFIX(.*?)\n", "", target_query)
-            target_query = f'''SELECT ?x WHERE {{  
+            target_query = f'''SELECT DISTINCT ?x WHERE {{
                 {{
                     {old_target_query_prefix_free}
                 }}
                 {{
                     {new_target_query_prefix_free}
                 }}
-            }}  
+            }}
             '''
             logger.warning('Generated target query may be slow, try to make the target defintion and the given query more simple is possible.')
             return target_query
