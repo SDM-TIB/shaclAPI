@@ -2,7 +2,7 @@ import json
 import os
 from argparse import Namespace
 
-EXTERNAL_ENDPOINT_LOCALHOST = 'http://0.0.0.0:14000/sparql'
+EXTERNAL_ENDPOINT_LOCALHOST = 'http://0.0.0.0:9000/sparql'
 
 DEFAULT_PARAMS = {
     "task": "a",

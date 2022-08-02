@@ -1,5 +1,5 @@
 {
-    "external_endpoint": "http://0.0.0.0:14000/sparql",
+    "external_endpoint": "http://0.0.0.0:9000/sparql",
     "outputDirectory": "./output/",
     "shapeFormat": "JSON",
     "output_format": "test",

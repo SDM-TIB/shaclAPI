@@ -9,7 +9,7 @@ import requests
 from tests import travshaclLocal
 
 FLASK_ENDPOINT = 'http://0.0.0.0:9999/'
-EXTERNAL_ENDPOINT_DOCKER = 'http://shacl_api_testdata:8890/sparql'
+EXTERNAL_ENDPOINT_DOCKER = 'http://shaclapi_testdata:8890/sparql'
 RESULT_DIR = 'output/test_results'
 
 TESTS_DIRS = [
@@ -50,13 +50,13 @@ def test_trav(file):
     namespace = travshaclLocal.get_trav_args(file)
     from TravSHACL.TravSHACL import eval_shape_schema
     try:
-        response = eval_shape_schema(namespace)
+        eval_shape_schema(namespace)
     except Exception as e:
         raise Exception(e)
 
 
 @pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json'])  # 'tests/configs/lubm_config_s2spy.json'
+@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json'])
 def test_multiprocessing(file, config_file):
     """For each testcase check the correctness of the results the API generates. 
 

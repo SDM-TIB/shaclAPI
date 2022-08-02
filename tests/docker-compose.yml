@@ -1,17 +1,32 @@
 version: '3'
 
 services:
-  shacl_api_testdata:
-    image: kemele/virtuoso:7-stable
-    container_name: sparql_endpoint
+  shaclapi_testdata:
+    image: prohde/virtuoso-opensource-7:7.2.7
+    container_name: shaclapi_testdata
     volumes:
-      - "./setup/TestData:/data/toLoad"
+      - './setup/TestData:/database/toLoad'
     ports:
-      - "14000:8890"
+      - '9000:8890'
     networks:
-      - shacl_engine_tests
+      - shaclapi_test
+  shaclapi:
+    build: ..
+    container_name: shaclapi
+    volumes:
+      - './configs:/shaclAPI/tests/configs'
+      - './tc1:/shaclAPI/tests/tc1'
+      - './tc2:/shaclAPI/tests/tc2'
+      - './tc3:/shaclAPI/tests/tc3'
+      - './tc4:/shaclAPI/tests/tc4'
+      - './tc5:/shaclAPI/tests/tc5'
+      - './tc_further_border_cases:/shaclAPI/tests/tc_further_border_cases'
+    ports:
+      - '9999:5000'
+    networks:
+      - shaclapi_test
 
 networks:
-  shacl_engine_tests:
+  shaclapi_test:
     driver: bridge
-    external: true
+    external: false
