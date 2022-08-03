@@ -10,45 +10,62 @@ The shaclAPI is a project meant to integrate the **SHACL** validation  into the 
 #### Docker
 In order to run the shaclAPI, build the Docker image from the source code:
 
-``docker build . -t juliangercke/shaclAPI:latest``
+```bash
+docker build . -t sdmtib/shaclAPI:latest
+```
 
 Once the Docker image is built, you can start the shaclAPI:
 
-``docker run --name api -d -p 9999:5000 juliangercke/shaclAPI:latest``
+```bash
+docker run --name api -d -p 9999:5000 sdmtib/shaclAPI:latest
+```
 
 The shaclAPI will be reachable at http://localhost:9999. For the following examples execute:
 
-``API=localhost:9999``
+```bash
+API=localhost:9999
+```
 
 #### Docker Compose
 A docker-compose file is provided, therefore the shaclAPI can be run using:
 
-``docker-compose up --build -d``
+```bash
+docker-compose up --build -d
+```
 
 The shaclAPI will be accessible at http://localhost:9999. For the following examples execute:
 
-``API=localhost:9999``
+```bash
+API=localhost:9999
+```
 
 #### Python
 To run the shaclAPI directly using python 3.8.11 with the flask development server, the python dependencies need to be installed:
 
-``pip install -r requirements.txt``
+```bash
+python -m pip install -r requirements.txt
+```
 
-Depending on the operating system ``start.bat`` or ``start.sh`` can now be used to start the shaclAPI.
+Depending on the operating system `start.bat` or `start.sh` can now be used to start the shaclAPI.
 The shaclAPI will be accessible at http://localhost:5000. For the following examples execute:
 
-``API=localhost:5000``
+```bash
+API=localhost:5000
+```
 
 ### Library
 To use the shaclAPI as a library it is recommended to use python 3.8.11, however other versions might work as well.
-Install the python dependencies using: ``pip install -r requirements.txt``
+Install the python dependencies using:
+```bash
+python -m pip install -r requirements.txt
+```
 
 ## Usage
 ### Webservice
 You can use the shaclAPI by making HTTP requests. The following describes the different API calls:
 
 #### GET: /
-Returns ``Hello World`` and should be used to check whether the API is running or not.
+Returns `Hello World` and should be used to check whether the API is running or not.
 
 Example call:
 ```bash
@@ -56,7 +73,7 @@ curl -X GET $API/
 ```
 #### POST: /multiprocessing
 This is the main API call, used to send a query to the SPARQL endpoint and simultaneously execute the SHACL validation to validate the query results.
-There are various options, which can be provided as parameters of the HTTP POST request. Additionally an configuration file formatted as JSON can be provided with the config option. HTTP POST parameters will override the options configured in the configuration file.
+There are various options, which can be provided as parameters of the HTTP POST request. Additionally, a configuration file formatted as JSON can be provided with the config option. HTTP POST parameters will override the options configured in the configuration file.
 
 Example configuration:
 ```json
@@ -104,12 +121,12 @@ Example output:
 	], ...
 ]
 ```
-There are further examples provided in the ``examples`` directory.
+There are further examples provided in the `examples` directory.
 
 #### POST: /validation
 This API call can be used to execute the SHACL validation  over the given SPARQL endpoint, while reducing the workload using the given heuristics and give the number of valid/invalid instances per Shape. There are various options, which can be provided as parameters of the HTTP POST request. Additionally an configuration file formatted as JSON can be provided with the config option. HTTP POST parameters will override the options configured in the configuration file. 
 
-Using the same configuration as with ``/multiprocessing``:
+Using the same configuration as with `/multiprocessing`:
 
 Example call:
 ```bash
@@ -177,5 +194,3 @@ The shaclAPI is highly configurable and supports the following options.
 || write_stats | True |  Whether to write statistics to the output directory. |
 || outputs | False | Whether to save the validation output of the backend to a file. |
 || query_extension_per_target_shape | None | For each given target shape a query extension can be given. The given query is extended, when merged or replaced with the target definition of the target shape. The query is extended by replacing the last '}' in the query with the extension followed by a '}'.|
-
-
