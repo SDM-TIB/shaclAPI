@@ -15,6 +15,7 @@ services:
     container_name: shaclapi
     volumes:
       - './configs:/shaclAPI/tests/configs'
+      - './output:/shaclAPI/output'
       - './tc1:/shaclAPI/tests/tc1'
       - './tc2:/shaclAPI/tests/tc2'
       - './tc3:/shaclAPI/tests/tc3'
