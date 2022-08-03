@@ -21,7 +21,7 @@ class ConnectionAdapter:
                 self.connection.close()
                 self.closed = True
         else:
-            raise Exception("Receiver is not allowed to send or Connection is closed!")
+            raise Exception('Receiver is not allowed to send or Connection is closed!')
     
     def get(self, block=True, timeout=None):
         result = None
@@ -44,7 +44,7 @@ class ConnectionAdapter:
                 else:
                     raise Empty
         else:
-            raise Exception("Sender is not allowed to receive or Connection is closed!")
+            raise Exception('Sender is not allowed to receive or Connection is closed!')
         if result == 'EOF':
             self.connection.close()
             self.closed = True

@@ -44,20 +44,20 @@ class ReducedShapeSchema(ShapeSchema):
         """Executes the validation of the shape network."""
         start = None
         if self.shaclAPIConfig.start_shape_for_validation:
-            logger.info("Starting with Shape set in Configuration")
+            logger.info('Starting with Shape set in Configuration')
             start = [self.shaclAPIConfig.start_shape_for_validation]
         elif self.node_order is not None:
-            logger.info("Using Node Order provided by the shaclapi")
+            logger.info('Using Node Order provided by the shaclapi')
             node_order = self.node_order
         elif start_with_target_shape:
-            logger.info("Starting with Target Shape")
+            logger.info('Starting with Target Shape')
             start = self.target_shape_list
         else:
-            logger.warning("Starting with Shape determined by TravShacl")
+            logger.warning('Starting with Shape determined by TravShacl')
             start = self.get_starting_point()
 
         if start is not None:
-            logger.debug("Starting Point is:" + start[0])
+            logger.debug('Starting Point is:' + start[0])
             node_order = self.graphTraversal.traverse_graph(
                 self.dependencies, self.reverse_dependencies, start[0])
 

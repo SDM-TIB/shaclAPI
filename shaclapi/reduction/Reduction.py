@@ -18,12 +18,12 @@ class Reduction:
                 *self.parser.computeReducedEdges(shapes), target_shape))
             self.involvedShapesPerTarget[target_shape] = shapeIds
             involvedShapes = involvedShapes.union(shapeIds)
-        logger.debug("Involved Shapes:" + str(self.involvedShapesPerTarget))
+        logger.debug('Involved Shapes:' + str(self.involvedShapesPerTarget))
         shapes = [s for s in shapes if self.parser.shape_get_id(s) in involvedShapes]
         return shapes
     
     def replace_target_query(self, shapes, query, target_shapes, target_shape_list, merge_old_target_query, query_extension_per_target_shape):
-        logger.info("Using Shape Schema WITH replaced target query!")
+        logger.info('Using Shape Schema WITH replaced target query!')
         if query_extension_per_target_shape is None:
             query_extension_per_target_shape = {}
     
@@ -39,10 +39,10 @@ class Reduction:
                 # If there isn't a shape based on the target shape, reduce the target definition
                 if len(target_shape_list) == 1 or s_id not in reduce(lambda a, b: a+b, [self.involvedShapesPerTarget[targetShape] for targetShape in target_shape_list if targetShape != s_id]):
                     # The Shape already has a target query
-                    logger.debug(f"Reducing target definition of {s_id}")
-                    logger.debug("Original Query:\n" + query.query_string)
+                    logger.debug(f'Reducing target definition of {s_id}')
+                    logger.debug('Original Query:\n' + query.query_string)
                     if s.targetQuery and merge_old_target_query:
-                        logger.debug("Old TargetDef: \n" + s.targetQuery)
+                        logger.debug('Old TargetDef: \n' + s.targetQuery)
                         oldTargetQuery = Query(s.targetQuery)
                         targetQuery = query.intersect(target_shapes_to_var[s_id], oldTargetQuery)
                     else:
@@ -61,7 +61,7 @@ class Reduction:
                         logger.debug(f'Extended targetQuery with query extension specified!')
 
                     self.parser.replace_target_query(s, targetQuery)
-                    logger.debug("New TargetDef:\n" + targetQuery)
+                    logger.debug('New TargetDef:\n' + targetQuery)
     
     def node_order(self, target_shape_list):
         node_order = target_shape_list

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def get_options(argv):
     try:
-        opts, args = getopt.getopt(argv, "h:c:q:t:s:")
+        opts, args = getopt.getopt(argv, 'h:c:q:t:s:')
     except getopt.GetoptError:
         usage()
         sys.exit(1)
@@ -24,23 +24,23 @@ def get_options(argv):
     target_shape = None
 
     for opt, arg in opts:
-        if opt == "-h":
+        if opt == '-h':
             usage()
             sys.exit(0)
-        elif opt == "-c":
+        elif opt == '-c':
             config_file = arg
-        elif opt == "-q":
-            query = "".join(open(arg, "r", encoding="utf8").readlines())
-        elif opt == "-t":
+        elif opt == '-q':
+            query = ''.join(open(arg, 'r', encoding='utf8').readlines())
+        elif opt == '-t':
             test_name = arg
-        elif opt == "-s":
+        elif opt == '-s':
             target_shape = arg
 
     if not config_file or not query or not test_name or not target_shape:
-        print("config:", eval(config_file))
-        print("query:", eval(query))
-        print("test_name:", eval(test_name))
-        print("target_shape:", eval(target_shape))
+        print('config:', eval(config_file))
+        print('query:', eval(query))
+        print('test_name:', eval(test_name))
+        print('target_shape:', eval(target_shape))
         usage()
         sys.exit(1)
 
@@ -52,11 +52,11 @@ def get_options(argv):
 
 
 def usage():
-    usage_str = "Usage: {program} -c <config.json_file> -q <query_file> -t <test_name> -s <target_shape>\n Where: " \
-        "<config.json_file> - path to config file\n" \
-        "<query_file> - path to SPARQL query file\n" \
-        "<test_name> - query name for stats\n" \
-        "<target_shape> - name of the shape belonging to the query"
+    usage_str = 'Usage: {program} -c <config.json_file> -q <query_file> -t <test_name> -s <target_shape>\n Where: ' \
+        '<config.json_file> - path to config file\n' \
+        '<query_file> - path to SPARQL query file\n' \
+        '<test_name> - query name for stats\n' \
+        '<target_shape> - name of the shape belonging to the query'
     print(usage_str.format(program=sys.argv[0]), )
 
 
@@ -73,12 +73,12 @@ def main(argv):
         else:
             print(api_output)
     except KeyboardInterrupt:
-        print("SIGINT", file=sys.stderr)
+        print('SIGINT', file=sys.stderr)
         pass
     except Exception as e:
         print(e)
         pass
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv)

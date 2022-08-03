@@ -54,10 +54,10 @@ class StatsCalculation:
             received_results += 1
             if trace_file is not None:
                 writer.writerow({
-                    "test": self.test_name,
-                    "approach": self.approach_name,
-                    "answer": received_results,
-                    "time": result['timestamp'] - self.global_start_time
+                    'test': self.test_name,
+                    'approach': self.approach_name,
+                    'answer': received_results,
+                    'time': result['timestamp'] - self.global_start_time
                 })
             self.last_result_timestamp = result['timestamp']
             if not self.first_result_timestamp:
@@ -105,9 +105,9 @@ class StatsCalculation:
             elif statistic['topic'] == 'mp_output_completion':
                 _, self.global_end_time = statistic['time']
             elif statistic['topic'] == 'Exception':
-                raise Exception("An Exception occurred in " + statistic['location'])
+                raise Exception('An Exception occurred in ' + statistic['location'])
             else:
-                raise Exception("received statistic with unknown topic: {}".format(statistic['topic']))
+                raise Exception('received statistic with unknown topic: {}'.format(statistic['topic']))
 
     def write_matrix_and_stats_files(self, matrix_file, stats_file):
         total_execution_time = self.global_end_time - self.global_start_time
@@ -127,7 +127,7 @@ class StatsCalculation:
         else:
             post_processing_time = 'NaN'
 
-        # Using the maximum of these timestamps because the later one better describes the "real" start of the join.
+        # Using the maximum of these timestamps because the later one better describes the 'real' start of the join.
         if self.first_validation_result_time:
             approximated_join_start = max(self.join_started_time, self.first_validation_result_time)
         else: 
@@ -141,24 +141,24 @@ class StatsCalculation:
         if self.first_result_timestamp:
             first_result_time = self.first_result_timestamp - self.global_start_time
         else: 
-            first_result_time = "NaN"
+            first_result_time = 'NaN'
 
         if self.last_result_timestamp:
             last_result_time = self.last_result_timestamp - self.global_start_time
         else:
-            last_result_time = "NaN"
+            last_result_time = 'NaN'
 
-        matrix_entry = {"test": self.test_name,
-                        "approach": self.approach_name,
-                        "tfft": first_result_time,
-                        "totaltime": last_result_time,
-                        "comp": self.number_of_results}
-        stats_entry = {"test": self.test_name,
-                       "approach": self.approach_name,
-                       "total_execution_time": total_execution_time,
-                       "query_time": query_time,
-                       "network_validation_time": network_validation_time,
-                       "join_time": join_time}
+        matrix_entry = {'test': self.test_name,
+                        'approach': self.approach_name,
+                        'tfft': first_result_time,
+                        'totaltime': last_result_time,
+                        'comp': self.number_of_results}
+        stats_entry = {'test': self.test_name,
+                       'approach': self.approach_name,
+                       'total_execution_time': total_execution_time,
+                       'query_time': query_time,
+                       'network_validation_time': network_validation_time,
+                       'join_time': join_time}
         if matrix_file is not None:
             f, writer = self._open_csv(matrix_file, ['test', 'approach', 'tfft', 'totaltime', 'comp'])
             writer.writerow(matrix_entry)

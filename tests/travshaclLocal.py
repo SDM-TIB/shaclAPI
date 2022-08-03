@@ -5,13 +5,13 @@ from argparse import Namespace
 EXTERNAL_ENDPOINT_LOCALHOST = 'http://0.0.0.0:9000/sparql'
 
 DEFAULT_PARAMS = {
-    "task": "a",
-    "traversalStrategie": "DFS",
-    "schemaDir": "shapes/lubm",
-    "heuristic": "TARGET IN BIG",
-    "query": "QUERY",
-    "targetShape": "FullProfessor",
-    "config": "tests/configs/lubm_config.json"
+    'task': 'a',
+    'traversalStrategie': 'DFS',
+    'schemaDir': 'shapes/lubm',
+    'heuristic': 'TARGET IN BIG',
+    'query': 'QUERY',
+    'targetShape': 'FullProfessor',
+    'config': 'tests/configs/lubm_config.json'
 }
 
 

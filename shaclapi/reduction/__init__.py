@@ -11,13 +11,13 @@ def prepare_validation(config, query, result_transmitter):
     this methode will prepare a matching ShapeSchema to be used for validation.
     """
     # Prepare the backend and choose the matching inherited ShapeSchema.
-    if config.backend == "travshacl":
+    if config.backend == 'travshacl':
         ShapeSchema = ReducedShapeSchemaTravShacl
         SPARQLEndpoint.instance = None  # The SPARQLEndpoint Object of Travshacl is a singleton, so we need to rest it otherwise it won't change
-    elif config.backend == "s2spy":
+    elif config.backend == 's2spy':
         ShapeSchema = ReducedShapeSchemaS2Spy
     else:
-        raise NotImplementedError("The given backend {} is not implemented".format(config.backend))
+        raise NotImplementedError('The given backend {} is not implemented'.format(config.backend))
     
     # Initialize the ShapeSchema, this will parse the Shapes from the files and reduce the network as configured.
     shape_schema = ShapeSchema.from_config(config, query, result_transmitter)

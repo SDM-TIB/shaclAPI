@@ -5,8 +5,8 @@ from threading import Thread
 class ThreadEx(Thread):
     """
     ThreadEx extends Thread with the capability to raise Exceptions,
-    which occured in the Thread, in the main Thread.
-    See for something similar: https://nedbatchelder.com/blog/200711/rethrowing_exceptions_in_python.html
+    which occurred in the Thread, in the main Thread.
+    See also: https://nedbatchelder.com/blog/200711/rethrowing_exceptions_in_python.html
     """
 
     def __init__(self, group=None, target=None, name=None,

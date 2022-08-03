@@ -24,7 +24,7 @@ import shaclapi.api as api
 app = Flask(__name__)
 
 
-@app.route("/multiprocessing", methods=['POST'])
+@app.route('/multiprocessing', methods=['POST'])
 def route_multiprocessing():
     """
     Required Arguments:
@@ -40,7 +40,7 @@ def route_multiprocessing():
         return Response(api_output, mimetype='text/plain')
 
 
-@app.route("/validation", methods=['POST'])
+@app.route('/validation', methods=['POST'])
 def route_validation():
     """Use the heuristics implemented and activated in the given configuration, to run the validation over the reduced SHACL shape schema. Only returns the number of valid and invalid instances.
 
@@ -93,9 +93,9 @@ def reduced_schema_only():
         import traceback
         exc_type, exc_value, exc_traceback = sys.exc_info()
         emsg = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
-        return jsonify({"result": [], "error": str(emsg)})
+        return jsonify({'result': [], 'error': str(emsg)})
 
 
-@app.route("/", methods=['GET'])
+@app.route('/', methods=['GET'])
 def hello_world():
-    return "Hello World"
+    return 'Hello World'

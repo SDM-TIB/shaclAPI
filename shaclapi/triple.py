@@ -33,7 +33,7 @@ class Triple:
             self.optional == other.optional
 
     def __lt__(self, other) -> bool:
-        if self.predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" or self.predicate == "a":
+        if self.predicate == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' or self.predicate == 'a':
             if isinstance(self.object, rdflib.term.URIRef):
                 return True
             elif self.predicate == other.predicate and isinstance(other.object, rdflib.term.URIRef):

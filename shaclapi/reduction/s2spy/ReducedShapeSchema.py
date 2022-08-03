@@ -40,21 +40,21 @@ class ReducedShapeSchema(ShapeNetwork):
         """Executes the validation of the shape network."""
         start = None
         if self.shaclAPIConfig.start_shape_for_validation:
-            logger.info("Starting with Shape set in Configuration")
+            logger.info('Starting with Shape set in Configuration')
             start = [self.shaclAPIConfig.start_shape_for_validation]
         elif self.node_order is not None:
-            logger.info("Using Node Order provided by the shaclapi")
+            logger.info('Using Node Order provided by the shaclapi')
             node_order = self.node_order
         elif start_with_target_shape:
-            logger.info("Starting with Target Shape")
+            logger.info('Starting with Target Shape')
             start = self.target_shape_list
         else:
-            logger.warning("Starting with Shape determined by S2Spy")
+            logger.warning('Starting with Shape determined by S2Spy')
             from SHACL2SPARQLpy.utils.globals import PARSING_ORDER
             node_order = PARSING_ORDER
 
         if start is not None:
-            logger.debug("Starting Point is:" + start[0])
+            logger.debug('Starting Point is:' + start[0])
             node_order = self.graphTraversal.traverse_graph(
                 self.dependencies, self.reverse_dependencies, start[0])
         
@@ -62,18 +62,18 @@ class ReducedShapeSchema(ShapeNetwork):
             s.computeConstraintQueries()
 
         os.makedirs(self.outputDirName, exist_ok=True)
-        for file in ["validation.log", "targets_valid.log", "targets_violated.log", "stats.txt", "traces.csv"]:
+        for file in ['validation.log', 'targets_valid.log', 'targets_violated.log', 'stats.txt', 'traces.csv']:
             Path(self.outputDirName, file).touch()
 
         RuleBasedValidationResultStreaming(
             self.endpoint,
             node_order,
             self.shapesDict,
-            fileManagement.openFile(self.outputDirName, "validation.log"),
-            fileManagement.openFile(self.outputDirName, "targets_valid.log"),
-            fileManagement.openFile(self.outputDirName, "targets_violated.log"),
-            fileManagement.openFile(self.outputDirName, "stats.txt"),
-            fileManagement.openFile(self.outputDirName, "traces.csv"),
+            fileManagement.openFile(self.outputDirName, 'validation.log'),
+            fileManagement.openFile(self.outputDirName, 'targets_valid.log'),
+            fileManagement.openFile(self.outputDirName, 'targets_violated.log'),
+            fileManagement.openFile(self.outputDirName, 'stats.txt'),
+            fileManagement.openFile(self.outputDirName, 'traces.csv'),
             self.result_transmitter
         ).exec()
         return {}

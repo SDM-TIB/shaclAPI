@@ -22,11 +22,11 @@ TESTS_DIRS = [
 ]
 
 required_prefixes = { 
-    "test1": "<http://example.org/testGraph1#>",
-    "test2": "<http://example.org/testGraph2#>",
-    "test3b": "<http://example.org/testGraph3b#>",
-    "test4": "<http://example.org/testGraph4#>",
-    "test5": "<http://example.org/testGraph5#>" 
+    'test1': '<http://example.org/testGraph1#>',
+    'test2': '<http://example.org/testGraph2#>',
+    'test3b': '<http://example.org/testGraph3b#>',
+    'test4': '<http://example.org/testGraph4#>',
+    'test5': '<http://example.org/testGraph5#>'
     }
 
 Path(RESULT_DIR).mkdir(parents=True, exist_ok=True)
@@ -45,7 +45,7 @@ def test_api_up():
     assert result.ok
 
 
-@pytest.mark.parametrize("file", get_all_files())
+@pytest.mark.parametrize('file', get_all_files())
 def test_trav(file):
     namespace = travshaclLocal.get_trav_args(file)
     from TravSHACL.TravSHACL import eval_shape_schema
@@ -55,8 +55,8 @@ def test_trav(file):
         raise Exception(e)
 
 
-@pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("config_file", ['tests/configs/lubm_config.json'])
+@pytest.mark.parametrize('file', get_all_files())
+@pytest.mark.parametrize('config_file', ['tests/configs/lubm_config.json'])
 def test_multiprocessing(file, config_file):
     """For each testcase check the correctness of the results the API generates. 
 
@@ -73,14 +73,14 @@ def test_multiprocessing(file, config_file):
     test_api('multi', params, solution, log_file_path)
 
 
-@pytest.mark.parametrize("file", get_all_files())
-@pytest.mark.parametrize("backend", ["travshacl", "s2spy"])
-@pytest.mark.parametrize("prune_shape_network", [True, False])
-@pytest.mark.parametrize("remove_constraints", [True, False])
-@pytest.mark.parametrize("replace_target_query", [True, False])
-@pytest.mark.parametrize("start_with_target_shape", [True, False])
-@pytest.mark.parametrize("config_file", ['tests/configs/configurationtest_base_config.json'])
-@pytest.mark.parametrize("collect_all_validation_results", [True, False])
+@pytest.mark.parametrize('file', get_all_files())
+@pytest.mark.parametrize('backend', ['travshacl', 's2spy'])
+@pytest.mark.parametrize('prune_shape_network', [True, False])
+@pytest.mark.parametrize('remove_constraints', [True, False])
+@pytest.mark.parametrize('replace_target_query', [True, False])
+@pytest.mark.parametrize('start_with_target_shape', [True, False])
+@pytest.mark.parametrize('config_file', ['tests/configs/configurationtest_base_config.json'])
+@pytest.mark.parametrize('collect_all_validation_results', [True, False])
 def test_configurations_multiprocessing(request, file, backend, prune_shape_network, 
                                         remove_constraints, replace_target_query,
                                         start_with_target_shape, collect_all_validation_results, config_file):
@@ -105,11 +105,11 @@ def test_configurations_multiprocessing(request, file, backend, prune_shape_netw
     config_file : string
         The basic api configuration file.
     """
-    if backend == "s2spy" and not start_with_target_shape:
-        pytest.skip("Not a valid combination!")
+    if backend == 's2spy' and not start_with_target_shape:
+        pytest.skip('Not a valid combination!')
 
     if not prune_shape_network and remove_constraints:
-        pytest.skip("Not a valid combination!")
+        pytest.skip('Not a valid combination!')
 
     params, _, _ = test_setup_from_file(file, config_file, 'multi')
     params['backend'] = backend
@@ -129,7 +129,7 @@ def test_configurations_multiprocessing(request, file, backend, prune_shape_netw
 @pytest.mark.skip
 def test_api(route, params, solution, log_file_path):
     response = requests.post(FLASK_ENDPOINT + route + 'processing', data=params)
-    assert response.status_code == 200, "Server-sided error, check server output for details"
+    assert response.status_code == 200, 'Server-sided error, check server output for details'
     json_response = response.json()
     print(json_response)
     if solution:
@@ -141,24 +141,24 @@ def test_api(route, params, solution, log_file_path):
                 if len(json_set_of_tuples) != 0 and len(test_set_of_tuples) != 0:
                     json_set_of_targets, json_set_of_shapes = zip(*json_set_of_tuples)
                     test_set_of_targets, test_set_of_shapes = zip(*test_set_of_tuples)
-                    assert json_set_of_targets == test_set_of_targets, "Reported instances differ from expected result for: {}".format(key)
+                    assert json_set_of_targets == test_set_of_targets, 'Reported instances differ from expected result for: {}'.format(key)
                     # if json_set_of_shapes != test_set_of_shapes:
                     #     differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
-                    #     warnings.warn("\nShapes are not equal: {}".format(differing_shapes), UserWarning)
-                assert len(json_set_of_tuples) == len(test_set_of_tuples), "Reported instances differ from expected result for: {}".format(key)
+                    #     warnings.warn('\nShapes are not equal: {}'.format(differing_shapes), UserWarning)
+                assert len(json_set_of_tuples) == len(test_set_of_tuples), 'Reported instances differ from expected result for: {}'.format(key)
         except Exception as identifier:
-            with open(log_file_path, "w") as outputfile:
+            with open(log_file_path, 'w') as outputfile:
                 outputfile.write(str(identifier))
             raise Exception(str(identifier))
         finally:
-            with open(log_file_path, "a") as outputfile:
+            with open(log_file_path, 'a') as outputfile:
                 outputfile.write(json.dumps(json_response, indent=4))
 
 
 @pytest.mark.skip
 def test_metrics(params):
-    response = requests.post(FLASK_ENDPOINT + "metrics", data=params)
-    assert response.status_code == 200, "Server-sided error, check server output for details"
+    response = requests.post(FLASK_ENDPOINT + 'metrics', data=params)
+    assert response.status_code == 200, 'Server-sided error, check server output for details'
 
 
 @pytest.mark.skip

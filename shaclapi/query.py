@@ -76,15 +76,15 @@ class Query:
             Query: Valid Query-Object for further processing
         """
         # Remove ',' in a query's SELECT clause (i.e.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.
-        select_clause = re.search(r"SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+", query, re.IGNORECASE).group(0)
+        select_clause = re.search(r'SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+', query, re.IGNORECASE).group(0)
         select_clause_new = select_clause.replace(',', ' ')
         query = query.replace(select_clause, select_clause_new)
         # Replace all ' occuring in URIs or Literals
-        query = re.sub(r"(?<=((<|\")\S+))'(?=(\S+(>|\")))", r"%27", query)
+        query = re.sub(r"(?<=((<|\")\S+))'(?=(\S+(>|\")))", r'%27', query)
         query = re.sub(r"'\"", r'%27"', query)
         query = re.sub(r"\"'", r'"%27', query)
         # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
-        query = query.replace('\'', '"')
+        query = query.replace("'", '"')
         # Remove '.' if it is followed by '}', Trav-SHACL cannot handle these dots.
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
         query = re.sub(r'\n', r'', query)
@@ -103,8 +103,8 @@ class Query:
             triples = set([t.set_subject(Variable('x')) for t in self.triples])
             filters = self.extract_filter_terms()
             values = self.extract_values_terms()
-            values.extend({"VALUES ?x{" + center.n3() + "}"})
-            return Query.query_from_parts(self.PV, "DISTINCT" in self.query_string ,triples,filters,values, namespace_manager=self.namespace_manager)
+            values.extend({'VALUES ?x{' + center.n3() + '}'})
+            return Query.query_from_parts(self.PV, 'DISTINCT' in self.query_string ,triples,filters,values, namespace_manager=self.namespace_manager)
         elif isinstance(center, Variable):
             return self
         else:
@@ -135,11 +135,11 @@ class Query:
         result = []
         for k, v in algebra.items():
             if isinstance(v, dict):
-                if v.name == "LeftJoin" and v['expr'].name == "TrueFilter" and v['expr']['_vars'] == set():
+                if v.name == 'LeftJoin' and v['expr'].name == 'TrueFilter' and v['expr']['_vars'] == set():
                     result = result + \
                         self.__extract_triples_recursion(v, is_optional=True)
                 else:
-                    if is_optional and k == "p2":
+                    if is_optional and k == 'p2':
                         result = result + \
                             self.__extract_triples_recursion(
                                 v, is_optional=True)
@@ -226,8 +226,8 @@ class Query:
             values.extend(new_query.extract_values_terms())
             return self.target_query_from_triples(triples, filters, values, namespace_manager=self.namespace_manager).query_string
         else:
-            old_target_query_prefix_free = re.sub("(.*?)PREFIX(.*?)\n", "", old_target_query)
-            new_target_query_prefix_free = re.sub("(.*?)PREFIX(.*?)\n", "", target_query)
+            old_target_query_prefix_free = re.sub('(.*?)PREFIX(.*?)\n', '', old_target_query)
+            new_target_query_prefix_free = re.sub('(.*?)PREFIX(.*?)\n', '', target_query)
             target_query = f'''SELECT DISTINCT ?x WHERE {{
                 {{
                     {old_target_query_prefix_free}
@@ -247,25 +247,25 @@ class Query:
     @staticmethod
     def query_from_parts(PV: list, distinct: bool, triples: set, filters: list = None, values: list = None, namespace_manager=None):
         triples = sorted(list(triples))
-        query_string = "SELECT " + ("DISTINCT " if distinct else " ") + (" ".join(PV)) + " WHERE {\n"
+        query_string = 'SELECT ' + ('DISTINCT ' if distinct else ' ') + (' '.join(PV)) + ' WHERE {\n'
 
         if values:
             for value in values:
-                query_string += value + "\n"
+                query_string += value + '\n'
 
         for triple in triples:
             query_string += triple.n3() + '\n'
 
         if filters:
             for filter_ in filters:
-                query_string += filter_ + "\n"
+                query_string += filter_ + '\n'
 
-        query_string += "}"
+        query_string += '}'
         return Query.prepare_query(query_string, namespace_manager=namespace_manager)
 
     def get_statement(self):
-        start = self.query_string.index("{") + len("{")
-        end = self.query_string.rfind("}")
+        start = self.query_string.index('{') + len('{')
+        end = self.query_string.rfind('}')
         return self.query_string[start:end]
 
     def as_result_query(self):

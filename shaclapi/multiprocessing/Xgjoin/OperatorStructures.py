@@ -29,7 +29,7 @@ class RJTTail(object):
     def __init__(self, record, rjtProbeTS):
         self.records = [record]
         self.rjtProbeTS = rjtProbeTS
-        self.flushTS = float("inf")
+        self.flushTS = float('inf')
 
     def updateRecords(self, record):
         self.records.append(record)

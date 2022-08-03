@@ -29,15 +29,15 @@ class Config:
             elif item == 'False':
                 return False
             else:
-                raise Exception("Could not interpret {}".format(item))
+                raise Exception('Could not interpret {}'.format(item))
 
     def check(self):
-        if self.backend == "s2spy" and not self.start_with_target_shape:
-            raise Exception("backend s2spy needs to start with the target shape; set start_with_target_shape to True")
+        if self.backend == 's2spy' and not self.start_with_target_shape:
+            raise Exception('backend s2spy needs to start with the target shape; set start_with_target_shape to True')
         if not self.prune_shape_network and self.remove_constraints:
-            raise Exception("It's not possible to not prune the shape network but removing constraints (impling pruning the shape network...)")
+            raise Exception('It is not possible to not prune the shape network but removing constraints (impling pruning the shape network...)')
         if self.use_pipes and self.run_in_serial:
-            raise Exception("Pipes can only hold a limited amount of data and can therefore not be used in serial mode.")
+            raise Exception('Pipes can only hold a limited amount of data and can therefore not be used in serial mode.')
 
     # ------------------------------- required configuration options -------------------------------------------
     @property
@@ -117,7 +117,7 @@ class Config:
         elif 'output_directory' in self.config_dict:
             return self.config_dict['output_directory']
         else:
-            return "./output/"
+            return './output/'
 
     @property
     def schema_format(self):
@@ -131,7 +131,7 @@ class Config:
         elif 'schema_format' in self.config_dict:
             return self.config_dict['schema_format']
         else:
-            return "JSON"
+            return 'JSON'
 
     @property
     def work_in_parallel(self):
@@ -179,15 +179,15 @@ class Config:
     @property
     def backend(self):
         """
-        The SHACL engine, which will be used by the shaclAPI. Can be "travshacl" or "s2spy".
+        The SHACL engine, which will be used by the shaclAPI. Can be 'travshacl' or 's2spy'.
         """
-        return self.config_dict.get('backend', "travshacl")
+        return self.config_dict.get('backend', 'travshacl')
 
     @property
     def traversal_strategy(self):
         """
         The traversal strategy used by the backend to reduce the shape graph and by the backend
-        to find the execution order. Can be "DFS" or "BFS".
+        to find the execution order. Can be 'DFS' or 'BFS'.
         """
         if 'traversalStrategy' in self.config_dict:
             return self.config_dict.get('traversalStrategy')
@@ -254,9 +254,9 @@ class Config:
     @property
     def output_format(self):
         """
-        Which output format the shaclAPI should use. This can be "test" or "simple".
+        Which output format the shaclAPI should use. This can be 'test' or 'simple'.
         """
-        return self.config_dict.get('output_format', "simple")
+        return self.config_dict.get('output_format', 'simple')
 
     @property
     def memory_size(self):

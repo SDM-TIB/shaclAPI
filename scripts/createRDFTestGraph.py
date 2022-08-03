@@ -14,7 +14,7 @@ def combineRDFGraphs(graph_file, new_json):
         json_data = json.load(json_file)
     NAMESPACE = Namespace(json_data['namespace'])
     g.bind(json_data['bind'], NAMESPACE)
-    for c, specs in json_data['classes'].items():  #for each class
+    for c, specs in json_data['classes'].items():  # for each class
         RAW_NODE = c.replace('class', 'node') + '_{}'
         for i in range(specs['nodeAmount']):
             sub = NAMESPACE[RAW_NODE.format(i)]
@@ -35,7 +35,7 @@ def combineRDFGraphs(graph_file, new_json):
     g.serialize(destination=graph_file, format='pretty-xml')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     for tc in ['tc1', 'tc2', 'tc3', 'tc4', 'tc5']:
         partGraph = path.join('tests/', tc, 'data/partGraph.json')
         if path.exists(partGraph):

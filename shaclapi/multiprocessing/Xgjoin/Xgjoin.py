@@ -28,7 +28,7 @@ class Xgjoin():
 
         # Second stage settings
         self.secondStagesTS = []
-        self.lastSecondStageTS = float("-inf")
+        self.lastSecondStageTS = float('-inf')
         self.timeoutSecondStage = 100000000
         self.sourcesBlocked = False
 
@@ -64,13 +64,13 @@ class Xgjoin():
         signal.signal(signal.SIGALRM, self.stage2)
 
         # Get the tuples from the queues.
-        while tuple1 != "EOF" or tuple2 != "EOF":
+        while tuple1 != 'EOF' or tuple2 != 'EOF':
 
             # Try to get and process tuple from left queue.
-            if tuple1 != "EOF":
+            if tuple1 != 'EOF':
                 try:
                     tuple1 = self.left.get(block=False)
-                    # print "tuple1", tuple1
+                    # print('tuple1', tuple1)
                     self.leftcount += 1
                     signal.alarm(self.timeoutSecondStage)
                     self.stage1(tuple1, self.left_table, self.right_table)
@@ -79,8 +79,8 @@ class Xgjoin():
                     # Empty: in tuple1 = self.left.get(False), when the queue is empty.
                     pass
                 except TypeError as te:
-                    logger.warning("TypeError: in resource = resource + tuple[var]" +  str(tuple) + str(te))
-                    # TypeError: in resource = resource + tuple[var], when the tuple is "EOF".
+                    logger.warning('TypeError: in resource = resource + tuple[var]' + str(tuple) + str(te))
+                    # TypeError: in resource = resource + tuple[var], when the tuple is 'EOF'.
                     pass
                 except IOError:
                     # IOError: when a tuple is received, but the alarm is fired.
@@ -88,10 +88,10 @@ class Xgjoin():
                     pass
 
             # Try to get and process tuple from right queue.
-            if tuple2 != "EOF":
+            if tuple2 != 'EOF':
                 try:
                     tuple2 = self.right.get(block=False)
-                    # print "tuple2", tuple2
+                    # print('tuple2', tuple2)
                     self.rightcount += 1
                     signal.alarm(self.timeoutSecondStage)
                     self.stage1(tuple2, self.right_table, self.left_table)
@@ -100,8 +100,8 @@ class Xgjoin():
                     # Empty: in tuple2 = self.right.get(False), when the queue is empty.
                     pass
                 except TypeError as te:
-                    logger.warning("TypeError: in resource = resource + tuple[var]" + str(tuple) + str(te))
-                    # TypeError: in resource = resource + tuple[var], when the tuple is "EOF".
+                    logger.warning('TypeError: in resource = resource + tuple[var]' + str(tuple) + str(te))
+                    # TypeError: in resource = resource + tuple[var], when the tuple is 'EOF'.
                     pass
                 except IOError:
                     # IOError: when a tuple is received, but the alarm is fired.
@@ -118,15 +118,15 @@ class Xgjoin():
         return
 
     def stage1(self, tuple, tuple_rjttable, other_rjttable):
-        # print("Stage 1: While one of the sources is sending data.")
-        if tuple != "EOF":
+        # print('Stage 1: While one of the sources is sending data.')
+        if tuple != 'EOF':
             # Get the resource associated to the tuples.
             resource = ''
             # print(tuple)
             for var in self.vars:
                 if var in tuple:
                     val = tuple[var]
-                    if "^^<" in val:
+                    if '^^<' in val:
                         val = val[:val.find('^^<')]
                     resource = resource + str(val)
 
@@ -134,7 +134,7 @@ class Xgjoin():
             probeTS = self.probe(tuple, resource, tuple_rjttable)
 
             # Create the records.
-            record = Record(tuple, probeTS, time(), float("inf"))
+            record = Record(tuple, probeTS, time(), float('inf'))
 
             # Insert the record in the other RJT table.
             if resource in other_rjttable:
@@ -145,7 +145,7 @@ class Xgjoin():
                 other_rjttable[resource] = tail
 
     def stage2(self, signum, frame):
-        # print("Stage 2: When both sources become blocked.")
+        # print('Stage 2: When both sources become blocked.')
         self.sourcesBlocked = True
 
         # Get common resources.
@@ -176,7 +176,7 @@ class Xgjoin():
         self.secondStagesTS.append(self.lastSecondStageTS)
 
     def stage3(self):
-        # print("Stage 3: When both sources sent all the data.")
+        # print('Stage 3: When both sources sent all the data.')
 
         # RJTs in main (left) memory are probed against RJTs in secondary (right) memory.
         common_resources = set(self.left_table.keys()) & set(self.fileDescriptor_right.keys())
@@ -231,7 +231,7 @@ class Xgjoin():
                 #res = record.tuple.copy()
                 res.update(tuple)
                 self.qresults.put(res)
-                #print hex(id(self)), "res:", res
+                #print hex(id(self)), 'res:', res
 
         return probeTS
 
@@ -239,7 +239,7 @@ class Xgjoin():
         # Probe an RJT against its corresponding partition in secondary memory.
         file2 = open(filedescriptor2[resource].file.name, 'r')
         rjts2 = file2.readlines()
-        st = ""
+        st = ''
         probed = False
 
         for rjt2 in rjts2:
@@ -265,7 +265,7 @@ class Xgjoin():
                 probed = True
 
             # Update probeTS of tuple2.
-            stprobeTS  = "%.40r" % (time())
+            stprobeTS  = '%.40r' % (time())
             st = st + tuple2 + '|' + stprobeTS + '|' + insertTS2 + '|' + flushTS2
 
         file2.close()
@@ -308,15 +308,15 @@ class Xgjoin():
             file = open(file_descriptor[resource_to_flush].file.name, 'a')
             file_descriptor.update({resource_to_flush: FileDescriptor(file, len(tail_to_flush.records) + lentail, flushTS)})
         else:
-            file = NamedTemporaryFile(suffix=".rjt", prefix="", delete=False)
+            file = NamedTemporaryFile(suffix='.rjt', prefix='', delete=False)
             file_descriptor.update({resource_to_flush: FileDescriptor(file, len(tail_to_flush.records), flushTS)})
 
         # Flush tail in file.
         for record in tail_to_flush.records:
             sttuple = str(record.tuple)
-            stprobeTS = "%.40r" % (record.probeTS)
-            stinsertTS = "%.40r" % (record.insertTS)
-            stflushTS = "%.40r" % (flushTS)
+            stprobeTS = '%.40r' % (record.probeTS)
+            stinsertTS = '%.40r' % (record.insertTS)
+            stflushTS = '%.40r' % (flushTS)
 
             file.write(sttuple + '|')
             file.write(stprobeTS + '|')
@@ -329,9 +329,9 @@ class Xgjoin():
 
     def getVictim(self, table):
         # Selects a victim from a partition in main memory to flush.
-        resource_to_flush = ""
+        resource_to_flush = ''
         tail_to_flush = RJTTail([], 0)
-        least_ts = float("inf")
+        least_ts = float('inf')
 
         for resource, tail in table.items():
             resource_ts = tail.rjtProbeTS
@@ -340,7 +340,7 @@ class Xgjoin():
                 tail_to_flush = tail
                 least_ts = resource_ts
 
-        # print("Victim chosen:", resource_to_flush, "TS:", least_ts, "LEN:", len(tail_to_flush.records))
+        # print('Victim chosen:', resource_to_flush, 'TS:', least_ts, 'LEN:', len(tail_to_flush.records))
         return (resource_to_flush, tail_to_flush, least_ts)
 
     def getLargestRJTs(self, i):

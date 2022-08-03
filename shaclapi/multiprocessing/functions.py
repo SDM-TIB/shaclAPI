@@ -43,7 +43,7 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
         del item['id']
 
         if item_id in finished_set:
-            logger.debug("Received a mapping from an already finished result {}".format(item))
+            logger.debug('Received a mapping from an already finished result {}'.format(item))
             item = joined_result_queue.get()
             continue
 
@@ -62,14 +62,14 @@ def mp_post_processing(joined_result_queue, output_queue, timestamp_queue, varia
                 #  - a binding with a validation result matching the target_shape
                 binding_var = '?' + item['var']
                 if item['validation'] is None or (binding_var not in target_shape.keys() or item['validation'][0] in target_shape[binding_var]):
-                    table[item_id]['need'].remove("?" + item['var'])
+                    table[item_id]['need'].remove('?' + item['var'])
                     table[item_id]['result'].append(item)
-                    logger.debug(f"New Mapping matching target shape: {item}")
+                    logger.debug(f'New Mapping matching target shape: {item}')
                 else:
                     table[item_id]['result'].append(item)
-                    logger.debug(f"New Mapping not matching target shape: {item}")
+                    logger.debug(f'New Mapping not matching target shape: {item}')
         except ValueError:
-            logger.debug("Received a duplicate mapping from xgoptional {} --> {}".format(item, table[item_id]))
+            logger.debug('Received a duplicate mapping from xgoptional {} --> {}'.format(item, table[item_id]))
             item = joined_result_queue.get()
             continue
 
@@ -109,18 +109,18 @@ def mp_xjoin(left, right, out_queue, config):
 
 def mp_output_completion(input_queue, output_queue, query, target_shape, is_test_output=False):
     target_shape_list = reduce(lambda a, b: a + b, target_shape.values())
-    t_path = Namespace("//travshacl_path#")
+    t_path = Namespace('//travshacl_path#')
     query.namespace_manager.bind('ts', t_path)
     t_path_valid = t_path['satisfiesShape'].n3(query.namespace_manager)
     t_path_invalid = t_path['violatesShape'].n3(query.namespace_manager)
     
     query_triples = query.get_triples(replace_prefixes=False)
 
-    test_output = {"validTargets": set(), "invalidTargets": set(), "advancedValid": set(), "advancedInvalid": set()}
+    test_output = {'validTargets': set(), 'invalidTargets': set(), 'advancedValid': set(), 'advancedInvalid': set()}
         
     result = input_queue.get()
     while result != 'EOF':
-        logger.debug("Result:" + str(result))
+        logger.debug('Result:' + str(result))
         query_result = result['result']
         
         if not is_test_output:
@@ -147,7 +147,7 @@ def mp_output_completion(input_queue, output_queue, query, target_shape, is_test
                 )
                 for b in query_result if 'validation' in b and b['validation']
             ]
-            logger.debug("Report Triples:" + str(report_triples))
+            logger.debug('Report Triples:' + str(report_triples))
             output_queue.put((filtered_bindings, triples, report_triples))
         else:
             for binding in query_result:

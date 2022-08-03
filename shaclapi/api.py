@@ -22,7 +22,7 @@ from shaclapi.statsCalculation import StatsCalculation
 logger = logging.getLogger(__name__)
 
 # This seems to load some pyparsing stuff and will speed up the execution of the first task by 1 second.
-query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
+query = Query.prepare_query('PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}')
 query.namespace_manager.namespaces()
 
 # Building Multiprocessing Chain using Runners and Queries
@@ -40,7 +40,7 @@ query.namespace_manager.namespaces()
 # final_result_queue        | POST_PROCESSING_RUNNER    | OUTPUT_COMPLETION_RUNNER  | Pipe          | Collected results
 # result_queue              | OUTPUT_COMPLETION_RUNNER  | -                         | Pipe          | Formatted results
 
-# Queues to collect statistics: --> {"topic":...., "":....}
+# Queues to collect statistics: --> {'topic':...., '':....}
 # stats_out_queue           | ALL_RUNNER                | Main Thread               | Queue         | one time statistics per run --> known number of statistics (also contains exception notifications in case a runner catches an exception)
 # timestamp_queue           | POST_PROCESSING_RUNNER    | Main Thread               | Pipe          | variable number of result timestamps per run --> close with 'EOF' by queue_output_to_table
 
@@ -141,7 +141,7 @@ def run_multiprocessing(pre_config, result_queue=None):
             logger.warning('Running in blocking mode as the target variable(s) could not be identified!')
         if config.replace_target_query:
             config.replace_target_query = False
-            logger.warning('Can only replace target query if query is starshaped!')
+            logger.warning('Can only replace target query if query is star-shaped!')
     else:
         query = query_starshaped
 
@@ -163,7 +163,7 @@ def run_multiprocessing(pre_config, result_queue=None):
     config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
 
     # The information we need depends on the output format:
-    if config.output_format == "test" or (not config.reasoning):
+    if config.output_format == 'test' or (not config.reasoning):
         query_to_be_executed = query.copy()
     else:
         query_to_be_executed = query.as_result_query()
@@ -191,9 +191,9 @@ def run_multiprocessing(pre_config, result_queue=None):
     OUTPUT_COMPLETION_RUNNER.new_task(output_completion_in_connections, output_completion_out_connections, output_completion_task_description, stats_out_queue, config.run_in_serial)
 
     if config.write_stats:
-        matrix_file = os.path.join(os.path.abspath(config.output_directory), "matrix.csv")
-        trace_file = os.path.join(os.path.abspath(config.output_directory), "trace.csv")
-        stats_file = os.path.join(os.path.abspath(config.output_directory), "stats.csv")
+        matrix_file = os.path.join(os.path.abspath(config.output_directory), 'matrix.csv')
+        trace_file = os.path.join(os.path.abspath(config.output_directory), 'trace.csv')
+        stats_file = os.path.join(os.path.abspath(config.output_directory), 'stats.csv')
     else:
         matrix_file = None
         trace_file = None
@@ -215,7 +215,7 @@ def run_multiprocessing(pre_config, result_queue=None):
     if not QUEUE_OUTPUT:
         next_result = result_queue.receiver.get()
         output = []
-        if config.output_format == "test":
+        if config.output_format == 'test':
             while next_result != 'EOF':
                 output = next_result
                 next_result = result_queue.receiver.get()

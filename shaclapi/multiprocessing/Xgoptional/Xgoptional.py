@@ -33,7 +33,7 @@ class Xgoptional():
 
         # Second stage settings
         self.secondStagesTS = []
-        self.lastSecondStageTS = float("-inf")
+        self.lastSecondStageTS = float('-inf')
         self.timeoutSecondStage = 100000000
         self.sourcesBlocked = False
 
@@ -93,32 +93,32 @@ class Xgoptional():
         signal.signal(signal.SIGALRM, self.stage2)
 
         # Get the tuples from the queues.
-        while not(tuple1 == "EOF") or not(tuple2 == "EOF"):
+        while not(tuple1 == 'EOF') or not(tuple2 == 'EOF'):
 
             # Try to get and process tuple from left queue.
-            if not(tuple1 == "EOF"):
+            if not(tuple1 == 'EOF'):
 
                 try:
                     tuple1 = self.left.get(block=False)
-                    if not(tuple1 == "EOF"):
+                    if not(tuple1 == 'EOF'):
                         self.add_to_bag(tuple1)
                     self.leftcount += 1
                     signal.alarm(self.timeoutSecondStage)
                     self.stage1(tuple1, self.left_table, self.right_table, self.vars_right)
                     self.memory_right += 1
-                    # print("bag after stage 1: ", self.bag)
+                    # print('bag after stage 1:', self.bag)
                 except Empty:
                     # Empty: in tuple1 = self.left.get(False), when the queue is empty.
                     pass
                 except TypeError as te:
-                    logger.warning("TypeError: in resource = resource + tuple[var]" + str(tuple) + str(te))
-                    # TypeError: in resource = resource + tuple[var], when the tuple is "EOF".
+                    logger.warning('TypeError: in resource = resource + tuple[var]' + str(tuple) + str(te))
+                    # TypeError: in resource = resource + tuple[var], when the tuple is 'EOF'.
                     pass
                 except IOError:
                     # IOError: when a tuple is received, but the alarm is fired.
                     self.sourcesBlocked = False
                     pass
-            if not(tuple2 == "EOF"):  # Try to get and process tuple from right queue.
+            if not(tuple2 == 'EOF'):  # Try to get and process tuple from right queue.
                 try:
                     tuple2 = self.right.get(block=False)
                     self.rightcount += 1
@@ -129,8 +129,8 @@ class Xgoptional():
                     # Empty: in tuple2 = self.right.get(False), when the queue is empty.
                     pass
                 except TypeError as te:
-                    logger.warning("TypeError: in resource = resource + tuple[var]" + str(tuple) + str(te))
-                    # TypeError: in resource = resource + tuple[var], when the tuple is "EOF".
+                    logger.warning('TypeError: in resource = resource + tuple[var]' + str(tuple) + str(te))
+                    # TypeError: in resource = resource + tuple[var], when the tuple is 'EOF'.
                     pass
                 except IOError:
                     # IOError: when a tuple is received, but the alarm is fired.
@@ -141,27 +141,27 @@ class Xgoptional():
 
         # Turn off alarm to stage 2.
         signal.alarm(0)
-        # print("Perform the last probes.")
+        # print('Perform the last probes.')
         self.stage3()
 
     def stage1(self, tuple, tuple_rjttable, other_rjttable, vars):
         # Stage 1: While one of the sources is sending data.
-        # print("stage 1")
+        # print('stage 1')
         # Get the resource associated to the tuples.
-        if tuple != "EOF":
+        if tuple != 'EOF':
             resource = ''
             for var in self.vars:
                 val = tuple[var]
-                if "^^<" in val:
+                if '^^<' in val:
                     val = val[:val.find('^^<')]
                 resource = resource + str(val)
-            # print("probe")
+            # print('probe')
             # Probe the tuple against its RJT table.
             probeTS = self.probe(tuple, resource, tuple_rjttable, vars)
-            # print("creating record")
+            # print('creating record')
             # Create the records.
-            record = Record(tuple, probeTS, time(), float("inf"))
-            # print("Stage 1")
+            record = Record(tuple, probeTS, time(), float('inf'))
+            # print('Stage 1')
             # Insert the record in the other RJT table.
             # TODO: use RJTTail. Check ProbeTS
             if resource in other_rjttable:
@@ -172,7 +172,7 @@ class Xgoptional():
                 other_rjttable[resource] = tail
 
     def stage2(self, signum, frame):
-        # print("Stage 2: When both sources become blocked.")
+        # print('Stage 2: When both sources become blocked.')
         self.sourcesBlocked = True
 
         # Get common resources.
@@ -202,9 +202,9 @@ class Xgoptional():
 
     def stage3(self):
         # Stage 3: When both sources sent all the data.
-        # print("stage 3")
+        # print('stage 3')
         # This is the optional: Produce tuples that haven't matched already.
-        # print("Length of data in xgoptional(): ", len(self.bag))
+        # print('Length of data in xgoptional():', len(self.bag))
 
         # RJTs in main (left) memory are probed against RJTs in secondary (right) memory.
         common_resources = set(self.left_table.keys()) & set(self.fileDescriptor_right.keys())
@@ -252,7 +252,7 @@ class Xgoptional():
             self.qresults.put(tuple)
 
         # Put EOF in queue and exit.
-        self.qresults.put("EOF")
+        self.qresults.put('EOF')
         return
 
     def probe(self, tuple, resource, rjttable, vars):
@@ -266,7 +266,7 @@ class Xgoptional():
                 self.remove_from_bag(tuple)
 
                 for record in list_records:
-                    # print("record: ", type(record.tuple), record.tuple)
+                    # print('record:', type(record.tuple), record.tuple)
                     if isinstance(record.tuple, dict):
                         res = record.tuple.copy()
                         res.update(tuple)
@@ -282,7 +282,7 @@ class Xgoptional():
         # Probe an RJT against its corresponding partition in secondary memory.
         file2 = open(filedescriptor2[resource].file.name, 'r')
         rjts2 = file2.readlines()
-        st = ""
+        st = ''
         probed = False
 
         for rjt2 in rjts2:
@@ -314,7 +314,7 @@ class Xgoptional():
                 probed = True
 
             # Update probeTS of tuple2.
-            stprobeTS  = "%.40r" % (time())
+            stprobeTS  = '%.40r' % (time())
             st = st + tuple2 + '|' + stprobeTS + '|' + insertTS2 + '|' + flushTS2
 
         file2.close()
@@ -357,15 +357,15 @@ class Xgoptional():
             file = open(file_descriptor[resource_to_flush].file.name, 'a')
             file_descriptor.update({resource_to_flush: FileDescriptor(file, len(tail_to_flush.records) + lentail, flushTS)})
         else:
-            file = NamedTemporaryFile(mode="w+", suffix=".rjt", prefix="", delete=False)
+            file = NamedTemporaryFile(mode='w+', suffix='.rjt', prefix='', delete=False)
             file_descriptor.update({resource_to_flush: FileDescriptor(file, len(tail_to_flush.records), flushTS)})
 
         # Flush tail in file.
         for record in tail_to_flush.records:
             sttuple = str(record.tuple)
-            stprobeTS = "%.40r" % (record.probeTS)
-            stinsertTS = "%.40r" % (record.insertTS)
-            stflushTS = "%.40r" % (flushTS)
+            stprobeTS = '%.40r' % (record.probeTS)
+            stinsertTS = '%.40r' % (record.insertTS)
+            stflushTS = '%.40r' % (flushTS)
 
             file.write(sttuple + '|')
             file.write(stprobeTS + '|')
@@ -379,9 +379,9 @@ class Xgoptional():
     def getVictim(self, table):
         # Selects a victim from a partition in main memory to flush.
 
-        resource_to_flush = ""
+        resource_to_flush = ''
         tail_to_flush = RJTTail([], 0)
-        least_ts = float("inf")
+        least_ts = float('inf')
 
         for resource, tail in table.items():
             resource_ts = tail.rjtProbeTS
@@ -390,7 +390,7 @@ class Xgoptional():
                 tail_to_flush = tail
                 least_ts = resource_ts
 
-        # print("Victim chosen:", resource_to_flush, "TS:", least_ts, "LEN:", len(tail_to_flush.records))
+        # print('Victim chosen:', resource_to_flush, 'TS:', least_ts, 'LEN:', len(tail_to_flush.records))
         return (resource_to_flush, tail_to_flush, least_ts)
 
     def getLargestRJTs(self, i):

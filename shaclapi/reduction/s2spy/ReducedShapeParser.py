@@ -36,15 +36,15 @@ class ReducedShapeParser(ShapeParser):
             shapes = reduced_shapes
         else:
             shapes = all_shapes
-            logger.warning("Shape Network is not pruned!")
+            logger.warning('Shape Network is not pruned!')
 
-        logger.debug("Removed Constraints:" + str(self.removed_constraints))
+        logger.debug('Removed Constraints:' + str(self.removed_constraints))
 
         # Step 2: Replace appropriate target queries
         if self.config.replace_target_query and 'UNDEF' not in self.targetShapes:
             reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, self.config.merge_old_target_query, self.config.query_extension_per_target_shape)
         else:
-            logger.warning("Using Shape Schema WITHOUT replaced target query!")
+            logger.warning('Using Shape Schema WITHOUT replaced target query!')
         
         if self.config.start_with_target_shape:
             return shapes, reducer.node_order(self.targetShapeList), self.targetShapeList
@@ -92,8 +92,8 @@ class ReducedShapeParser(ShapeParser):
         shape_references is used to get the references in self.currentShape to other shapes.
         It then returns ONE path of a constraint referencing to that shape (The other ones are ignored?!)
         """
-        return {c.get("shape"): c.get("path") for c in constraints
-                if c.get("shape") and c.get("path") not in self.removed_constraints[self.currentShape]}
+        return {c.get('shape'): c.get('path') for c in constraints
+                if c.get('shape') and c.get('path') not in self.removed_constraints[self.currentShape]}
 
     def computeReducedEdges(self, shapes):
         """

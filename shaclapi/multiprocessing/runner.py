@@ -20,7 +20,7 @@ class Runner:
     - FINALLY: variable number of parameters needed for the task (These which also needed to be passed to new_task)
     """
     def __init__(self, function, number_of_out_queues=1):
-        self.context = mp.get_context("spawn")
+        self.context = mp.get_context('spawn')
         self.manager = mp.Manager()
         self.function = function
         self.number_of_out_queues = number_of_out_queues
@@ -33,7 +33,7 @@ class Runner:
         self.process = mp.Process(target=mp_function, args=(self.task_queue, self.function), name=self.function.__name__)
         self.process.start()
         self.process_running = True
-        logger.info("Process {} started!".format(self.function.__name__))
+        logger.info('Process {} started!'.format(self.function.__name__))
         atexit.register(self.stop_process)
 
     def stop_process(self):
@@ -43,7 +43,7 @@ class Runner:
             self.process.terminate()
             self.process = None
             self.process_running = False
-            logger.info("Process {} stopped!".format(self.function.__name__))
+            logger.info('Process {} stopped!'.format(self.function.__name__))
     
     def get_new_queue(self):
         return self.manager.Queue()
@@ -70,11 +70,11 @@ class Runner:
             else:
                 self.task_queue.put((in_queues, out_queues, runner_stats_out_queue, task_description, None))
         else:
-            raise Exception("Start processes before using /multiprocessing")
+            raise Exception('Start processes before using /multiprocessing')
 
 
 def mp_function(task_in_queue, function):
-    speed_up_query = Query.prepare_query("PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}")
+    speed_up_query = Query.prepare_query('PREFIX test1:<http://example.org/testGraph1#>\nSELECT DISTINCT ?x WHERE {\n?x a test1:classE.\n?x test1:has ?lit.\n}')
     speed_up_query.namespace_manager.namespaces()
     try:
         active_task = task_in_queue.get()
@@ -82,21 +82,21 @@ def mp_function(task_in_queue, function):
             in_queues, out_queues, runner_stats_out_queue, task_description, task_finished_send = active_task
 
             # Now one can use logging as normal
-            logger.info(function.__name__ + " received task!")
+            logger.info(function.__name__ + ' received task!')
             start_timestamp = time.time()
             try:
                 function(*in_queues, *out_queues, *task_description)
             except Exception as e:
-                runner_stats_out_queue.put({"topic": "Exception", "location": function.__name__})
+                runner_stats_out_queue.put({'topic': 'Exception', 'location': function.__name__})
                 logger.exception(e)
             finally:
                 for queue in out_queues:
                     queue.put('EOF')  # Writing EOF here allows global error handling
                 finished_timestamp = time.time()
-                runner_stats_out_queue.put({"topic": function.__name__, "time": (start_timestamp, finished_timestamp)})
-                logger.info(function.__name__ + " finished task; waiting for next one!")
+                runner_stats_out_queue.put({'topic': function.__name__, 'time': (start_timestamp, finished_timestamp)})
+                logger.info(function.__name__ + ' finished task; waiting for next one!')
                 if task_finished_send:
-                    task_finished_send.send("Done")
+                    task_finished_send.send('Done')
                 active_task = task_in_queue.get()
     except KeyboardInterrupt:
         pass

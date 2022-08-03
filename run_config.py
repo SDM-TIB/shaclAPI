@@ -22,15 +22,15 @@ def main(pre_config):
         else:
             print(api_output)
     except KeyboardInterrupt:
-        print("SIGINT", file=sys.stderr)
+        print('SIGINT', file=sys.stderr)
         pass
     except Exception as e:
         print(e)
         pass
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", type=json.loads)
+    parser.add_argument('-c', '--config', type=json.loads)
     args = parser.parse_args()
     main(args.config)
