@@ -154,13 +154,7 @@ dmypy.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 timing/
-test_output/
-wat_div/
-output/*
-!output/.keep
-logs/*
-!logs/.keep
-inputs/*
-!inputs/.keep
+output/
+tests/output/
 
 /.idea/
