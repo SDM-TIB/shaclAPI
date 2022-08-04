@@ -148,26 +148,29 @@
   <h1>Source code for shaclapi.api</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module offers the main functionalities of the shaclAPI to the user.</span>
 
-<span class="sd">The shaclAPI uses python&#39;s multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.</span>
-<span class="sd">Due to delays occuring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process. </span>
+<span class="sd">The shaclAPI uses Python&#39;s multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.</span>
+<span class="sd">Due to delays occurring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
 
-<span class="kn">from</span> <span class="nn">shaclapi.query</span> <span class="kn">import</span> <span class="n">Query</span>
 <span class="kn">from</span> <span class="nn">shaclapi.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.contactSource</span> <span class="kn">import</span> <span class="n">contactSource</span>
 <span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.functions</span> <span class="kn">import</span> <span class="n">mp_validate</span><span class="p">,</span> <span class="n">mp_xjoin</span><span class="p">,</span> <span class="n">mp_post_processing</span><span class="p">,</span> <span class="n">mp_output_completion</span>
 <span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.runner</span> <span class="kn">import</span> <span class="n">Runner</span>
-<span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.contactSource</span> <span class="kn">import</span> <span class="n">contactSource</span>
+<span class="kn">from</span> <span class="nn">shaclapi.output</span> <span class="kn">import</span> <span class="n">Output</span>
+<span class="kn">from</span> <span class="nn">shaclapi.query</span> <span class="kn">import</span> <span class="n">Query</span>
 <span class="kn">from</span> <span class="nn">shaclapi.reduction.ValidationResultTransmitter</span> <span class="kn">import</span> <span class="n">ValidationResultTransmitter</span>
 <span class="kn">from</span> <span class="nn">shaclapi.statsCalculation</span> <span class="kn">import</span> <span class="n">StatsCalculation</span>
-<span class="kn">from</span> <span class="nn">shaclapi.output</span> <span class="kn">import</span> <span class="n">Output</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># This seems to load some pyparsing stuff and will speed up the execution of the first task by 1 second.</span>
-<span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="o">.</span><span class="n">prepare_query</span><span class="p">(</span><span class="s2">&quot;PREFIX test1:&lt;http://example.org/testGraph1#&gt;</span><span class="se">\n</span><span class="s2">SELECT DISTINCT ?x WHERE {</span><span class="se">\n</span><span class="s2">?x a test1:classE.</span><span class="se">\n</span><span class="s2">?x test1:has ?lit.</span><span class="se">\n</span><span class="s2">}&quot;</span><span class="p">)</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="o">.</span><span class="n">prepare_query</span><span class="p">(</span><span class="s1">&#39;PREFIX test1:&lt;http://example.org/testGraph1#&gt;</span><span class="se">\n</span><span class="s1">SELECT DISTINCT ?x WHERE {</span><span class="se">\n</span><span class="s1">?x a test1:classE.</span><span class="se">\n</span><span class="s1">?x test1:has ?lit.</span><span class="se">\n</span><span class="s1">}&#39;</span><span class="p">)</span>
 <span class="n">query</span><span class="o">.</span><span class="n">namespace_manager</span><span class="o">.</span><span class="n">namespaces</span><span class="p">()</span>
 
 <span class="c1"># Building Multiprocessing Chain using Runners and Queries</span>
@@ -185,7 +188,7 @@
 <span class="c1"># final_result_queue        | POST_PROCESSING_RUNNER    | OUTPUT_COMPLETION_RUNNER  | Pipe          | Collected results</span>
 <span class="c1"># result_queue              | OUTPUT_COMPLETION_RUNNER  | -                         | Pipe          | Formatted results</span>
 
-<span class="c1"># Queues to collect statistics: --&gt; {&quot;topic&quot;:...., &quot;&quot;:....}</span>
+<span class="c1"># Queues to collect statistics: --&gt; {&#39;topic&#39;:...., &#39;&#39;:....}</span>
 <span class="c1"># stats_out_queue           | ALL_RUNNER                | Main Thread               | Queue         | one time statistics per run --&gt; known number of statistics (also contains exception notifications in case a runner catches an exception)</span>
 <span class="c1"># timestamp_queue           | POST_PROCESSING_RUNNER    | Main Thread               | Pipe          | variable number of result timestamps per run --&gt; close with &#39;EOF&#39; by queue_output_to_table</span>
 
@@ -202,6 +205,7 @@
 <span class="n">POST_PROCESSING_RUNNER</span><span class="o">.</span><span class="n">start_process</span><span class="p">()</span>
 <span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">start_process</span><span class="p">()</span>
 
+
 <div class="viewcode-block" id="get_result_queue"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.get_result_queue">[docs]</a><span class="k">def</span> <span class="nf">get_result_queue</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Convenience function to get a multiprocessing queue object, which can be used as a result_queue in :func:`shaclapi.api.run_multiprocessing`.</span>
 <span class="sd">    </span>
@@ -212,7 +216,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">use_pipes</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="run_multiprocessing"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.run_multiprocessing">[docs]</a><span class="k">def</span> <span class="nf">run_multiprocessing</span><span class="p">(</span><span class="n">pre_config</span><span class="p">,</span> <span class="n">result_queue</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="run_multiprocessing"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.run_multiprocessing">[docs]</a><span class="k">def</span> <span class="nf">run_multiprocessing</span><span class="p">(</span><span class="n">pre_config</span><span class="p">,</span> <span class="n">result_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Main function of the shaclAPI: Given a dictionary of configuration keys (properties in :py:mod:`shaclapi.config`) with the configured values, the shaclAPI starts the parallel execution of the SHACL validation during SPARQL query execution, while applying the activated heuristics.</span>
 
 <span class="sd">    The following directed graph demonstrates the principal procedure. (Nodes represent tasks/processes and edges represent queues for colaboration):</span>
@@ -224,17 +229,16 @@
 
     <span class="c1"># Parse Config from POST Request and Config File</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_request_form</span><span class="p">(</span><span class="n">pre_config</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;To reproduce this call to the api run: run_config.py -c &#39;&quot;</span> <span class="o">+</span>  <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_dict</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;To reproduce this call to the API run: run_config.py -c &#39;&quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_dict</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^\w\-_\. ]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-
     <span class="c1"># Setup Stats Calculation</span>
-    <span class="n">statsCalc</span> <span class="o">=</span> <span class="n">StatsCalculation</span><span class="p">(</span><span class="n">test_identifier</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">,</span> <span class="n">approach_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">statsCalc</span> <span class="o">=</span> <span class="n">StatsCalculation</span><span class="p">(</span><span class="n">test_identifier</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">,</span> <span class="n">approach_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
     <span class="n">statsCalc</span><span class="o">.</span><span class="n">globalCalculationStart</span><span class="p">()</span>
 
-    <span class="c1"># Setup the multiprocessing queue, which will give the final output.</span>
-    <span class="k">if</span> <span class="n">result_queue</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Set up the multiprocessing queue, which will give the final output.</span>
+    <span class="k">if</span> <span class="n">result_queue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">QUEUE_OUTPUT</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">result_queue</span> <span class="o">=</span> <span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -243,7 +247,7 @@
     <span class="c1"># Preparing the multiprocessing queues</span>
     <span class="c1"># 1.) Create new queues for the given request</span>
     <span class="n">stats_out_queue</span> <span class="o">=</span> <span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">get_new_queue</span><span class="p">()</span>
-    <span class="n">contact_source_out_queues</span> <span class="o">=</span> <span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span> 
+    <span class="n">contact_source_out_queues</span> <span class="o">=</span> <span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
     <span class="n">validation_out_queues</span> <span class="o">=</span> <span class="n">VALIDATION_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
     <span class="n">xjoin_out_queues</span> <span class="o">=</span> <span class="n">XJOIN_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
     <span class="n">post_processing_out_queues</span> <span class="o">=</span> <span class="n">POST_PROCESSING_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
@@ -279,50 +283,49 @@
     <span class="n">collect_all_validation_results</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">collect_all_validation_results</span>
 
     <span class="c1"># Sanitizing the input  </span>
-    <span class="k">if</span> <span class="n">query_starshaped</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">collect_all_validation_results</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">query_starshaped</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">collect_all_validation_results</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">collect_all_validation_results</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running in blocking mode as the target variable(s) could not be identified!&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only replace target query if query is starshaped!&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only replace target query if query is star-shaped!&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">query_starshaped</span>
-    
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">collect_all_validation_results</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">collect_all_validation_results</span><span class="p">:</span>
             <span class="n">collect_all_validation_results</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running in blocking mode as the target shape is not given!&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only replace target query if target shape is given!&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">prune_shape_network</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">prune_shape_network</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">prune_shape_network</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only prune shape schema if target shape is given!&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only start with target shape if target shape is given!&#39;</span><span class="p">)</span>
 
     <span class="c1"># Unify target shape -&gt; {?var: list of shapes}</span>
     <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="o">=</span> <span class="n">unify_target_shape</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query_starshaped</span><span class="p">)</span>
 
-
     <span class="c1"># The information we need depends on the output format:</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">reasoning</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">reasoning</span><span class="p">):</span>
         <span class="n">query_to_be_executed</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">query_to_be_executed</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">as_result_query</span><span class="p">()</span>
 
     <span class="n">statsCalc</span><span class="o">.</span><span class="n">taskCalculationStart</span><span class="p">()</span>
 
-    <span class="c1"># Start Processing Pipeline e.g. assigining each process a new task.</span>
+    <span class="c1"># Start Processing Pipeline e.g. assigning each process a new task.</span>
     <span class="c1"># 1.) Get the Data</span>
     <span class="n">contact_source_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">external_endpoint</span><span class="p">,</span> <span class="n">query_to_be_executed</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">contact_source_in_connections</span><span class="p">,</span> <span class="n">contact_source_out_connections</span><span class="p">,</span> <span class="n">contact_source_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
 
     <span class="n">validation_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query_to_be_executed</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">result_transmitter</span><span class="p">)</span>
     <span class="n">VALIDATION_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">validation_in_connections</span><span class="p">,</span> <span class="n">validation_out_connections</span><span class="p">,</span> <span class="n">validation_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
-    
+
     <span class="c1"># 2.) Join the Data</span>
     <span class="n">xjoin_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="p">,)</span>
     <span class="n">XJOIN_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">xjoin_in_connections</span><span class="p">,</span> <span class="n">xjoin_out_connections</span><span class="p">,</span> <span class="n">xjoin_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
@@ -336,9 +339,9 @@
     <span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">output_completion_in_connections</span><span class="p">,</span> <span class="n">output_completion_out_connections</span><span class="p">,</span> <span class="n">output_completion_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">write_stats</span><span class="p">:</span>
-        <span class="n">matrix_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="s2">&quot;matrix.csv&quot;</span><span class="p">)</span>
-        <span class="n">trace_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="s2">&quot;trace.csv&quot;</span><span class="p">)</span>
-        <span class="n">stats_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="s2">&quot;stats.csv&quot;</span><span class="p">)</span>
+        <span class="n">matrix_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="s1">&#39;matrix.csv&#39;</span><span class="p">)</span>
+        <span class="n">trace_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="s1">&#39;trace.csv&#39;</span><span class="p">)</span>
+        <span class="n">stats_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="s1">&#39;stats.csv&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">matrix_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">trace_file</span> <span class="o">=</span> <span class="kc">None</span>
@@ -357,10 +360,10 @@
         <span class="n">result_queue</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;EOF&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">emsg</span>
 
-    <span class="k">if</span> <span class="n">QUEUE_OUTPUT</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUEUE_OUTPUT</span><span class="p">:</span>
         <span class="n">next_result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
             <span class="k">while</span> <span class="n">next_result</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
                 <span class="n">output</span> <span class="o">=</span> <span class="n">next_result</span>
                 <span class="n">next_result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
@@ -369,13 +372,18 @@
             <span class="k">while</span> <span class="n">next_result</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
                 <span class="n">output</span> <span class="o">+=</span> <span class="p">[</span><span class="n">next_result</span><span class="p">]</span>
                 <span class="n">next_result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-                <span class="c1">#logger.debug(next_result)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Finished collecting results!&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="unify_target_shape"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.unify_target_shape">[docs]</a><span class="k">def</span> <span class="nf">unify_target_shape</span><span class="p">(</span><span class="n">target_shape</span><span class="p">,</span><span class="n">query</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_make_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a list from the object passed.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="unify_target_shape"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.unify_target_shape">[docs]</a><span class="k">def</span> <span class="nf">unify_target_shape</span><span class="p">(</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Given a target shape configuration (see :py:attr:`shaclapi.config.target_shape`) and a SPARQL query :class:`shaclapi.query.Query` a reformatted version of the target shape configuration is returned. The format is {?var: list of target shapes}, where ?var is a variable occuring in the query.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -386,14 +394,12 @@
 <span class="sd">    query : shaclapi.query.Query</span>
 <span class="sd">        The SPARQL query.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">make_list</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">])</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">make_list</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>  <span class="k">for</span> <span class="n">var</span><span class="p">,</span><span class="n">shape</span> <span class="ow">in</span> <span class="n">target_shape</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-    <span class="k">elif</span> <span class="n">query</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="n">query</span><span class="o">.</span><span class="n">target_var</span><span class="p">:</span> <span class="n">make_list</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)}</span>
+        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">_make_list</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">target_shape</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">elif</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="n">query</span><span class="o">.</span><span class="n">target_var</span><span class="p">:</span> <span class="n">_make_list</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)}</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;UNDEF&#39;</span><span class="p">:</span> <span class="n">make_list</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)}</span>
+        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;UNDEF&#39;</span><span class="p">:</span> <span class="n">_make_list</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)}</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unified target shape: </span><span class="si">{</span><span class="n">target_shape</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">target_shape</span></div>
 </pre></div>

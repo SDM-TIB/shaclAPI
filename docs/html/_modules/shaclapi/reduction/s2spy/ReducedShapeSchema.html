@@ -146,17 +146,20 @@
               <article class="bd-article" role="main">
                 
   <h1>Source code for shaclapi.reduction.s2spy.ReducedShapeSchema</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">shaclapi.reduction.s2spy.ReducedShapeParser</span> <span class="kn">import</span> <span class="n">ReducedShapeParser</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
 <span class="kn">from</span> <span class="nn">SHACL2SPARQLpy.ShapeNetwork</span> <span class="kn">import</span> <span class="n">ShapeNetwork</span>
 <span class="kn">from</span> <span class="nn">SHACL2SPARQLpy.sparql.SPARQLEndpoint</span> <span class="kn">import</span> <span class="n">SPARQLEndpoint</span>
-<span class="kn">from</span> <span class="nn">shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming</span> <span class="kn">import</span> <span class="n">RuleBasedValidationResultStreaming</span>
 <span class="kn">from</span> <span class="nn">SHACL2SPARQLpy.utils</span> <span class="kn">import</span> <span class="n">fileManagement</span>
 <span class="kn">from</span> <span class="nn">TravSHACL.TravSHACL</span> <span class="kn">import</span> <span class="n">parse_heuristics</span>
 <span class="kn">from</span> <span class="nn">TravSHACL.core.GraphTraversal</span> <span class="kn">import</span> <span class="n">GraphTraversal</span>
-<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">shaclapi.reduction.s2spy.ReducedShapeParser</span> <span class="kn">import</span> <span class="n">ReducedShapeParser</span>
+<span class="kn">from</span> <span class="nn">shaclapi.reduction.s2spy.RuleBasedValidationResultStreaming</span> <span class="kn">import</span> <span class="n">RuleBasedValidationResultStreaming</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -183,25 +186,23 @@
 
 <div class="viewcode-block" id="ReducedShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.s2spy.ReducedShapeSchema.html#shaclapi.reduction.s2spy.ReducedShapeSchema.ReducedShapeSchema.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_with_target_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
-        <span class="c1">#logger.debug(f&#39;Target Shapes:{self.target_shape_list}\nNode Order:{self.node_order}\nStart with Target Shape: {start_with_target_shape}\nStart Shape Config: {self.start_shape_for_validation}&#39;)</span>
-
         <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span><span class="o">.</span><span class="n">start_shape_for_validation</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting with Shape set in Configuration&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting with Shape set in Configuration&#39;</span><span class="p">)</span>
             <span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span><span class="o">.</span><span class="n">start_shape_for_validation</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_order</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using Node Order provided by the shaclapi&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_order</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using Node Order provided by the shaclapi&#39;</span><span class="p">)</span>
             <span class="n">node_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_order</span>
         <span class="k">elif</span> <span class="n">start_with_target_shape</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting with Target Shape&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting with Target Shape&#39;</span><span class="p">)</span>
             <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_shape_list</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Starting with Shape determined by S2Spy&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Starting with Shape determined by S2Spy&#39;</span><span class="p">)</span>
             <span class="kn">from</span> <span class="nn">SHACL2SPARQLpy.utils.globals</span> <span class="kn">import</span> <span class="n">PARSING_ORDER</span>
             <span class="n">node_order</span> <span class="o">=</span> <span class="n">PARSING_ORDER</span>
 
-        <span class="k">if</span> <span class="n">start</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting Point is:&quot;</span> <span class="o">+</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Starting Point is:&#39;</span> <span class="o">+</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">node_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphTraversal</span><span class="o">.</span><span class="n">traverse_graph</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_dependencies</span><span class="p">,</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         
@@ -209,18 +210,18 @@
             <span class="n">s</span><span class="o">.</span><span class="n">computeConstraintQueries</span><span class="p">()</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;validation.log&quot;</span><span class="p">,</span> <span class="s2">&quot;targets_valid.log&quot;</span><span class="p">,</span><span class="s2">&quot;targets_violated.log&quot;</span><span class="p">,</span><span class="s2">&quot;stats.txt&quot;</span><span class="p">,</span><span class="s2">&quot;traces.csv&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;validation.log&#39;</span><span class="p">,</span> <span class="s1">&#39;targets_valid.log&#39;</span><span class="p">,</span> <span class="s1">&#39;targets_violated.log&#39;</span><span class="p">,</span> <span class="s1">&#39;stats.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;traces.csv&#39;</span><span class="p">]:</span>
             <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
 
         <span class="n">RuleBasedValidationResultStreaming</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span>
             <span class="n">node_order</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="p">,</span>
-            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s2">&quot;validation.log&quot;</span><span class="p">),</span>
-            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s2">&quot;targets_valid.log&quot;</span><span class="p">),</span>
-            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s2">&quot;targets_violated.log&quot;</span><span class="p">),</span>
-            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s2">&quot;stats.txt&quot;</span><span class="p">),</span>
-            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s2">&quot;traces.csv&quot;</span><span class="p">),</span>
+            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s1">&#39;validation.log&#39;</span><span class="p">),</span>
+            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s1">&#39;targets_valid.log&#39;</span><span class="p">),</span>
+            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s1">&#39;targets_violated.log&#39;</span><span class="p">),</span>
+            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s1">&#39;stats.txt&#39;</span><span class="p">),</span>
+            <span class="n">fileManagement</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputDirName</span><span class="p">,</span> <span class="s1">&#39;traces.csv&#39;</span><span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">result_transmitter</span>
         <span class="p">)</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">{}</span></div>

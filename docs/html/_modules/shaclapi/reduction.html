@@ -146,9 +146,10 @@
               <article class="bd-article" role="main">
                 
   <h1>Source code for shaclapi.reduction</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ReducedShapeSchema</span> <span class="kn">import</span> <span class="n">ReducedShapeSchema</span> <span class="k">as</span> <span class="n">ReducedShapeSchemaTravShacl</span>
+<span></span><span class="kn">from</span> <span class="nn">TravSHACL.sparql.SPARQLEndpoint</span> <span class="kn">import</span> <span class="n">SPARQLEndpoint</span>
+
 <span class="kn">from</span> <span class="nn">shaclapi.reduction.s2spy.ReducedShapeSchema</span> <span class="kn">import</span> <span class="n">ReducedShapeSchema</span> <span class="k">as</span> <span class="n">ReducedShapeSchemaS2Spy</span>
-<span class="kn">from</span> <span class="nn">TravSHACL.sparql.SPARQLEndpoint</span> <span class="kn">import</span> <span class="n">SPARQLEndpoint</span>
+<span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ReducedShapeSchema</span> <span class="kn">import</span> <span class="n">ReducedShapeSchema</span> <span class="k">as</span> <span class="n">ReducedShapeSchemaTravShacl</span>
 
 
 <div class="viewcode-block" id="prepare_validation"><a class="viewcode-back" href="../../shaclapi.reduction.html#shaclapi.reduction.prepare_validation">[docs]</a><span class="k">def</span> <span class="nf">prepare_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
@@ -158,15 +159,15 @@
 <span class="sd">    this methode will prepare a matching ShapeSchema to be used for validation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Prepare the backend and choose the matching inherited ShapeSchema.</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;travshacl&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s1">&#39;travshacl&#39;</span><span class="p">:</span>
         <span class="n">ShapeSchema</span> <span class="o">=</span> <span class="n">ReducedShapeSchemaTravShacl</span>
-        <span class="n">SPARQLEndpoint</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># The SPARQLEndpoint Object of Travshacl is a singleton, so we need to rest it otherwise it won&#39;t change</span>
-    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;s2spy&quot;</span><span class="p">:</span>
+        <span class="n">SPARQLEndpoint</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># The SPARQLEndpoint Object of Travshacl is a singleton, so we need to rest it otherwise it won&#39;t change</span>
+    <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s1">&#39;s2spy&#39;</span><span class="p">:</span>
         <span class="n">ShapeSchema</span> <span class="o">=</span> <span class="n">ReducedShapeSchemaS2Spy</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;The given backend </span><span class="si">{}</span><span class="s2"> is not implemented&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;The given backend </span><span class="si">{}</span><span class="s1"> is not implemented&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">))</span>
     
-    <span class="c1"># Initalize the ShapeSchema, this will parse the Shapes from the files and reduce the network as configured. </span>
+    <span class="c1"># Initialize the ShapeSchema, this will parse the Shapes from the files and reduce the network as configured.</span>
     <span class="n">shape_schema</span> <span class="o">=</span> <span class="n">ShapeSchema</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">shape_schema</span></div>
 </pre></div>

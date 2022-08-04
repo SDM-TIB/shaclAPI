@@ -152,8 +152,6 @@
 <span class="sd">@author: Maribel Acosta Deibe</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c1"># from time import time</span>
-
 
 <div class="viewcode-block" id="Record"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgjoin.OperatorStructures.html#shaclapi.multiprocessing.Xgjoin.OperatorStructures.Record">[docs]</a><span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -179,7 +177,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">rjtProbeTS</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="p">[</span><span class="n">record</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rjtProbeTS</span> <span class="o">=</span> <span class="n">rjtProbeTS</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flushTS</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flushTS</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RJTTail.updateRecords"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgjoin.OperatorStructures.html#shaclapi.multiprocessing.Xgjoin.OperatorStructures.RJTTail.updateRecords">[docs]</a>    <span class="k">def</span> <span class="nf">updateRecords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div>
@@ -200,16 +198,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lastFlushTS</span> <span class="o">=</span> <span class="n">lastFlushTS</span>
-        <span class="c1"># self.table = table</span>
 
 <div class="viewcode-block" id="FileDescriptor.getSize"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgjoin.OperatorStructures.html#shaclapi.multiprocessing.Xgjoin.OperatorStructures.FileDescriptor.getSize">[docs]</a>    <span class="k">def</span> <span class="nf">getSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span></div></div>
-
-<span class="c1">#    def setSize(self, size):</span>
-<span class="c1">#        self.size = size</span>
-<span class="c1">#</span>
-<span class="c1">#    def setLastFlushTS(self, lastFlushTS):</span>
-<span class="c1">#        self.lastFlushTS = lastFlushTS</span>
 </pre></div>
 
               </article>

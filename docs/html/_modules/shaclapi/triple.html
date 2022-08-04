@@ -146,11 +146,12 @@
               <article class="bd-article" role="main">
                 
   <h1>Source code for shaclapi.triple</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">rdflib.term</span>
-<span class="kn">from</span> <span class="nn">rdflib.paths</span> <span class="kn">import</span> <span class="n">InvPath</span>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
+
+<span class="kn">import</span> <span class="nn">rdflib.term</span>
 <span class="kn">from</span> <span class="nn">rdflib.namespace</span> <span class="kn">import</span> <span class="n">RDF</span>
+<span class="kn">from</span> <span class="nn">rdflib.paths</span> <span class="kn">import</span> <span class="n">InvPath</span>
 <span class="kn">from</span> <span class="nn">rdflib.term</span> <span class="kn">import</span> <span class="n">URIRef</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
 
 
 <div class="viewcode-block" id="TripleE"><a class="viewcode-back" href="../../shaclapi.triple.html#shaclapi.triple.TripleE">[docs]</a><span class="k">class</span> <span class="nc">TripleE</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
@@ -162,7 +163,7 @@
 <div class="viewcode-block" id="Triple"><a class="viewcode-back" href="../../shaclapi.triple.html#shaclapi.triple.Triple">[docs]</a><span class="k">class</span> <span class="nc">Triple</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Representation of a Triple, which consists of a subject, a predicate and an object.</span>
-<span class="sd">    Additionally a triple can be marked as optional.</span>
+<span class="sd">    Additionally, a triple can be marked as optional.</span>
 <span class="sd">    Subject, predicate and objects need to be rdflib objects with n3() functions, which accept</span>
 <span class="sd">    rdflib namespace_manager objects for shortening URIs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -180,7 +181,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">optional</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">optional</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicate</span> <span class="o">==</span> <span class="s2">&quot;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicate</span> <span class="o">==</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicate</span> <span class="o">==</span> <span class="s1">&#39;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicate</span> <span class="o">==</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="n">rdflib</span><span class="o">.</span><span class="n">term</span><span class="o">.</span><span class="n">URIRef</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">predicate</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">predicate</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="n">rdflib</span><span class="o">.</span><span class="n">term</span><span class="o">.</span><span class="n">URIRef</span><span class="p">):</span>

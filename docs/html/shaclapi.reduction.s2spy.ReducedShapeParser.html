@@ -355,7 +355,9 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseShapesFromDir">
 <span class="sig-name descname"><span class="pre">parseShapesFromDir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapeFormat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useSelectiveQueries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxSplitSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ORDERBYinQueries</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.parseShapesFromDir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseShapesFromDir" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Parses shapes from a directory. However, shapes are only relevant if they occur in the query or are
+reachable from shapes occurring in the query. The remaining shapes can be removed.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.replace_target_query">
@@ -370,17 +372,33 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraints">
 <span class="sig-name descname"><span class="pre">parseConstraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapeName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraintsId</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.parseConstraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraints" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>parseConstraint can return None, which need to be filtered.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraint">
 <span class="sig-name descname"><span class="pre">parseConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">varGenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.parseConstraint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraint" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl>
+<dt>Constraints are only relevant if:</dt><dd><ul class="simple">
+<li><p>subject and object do both NOT belong to the targetShape</p></li>
+</ul>
+<p>OR
+- subject or object belong to the targetShape AND the predicate is part of the query</p>
+<blockquote>
+<div><p>(-&gt; inverted paths can be treated equally to normal paths)</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>Other constraints are not relevant and result in a None.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.shapeReferences">
 <span class="sig-name descname"><span class="pre">shapeReferences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraints</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.shapeReferences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.shapeReferences" title="Permalink to this definition">#</a></dt>
-<dd><p>shape_references is used to get the references in self.currentShape to other shapes.
+<dd><p>Constraints and references are parsed independently based on the input SHACL shape schema.
+Constraints that are removed in parse_constraint() should not appear in the references.
+self.removed_constraints keeps track of the removed constraints</p>
+<p>shape_references is used to get the references in self.currentShape to other shapes.
 It then returns ONE path of a constraint referencing to that shape (The other ones are ignored?!)</p>
 </dd></dl>
 
@@ -388,6 +406,8 @@ It then returns ONE path of a constraint referencing to that shape (The other on
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.computeReducedEdges">
 <span class="sig-name descname"><span class="pre">computeReducedEdges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.computeReducedEdges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.computeReducedEdges" title="Permalink to this definition">#</a></dt>
 <dd><p>Computes the edges in the network.</p>
+<p>Returns unidirectional dependencies with a single exception:
+Reversed dependencies are included, if they aim at the targetShape.</p>
 </dd></dl>
 
 </dd></dl>

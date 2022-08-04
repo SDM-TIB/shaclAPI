@@ -146,11 +146,13 @@
               <article class="bd-article" role="main">
                 
   <h1>Source code for shaclapi.reduction.travshacl.ReducedShapeParser</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">TravSHACL.core.ShapeParser</span> <span class="kn">import</span> <span class="n">ShapeParser</span>
-<span class="kn">from</span> <span class="nn">shaclapi.query</span> <span class="kn">import</span> <span class="n">Query</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="kn">from</span> <span class="nn">TravSHACL.core.ShapeParser</span> <span class="kn">import</span> <span class="n">ShapeParser</span>
+
 <span class="kn">from</span> <span class="nn">shaclapi.reduction.Reduction</span> <span class="kn">import</span> <span class="n">Reduction</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -161,20 +163,19 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">query</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">targetShapes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span><span class="s1">&#39;UNDEF&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">]}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targetShapeList</span> <span class="o">=</span> <span class="p">[</span><span class="n">shape</span> <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">if</span> <span class="n">shape</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targetShapeList</span> <span class="o">=</span> <span class="p">[</span><span class="n">shape</span> <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">currentShape</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">removed_constraints</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">involvedShapesPerTarget</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_traversal</span> <span class="o">=</span> <span class="n">graph_traversal</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Shapes are only relevant, if they (partially) occur in the query. Other shapes can be removed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
 <div class="viewcode-block" id="ReducedShapeParser.parse_shapes_from_dir"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_shapes_from_dir">[docs]</a>    <span class="k">def</span> <span class="nf">parse_shapes_from_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">shapeFormat</span><span class="p">,</span> <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">):</span>
-        <span class="n">all_shapes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_shapes_from_dir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">shapeFormat</span><span class="p">,</span>
-                                               <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses shapes from a directory. However, shapes are only relevant if they occur in the query or are</span>
+<span class="sd">        reachable from shapes occurring in the query. The remaining shapes can be removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_shapes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_shapes_from_dir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">shapeFormat</span><span class="p">,</span> <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">)</span>
         <span class="n">reducer</span> <span class="o">=</span> <span class="n">Reduction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># Step 1: Prune not reachable shapes</span>
@@ -183,15 +184,15 @@
             <span class="n">shapes</span> <span class="o">=</span> <span class="n">reduced_shapes</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">shapes</span> <span class="o">=</span> <span class="n">all_shapes</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Shape Network is not pruned!&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Shape Network is not pruned!&#39;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Removed Constraints:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">removed_constraints</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Removed Constraints:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">removed_constraints</span><span class="p">))</span>
 
         <span class="c1"># Step 2: Replace appropriate target queries</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="ow">and</span> <span class="s1">&#39;UNDEF&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapes</span><span class="p">:</span>
             <span class="n">reducer</span><span class="o">.</span><span class="n">replace_target_query</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapeList</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">merge_old_target_query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">query_extension_per_target_shape</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Using Shape Schema WITHOUT replaced target query!&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Using Shape Schema WITHOUT replaced target query!&#39;</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">reducer</span><span class="o">.</span><span class="n">node_order</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targetShapeList</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapeList</span>
@@ -206,25 +207,23 @@
 <div class="viewcode-block" id="ReducedShapeParser.shape_get_id"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.shape_get_id">[docs]</a>    <span class="k">def</span> <span class="nf">shape_get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">shape</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span></div>
    
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    parseConstraint can return None, which need to be filtered.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
 <div class="viewcode-block" id="ReducedShapeParser.parse_constraints"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">parse_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">targetDef</span><span class="p">,</span> <span class="n">constraintsId</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        parseConstraint can return None, which need to be filtered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">currentShape</span> <span class="o">=</span> <span class="n">constraintsId</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">removed_constraints</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">currentShape</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_constraints</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">targetDef</span><span class="p">,</span> <span class="n">constraintsId</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span><span class="p">]</span></div>
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Constraints are only relevant if:</span>
-<span class="sd">        - subject and object do both NOT belong to the targetShape</span>
-<span class="sd">        OR</span>
-<span class="sd">        - subject or object belong to the targetShape AND the predicate is part of the query</span>
-<span class="sd">            (-&gt; inverted paths can be treated equally to normal paths)</span>
-<span class="sd">    Other constraints are not relevant and result in a None.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
 <div class="viewcode-block" id="ReducedShapeParser.parse_constraint"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">parse_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varGenerator</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">targetDef</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constraints are only relevant if:</span>
+<span class="sd">            - subject and object do both NOT belong to the targetShape</span>
+<span class="sd">            OR</span>
+<span class="sd">            - subject or object belong to the targetShape AND the predicate is part of the query</span>
+<span class="sd">                (-&gt; inverted paths can be treated equally to normal paths)</span>
+<span class="sd">        Other constraints are not relevant and result in a None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">remove_constraints</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentShape</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapeList</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shape&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetShapeList</span><span class="p">):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">][</span><span class="n">obj</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;^&#39;</span><span class="p">):]</span>
             <span class="k">if</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_predicates</span><span class="p">(</span><span class="n">replace_prefixes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -234,26 +233,25 @@
                 <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_constraint</span><span class="p">(</span><span class="n">varGenerator</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">targetDef</span><span class="p">)</span></div>
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    constraints and references are parsed independently based on the json. </span>
-<span class="sd">    Constraints that are removed in parse_constraint() should not appear in the references.</span>
-<span class="sd">    self.removed_constraints keeps track of the removed constraints</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
 <div class="viewcode-block" id="ReducedShapeParser.shape_references"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.shape_references">[docs]</a>    <span class="k">def</span> <span class="nf">shape_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        shape_references is used to get the references in self.currentShape to other shapes. </span>
-<span class="sd">        It then returns ONE path of a constraint referencing to that shape (The other ones are ignored?!)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shape&quot;</span><span class="p">):</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">constraints</span>
-                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shape&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">removed_constraints</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">currentShape</span><span class="p">]}</span></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constraints and references are parsed independently based on the input SHACL shape schema.</span>
+<span class="sd">        Constraints that are removed in parse_constraint() should not appear in the references.</span>
+<span class="sd">        self.removed_constraints keeps track of the removed constraints</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns unidirectional dependencies with a single exception: Reversed dependencies are included, if they aim at the targetShape.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        shape_references is used to get the references in self.currentShape to other shapes.</span>
+<span class="sd">        It then returns ONE path of a constraint referencing to that shape (The other ones are ignored?!)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shape&#39;</span><span class="p">):</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">constraints</span>
+                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shape&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">removed_constraints</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">currentShape</span><span class="p">]}</span></div>
 
 <div class="viewcode-block" id="ReducedShapeParser.computeReducedEdges"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.computeReducedEdges">[docs]</a>    <span class="k">def</span> <span class="nf">computeReducedEdges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Computes the edges in the network.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the edges in the network.</span>
+
+<span class="sd">        Returns unidirectional dependencies with a single exception:</span>
+<span class="sd">        Reversed dependencies are included, if they aim at the targetShape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dependencies</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">}</span>
         <span class="n">reverse_dependencies</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">:</span>

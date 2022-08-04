@@ -146,7 +146,10 @@
               <article class="bd-article" role="main">
                 
   <h1>Source code for shaclapi.statsCalculation</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
 
 <div class="viewcode-block" id="StatsCalculation"><a class="viewcode-back" href="../../shaclapi.statsCalculation.html#shaclapi.statsCalculation.StatsCalculation">[docs]</a><span class="k">class</span> <span class="nc">StatsCalculation</span><span class="p">:</span>
 
@@ -172,6 +175,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">first_validation_result_time</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_of_results</span> <span class="o">=</span> <span class="s1">&#39;Not Calculated&#39;</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_start_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_end_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_start_time</span> <span class="o">=</span> <span class="kc">None</span>
+
 <div class="viewcode-block" id="StatsCalculation.globalCalculationStart"><a class="viewcode-back" href="../../shaclapi.statsCalculation.html#shaclapi.statsCalculation.StatsCalculation.globalCalculationStart">[docs]</a>    <span class="k">def</span> <span class="nf">globalCalculationStart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">global_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
     
@@ -182,31 +189,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">task_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="StatsCalculation.receive_and_write_trace"><a class="viewcode-back" href="../../shaclapi.statsCalculation.html#shaclapi.statsCalculation.StatsCalculation.receive_and_write_trace">[docs]</a>    <span class="k">def</span> <span class="nf">receive_and_write_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace_file</span><span class="p">,</span> <span class="n">timestamp_queue</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This assigns the timestamp of the first and the last result; writes the trace file and counts the number of results.</span>
-<span class="sd">        This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step) </span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">trace_file</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">f</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv</span><span class="p">(</span><span class="n">trace_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="s1">&#39;approach&#39;</span><span class="p">,</span><span class="s1">&#39;answer&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">])</span>
+<span class="sd">        This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">trace_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv</span><span class="p">(</span><span class="n">trace_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;approach&#39;</span><span class="p">,</span> <span class="s1">&#39;answer&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">])</span>
             
         <span class="n">received_results</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">timestamp_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="k">while</span> <span class="n">result</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
             <span class="n">received_results</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">trace_file</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">({</span><span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span><span class="p">,</span>
-                               <span class="s2">&quot;approach&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span><span class="p">,</span>
-                               <span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="n">received_results</span><span class="p">,</span>
-                               <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_start_time</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">trace_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">({</span>
+                    <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span><span class="p">,</span>
+                    <span class="s1">&#39;approach&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span><span class="p">,</span>
+                    <span class="s1">&#39;answer&#39;</span><span class="p">:</span> <span class="n">received_results</span><span class="p">,</span>
+                    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_start_time</span>
+                <span class="p">})</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">last_result_timestamp</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_result_timestamp</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">first_result_timestamp</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">timestamp_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_of_results</span> <span class="o">=</span> <span class="n">received_results</span>
-        <span class="k">if</span> <span class="n">trace_file</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">trace_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
-    
-    <span class="k">def</span> <span class="nf">_open_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_open_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;w&#39;</span>
         <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
         <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
@@ -215,9 +225,9 @@
         <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">writer</span>
 
 <div class="viewcode-block" id="StatsCalculation.receive_global_stats"><a class="viewcode-back" href="../../shaclapi.statsCalculation.html#shaclapi.statsCalculation.StatsCalculation.receive_global_stats">[docs]</a>    <span class="k">def</span> <span class="nf">receive_global_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">using_output_completion_runner</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Receiving start and stop times of the different steps and also the time  of the first validation result.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">needed_stats</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mp_validate&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                         <span class="s1">&#39;contactSource&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                         <span class="s1">&#39;mp_xjoin&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -243,35 +253,35 @@
             <span class="k">elif</span> <span class="n">statistic</span><span class="p">[</span><span class="s1">&#39;topic&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mp_output_completion&#39;</span><span class="p">:</span>
                 <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_end_time</span> <span class="o">=</span> <span class="n">statistic</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">statistic</span><span class="p">[</span><span class="s1">&#39;topic&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Exception&#39;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;An Exception occurred in &quot;</span> <span class="o">+</span> <span class="n">statistic</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">])</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;An Exception occurred in &#39;</span> <span class="o">+</span> <span class="n">statistic</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;received statistic with unknown topic: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">statistic</span><span class="p">[</span><span class="s1">&#39;topic&#39;</span><span class="p">]))</span></div>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;received statistic with unknown topic: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">statistic</span><span class="p">[</span><span class="s1">&#39;topic&#39;</span><span class="p">]))</span></div>
 
 <div class="viewcode-block" id="StatsCalculation.write_matrix_and_stats_files"><a class="viewcode-back" href="../../shaclapi.statsCalculation.html#shaclapi.statsCalculation.StatsCalculation.write_matrix_and_stats_files">[docs]</a>    <span class="k">def</span> <span class="nf">write_matrix_and_stats_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix_file</span><span class="p">,</span> <span class="n">stats_file</span><span class="p">):</span>
         <span class="n">total_execution_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_start_time</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_started_time</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_finished_time</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_started_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_finished_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">query_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_finished_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_started_time</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">query_time</span> <span class="o">=</span> <span class="s1">&#39;NaN&#39;</span>
         
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_finished_time</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_started_time</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_finished_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_started_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">network_validation_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_finished_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_started_time</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">network_validation_time</span> <span class="o">=</span> <span class="s1">&#39;NaN&#39;</span>
         
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_processing_finished_time</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_processing_started_time</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_processing_finished_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_processing_started_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">post_processing_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_processing_finished_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_processing_started_time</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">post_processing_time</span> <span class="o">=</span> <span class="s1">&#39;NaN&#39;</span>
 
-        <span class="c1"># Using the maximum of this timestamps because the later one better describes the &quot;real&quot; start of the join.</span>
+        <span class="c1"># Using the maximum of these timestamps because the later one better describes the &#39;real&#39; start of the join.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_validation_result_time</span><span class="p">:</span>
             <span class="n">approximated_join_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">join_started_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_validation_result_time</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span> 
             <span class="n">approximated_join_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_started_time</span>
         
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_started_time</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_finished_time</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_started_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_finished_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">join_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_finished_time</span> <span class="o">-</span> <span class="n">approximated_join_start</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">join_time</span> <span class="o">=</span> <span class="s1">&#39;NaN&#39;</span>
@@ -279,31 +289,31 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_result_timestamp</span><span class="p">:</span>
             <span class="n">first_result_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_result_timestamp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_start_time</span>
         <span class="k">else</span><span class="p">:</span> 
-            <span class="n">first_result_time</span> <span class="o">=</span> <span class="s2">&quot;NaN&quot;</span>
+            <span class="n">first_result_time</span> <span class="o">=</span> <span class="s1">&#39;NaN&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result_timestamp</span><span class="p">:</span>
             <span class="n">last_result_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result_timestamp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_start_time</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">last_result_time</span> <span class="o">=</span> <span class="s2">&quot;NaN&quot;</span>
+            <span class="n">last_result_time</span> <span class="o">=</span> <span class="s1">&#39;NaN&#39;</span>
 
-        <span class="n">matrix_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span><span class="p">,</span>
-                        <span class="s2">&quot;approach&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span><span class="p">,</span>
-                        <span class="s2">&quot;tfft&quot;</span><span class="p">:</span> <span class="n">first_result_time</span><span class="p">,</span>
-                        <span class="s2">&quot;totaltime&quot;</span><span class="p">:</span> <span class="n">last_result_time</span><span class="p">,</span>
-                        <span class="s2">&quot;comp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_results</span><span class="p">}</span>
-        <span class="n">stats_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span><span class="p">,</span>
-                       <span class="s2">&quot;approach&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span><span class="p">,</span>
-                       <span class="s2">&quot;total_execution_time&quot;</span><span class="p">:</span> <span class="n">total_execution_time</span><span class="p">,</span>
-                       <span class="s2">&quot;query_time&quot;</span><span class="p">:</span> <span class="n">query_time</span><span class="p">,</span>
-                       <span class="s2">&quot;network_validation_time&quot;</span><span class="p">:</span> <span class="n">network_validation_time</span><span class="p">,</span>
-                       <span class="s2">&quot;join_time&quot;</span><span class="p">:</span> <span class="n">join_time</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">matrix_file</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">f</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv</span><span class="p">(</span><span class="n">matrix_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="s1">&#39;approach&#39;</span><span class="p">,</span><span class="s1">&#39;tfft&#39;</span><span class="p">,</span> <span class="s1">&#39;totaltime&#39;</span><span class="p">,</span> <span class="s1">&#39;comp&#39;</span><span class="p">])</span>
+        <span class="n">matrix_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span><span class="p">,</span>
+                        <span class="s1">&#39;approach&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span><span class="p">,</span>
+                        <span class="s1">&#39;tfft&#39;</span><span class="p">:</span> <span class="n">first_result_time</span><span class="p">,</span>
+                        <span class="s1">&#39;totaltime&#39;</span><span class="p">:</span> <span class="n">last_result_time</span><span class="p">,</span>
+                        <span class="s1">&#39;comp&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_results</span><span class="p">}</span>
+        <span class="n">stats_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span><span class="p">,</span>
+                       <span class="s1">&#39;approach&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span><span class="p">,</span>
+                       <span class="s1">&#39;total_execution_time&#39;</span><span class="p">:</span> <span class="n">total_execution_time</span><span class="p">,</span>
+                       <span class="s1">&#39;query_time&#39;</span><span class="p">:</span> <span class="n">query_time</span><span class="p">,</span>
+                       <span class="s1">&#39;network_validation_time&#39;</span><span class="p">:</span> <span class="n">network_validation_time</span><span class="p">,</span>
+                       <span class="s1">&#39;join_time&#39;</span><span class="p">:</span> <span class="n">join_time</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">matrix_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv</span><span class="p">(</span><span class="n">matrix_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;approach&#39;</span><span class="p">,</span> <span class="s1">&#39;tfft&#39;</span><span class="p">,</span> <span class="s1">&#39;totaltime&#39;</span><span class="p">,</span> <span class="s1">&#39;comp&#39;</span><span class="p">])</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">matrix_entry</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">stats_file</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">f</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv</span><span class="p">(</span><span class="n">stats_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;approach&#39;</span><span class="p">,</span><span class="s1">&#39;total_execution_time&#39;</span><span class="p">,</span> <span class="s1">&#39;query_time&#39;</span><span class="p">,</span> <span class="s1">&#39;network_validation_time&#39;</span><span class="p">,</span> <span class="s1">&#39;join_time&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">stats_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv</span><span class="p">(</span><span class="n">stats_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;approach&#39;</span><span class="p">,</span> <span class="s1">&#39;total_execution_time&#39;</span><span class="p">,</span> <span class="s1">&#39;query_time&#39;</span><span class="p">,</span> <span class="s1">&#39;network_validation_time&#39;</span><span class="p">,</span> <span class="s1">&#39;join_time&#39;</span><span class="p">])</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">stats_entry</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
 </pre></div>

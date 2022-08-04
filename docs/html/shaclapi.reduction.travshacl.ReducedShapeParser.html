@@ -355,22 +355,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_shapes_from_dir">
 <span class="sig-name descname"><span class="pre">parse_shapes_from_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapeFormat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useSelectiveQueries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxSplitSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ORDERBYinQueries</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/travshacl/ReducedShapeParser.html#ReducedShapeParser.parse_shapes_from_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_shapes_from_dir" title="Permalink to this definition">#</a></dt>
-<dd><p>Parses all files of a certain file extension in the directory.
-It assumes that each file represents one SHACL shape.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> – the path to the directory that stores the shapes files</p></li>
-<li><p><strong>shape_format</strong> – the representation format of the shape definitions</p></li>
-<li><p><strong>use_selective_queries</strong> – indicates whether or not selective queries are used</p></li>
-<li><p><strong>max_split_size</strong> – maximum number of instances per query</p></li>
-<li><p><strong>order_by_in_queries</strong> – indicates whether or not to use the ORDER BY clause</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of Shapes parsed from the files</p>
-</dd>
-</dl>
+<dd><p>Parses shapes from a directory. However, shapes are only relevant if they occur in the query or are
+reachable from shapes occurring in the query. The remaining shapes can be removed.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -386,44 +372,33 @@ It assumes that each file represents one SHACL shape.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_constraints">
 <span class="sig-name descname"><span class="pre">parse_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraintsId</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/travshacl/ReducedShapeParser.html#ReducedShapeParser.parse_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_constraints" title="Permalink to this definition">#</a></dt>
-<dd><p>Parses all constraints of a shape.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>array</strong> – list of constraints belonging to the shape</p></li>
-<li><p><strong>target_def</strong> – the target definition of the shape</p></li>
-<li><p><strong>constraints_id</strong> – suffix for the constraint IDs</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of constraints in internal constraint representation</p>
-</dd>
-</dl>
+<dd><p>parseConstraint can return None, which need to be filtered.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_constraint">
 <span class="sig-name descname"><span class="pre">parse_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">varGenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/travshacl/ReducedShapeParser.html#ReducedShapeParser.parse_constraint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_constraint" title="Permalink to this definition">#</a></dt>
-<dd><p>Parses one constraint to the internal representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>var_generator</strong> – reference to the VariableGenerator instance for variable generation for SPARQL queries</p></li>
-<li><p><strong>obj</strong> – the constraint in its original representation</p></li>
-<li><p><strong>id</strong> – suffix for the constraint ID</p></li>
-<li><p><strong>target_def</strong> – the target definition of the associated shape</p></li>
+<dd><dl>
+<dt>Constraints are only relevant if:</dt><dd><ul class="simple">
+<li><p>subject and object do both NOT belong to the targetShape</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>constraint in internal representation</p>
+<p>OR
+- subject or object belong to the targetShape AND the predicate is part of the query</p>
+<blockquote>
+<div><p>(-&gt; inverted paths can be treated equally to normal paths)</p>
+</div></blockquote>
 </dd>
 </dl>
+<p>Other constraints are not relevant and result in a None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.shape_references">
 <span class="sig-name descname"><span class="pre">shape_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraints</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/travshacl/ReducedShapeParser.html#ReducedShapeParser.shape_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.shape_references" title="Permalink to this definition">#</a></dt>
-<dd><p>shape_references is used to get the references in self.currentShape to other shapes.
+<dd><p>Constraints and references are parsed independently based on the input SHACL shape schema.
+Constraints that are removed in parse_constraint() should not appear in the references.
+self.removed_constraints keeps track of the removed constraints</p>
+<p>shape_references is used to get the references in self.currentShape to other shapes.
 It then returns ONE path of a constraint referencing to that shape (The other ones are ignored?!)</p>
 </dd></dl>
 
@@ -431,6 +406,8 @@ It then returns ONE path of a constraint referencing to that shape (The other on
 <dt class="sig sig-object py" id="shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.computeReducedEdges">
 <span class="sig-name descname"><span class="pre">computeReducedEdges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/travshacl/ReducedShapeParser.html#ReducedShapeParser.computeReducedEdges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.computeReducedEdges" title="Permalink to this definition">#</a></dt>
 <dd><p>Computes the edges in the network.</p>
+<p>Returns unidirectional dependencies with a single exception:
+Reversed dependencies are included, if they aim at the targetShape.</p>
 </dd></dl>
 
 </dd></dl>

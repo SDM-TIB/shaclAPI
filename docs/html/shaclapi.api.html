@@ -349,8 +349,8 @@
   <section id="module-shaclapi.api">
 <span id="shaclapi-api-module"></span><h1>shaclapi.api module<a class="headerlink" href="#module-shaclapi.api" title="Permalink to this heading">#</a></h1>
 <p>This module offers the main functionalities of the shaclAPI to the user.</p>
-<p>The shaclAPI uses python’s multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.
-Due to delays occuring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process.</p>
+<p>The shaclAPI uses Python’s multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.
+Due to delays occurring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="shaclapi.api.get_result_queue">
 <span class="sig-prename descclassname"><span class="pre">shaclapi.api.</span></span><span class="sig-name descname"><span class="pre">get_result_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/api.html#get_result_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.api.get_result_queue" title="Permalink to this definition">#</a></dt>
