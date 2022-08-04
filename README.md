@@ -1,5 +1,11 @@
 [![Tests](https://github.com/SDM-TIB/shaclAPI/actions/workflows/test.yml/badge.svg)](https://github.com/SDM-TIB/shaclAPI/actions/workflows/test.yml)
+[![Latest Release](http://img.shields.io/github/release/SDM-TIB/shaclAPI.svg?logo=github)](https://github.com/SDM-TIB/shaclAPI/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
+[![Python Versions](https://img.shields.io/pypi/pyversions/shaclapi)](https://pypi.org/project/shaclapi)
+[![Package Format](https://img.shields.io/pypi/format/shaclapi)](https://pypi.org/project/shaclapi)
+[![Package Status](https://img.shields.io/pypi/status/shaclapi)](https://pypi.org/project/shaclapi)
+[![Package Version](https://img.shields.io/pypi/v/shaclapi)](https://pypi.org/project/shaclapi)
 
 # shaclAPI
 
