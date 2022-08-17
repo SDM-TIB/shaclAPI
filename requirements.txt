@@ -1,8 +1,8 @@
-Flask==2.0.3
-multiprocessing_logging==0.3.1
-rdflib==6.1.1
-regex==2022.3.15
-requests==2.27.1
+Flask==2.2.2
+multiprocessing_logging==0.3.3
+rdflib==6.2.0
+regex==2022.7.25
+requests==2.28.1
 SPARQLWrapper==2.0.0
 SHACL2SPARQLpy==1.1.1
 TravSHACL==1.0.2
