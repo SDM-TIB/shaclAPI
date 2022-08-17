@@ -18,7 +18,6 @@ shaclapi_logger.setup(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Due to the processes starting, when importing something from shaclapi.api, its necessary to call shaclapi_logger.setup(...) before otherwise logging from the processes do not work.
-from shaclapi.api import unify_target_shape
 import shaclapi.api as api
 
 app = Flask(__name__)
@@ -55,7 +54,7 @@ def route_validation():
 
     query = Query.prepare_query(config.query)
     query_starshaped = query.make_starshaped()
-    config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
+    config.target_shape = api.unify_target_shape(config.target_shape, query_starshaped)
 
     shape_schema = prepare_validation(config, Query(config.query), result_transmitter)
     shape_schema.validate(config.start_with_target_shape)
