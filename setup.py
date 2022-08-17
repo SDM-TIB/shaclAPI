@@ -20,12 +20,12 @@ setup(
     download_url='https://github.com/SDM-TIB/shaclAPI/archive/refs/tags/v' + VERSION + '.tar.gz',
     packages=find_packages(exclude='tests'),
     install_requires=[
-        'SPARQLWrapper==2.0.0',
-        'requests==2.27.1',
+        'SPARQLWrapper>=2.0.0',
+        'requests>=2.27.1',
         'SHACL2SPARQLpy==1.1.1',
         'TravSHACL==1.0.2',
-        'multiprocessing_logging==0.3.1',
-        'regex==2022.3.15'
+        'multiprocessing_logging>=0.3.1',
+        'regex>=2022.3.15'
     ],
     include_package_data=True,
     python_requires='>=3.8',
