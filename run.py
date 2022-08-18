@@ -52,11 +52,13 @@ def route_validation():
     queue = Queue()
     result_transmitter = ValidationResultTransmitter(output_queue=queue)
 
-    query = Query.prepare_query(config.query)
-    query_starshaped = query.make_starshaped()
-    config.target_shape = api.unify_target_shape(config.target_shape, query_starshaped)
+    query = config.query
+    if query is not None:
+        query = Query.prepare_query(config.query)
+        query_starshaped = query.make_starshaped()
+        config.target_shape = api.unify_target_shape(config.target_shape, query_starshaped)
 
-    shape_schema = prepare_validation(config, Query(config.query), result_transmitter)
+    shape_schema = prepare_validation(config, Query(config.query) if query is not None else None, result_transmitter)
     shape_schema.validate(config.start_with_target_shape)
     queue.put('EOF')
 

@@ -85,6 +85,10 @@ def run_multiprocessing(pre_config, result_queue=None):
     os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)
     os.makedirs(os.path.join(config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier)), exist_ok=True)
 
+    # Check if query is given
+    if config.query is None:
+        raise Exception('The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.')
+
     # Setup Stats Calculation
     statsCalc = StatsCalculation(test_identifier=config.test_identifier, approach_name=os.path.basename(config.config))
     statsCalc.globalCalculationStart()

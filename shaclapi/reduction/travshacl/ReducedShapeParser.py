@@ -41,7 +41,7 @@ class ReducedShapeParser(ShapeParser):
         logger.debug('Removed Constraints:' + str(self.removed_constraints))
 
         # Step 2: Replace appropriate target queries
-        if self.config.replace_target_query and 'UNDEF' not in self.targetShapes:
+        if self.query is not None and self.config.replace_target_query and 'UNDEF' not in self.targetShapes:
             reducer.replace_target_query(shapes, self.query, self.targetShapes, self.targetShapeList, self.config.merge_old_target_query, self.config.query_extension_per_target_shape)
         else:
             logger.warning('Using Shape Schema WITHOUT replaced target query!')
@@ -76,7 +76,7 @@ class ReducedShapeParser(ShapeParser):
                 (-> inverted paths can be treated equally to normal paths)
         Other constraints are not relevant and result in a None.
         """
-        if self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
+        if self.query is not None and self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
             path = obj['path'][obj['path'].startswith('^'):]
             if path in self.query.get_predicates(replace_prefixes=False):
                 return super().parse_constraint(varGenerator, obj, id, targetDef)

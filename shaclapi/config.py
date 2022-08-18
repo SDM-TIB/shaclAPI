@@ -48,7 +48,7 @@ class Config:
         if 'query' in self.config_dict:
             return self.config_dict['query']
         else:
-            raise Exception('The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.')
+            return None
 
     @property
     def external_endpoint(self):
