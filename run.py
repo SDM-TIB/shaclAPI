@@ -41,7 +41,9 @@ def route_multiprocessing():
 
 @app.route('/validation', methods=['POST'])
 def route_validation():
-    """Use the heuristics implemented and activated in the given configuration, to run the validation over the reduced SHACL shape schema. Only returns the number of valid and invalid instances.
+    """Use the heuristics implemented and activated in the given configuration, to run the
+    validation over the reduced SHACL shape schema. Returns the validation results per instance
+    as well as the number of valid and invalid instances per shape.
 
     Returns
     -------
@@ -70,8 +72,9 @@ def route_validation():
         val_res = item['validation'][1]
 
         if val_shape not in val_results:
-            val_results[val_shape] = {'valid': 0, 'invalid': 0}
+            val_results[val_shape] = {'valid': 0, 'invalid': 0, 'results': {}}
         val_results[val_shape]['valid' if val_res else 'invalid'] += 1
+        val_results[val_shape]['results'][instance] = {'valid': val_res}
         item = queue.get()
     queue.close()
     queue.cancel_join_thread()
