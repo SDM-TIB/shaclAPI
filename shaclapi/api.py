@@ -16,6 +16,7 @@ from shaclapi.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_pr
 from shaclapi.multiprocessing.runner import Runner
 from shaclapi.output import Output
 from shaclapi.query import Query
+from shaclapi.reduction import prepare_validation
 from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 from shaclapi.statsCalculation import StatsCalculation
 
@@ -268,3 +269,36 @@ def only_reduce_shape_schema(pre_config):
     _, node_order, _ = shape_parser.parse_shapes_from_dir(
         config.schema_directory, config.schema_format, True, 256, False)
     return node_order
+
+
+def validation_and_statistics(pre_config):
+    from multiprocessing import Queue
+    config = Config.from_request_form(pre_config)
+    queue = Queue()
+    result_transmitter = ValidationResultTransmitter(output_queue=queue)
+
+    query = config.query
+    if query is not None:
+        query = Query.prepare_query(config.query)
+        query_starshaped = query.make_starshaped()
+        config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
+
+    shape_schema = prepare_validation(config, Query(config.query) if query is not None else None, result_transmitter)
+    shape_schema.validate(config.start_with_target_shape)
+    queue.put('EOF')
+
+    val_results = {}
+    item = queue.get()
+    while item != 'EOF':
+        instance = item['instance']
+        val_shape = item['validation'][0]
+        val_res = item['validation'][1]
+
+        if val_shape not in val_results:
+            val_results[val_shape] = {'valid': 0, 'invalid': 0, 'results': {}}
+        val_results[val_shape]['valid' if val_res else 'invalid'] += 1
+        val_results[val_shape]['results'][instance] = {'valid': val_res}
+        item = queue.get()
+    queue.close()
+    queue.cancel_join_thread()
+    return val_results

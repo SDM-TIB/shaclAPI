@@ -1,11 +1,6 @@
 import logging
-from multiprocessing import Queue
 from flask import Flask, request, Response
 from shaclapi import logger as shaclapi_logger
-from shaclapi.config import Config
-from shaclapi.query import Query
-from shaclapi.reduction import prepare_validation
-from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 
 # Setup Logging
 # Use for debugging:
@@ -50,35 +45,7 @@ def route_validation():
     flask.Response
         The response containing the validation results.
     """
-    config = Config.from_request_form(request.form)
-    queue = Queue()
-    result_transmitter = ValidationResultTransmitter(output_queue=queue)
-
-    query = config.query
-    if query is not None:
-        query = Query.prepare_query(config.query)
-        query_starshaped = query.make_starshaped()
-        config.target_shape = api.unify_target_shape(config.target_shape, query_starshaped)
-
-    shape_schema = prepare_validation(config, Query(config.query) if query is not None else None, result_transmitter)
-    shape_schema.validate(config.start_with_target_shape)
-    queue.put('EOF')
-
-    val_results = {}
-    item = queue.get()
-    while item != 'EOF':
-        instance = item['instance']
-        val_shape = item['validation'][0]
-        val_res = item['validation'][1]
-
-        if val_shape not in val_results:
-            val_results[val_shape] = {'valid': 0, 'invalid': 0, 'results': {}}
-        val_results[val_shape]['valid' if val_res else 'invalid'] += 1
-        val_results[val_shape]['results'][instance] = {'valid': val_res}
-        item = queue.get()
-    queue.close()
-    queue.cancel_join_thread()
-    return val_results
+    return api.validation_and_statistics(request.form)
 
 
 @app.route('/reduce', methods=['POST'])
