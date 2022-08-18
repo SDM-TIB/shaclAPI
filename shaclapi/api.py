@@ -262,6 +262,17 @@ def unify_target_shape(target_shape, query):
 
 
 def only_reduce_shape_schema(pre_config):
+    """Only reduces the given SHACL shape schema based on the provided target shape.
+
+    The given SHACL shape schema is reduced to all shapes that are reachable from
+    the provided target shape, i.e., they need to be validated in order to form
+    a decision on the satisfaction of the instances of the target shape.
+
+    Returns
+    -------
+    list
+        A list with the names of the shapes in the reduced shape schema.
+    """
     from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
     from TravSHACL.core.GraphTraversal import GraphTraversal
     config = Config.from_request_form(pre_config)
@@ -272,6 +283,19 @@ def only_reduce_shape_schema(pre_config):
 
 
 def validation_and_statistics(pre_config):
+    """Validates a SHACL shape schema and provides additional statistics.
+
+    The SHACL shape schema is validated based on the provided configuration.
+    That includes the path of the SHACL shape schema as well as the heuristics
+    used to optimize the validation performance.
+
+    Returns
+    -------
+    dict
+       The result includes per-shape counts of the valid and invalid instances as
+       well as a Boolean per instance of the shape stating its satisfaction of the
+       shape's constraints.
+    """
     from multiprocessing import Queue
     config = Config.from_request_form(pre_config)
     queue = Queue()
