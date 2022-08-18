@@ -258,3 +258,13 @@ def unify_target_shape(target_shape, query):
         target_shape = {'UNDEF': _make_list(target_shape)}
     logger.debug(f'Unified target shape: {target_shape}')
     return target_shape
+
+
+def only_reduce_shape_schema(pre_config):
+    from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
+    from TravSHACL.core.GraphTraversal import GraphTraversal
+    config = Config.from_request_form(pre_config)
+    shape_parser = ReducedShapeParser(None, GraphTraversal.DFS, config)
+    _, node_order, _ = shape_parser.parse_shapes_from_dir(
+        config.schema_directory, config.schema_format, True, 256, False)
+    return node_order

@@ -85,12 +85,7 @@ def route_validation():
 def reduced_schema_only():
     from flask import jsonify
     try:
-        from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
-        from TravSHACL.core.GraphTraversal import GraphTraversal
-        config = Config.from_request_form(request.form)
-        shape_parser = ReducedShapeParser(None, GraphTraversal.DFS, config)
-        _, node_order, _ = shape_parser.parse_shapes_from_dir(
-            config.schema_directory, config.schema_format, True, 256, False)
+        node_order = api.only_reduce_shape_schema(request.form)
         return jsonify({'shapes': node_order})
     except Exception as e:
         import sys
