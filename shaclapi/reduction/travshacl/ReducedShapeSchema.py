@@ -84,7 +84,8 @@ class ReducedShapeSchema(ShapeSchema):
 
 class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and not the reduced one!
     """
-    Use with:
+    Example
+    -------
     schema = ReturnShapeSchema(
         schema_directory, config['shapeFormat'], config['external_endpoint'], traversal_strategy,
         heuristics, config['useSelectiveQueries'], config['maxSplit'], config['outputDirectory'],
