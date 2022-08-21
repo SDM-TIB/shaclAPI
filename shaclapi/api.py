@@ -291,6 +291,17 @@ def validation_and_statistics(pre_config):
 
     Returns
     -------
+        JSON structure:
+        {shape1:
+            {valid: #valid instances,
+            invalid: #invalid instances,
+            columns: [column name 1, column name 2, ...],
+            results: [[instance 1 data 1,instance 1 data 2, ...], [instance 2 data 1,instance 2 data 2, ...], ...]
+            }
+        shape2: {...}
+        ...
+        }
+    -------
     dict
        The result includes per-shape counts of the valid and invalid instances as
        well as a Boolean per instance of the shape stating its satisfaction of the
@@ -319,9 +330,10 @@ def validation_and_statistics(pre_config):
         val_res = item['validation'][1]
 
         if val_shape not in val_results:
-            val_results[val_shape] = {'valid': 0, 'invalid': 0, 'results': {}}
+            val_results[val_shape] = {'valid': 0, 'invalid': 0, 'columns': [], 'results': []}
+            val_results[val_shape]['columns'] = ['Data', 'Validation']
         val_results[val_shape]['valid' if val_res else 'invalid'] += 1
-        val_results[val_shape]['results'][instance] = {'valid': val_res}
+        val_results[val_shape]['results'].append([instance, 'Valid' if val_res else 'Invalid'])
         item = queue.get()
     queue.close()
     queue.cancel_join_thread()
