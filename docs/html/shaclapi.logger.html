@@ -350,14 +350,14 @@
 <span id="shaclapi-logger-module"></span><h1>shaclapi.logger module<a class="headerlink" href="#module-shaclapi.logger" title="Permalink to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="shaclapi.logger.setup">
-<span class="sig-prename descclassname"><span class="pre">shaclapi.logger.</span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler=&lt;StreamHandler</span> <span class="pre">&lt;stderr&gt;</span> <span class="pre">(NOTSET)&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level=20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format='[%(asctime)s</span> <span class="pre">-</span> <span class="pre">%(levelname)s]</span> <span class="pre">%(name)s</span> <span class="pre">-</span> <span class="pre">%(processName)s:</span> <span class="pre">%(msg)s'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/logger.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.logger.setup" title="Permalink to this definition">#</a></dt>
-<dd><p>Sets up the logger of the shaclAPI. Has to be used before importing shaclapi.api.</p>
+<span class="sig-prename descclassname"><span class="pre">shaclapi.logger.</span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler=&lt;StreamHandler</span> <span class="pre">&lt;stderr&gt;</span> <span class="pre">(NOTSET)&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level=20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_format='[%(asctime)s</span> <span class="pre">-</span> <span class="pre">%(levelname)s]</span> <span class="pre">%(name)s</span> <span class="pre">-</span> <span class="pre">%(processName)s:</span> <span class="pre">%(msg)s'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/logger.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.logger.setup" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets up the shaclAPI’s logger. Has to be used before importing shaclapi.api.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handler</strong> (<em>logging.Handler</em><em>, </em><em>optional</em>) – The handler to be used for logging of the shaclapi</p></li>
 <li><p><strong>level</strong> (<em>logging._LEVEL</em><em>, </em><em>optional</em>) – The logging level</p></li>
-<li><p><strong>format</strong> (<em>str</em><em>, </em><em>optional</em>) – The format to be used during logging.</p></li>
+<li><p><strong>log_format</strong> (<em>str</em><em>, </em><em>optional</em>) – The format to be used during logging.</p></li>
 </ul>
 </dd>
 </dl>

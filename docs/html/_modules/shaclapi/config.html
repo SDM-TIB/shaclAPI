@@ -196,7 +196,7 @@
         <span class="k">if</span> <span class="s1">&#39;query&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">external_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

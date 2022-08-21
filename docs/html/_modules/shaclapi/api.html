@@ -164,6 +164,7 @@
 <span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.runner</span> <span class="kn">import</span> <span class="n">Runner</span>
 <span class="kn">from</span> <span class="nn">shaclapi.output</span> <span class="kn">import</span> <span class="n">Output</span>
 <span class="kn">from</span> <span class="nn">shaclapi.query</span> <span class="kn">import</span> <span class="n">Query</span>
+<span class="kn">from</span> <span class="nn">shaclapi.reduction</span> <span class="kn">import</span> <span class="n">prepare_validation</span>
 <span class="kn">from</span> <span class="nn">shaclapi.reduction.ValidationResultTransmitter</span> <span class="kn">import</span> <span class="n">ValidationResultTransmitter</span>
 <span class="kn">from</span> <span class="nn">shaclapi.statsCalculation</span> <span class="kn">import</span> <span class="n">StatsCalculation</span>
 
@@ -232,6 +233,10 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;To reproduce this call to the API run: run_config.py -c &#39;&quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_dict</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^\w\-_\. ]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Check if query is given</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.&#39;</span><span class="p">)</span>
 
     <span class="c1"># Setup Stats Calculation</span>
     <span class="n">statsCalc</span> <span class="o">=</span> <span class="n">StatsCalculation</span><span class="p">(</span><span class="n">test_identifier</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">,</span> <span class="n">approach_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
@@ -402,6 +407,73 @@
         <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;UNDEF&#39;</span><span class="p">:</span> <span class="n">_make_list</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)}</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unified target shape: </span><span class="si">{</span><span class="n">target_shape</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">target_shape</span></div>
+
+
+<div class="viewcode-block" id="only_reduce_shape_schema"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.only_reduce_shape_schema">[docs]</a><span class="k">def</span> <span class="nf">only_reduce_shape_schema</span><span class="p">(</span><span class="n">pre_config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Only reduces the given SHACL shape schema based on the provided target shape.</span>
+
+<span class="sd">    The given SHACL shape schema is reduced to all shapes that are reachable from</span>
+<span class="sd">    the provided target shape, i.e., they need to be validated in order to form</span>
+<span class="sd">    a decision on the satisfaction of the instances of the target shape.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list with the names of the shapes in the reduced shape schema.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ReducedShapeParser</span> <span class="kn">import</span> <span class="n">ReducedShapeParser</span>
+    <span class="kn">from</span> <span class="nn">TravSHACL.core.GraphTraversal</span> <span class="kn">import</span> <span class="n">GraphTraversal</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_request_form</span><span class="p">(</span><span class="n">pre_config</span><span class="p">)</span>
+    <span class="n">shape_parser</span> <span class="o">=</span> <span class="n">ReducedShapeParser</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">GraphTraversal</span><span class="o">.</span><span class="n">DFS</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">node_order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">shape_parser</span><span class="o">.</span><span class="n">parse_shapes_from_dir</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">schema_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_format</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">node_order</span></div>
+
+
+<div class="viewcode-block" id="validation_and_statistics"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.validation_and_statistics">[docs]</a><span class="k">def</span> <span class="nf">validation_and_statistics</span><span class="p">(</span><span class="n">pre_config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Validates a SHACL shape schema and provides additional statistics.</span>
+
+<span class="sd">    The SHACL shape schema is validated based on the provided configuration.</span>
+<span class="sd">    That includes the path of the SHACL shape schema as well as the heuristics</span>
+<span class="sd">    used to optimize the validation performance.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">       The result includes per-shape counts of the valid and invalid instances as</span>
+<span class="sd">       well as a Boolean per instance of the shape stating its satisfaction of the</span>
+<span class="sd">       shape&#39;s constraints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Queue</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_request_form</span><span class="p">(</span><span class="n">pre_config</span><span class="p">)</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+    <span class="n">result_transmitter</span> <span class="o">=</span> <span class="n">ValidationResultTransmitter</span><span class="p">(</span><span class="n">output_queue</span><span class="o">=</span><span class="n">queue</span><span class="p">)</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">query</span>
+    <span class="k">if</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="o">.</span><span class="n">prepare_query</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">query_starshaped</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">make_starshaped</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="o">=</span> <span class="n">unify_target_shape</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query_starshaped</span><span class="p">)</span>
+
+    <span class="n">shape_schema</span> <span class="o">=</span> <span class="n">prepare_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Query</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="k">if</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">)</span>
+    <span class="n">shape_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span><span class="p">)</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;EOF&#39;</span><span class="p">)</span>
+
+    <span class="n">val_results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">item</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;instance&#39;</span><span class="p">]</span>
+        <span class="n">val_shape</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">val_res</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">val_shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">val_results</span><span class="p">:</span>
+            <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;valid&#39;</span> <span class="k">if</span> <span class="n">val_res</span> <span class="k">else</span> <span class="s1">&#39;invalid&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="n">instance</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="n">val_res</span><span class="p">}</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">cancel_join_thread</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">val_results</span></div>
 </pre></div>
 
               </article>

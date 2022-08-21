@@ -16,6 +16,7 @@ from shaclapi.multiprocessing.functions import mp_validate, mp_xjoin, mp_post_pr
 from shaclapi.multiprocessing.runner import Runner
 from shaclapi.output import Output
 from shaclapi.query import Query
+from shaclapi.reduction import prepare_validation
 from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 from shaclapi.statsCalculation import StatsCalculation
 
@@ -258,3 +259,70 @@ def unify_target_shape(target_shape, query):
         target_shape = {'UNDEF': _make_list(target_shape)}
     logger.debug(f'Unified target shape: {target_shape}')
     return target_shape
+
+
+def only_reduce_shape_schema(pre_config):
+    """Only reduces the given SHACL shape schema based on the provided target shape.
+
+    The given SHACL shape schema is reduced to all shapes that are reachable from
+    the provided target shape, i.e., they need to be validated in order to form
+    a decision on the satisfaction of the instances of the target shape.
+
+    Returns
+    -------
+    list
+        A list with the names of the shapes in the reduced shape schema.
+    """
+    from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
+    from TravSHACL.core.GraphTraversal import GraphTraversal
+    config = Config.from_request_form(pre_config)
+    shape_parser = ReducedShapeParser(None, GraphTraversal.DFS, config)
+    _, node_order, _ = shape_parser.parse_shapes_from_dir(
+        config.schema_directory, config.schema_format, True, 256, False)
+    return node_order
+
+
+def validation_and_statistics(pre_config):
+    """Validates a SHACL shape schema and provides additional statistics.
+
+    The SHACL shape schema is validated based on the provided configuration.
+    That includes the path of the SHACL shape schema as well as the heuristics
+    used to optimize the validation performance.
+
+    Returns
+    -------
+    dict
+       The result includes per-shape counts of the valid and invalid instances as
+       well as a Boolean per instance of the shape stating its satisfaction of the
+       shape's constraints.
+    """
+    from multiprocessing import Queue
+    config = Config.from_request_form(pre_config)
+    queue = Queue()
+    result_transmitter = ValidationResultTransmitter(output_queue=queue)
+
+    query = config.query
+    if query is not None:
+        query = Query.prepare_query(config.query)
+        query_starshaped = query.make_starshaped()
+        config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
+
+    shape_schema = prepare_validation(config, Query(config.query) if query is not None else None, result_transmitter)
+    shape_schema.validate(config.start_with_target_shape)
+    queue.put('EOF')
+
+    val_results = {}
+    item = queue.get()
+    while item != 'EOF':
+        instance = item['instance']
+        val_shape = item['validation'][0]
+        val_res = item['validation'][1]
+
+        if val_shape not in val_results:
+            val_results[val_shape] = {'valid': 0, 'invalid': 0, 'results': {}}
+        val_results[val_shape]['valid' if val_res else 'invalid'] += 1
+        val_results[val_shape]['results'][instance] = {'valid': val_res}
+        item = queue.get()
+    queue.close()
+    queue.cancel_join_thread()
+    return val_results

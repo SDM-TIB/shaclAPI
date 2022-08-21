@@ -1,11 +1,6 @@
 import logging
-from multiprocessing import Queue
 from flask import Flask, request, Response
 from shaclapi import logger as shaclapi_logger
-from shaclapi.config import Config
-from shaclapi.query import Query
-from shaclapi.reduction import prepare_validation
-from shaclapi.reduction.ValidationResultTransmitter import ValidationResultTransmitter
 
 # Setup Logging
 # Use for debugging:
@@ -49,59 +44,15 @@ def route_validation():
     -------
     flask.Response
         The response containing the validation results.
-    JSON struction:
-        {shape1:
-            {valid: #valid instances,
-            invalid: #invalid instances,
-            columns: [column name 1, column name 2, ...],
-            results: [[instance 1 data 1,instance 1 data 2, ...], [instance 2 data 1,instance 2 data 2, ...], ...]
-            }
-        shape2: {...}
-        ...
-        }
     """
-    config = Config.from_request_form(request.form)
-    queue = Queue()
-    result_transmitter = ValidationResultTransmitter(output_queue=queue)
-
-    query = config.query
-    if query is not None:
-        query = Query.prepare_query(config.query)
-        query_starshaped = query.make_starshaped()
-        config.target_shape = api.unify_target_shape(config.target_shape, query_starshaped)
-
-    shape_schema = prepare_validation(config, Query(config.query) if query is not None else None, result_transmitter)
-    shape_schema.validate(config.start_with_target_shape)
-    queue.put('EOF')
-
-    val_results = {}
-    item = queue.get()
-    while item != 'EOF':
-        instance = item['instance']
-        val_shape = item['validation'][0]
-        val_res = item['validation'][1]
-
-        if val_shape not in val_results:
-            val_results[val_shape] = {'valid': 0, 'invalid': 0, 'columns': [], 'results': []}
-            val_results[val_shape]['columns'] = ['Data', 'Validation']
-        val_results[val_shape]['valid' if val_res else 'invalid'] += 1
-        val_results[val_shape]['results'].append([instance, 'Valid' if val_res else 'Invalid'])
-        item = queue.get()
-    queue.close()
-    queue.cancel_join_thread()
-    return val_results
+    return api.validation_and_statistics(request.form)
 
 
 @app.route('/reduce', methods=['POST'])
 def reduced_schema_only():
     from flask import jsonify
     try:
-        from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
-        from TravSHACL.core.GraphTraversal import GraphTraversal
-        config = Config.from_request_form(request.form)
-        shape_parser = ReducedShapeParser(None, GraphTraversal.DFS, config)
-        _, node_order, _ = shape_parser.parse_shapes_from_dir(
-            config.schema_directory, config.schema_format, True, 256, False)
+        node_order = api.only_reduce_shape_schema(request.form)
         return jsonify({'shapes': node_order})
     except Exception as e:
         import sys

@@ -378,15 +378,12 @@ reachable from shapes occurring in the query. The remaining shapes can be remove
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraint">
 <span class="sig-name descname"><span class="pre">parseConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">varGenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.parseConstraint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraint" title="Permalink to this definition">#</a></dt>
-<dd><dl>
+<dd><dl class="simple">
 <dt>Constraints are only relevant if:</dt><dd><ul class="simple">
-<li><p>subject and object do both NOT belong to the targetShape</p></li>
+<li><p>subject and object do both NOT belong to the targetShape OR</p></li>
+<li><p>subject or object belong to the targetShape AND the predicate is part of the query
+(-&gt; inverted paths can be treated equally to normal paths)</p></li>
 </ul>
-<p>OR
-- subject or object belong to the targetShape AND the predicate is part of the query</p>
-<blockquote>
-<div><p>(-&gt; inverted paths can be treated equally to normal paths)</p>
-</div></blockquote>
 </dd>
 </dl>
 <p>Other constraints are not relevant and result in a None.</p>

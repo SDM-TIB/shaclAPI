@@ -68,10 +68,10 @@ class ReducedShapeParser(ShapeParser):
     def parseConstraint(self, varGenerator, obj, id, targetDef):
         """
         Constraints are only relevant if:
-            - subject and object do both NOT belong to the targetShape
-            OR
+            - subject and object do both NOT belong to the targetShape OR
             - subject or object belong to the targetShape AND the predicate is part of the query
-                (-> inverted paths can be treated equally to normal paths)
+              (-> inverted paths can be treated equally to normal paths)
+
         Other constraints are not relevant and result in a None.
         """
         if self.query is not None and self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):

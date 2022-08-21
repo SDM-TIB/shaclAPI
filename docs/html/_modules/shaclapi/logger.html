@@ -151,19 +151,21 @@
 <span class="kn">from</span> <span class="nn">multiprocessing_logging</span> <span class="kn">import</span> <span class="n">install_mp_handler</span>
 
 
-<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../shaclapi.logger.html#shaclapi.logger.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">handler</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(),</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;[</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1">] </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(processName)s</span><span class="s1">: </span><span class="si">%(msg)s</span><span class="s1">&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Sets up the logger of the shaclAPI. Has to be used before importing shaclapi.api.</span>
+<div class="viewcode-block" id="setup"><a class="viewcode-back" href="../../shaclapi.logger.html#shaclapi.logger.setup">[docs]</a><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">handler</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(),</span>
+          <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+          <span class="n">log_format</span><span class="o">=</span><span class="s1">&#39;[</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1">] </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(processName)s</span><span class="s1">: </span><span class="si">%(msg)s</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets up the shaclAPI&#39;s logger. Has to be used before importing shaclapi.api.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">        handler : logging.Handler, optional</span>
-<span class="sd">            The handler to be used for logging of the shaclapi</span>
-<span class="sd">        level : logging._LEVEL, optional</span>
-<span class="sd">            The logging level</span>
-<span class="sd">        format : str, optional</span>
-<span class="sd">            The format to be used during logging.</span>
+<span class="sd">    handler : logging.Handler, optional</span>
+<span class="sd">        The handler to be used for logging of the shaclapi</span>
+<span class="sd">    level : logging._LEVEL, optional</span>
+<span class="sd">        The logging level</span>
+<span class="sd">    log_format : str, optional</span>
+<span class="sd">        The format to be used during logging.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="nb">format</span><span class="p">))</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">log_format</span><span class="p">))</span>
     <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;shaclapi&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
