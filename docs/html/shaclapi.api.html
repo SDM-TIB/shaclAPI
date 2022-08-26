@@ -413,12 +413,24 @@ That includes the path of the SHACL shape schema as well as the heuristics
 used to optimize the validation performance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The result includes per-shape counts of the valid and invalid instances as
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>JSON structure</em></p></li>
+<li><p><em>{shape1</em> – {valid: #valid instances,
+invalid: #invalid instances,
+columns: [column name 1, column name 2, …],
+results: [[instance 1 data 1,instance 1 data 2, …], [instance 2 data 1,instance 2 data 2, …], …]
+}</p></li>
+<li><p><strong>shape2</strong> (<em>{…}</em>)</p></li>
+<li><p><em>…</em></p></li>
+<li><p><em>}</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>dict</dt><dd><p>The result includes per-shape counts of the valid and invalid instances as
 well as a Boolean per instance of the shape stating its satisfaction of the
 shape’s constraints.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>

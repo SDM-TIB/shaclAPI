@@ -439,6 +439,17 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
+<span class="sd">        JSON structure:</span>
+<span class="sd">        {shape1:</span>
+<span class="sd">            {valid: #valid instances,</span>
+<span class="sd">            invalid: #invalid instances,</span>
+<span class="sd">            columns: [column name 1, column name 2, ...],</span>
+<span class="sd">            results: [[instance 1 data 1,instance 1 data 2, ...], [instance 2 data 1,instance 2 data 2, ...], ...]</span>
+<span class="sd">            }</span>
+<span class="sd">        shape2: {...}</span>
+<span class="sd">        ...</span>
+<span class="sd">        }</span>
+<span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">       The result includes per-shape counts of the valid and invalid instances as</span>
 <span class="sd">       well as a Boolean per instance of the shape stating its satisfaction of the</span>
@@ -467,9 +478,10 @@
         <span class="n">val_res</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">val_shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">val_results</span><span class="p">:</span>
-            <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+            <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;results&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="s1">&#39;Validation&#39;</span><span class="p">]</span>
         <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;valid&#39;</span> <span class="k">if</span> <span class="n">val_res</span> <span class="k">else</span> <span class="s1">&#39;invalid&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="n">instance</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="n">val_res</span><span class="p">}</span>
+        <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;results&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;Valid&#39;</span> <span class="k">if</span> <span class="n">val_res</span> <span class="k">else</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">])</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="n">queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">queue</span><span class="o">.</span><span class="n">cancel_join_thread</span><span class="p">()</span>
