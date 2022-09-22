@@ -53,7 +53,7 @@ class ReducedShapeSchema(ShapeSchema):
             logger.info('Starting with Target Shape')
             start = self.target_shape_list
         else:
-            logger.warning('Starting with Shape determined by TravShacl')
+            logger.warning('Starting with Shape determined by Trav-SHACL')
             start = self.get_starting_point()
 
         if start is not None:
