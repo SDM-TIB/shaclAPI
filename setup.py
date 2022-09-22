@@ -22,8 +22,8 @@ setup(
     install_requires=[
         'SPARQLWrapper>=2.0.0',
         'requests>=2.27.1',
-        'SHACL2SPARQLpy==1.1.1',
-        'TravSHACL==1.0.2',
+        'SHACL2SPARQLpy>=1.1.1',
+        'TravSHACL>=1.0.2',
         'multiprocessing_logging>=0.3.1',
         'regex>=2022.3.15'
     ],
