@@ -35,9 +35,10 @@ class ReducedShapeSchema(ShapeSchema):
     
     @staticmethod
     def from_config(config, query_object, result_transmitter):
+        output_dir = os.path.join(config.output_directory,config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier), '') if config.save_outputs else None
         return ReducedShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, \
             GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, \
-                config.max_split_size, os.path.join(config.output_directory,config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier), ''), config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
+                config.max_split_size, output_dir, config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
                     query_object, config, result_transmitter)
 
     def validate(self, start_with_target_shape=True):
