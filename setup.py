@@ -2,7 +2,7 @@
 from distutils.core import setup
 from setuptools import find_packages
 
-VERSION = '0.9.3'
+VERSION = '0.9.4'
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
