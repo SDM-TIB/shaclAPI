@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class ReducedShapeSchema(ShapeSchema):
-    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics, use_selective_queries, max_split_size, output_dir, order_by_in_queries, save_outputs, work_in_parallel, query, config, result_transmitter):
+    def __init__(self, schema_dir, schema_format, endpoint_url, graph_traversal, heuristics,
+                 use_selective_queries, max_split_size, output_dir, order_by_in_queries,
+                 save_outputs, work_in_parallel, query, config, result_transmitter):
         self.shaclAPIConfig = config
         self.shapeParser = ReducedShapeParser(query, graph_traversal, self.shaclAPIConfig)
         self.shapes, self.node_order, self.target_shape_list = self.shapeParser.parse_shapes_from_dir(
@@ -32,14 +34,31 @@ class ReducedShapeSchema(ShapeSchema):
         self.saveStats = output_dir is not None
         self.saveTargetsToFile = save_outputs
         self.result_transmitter = result_transmitter
-    
+
     @staticmethod
     def from_config(config, query_object, result_transmitter):
-        output_dir = os.path.join(config.output_directory,config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier), '') if config.save_outputs else None
-        return ReducedShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, \
-            GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, \
-                config.max_split_size, output_dir, config.order_by_in_queries, config.save_outputs, config.work_in_parallel, \
-                    query_object, config, result_transmitter)
+        if config.save_outputs:
+            output_dir = os.path.join(
+                config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier), ''
+            )
+        else:
+            output_dir = None
+        return ReducedShapeSchema(
+            schema_dir=config.schema_directory,
+            schema_format=config.schema_format,
+            endpoint_url=config.external_endpoint,
+            graph_traversal=GraphTraversal[config.traversal_strategy],
+            heuristics=parse_heuristics(config.heuristic),
+            use_selective_queries=config.use_selective_queries,
+            max_split_size=config.max_split_size,
+            output_dir=output_dir,
+            order_by_in_queries=config.order_by_in_queries,
+            save_outputs=config.save_outputs,
+            work_in_parallel=config.work_in_parallel,
+            query=query_object,
+            config=config,
+            result_transmitter=result_transmitter
+        )
 
     def validate(self, start_with_target_shape=True):
         """Executes the validation of the shape network."""
@@ -69,7 +88,7 @@ class ReducedShapeSchema(ShapeSchema):
                          if self.shapesDict[name].get_target_query() is not None]
         target_shape_predicates = [s.get_id() for s in target_shapes]
         
-        result = ValidationResultStreaming(
+        return ValidationResultStreaming(
             self.endpointURL,
             node_order,
             self.shapesDict,
@@ -80,7 +99,6 @@ class ReducedShapeSchema(ShapeSchema):
             self.saveTargetsToFile,
             self.result_transmitter
         ).exec()
-        return result
 
 
 class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and not the reduced one!
@@ -94,7 +112,19 @@ class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and
     """
     @staticmethod
     def from_config(config):
-        return ReturnShapeSchema(config.schema_directory, config.schema_format, config.external_endpoint, GraphTraversal[config.traversal_strategy], parse_heuristics(config.heuristic), config.use_selective_queries, config.max_split_size, config.output_directory, config.order_by_in_queries, config.save_outputs, config.work_in_parallel)
+        return ReturnShapeSchema(
+            schema_dir=config.schema_directory,
+            schema_format=config.schema_format,
+            endpoint_url=config.external_endpoint,
+            graph_traversal=GraphTraversal[config.traversal_strategy],
+            heuristics=parse_heuristics(config.heuristic),
+            use_selective_queries=config.use_selective_queries,
+            max_split_size=config.max_split_size,
+            output_dir=config.output_directory,
+            order_by_in_queries=config.order_by_in_queries,
+            save_outputs=config.save_outputs,
+            work_in_parallel=config.work_in_parallel
+        )
 
     def validate(self):
         """Executes the validation of the shape network."""
@@ -108,7 +138,7 @@ class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and
                          if self.shapesDict[name].get_target_query() is not None]
         target_shape_predicates = [s.get_id() for s in target_shapes]
 
-        result = Validation(
+        return Validation(
             self.endpointURL,
             node_order,
             self.shapesDict,
@@ -118,4 +148,3 @@ class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and
             self.saveStats,
             self.saveTargetsToFile
         ).exec()
-        return result

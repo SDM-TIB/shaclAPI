@@ -102,7 +102,7 @@ def run_multiprocessing(pre_config, result_queue=None):
         QUEUE_OUTPUT = False
 
     # Preparing the multiprocessing queues
-    # 1.) Create new queues for the given request
+    # 1. Create new queues for the given request
     stats_out_queue = CONTACT_SOURCE_RUNNER.get_new_queue()
     contact_source_out_queues = CONTACT_SOURCE_RUNNER.get_new_out_queues(config.use_pipes)
     validation_out_queues = VALIDATION_RUNNER.get_new_out_queues(config.use_pipes)
@@ -110,27 +110,28 @@ def run_multiprocessing(pre_config, result_queue=None):
     post_processing_out_queues = POST_PROCESSING_RUNNER.get_new_out_queues(config.use_pipes)
     output_completion_out_queues = (result_queue, )
 
-    # 2.) Extract Out Queues
-    transformed_query_queue = contact_source_out_queues[0] # pylint: disable=unbalanced-tuple-unpacking
-    val_queue = validation_out_queues[0] # pylint: disable=unbalanced-tuple-unpacking
+    # 2. Extract Out Queues
+    transformed_query_queue = contact_source_out_queues[0]  # pylint: disable=unbalanced-tuple-unpacking
+    val_queue = validation_out_queues[0]  # pylint: disable=unbalanced-tuple-unpacking
     joined_results_queue = xjoin_out_queues[0]
-    final_result_queue, timestamp_queue = post_processing_out_queues # pylint: disable=unbalanced-tuple-unpacking
+    final_result_queue, timestamp_queue = post_processing_out_queues  # pylint: disable=unbalanced-tuple-unpacking
 
-    # 3.) Collect the sender parts of the queues.
+    # 3. Collect the sender parts of the queues.
     contact_source_out_connections = tuple((queue_adapter.sender for queue_adapter in contact_source_out_queues))
     validation_out_connections = tuple((queue_adapter.sender for queue_adapter in validation_out_queues))
     xjoin_out_connections = tuple((queue_adapter.sender for queue_adapter in xjoin_out_queues))
     post_processing_out_connections = tuple((queue_adapter.sender for queue_adapter in post_processing_out_queues))
     output_completion_out_connections = tuple((queue_adapter.sender for queue_adapter in output_completion_out_queues))
 
-    # 3.) Collect the receiver parts of the queues.
+    # 4. Collect the receiver parts of the queues.
     contact_source_in_connections = tuple()
     validation_in_connections = tuple()
     xjoin_in_connections = (transformed_query_queue.receiver, val_queue.receiver)
     post_processing_in_connections = (joined_results_queue.receiver, )
     output_completion_in_connections = (final_result_queue.receiver, )
 
-    # Setup of the Validation Result Transmitting Strategie (SHACL engine --> API). This allows to process SHACL validation results directly, when they are arriving.
+    # Setup of the validation result transmitting strategy (SHACL engine --> API).
+    # This allows to process SHACL validation results as soon as they arrive.
     result_transmitter = ValidationResultTransmitter(output_queue=val_queue.sender, first_val_time_queue=stats_out_queue)
 
     # Parse query_string into a corresponding Query Object
@@ -165,7 +166,9 @@ def run_multiprocessing(pre_config, result_queue=None):
             logger.warning('Can only start with target shape if target shape is given!')
 
     # Unify target shape -> {?var: list of shapes}
+    logger.warning('Target before unification: ' + str(config.target_shape))
     config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
+    logger.warning('Target after unification: ' + str(config.target_shape))
 
     # The information we need depends on the output format:
     if config.output_format == 'test' or (not config.reasoning):
