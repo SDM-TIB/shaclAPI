@@ -79,7 +79,6 @@ def run_multiprocessing(pre_config, result_queue=None):
        :align: center
 
     """
-
     # Parse Config from POST Request and Config File
     config = Config.from_request_form(pre_config)
     logger.info("To reproduce this call to the API run: run_config.py -c '" + json.dumps(config.config_dict) + "'")
@@ -280,6 +279,44 @@ def only_reduce_shape_schema(pre_config):
     _, node_order, _ = shape_parser.parse_shapes_from_dir(
         config.schema_directory, config.schema_format, True, 256, False)
     return node_order
+
+
+def overlap_reduced_schemas(pre_config, shape_one, shape_two):
+    """Computes the percentage of overlap for two reduced shape schemas.
+
+    First, for both sets of shapes, the reduced shape schema is generated.
+    Afterwards, the intersection of both shape schemas is computed.
+    The percentage of overlap is the number of shapes in the intersection
+    divided by the number of shapes in the smaller of the input shape schemas.
+
+    Returns
+    -------
+    float
+        The percentage of overlap in both reduced shape schemas based on
+        the minimal number of shapes in the input shape schemas.
+    """
+    config_one = pre_config
+    if not isinstance(shape_one, list):
+        shape_one = [shape_one]
+    reduced_schema_one = set()
+    for shape in shape_one:
+        config_one['target_shape'] = shape
+        [reduced_schema_one.add(node) for node in only_reduce_shape_schema(config_one)]
+
+    config_two = pre_config
+    if not isinstance(shape_two, list):
+        shape_two = [shape_two]
+    reduced_schema_two = set()
+    for shape in shape_two:
+        config_two['target_shape'] = shape
+        [reduced_schema_two.add(node) for node in only_reduce_shape_schema(config_two)]
+
+    # max_size = max(len(reduced_schema_one), len(reduced_schema_two))
+    min_size = min(len(reduced_schema_one), len(reduced_schema_two))
+    intersection = set(reduced_schema_one).intersection(set(reduced_schema_two))
+    inter_size = len(intersection)
+
+    return float(inter_size / min_size)
 
 
 def validation_and_statistics(pre_config):
