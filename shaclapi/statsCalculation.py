@@ -122,10 +122,10 @@ class StatsCalculation:
         else:
             network_validation_time = 'NaN'
         
-        if self.post_processing_finished_time is not None and self.post_processing_started_time is not None:
-            post_processing_time = self.post_processing_finished_time - self.post_processing_started_time
-        else:
-            post_processing_time = 'NaN'
+#        if self.post_processing_finished_time is not None and self.post_processing_started_time is not None:
+#            post_processing_time = self.post_processing_finished_time - self.post_processing_started_time
+#        else:
+#            post_processing_time = 'NaN'
 
         # Using the maximum of these timestamps because the later one better describes the 'real' start of the join.
         if self.first_validation_result_time:
@@ -138,31 +138,31 @@ class StatsCalculation:
         else:
             join_time = 'NaN'
 
-        if self.first_result_timestamp:
-            first_result_time = self.first_result_timestamp - self.global_start_time
-        else: 
-            first_result_time = 'NaN'
-
-        if self.last_result_timestamp:
-            last_result_time = self.last_result_timestamp - self.global_start_time
-        else:
-            last_result_time = 'NaN'
-
-        matrix_entry = {'test': self.test_name,
-                        'approach': self.approach_name,
-                        'tfft': first_result_time,
-                        'totaltime': last_result_time,
-                        'comp': self.number_of_results}
+#        if self.first_result_timestamp:
+#            first_result_time = self.first_result_timestamp - self.global_start_time
+#        else:
+#            first_result_time = 'NaN'
+#
+#        if self.last_result_timestamp:
+#            last_result_time = self.last_result_timestamp - self.global_start_time
+#        else:
+#            last_result_time = 'NaN'
+#
+#        matrix_entry = {'test': self.test_name,
+#                        'approach': self.approach_name,
+#                        'tfft': first_result_time,
+#                        'totaltime': last_result_time,
+#                        'comp': self.number_of_results}
         stats_entry = {'test': self.test_name,
                        'approach': self.approach_name,
                        'total_execution_time': total_execution_time,
                        'query_time': query_time,
                        'network_validation_time': network_validation_time,
                        'join_time': join_time}
-        if matrix_file is not None:
-            f, writer = self._open_csv(matrix_file, ['test', 'approach', 'tfft', 'totaltime', 'comp'])
-            writer.writerow(matrix_entry)
-            f.close()
+#        if matrix_file is not None:
+#            f, writer = self._open_csv(matrix_file, ['test', 'approach', 'tfft', 'totaltime', 'comp'])
+#            writer.writerow(matrix_entry)
+#            f.close()
 
         if stats_file is not None:
             f, writer = self._open_csv(stats_file, ['test', 'approach', 'total_execution_time', 'query_time', 'network_validation_time', 'join_time'])

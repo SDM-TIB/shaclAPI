@@ -195,18 +195,18 @@ def run_multiprocessing(pre_config, result_queue=None):
     OUTPUT_COMPLETION_RUNNER.new_task(output_completion_in_connections, output_completion_out_connections, output_completion_task_description, stats_out_queue, config.run_in_serial)
 
     if config.write_stats:
-        matrix_file = os.path.join(os.path.abspath(config.output_directory), 'matrix.csv')
-        trace_file = os.path.join(os.path.abspath(config.output_directory), 'trace.csv')
+        # matrix_file = os.path.join(os.path.abspath(config.output_directory), 'matrix.csv')
+        # trace_file = os.path.join(os.path.abspath(config.output_directory), 'trace.csv')
         stats_file = os.path.join(os.path.abspath(config.output_directory), 'stats.csv')
     else:
-        matrix_file = None
-        trace_file = None
+        # matrix_file = None
+        # trace_file = None
         stats_file = None
 
     try:
-        statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)
+        # statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)
         statsCalc.receive_global_stats(stats_out_queue, using_output_completion_runner=True)
-        statsCalc.write_matrix_and_stats_files(matrix_file, stats_file)
+        statsCalc.write_matrix_and_stats_files(None, stats_file)
     except Exception as e:
         import sys
         import traceback
