@@ -169,18 +169,18 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Involved Shapes:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">involvedShapesPerTarget</span><span class="p">))</span>
         <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shapes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">shape_get_id</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="n">involvedShapes</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">shapes</span></div>
-    
+
 <div class="viewcode-block" id="Reduction.replace_target_query"><a class="viewcode-back" href="../../../shaclapi.reduction.Reduction.html#shaclapi.reduction.Reduction.Reduction.replace_target_query">[docs]</a>    <span class="k">def</span> <span class="nf">replace_target_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">target_shapes</span><span class="p">,</span> <span class="n">target_shape_list</span><span class="p">,</span> <span class="n">merge_old_target_query</span><span class="p">,</span> <span class="n">query_extension_per_target_shape</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using Shape Schema WITH replaced target query!&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">query_extension_per_target_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">query_extension_per_target_shape</span> <span class="o">=</span> <span class="p">{}</span>
-    
+
         <span class="c1"># Build target shape to variable mapping</span>
         <span class="n">target_shapes_to_var</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">target_shapes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">target_shape</span> <span class="ow">in</span> <span class="n">target_shapes</span><span class="p">[</span><span class="n">var</span><span class="p">]:</span>
-                <span class="n">target_shapes_to_var</span><span class="p">[</span><span class="n">target_shape</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span>  <span class="c1"># TODO: What is with a target shape occuring more then once?</span>
-            
+                <span class="n">target_shapes_to_var</span><span class="p">[</span><span class="n">target_shape</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span>  <span class="c1"># TODO: What is with a target shape occurring more then once?</span>
+
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">:</span>
             <span class="n">s_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">shape_get_id</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">s_id</span> <span class="ow">in</span> <span class="n">target_shape_list</span><span class="p">:</span>

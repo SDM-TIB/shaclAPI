@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    shaclapi.multiprocessing.Xgjoin
+   shaclapi.multiprocessing.Xgoptional
 
 Submodules
 ----------

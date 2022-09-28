@@ -161,12 +161,12 @@
     <span class="c1"># Prepare the backend and choose the matching inherited ShapeSchema.</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s1">&#39;travshacl&#39;</span><span class="p">:</span>
         <span class="n">ShapeSchema</span> <span class="o">=</span> <span class="n">ReducedShapeSchemaTravShacl</span>
-        <span class="n">SPARQLEndpoint</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># The SPARQLEndpoint Object of Travshacl is a singleton, so we need to rest it otherwise it won&#39;t change</span>
+        <span class="n">SPARQLEndpoint</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Needs to be reset since it is a singleton and won&#39;t change otherwise</span>
     <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s1">&#39;s2spy&#39;</span><span class="p">:</span>
         <span class="n">ShapeSchema</span> <span class="o">=</span> <span class="n">ReducedShapeSchemaS2Spy</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;The given backend </span><span class="si">{}</span><span class="s1"> is not implemented&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">))</span>
-    
+
     <span class="c1"># Initialize the ShapeSchema, this will parse the Shapes from the files and reduce the network as configured.</span>
     <span class="n">shape_schema</span> <span class="o">=</span> <span class="n">ShapeSchema</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">shape_schema</span></div>

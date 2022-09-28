@@ -168,6 +168,28 @@
        </li>
       </ul>
      </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="shaclapi.multiprocessing.Xgoptional.html">
+       shaclapi.multiprocessing.Xgoptional package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.multiprocessing.Xgoptional.OperatorStructures.html">
+         shaclapi.multiprocessing.Xgoptional.OperatorStructures module
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="shaclapi.multiprocessing.Xgoptional.Xgoptional.html">
+         shaclapi.multiprocessing.Xgoptional.Xgoptional module
+        </a>
+       </li>
+      </ul>
+     </li>
      <li class="toctree-l3">
       <a class="reference internal" href="shaclapi.multiprocessing.PipeAdapter.html">
        shaclapi.multiprocessing.PipeAdapter module
@@ -199,8 +221,8 @@
     <a class="reference internal" href="shaclapi.reduction.html">
      shaclapi.reduction package
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-    <label for="toctree-checkbox-4">
+    <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+    <label for="toctree-checkbox-5">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -209,8 +231,8 @@
       <a class="reference internal" href="shaclapi.reduction.s2spy.html">
        shaclapi.reduction.s2spy package
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-      <label for="toctree-checkbox-5">
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -236,8 +258,8 @@
       <a class="reference internal" href="shaclapi.reduction.travshacl.html">
        shaclapi.reduction.travshacl package
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-      <label for="toctree-checkbox-6">
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -400,6 +422,25 @@ a decision on the satisfaction of the instances of the target shape.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shaclapi.api.overlap_reduced_schemas">
+<span class="sig-prename descclassname"><span class="pre">shaclapi.api.</span></span><span class="sig-name descname"><span class="pre">overlap_reduced_schemas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pre_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_one</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_two</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/api.html#overlap_reduced_schemas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.api.overlap_reduced_schemas" title="Permalink to this definition">#</a></dt>
+<dd><p>Computes the percentage of overlap for two reduced shape schemas.</p>
+<p>First, for both sets of shapes, the reduced shape schema is generated.
+Afterwards, the intersection of both shape schemas is computed.
+The percentage of overlap is the number of shapes in the intersection
+divided by the number of shapes in the smaller of the input shape schemas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The percentage of overlap in both reduced shape schemas based on
+the minimal number of shapes in the input shape schemas.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
