@@ -145,7 +145,7 @@ def run_multiprocessing(pre_config, result_queue=None):
         if not collect_all_validation_results and not isinstance(config.target_shape, dict):
             collect_all_validation_results = True
             logger.warning('Running in blocking mode as the target variable(s) could not be identified!')
-        if config.replace_target_query:
+        if config.replace_target_query and not isinstance(config.target_shape, dict):
             config.replace_target_query = False
             logger.warning('Can only replace target query if query is star-shaped!')
     else:
@@ -165,10 +165,8 @@ def run_multiprocessing(pre_config, result_queue=None):
             config.start_with_target_shape = False
             logger.warning('Can only start with target shape if target shape is given!')
 
-    # Unify target shape -> {?var: list of shapes}
-    logger.warning('Target before unification: ' + str(config.target_shape))
-    config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
-    logger.warning('Target after unification: ' + str(config.target_shape))
+    if not isinstance(config.target_shape, dict):  # Unify target shape -> {?var: list of shapes}
+        config.target_shape = unify_target_shape(config.target_shape, query_starshaped)
 
     # The information we need depends on the output format:
     if config.output_format == 'test' or (not config.reasoning):
@@ -179,23 +177,23 @@ def run_multiprocessing(pre_config, result_queue=None):
     statsCalc.taskCalculationStart()
 
     # Start Processing Pipeline e.g. assigning each process a new task.
-    # 1.) Get the Data
+    # 1. Get the Data
     contact_source_task_description = (config.external_endpoint, query_to_be_executed.query_string, -1)
     CONTACT_SOURCE_RUNNER.new_task(contact_source_in_connections, contact_source_out_connections, contact_source_task_description, stats_out_queue, config.run_in_serial)
 
     validation_task_description = (config, query_to_be_executed.copy(), result_transmitter)
     VALIDATION_RUNNER.new_task(validation_in_connections, validation_out_connections, validation_task_description, stats_out_queue, config.run_in_serial)
 
-    # 2.) Join the Data
+    # 2. Join the Data
     xjoin_task_description = (config,)
     XJOIN_RUNNER.new_task(xjoin_in_connections, xjoin_out_connections, xjoin_task_description, stats_out_queue, config.run_in_serial)
 
-    # 3.) Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))
+    # 3. Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))
     post_processing_task_description = (query_to_be_executed.PV, config.target_shape, query_to_be_executed.target_var, collect_all_validation_results)
     POST_PROCESSING_RUNNER.new_task(post_processing_in_connections, post_processing_out_connections, post_processing_task_description, stats_out_queue, config.run_in_serial)
 
-    # 4.) Transform to Outputformat
-    output_completion_task_description = (query.copy(),config.target_shape, config.output_format == 'test')
+    # 4. Transform to Outputformat
+    output_completion_task_description = (query.copy(), config.target_shape, config.output_format == 'test')
     OUTPUT_COMPLETION_RUNNER.new_task(output_completion_in_connections, output_completion_out_connections, output_completion_task_description, stats_out_queue, config.run_in_serial)
 
     if config.write_stats:

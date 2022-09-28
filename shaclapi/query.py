@@ -21,7 +21,10 @@ class Query:
         self.__PV = None
         self.__triples = None
         self.__target_var = target_var
-    
+
+    def __repr__(self):
+        return self.query_string
+
     def copy(self):
         return Query(self.query_string, namespace_manager=self.namespace_manager)
 
@@ -83,7 +86,7 @@ class Query:
         query = re.sub(r"(?<=((<|\")\S+))'(?=(\S+(>|\")))", r'%27', query)
         query = re.sub(r"'\"", r'%27"', query)
         query = re.sub(r"\"'", r'"%27', query)
-        # Literals are parsed in the format '"literal_value"', ' must be replace with " to apply pattern matching.
+        # Literals are parsed in the format '"literal_value"', ' must be replaced with " to apply pattern matching.
         query = query.replace("'", '"')
         # Remove '.' if it is followed by '}', Trav-SHACL cannot handle these dots.
         query = re.sub(r'\.[\s\n]*}', r'\n}', query)
