@@ -466,7 +466,7 @@
     <span class="n">intersection</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">reduced_schema_one</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">reduced_schema_two</span><span class="p">))</span>
     <span class="n">inter_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersection</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">inter_size</span> <span class="o">/</span> <span class="n">min_size</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">inter_size</span> <span class="o">/</span> <span class="n">min_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">min_size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="validation_and_statistics"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.validation_and_statistics">[docs]</a><span class="k">def</span> <span class="nf">validation_and_statistics</span><span class="p">(</span><span class="n">pre_config</span><span class="p">):</span>
