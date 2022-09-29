@@ -318,7 +318,7 @@ def overlap_reduced_schemas(pre_config, shape_one, shape_two):
     intersection = set(reduced_schema_one).intersection(set(reduced_schema_two))
     inter_size = len(intersection)
 
-    return float(inter_size / min_size)
+    return float(inter_size / min_size) if min_size > 0 else 0
 
 
 def validation_and_statistics(pre_config):
