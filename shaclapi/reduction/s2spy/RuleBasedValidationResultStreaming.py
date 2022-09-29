@@ -14,5 +14,6 @@ class RuleBasedValidationResultStreaming(RuleBasedValidation):
         self.result_transmitter.send(instance=t.arg, shape=t.pred, valid=isValid, reason=logMessage)
     
     def exec(self):
-        super().exec()
+        if len(self.node_order) > 0:
+            super().exec()
         self.result_transmitter.done()

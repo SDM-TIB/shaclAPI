@@ -9,6 +9,12 @@ class ValidationResultStreaming(Validation):
                          output_dir_name, save_stats, save_targets_to_file)
         self.result_transmitter = result_transmitter
 
+    def exec(self):
+        if len(self.node_order) > 0:
+            super().exec()
+        else:
+            self.result_transmitter.done()
+
     def register_target(self, t, t_type, invalidating_shape_name, shapes_state):
         super().register_target(t, t_type, invalidating_shape_name, shapes_state)
         self.result_transmitter.send(instance=t[1], shape=t[0], valid=(t_type == 'valid'),
