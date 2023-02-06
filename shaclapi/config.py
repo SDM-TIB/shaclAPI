@@ -122,7 +122,7 @@ class Config:
     @property
     def schema_format(self):
         """
-        The format of the shape files. Can be JSON or TTL
+        The format of the shape files. Can be JSON or SHACL
         """
         if 'shapeFormat' in self.config_dict:
             return self.config_dict['shapeFormat']
@@ -131,7 +131,7 @@ class Config:
         elif 'schema_format' in self.config_dict:
             return self.config_dict['schema_format']
         else:
-            return 'JSON'
+            return 'SHACL'
 
     @property
     def work_in_parallel(self):

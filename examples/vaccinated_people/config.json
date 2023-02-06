@@ -6,5 +6,6 @@
     "start_with_target_shape": false,
     "replace_target_query": false,
     "remove_constraints": false,
-    "prune_shape_network": false
+    "prune_shape_network": false,
+    "shapeFormat": "JSON"
 }

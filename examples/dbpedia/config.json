@@ -6,5 +6,6 @@
     "targetShape": "MovieShape",
     "backend": "travshacl",
     "output_format": "simple",
-    "outputs": true
+    "outputs": true,
+    "shapeFormat": "JSON"
 }
