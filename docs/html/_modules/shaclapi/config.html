@@ -270,7 +270,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">schema_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The format of the shape files. Can be JSON or TTL</span>
+<span class="sd">        The format of the shape files. Can be JSON or SHACL</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s1">&#39;shapeFormat&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;shapeFormat&#39;</span><span class="p">]</span>
@@ -279,7 +279,7 @@
         <span class="k">elif</span> <span class="s1">&#39;schema_format&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;schema_format&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;JSON&#39;</span>
+            <span class="k">return</span> <span class="s1">&#39;SHACL&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">work_in_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

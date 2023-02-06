@@ -82,7 +82,7 @@ class ReducedShapeParser(ShapeParser):
                 return super().parse_constraint(varGenerator, obj, id, targetDef)
             else:
                 self.removed_constraints[self.currentShape] += [obj.get('path')]
-                return None
+                return []
         return super().parse_constraint(varGenerator, obj, id, targetDef)
 
     def shape_references(self, constraints):
