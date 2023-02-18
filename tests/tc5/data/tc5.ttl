@@ -1,0 +1,600 @@
+@prefix test5: <http://example.org/testGraph5#> .
+
+test5:nodeA_0 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_1 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_10 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_11 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_12 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_13 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_14 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_15 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_16 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_17 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_18 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_19 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_2 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_20 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_21 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_22 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_23 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_24 a test5:classA ;
+    test5:a "nonshape_value" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_25 a test5:classA ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_26 a test5:classA ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_27 a test5:classA ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_28 a test5:classA ;
+    test5:b "nonshape_value2" ;
+    test5:c "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_29 a test5:classA ;
+    test5:b "nonshape_value2" ;
+    test5:c "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_3 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_30 a test5:classA ;
+    test5:c "nonshape_value3" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_31 a test5:classA ;
+    test5:c "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_4 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_5 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_6 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_7 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value_invalid" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .
+
+test5:nodeA_8 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5",
+        "nonshape_value_invalid" .
+
+test5:nodeA_9 a test5:classA ;
+    test5:a "nonshape_value",
+        "nonshape_value_invalid" ;
+    test5:b "nonshape_value",
+        "nonshape_value2" ;
+    test5:c "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value_invalid" ;
+    test5:d "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value_invalid" ;
+    test5:e "nonshape_value",
+        "nonshape_value2",
+        "nonshape_value3",
+        "nonshape_value4",
+        "nonshape_value5" .

@@ -1,0 +1,136 @@
+@prefix test1: <http://example.org/testGraph1#> .
+
+test1:nodeA_0 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_0 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_1 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_0 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_10 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_3 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_11 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_2 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_12 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_2 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_13 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_5 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_14 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_5 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_15 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_6 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_16 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_5 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_17 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_5 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_18 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_6 ;
+    test1:has "nonshape_value",
+        "nonshape_value2" .
+
+test1:nodeA_19 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_4 .
+
+test1:nodeA_2 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_0 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_20 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_4 .
+
+test1:nodeA_3 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_0 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_4 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_2 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_5 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_2 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_6 a test1:classA ;
+    test1:age "18" ;
+    test1:belongsTo test1:nodeE_1 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_7 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_0 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_8 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_0 ;
+    test1:has "nonshape_value" .
+
+test1:nodeA_9 a test1:classA ;
+    test1:age "nicht18" ;
+    test1:belongsTo test1:nodeE_3 ;
+    test1:has "nonshape_value" .
+
+test1:nodeE_1 a test1:classE .
+
+test1:nodeE_3 a test1:classE ;
+    test1:has "nonshape_value1" .
+
+test1:nodeE_4 a test1:classE ;
+    test1:has "nonshape_value1",
+        "nonshape_value2" .
+
+test1:nodeE_6 a test1:classE ;
+    test1:has "nonshape_value1",
+        "nonshape_value2" .
+
+test1:nodeE_2 a test1:classE ;
+    test1:has "nonshape_value1",
+        "nonshape_value2" .
+
+test1:nodeE_5 a test1:classE ;
+    test1:has "nonshape_value1" .
+
+test1:nodeE_0 a test1:classE ;
+    test1:has "nonshape_value1",
+        "nonshape_value2" .

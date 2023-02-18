@@ -1,0 +1,97 @@
+@prefix test2: <http://example.org/testGraph2#> .
+
+test2:nodeA_0 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_0 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_1 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_0 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_10 a test2:classA ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_11 a test2:classA ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_12 a test2:classA ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_13 a test2:classA ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_14 a test2:classA ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_15 a test2:classA ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_16 a test2:classA ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_17 a test2:classA ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_18 a test2:classA ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_19 a test2:classA ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_2 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_0 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_3 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_0 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_4 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_0 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_5 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_6 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_7 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_8 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeA_9 a test2:classA ;
+    test2:hasLiteral "valid_value" ;
+    test2:refersToB test2:nodeB_1 ;
+    test2:refersToD test2:nodeD_0 .
+
+test2:nodeC_0 a test2:classC ;
+    test2:refersTo test2:nodeD_0 .
+
+test2:nodeB_0 a test2:classB ;
+    test2:refersTo test2:nodeC_0 .
+
+test2:nodeB_1 a test2:classB .
+
+test2:nodeD_0 a test2:classD ;
+    test2:hasLiteral "valid_value" .

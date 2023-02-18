@@ -24,10 +24,10 @@ TESTS_DIRS = [
 required_prefixes = { 
     'test1': '<http://example.org/testGraph1#>',
     'test2': '<http://example.org/testGraph2#>',
-    'test3b': '<http://example.org/testGraph3b#>',
+    'test3': '<http://example.org/testGraph3#>',
     'test4': '<http://example.org/testGraph4#>',
     'test5': '<http://example.org/testGraph5#>'
-    }
+}
 
 Path(RESULT_DIR).mkdir(parents=True, exist_ok=True)
 

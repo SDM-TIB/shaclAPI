@@ -1,0 +1,32 @@
+@prefix test3: <http://example.org/testGraph3#> .
+
+test3:nodeD_2 a test3:classD ;
+    test3:alpha test3:nodeA_2 ;
+    test3:beta "literal" .
+
+test3:nodeA_0 a test3:classA ;
+    test3:alpha test3:nodeC_0,
+        test3:nodeC_1 ;
+    test3:beta "literal" .
+
+test3:nodeA_1 a test3:classA ;
+    test3:alpha test3:nodeC_1 .
+
+test3:nodeA_2 a test3:classA ;
+    test3:alpha test3:nodeC_2 ;
+    test3:beta "literal" .
+
+test3:nodeC_0 a test3:classC ;
+    test3:alpha test3:nodeD_0 .
+
+test3:nodeC_2 a test3:classC .
+
+test3:nodeD_0 a test3:classD ;
+    test3:alpha test3:nodeA_0 .
+
+test3:nodeD_1 a test3:classD ;
+    test3:alpha test3:nodeA_1 ;
+    test3:beta "literal" .
+
+test3:nodeC_1 a test3:classC ;
+    test3:alpha test3:nodeD_1 .

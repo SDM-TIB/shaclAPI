@@ -1,16 +1,16 @@
 {
 	"name": "ShapeC",
 	"targetDef": {
-		"query":"SELECT ?x WHERE {?x a test3b:classC}",
-		"class": "test3b:classC"
+		"query":"SELECT ?x WHERE {?x a test3:classC}",
+		"class": "test3:classC"
 	},
 	"prefix": {
-		"test3b":"<http://example.org/testGraph3b#>"
+		"test3":"<http://example.org/testGraph3#>"
 	},
 	"constraintDef":{
 		"conjunctions":[
 			[
-				{ "path": "test3b:alpha", "min": 1, "shape": "ShapeD"}
+				{ "path": "test3:alpha", "min": 1, "shape": "ShapeD"}
 			]
 		]
 	}
