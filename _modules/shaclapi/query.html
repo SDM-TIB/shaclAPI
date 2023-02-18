@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>shaclapi.query &#8212; shaclAPI  documentation</title>
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">shaclAPI  documentation</p>
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../modules.html">
+  shaclapi
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for shaclapi.query</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="kn">import</span> <span class="nn">regex</span> <span class="k">as</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">rdflib.paths</span> <span class="kn">import</span> <span class="n">InvPath</span>
+<span class="kn">from</span> <span class="nn">rdflib.plugins</span> <span class="kn">import</span> <span class="n">sparql</span>
+<span class="kn">from</span> <span class="nn">rdflib.term</span> <span class="kn">import</span> <span class="n">URIRef</span><span class="p">,</span> <span class="n">Variable</span>
+
+<span class="kn">from</span> <span class="nn">shaclapi.triple</span> <span class="kn">import</span> <span class="n">Triple</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Query"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query">[docs]</a><span class="k">class</span> <span class="nc">Query</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_string</span><span class="p">,</span> <span class="n">target_var</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span> <span class="o">=</span> <span class="n">query_string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__query_object</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__namespace_manager</span> <span class="o">=</span> <span class="n">namespace_manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__variables</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__PV</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__triples</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__target_var</span> <span class="o">=</span> <span class="n">target_var</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span>
+
+<div class="viewcode-block" id="Query.copy"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">query_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__query_object</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__query_object</span> <span class="o">=</span> <span class="n">sparql</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">prepareQuery</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__query_object</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">triples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__triples</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__triples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_triples</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__triples</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_var</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target_var</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__target_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_target_var</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target_var</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">namespace_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__namespace_manager</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__namespace_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_object</span><span class="o">.</span><span class="n">prologue</span><span class="o">.</span><span class="n">namespace_manager</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__namespace_manager</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variables</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_object</span><span class="o">.</span><span class="n">algebra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_vars&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">n3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variables</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">PV</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__PV</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_object</span><span class="o">.</span><span class="n">algebra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PV&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__PV</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">n3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">pv</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__PV</span>
+
+<div class="viewcode-block" id="Query.prepare_query"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.prepare_query">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">prepare_query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Query must be slightly modified to fit the conditions of travshacl, rdflib, ...</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            query (string): Initial select query</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Query: Valid Query-Object for further processing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Remove &#39;,&#39; in a query&#39;s SELECT clause (i.e.: SELECT ?x, ?y). RDFLib is not able to parse these patterns.</span>
+        <span class="n">select_clause</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;SELECT(\s+DISTINCT)*\s+([?]\w+[,]*\s*)+&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">select_clause_new</span> <span class="o">=</span> <span class="n">select_clause</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">select_clause</span><span class="p">,</span> <span class="n">select_clause_new</span><span class="p">)</span>
+        <span class="c1"># Replace all &#39; occuring in URIs or Literals</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?&lt;=((&lt;|</span><span class="se">\&quot;</span><span class="s2">)\S+))&#39;(?=(\S+(&gt;|</span><span class="se">\&quot;</span><span class="s2">)))&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;%27&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&#39;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;%27&quot;&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;&quot;%27&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="c1"># Literals are parsed in the format &#39;&quot;literal_value&quot;&#39;, &#39; must be replaced with &quot; to apply pattern matching.</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="c1"># Remove &#39;.&#39; if it is followed by &#39;}&#39;, Trav-SHACL cannot handle these dots.</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\.[\s\n]*}&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\n}&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\n&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="n">namespace_manager</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Query.is_starshaped"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.is_starshaped">[docs]</a>    <span class="k">def</span> <span class="nf">is_starshaped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">subject_intersection</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">,</span> <span class="p">[{</span><span class="n">t</span><span class="o">.</span><span class="n">subject</span><span class="p">}</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subject_intersection</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">subject_intersection</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+    
+<div class="viewcode-block" id="Query.make_starshaped"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.make_starshaped">[docs]</a>    <span class="k">def</span> <span class="nf">make_starshaped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_starshaped</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">):</span>
+            <span class="n">triples</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">set_subject</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">])</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_filter_terms</span><span class="p">()</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_values_terms</span><span class="p">()</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">({</span><span class="s1">&#39;VALUES ?x{&#39;</span> <span class="o">+</span> <span class="n">center</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span><span class="p">})</span>
+            <span class="k">return</span> <span class="n">Query</span><span class="o">.</span><span class="n">query_from_parts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PV</span><span class="p">,</span> <span class="s1">&#39;DISTINCT&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span> <span class="p">,</span><span class="n">triples</span><span class="p">,</span><span class="n">filters</span><span class="p">,</span><span class="n">values</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Query.extract_filter_terms"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.extract_filter_terms">[docs]</a>    <span class="k">def</span> <span class="nf">extract_filter_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;FILTER\s*\(.*\)&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Query.extract_values_terms"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.extract_values_terms">[docs]</a>    <span class="k">def</span> <span class="nf">extract_values_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;VALUES\s*[?].*\{[^}]*\}&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Query.extract_triples"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.extract_triples">[docs]</a>    <span class="k">def</span> <span class="nf">extract_triples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Entry point for a recursive run over a sparql.algebra, which represents a query as nested dictionaries.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of triples (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable(&#39;?subject&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__extract_triples_recursion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_object</span><span class="o">.</span><span class="n">algebra</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__extract_triples_recursion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algebra</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recursive function for triple pattern extraction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            algebra (dict): A sparql.algebra dictionary</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of Triple Objects which behave as Python Tuple (s, p, o) where each term is given by its internal rdflib representation (e.g.: Variable(&#39;?subject&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">algebra</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;LeftJoin&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;expr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;TrueFilter&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;expr&#39;</span><span class="p">][</span><span class="s1">&#39;_vars&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">set</span><span class="p">():</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__extract_triples_recursion</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">is_optional</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;p2&#39;</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">__extract_triples_recursion</span><span class="p">(</span>
+                                <span class="n">v</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">__extract_triples_recursion</span><span class="p">(</span>
+                                <span class="n">v</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;triples&#39;</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">Triple</span><span class="o">.</span><span class="n">fromList</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">is_optional</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_get_target_var</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves the target_variable of a star-shaped query.</span>
+<span class="sd">        Given by the star-shaped structure, the target_variable must appear in each triple of the query in the subject position.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If this function retrieves multiple or no candidates, the query is assumed to be a non-valid query.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            string: target_variable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_starshaped</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PV</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">center</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Query.as_target_query"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.as_target_query">[docs]</a>    <span class="k">def</span> <span class="nf">as_target_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_var</span><span class="p">,</span> <span class="n">replace_prefixes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a target query based on the given query_string, </span>
+<span class="sd">        where the projection is reduced to the target_var only and </span>
+<span class="sd">        (optionally) the prefixes are replaced and removed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            replace_prefixes (bool, optional): Highlights if prefixes should be replaced or not. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            string: A target query corresponding to the query_string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span> <span class="n">target_var</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">replace_prefixes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace_prefixes_in_query</span><span class="p">(</span><span class="n">target_query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target_query</span></div>
+
+<div class="viewcode-block" id="Query.intersect"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.intersect">[docs]</a>    <span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_var</span><span class="p">,</span> <span class="n">oldTargetQuery</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merges two queries using intersection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_target_query</span><span class="p">(</span><span class="n">target_var</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;?x&#39;</span> <span class="ow">in</span> <span class="n">target_query</span> <span class="ow">and</span> <span class="n">target_var</span> <span class="o">!=</span> <span class="s1">&#39;?x&#39;</span><span class="p">:</span>
+            <span class="c1"># Replace old ?x in target_query</span>
+            <span class="n">new_var</span> <span class="o">=</span> <span class="s1">&#39;?yx&#39;</span>
+            <span class="k">while</span> <span class="n">new_var</span> <span class="ow">in</span> <span class="n">target_query</span><span class="p">:</span>
+                <span class="n">new_var</span> <span class="o">=</span> <span class="n">new_var</span> <span class="o">+</span> <span class="s1">&#39;x&#39;</span> 
+            <span class="n">target_query</span> <span class="o">=</span> <span class="n">target_query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;?x&#39;</span><span class="p">,</span> <span class="n">new_var</span><span class="p">)</span>
+        
+        <span class="c1"># Replace target_var with &#39;?x&#39;</span>
+        <span class="n">target_query</span> <span class="o">=</span> <span class="n">target_query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">target_var</span><span class="p">,</span> <span class="s1">&#39;?x&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;?x&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">oldTargetQuery</span><span class="o">.</span><span class="n">query_string</span><span class="p">:</span>
+            <span class="n">old_target_query</span> <span class="o">=</span> <span class="n">oldTargetQuery</span><span class="o">.</span><span class="n">query_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="n">oldTargetQuery</span><span class="o">.</span><span class="n">target_var</span><span class="p">,</span> <span class="s1">&#39;?x&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old_target_query</span> <span class="o">=</span> <span class="n">oldTargetQuery</span><span class="o">.</span><span class="n">query_string</span> 
+
+        <span class="k">if</span> <span class="n">target_query</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;SELECT&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">old_target_query</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;SELECT&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">old_query</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="n">old_target_query</span><span class="p">)</span>
+            <span class="n">new_query</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="n">target_query</span><span class="p">)</span>
+
+            <span class="c1"># Intersection of both queries</span>
+            <span class="n">triples</span> <span class="o">=</span> <span class="n">old_query</span><span class="o">.</span><span class="n">triples</span>
+            <span class="n">triples</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_query</span><span class="o">.</span><span class="n">triples</span><span class="p">)</span>
+            <span class="n">triples</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">triples</span><span class="p">)</span>
+
+            <span class="n">filters</span> <span class="o">=</span> <span class="n">old_query</span><span class="o">.</span><span class="n">extract_filter_terms</span><span class="p">()</span>
+            <span class="n">filters</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_query</span><span class="o">.</span><span class="n">extract_filter_terms</span><span class="p">())</span>
+
+            <span class="n">values</span> <span class="o">=</span> <span class="n">old_query</span><span class="o">.</span><span class="n">extract_values_terms</span><span class="p">()</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_query</span><span class="o">.</span><span class="n">extract_values_terms</span><span class="p">())</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_query_from_triples</span><span class="p">(</span><span class="n">triples</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span><span class="o">.</span><span class="n">query_string</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old_target_query_prefix_free</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;(.*?)PREFIX(.*?)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">old_target_query</span><span class="p">)</span>
+            <span class="n">new_target_query_prefix_free</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;(.*?)PREFIX(.*?)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">target_query</span><span class="p">)</span>
+            <span class="n">target_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&#39;&#39;SELECT DISTINCT ?x WHERE </span><span class="se">{{</span><span class="s1"></span>
+<span class="s1">                </span><span class="se">{{</span><span class="s1"></span>
+<span class="s1">                    </span><span class="si">{</span><span class="n">old_target_query_prefix_free</span><span class="si">}</span><span class="s1"></span>
+<span class="s1">                </span><span class="se">}}</span><span class="s1"></span>
+<span class="s1">                </span><span class="se">{{</span><span class="s1"></span>
+<span class="s1">                    </span><span class="si">{</span><span class="n">new_target_query_prefix_free</span><span class="si">}</span><span class="s1"></span>
+<span class="s1">                </span><span class="se">}}</span><span class="s1"></span>
+<span class="s1">            </span><span class="se">}}</span><span class="s1"></span>
+<span class="s1">            &#39;&#39;&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Generated target query may be slow, try to make the target defintion and the given query more simple is possible.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">target_query</span></div>
+        
+<div class="viewcode-block" id="Query.target_query_from_triples"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.target_query_from_triples">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">target_query_from_triples</span><span class="p">(</span><span class="n">triples</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">filters</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Query</span><span class="o">.</span><span class="n">query_from_parts</span><span class="p">([</span><span class="s1">&#39;?x&#39;</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="n">triples</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Query.query_from_parts"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.query_from_parts">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">query_from_parts</span><span class="p">(</span><span class="n">PV</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">triples</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">filters</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">triples</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">triples</span><span class="p">))</span>
+        <span class="n">query_string</span> <span class="o">=</span> <span class="s1">&#39;SELECT &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;DISTINCT &#39;</span> <span class="k">if</span> <span class="n">distinct</span> <span class="k">else</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PV</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; WHERE {</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="k">if</span> <span class="n">values</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="n">query_string</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="k">for</span> <span class="n">triple</span> <span class="ow">in</span> <span class="n">triples</span><span class="p">:</span>
+            <span class="n">query_string</span> <span class="o">+=</span> <span class="n">triple</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">filter_</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
+                <span class="n">query_string</span> <span class="o">+=</span> <span class="n">filter_</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="n">query_string</span> <span class="o">+=</span> <span class="s1">&#39;}&#39;</span>
+        <span class="k">return</span> <span class="n">Query</span><span class="o">.</span><span class="n">prepare_query</span><span class="p">(</span><span class="n">query_string</span><span class="p">,</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="n">namespace_manager</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Query.get_statement"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.get_statement">[docs]</a>    <span class="k">def</span> <span class="nf">get_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Query.as_result_query"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.as_result_query">[docs]</a>    <span class="k">def</span> <span class="nf">as_result_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Query</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;(SELECT\s+(DISTINCT|REDUCED)?).*WHERE&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;SELECT DISTINCT * WHERE&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">),</span> <span class="n">namespace_manager</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_reduce_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">target_var</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reduces the full SELECT part of the target_query to the relevant target var.</span>
+<span class="sd">        Regex based on: https://www.w3.org/TR/rdf-sparql-query/#select</span>
+<span class="sd">        Regex: SELECT [DISTINCT|REDUCED] [[?targ, ...]|*] WHERE -&gt; SELECT [DISTINCT|REDUCED] ?targ WHERE</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;(SELECT\s+(DISTINCT|REDUCED)?).*WHERE&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;SELECT DISTINCT </span><span class="si">{</span><span class="n">target_var</span><span class="si">}</span><span class="s1"> WHERE&#39;</span><span class="p">,</span>
+            <span class="n">query</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span>
+
+    <span class="k">def</span> <span class="nf">_replace_prefixes_in_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Uses the information from self.get_triples to replace abbreviated term with their long version.</span>
+<span class="sd">        It would be possible to perform this action without knowing the triples, </span>
+<span class="sd">        but finding and replacing only relevant parts is then harder.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            query (string): A query in prefix/abbreviated notation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            string: A query in IRI/long notation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">short_list</span><span class="p">,</span> <span class="n">long_list</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_triples</span><span class="p">(</span><span class="n">replace_prefixes</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_triples</span><span class="p">(</span><span class="n">replace_prefixes</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+            <span class="n">short_s</span><span class="p">,</span> <span class="n">short_p</span><span class="p">,</span> <span class="n">short_o</span> <span class="o">=</span> <span class="n">short_list</span>
+            <span class="n">long_s</span><span class="p">,</span> <span class="n">long_p</span><span class="p">,</span> <span class="n">long_o</span> <span class="o">=</span> <span class="n">long_list</span>
+            <span class="n">short_triple</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">short_s</span><span class="p">)</span><span class="si">}</span><span class="s1">\s+</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">short_p</span><span class="p">)</span><span class="si">}</span><span class="s1">\s+</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">short_o</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">long_triple</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">long_s</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">long_p</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">long_o</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">short_triple</span><span class="p">,</span> <span class="n">long_triple</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+
+        <span class="n">prefix_block</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(PREFIX.*)SELECT&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="p">[</span><span class="n">prefix_block</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="mi">1</span><span class="p">):]</span>
+        <span class="k">return</span> <span class="n">query</span>
+
+<div class="viewcode-block" id="Query.get_predicates"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.get_predicates">[docs]</a>    <span class="k">def</span> <span class="nf">get_predicates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replace_prefixes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_inv</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of all predicates appearing in the query_string. </span>
+<span class="sd">        Optionally replacing prefixes and/or ignoring the paths&#39; directions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            replace_prefixes (bool, optional): Highlights whether prefixes should be replaced or not. Defaults to True.</span>
+<span class="sd">            ignore_inv (bool, optional): Highlights whether path directions can be ignored. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list(string): A list of all predicates/paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ignore_inv</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;^&#39;</span><span class="p">):]</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_triples</span><span class="p">(</span><span class="n">replace_prefixes</span><span class="o">=</span><span class="n">replace_prefixes</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_triples</span><span class="p">(</span><span class="n">replace_prefixes</span><span class="o">=</span><span class="n">replace_prefixes</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Query.get_triples"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.get_triples">[docs]</a>    <span class="k">def</span> <span class="nf">get_triples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replace_prefixes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of all triples appearing in the query_string.</span>
+<span class="sd">        Optionally replacing prefixes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            replace_prefixes (bool, optional): Highlights whether prefixes should be replaced or not. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of all triples where each triple is a tuple or three strings (&#39;subject&#39;, &#39;predicate&#39;, &#39;object)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">replace_prefixes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">toTuple</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">toTuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Query.get_variables_from_pred"><a class="viewcode-back" href="../../shaclapi.query.html#shaclapi.query.Query.get_variables_from_pred">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables_from_pred</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assumption star-shaped query with target variables only as subject!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vars_found</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">InvPath</span><span class="p">):</span>
+                <span class="n">p_short</span> <span class="o">=</span> <span class="s1">&#39;^&#39;</span><span class="o">+</span><span class="n">URIRef</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">arg</span><span class="p">)</span><span class="o">.</span><span class="n">n3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span>
+                <span class="n">p_long</span> <span class="o">=</span> <span class="s1">&#39;^&#39;</span><span class="o">+</span><span class="n">URIRef</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">arg</span><span class="p">)</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p_short</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">n3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace_manager</span><span class="p">)</span>
+                <span class="n">p_long</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_var</span> <span class="ow">and</span> <span class="p">(</span><span class="n">p_short</span> <span class="o">==</span> <span class="n">pred</span> <span class="ow">or</span> <span class="n">p_long</span> <span class="o">==</span> <span class="n">pred</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+                <span class="n">vars_found</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">n3</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">vars_found</span></div></div>
+</pre></div>
+
+              </article>
+              
+
+              
+              <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              </footer>
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright 2022, Julian Gercke, Philipp D. Rohde, Fabian Johannsen.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

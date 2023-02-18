@@ -1,0 +1,567 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>shaclapi.api &#8212; shaclAPI  documentation</title>
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">shaclAPI  documentation</p>
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../modules.html">
+  shaclapi
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for shaclapi.api</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module offers the main functionalities of the shaclAPI to the user.</span>
+
+<span class="sd">The shaclAPI uses Python&#39;s multiprocessing capabilities for parallel execution of the SHACL validation during SPARQL query execution.</span>
+<span class="sd">Due to delays occurring when parsing SPARQL queries with rdflib for the first time in each process, importing this module or parts of it will start a process for each task-type the shaclAPI needs to execute. These processes will stay running and wait for tasks to process.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">shaclapi.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.contactSource</span> <span class="kn">import</span> <span class="n">contactSource</span>
+<span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.functions</span> <span class="kn">import</span> <span class="n">mp_validate</span><span class="p">,</span> <span class="n">mp_xjoin</span><span class="p">,</span> <span class="n">mp_post_processing</span><span class="p">,</span> <span class="n">mp_output_completion</span>
+<span class="kn">from</span> <span class="nn">shaclapi.multiprocessing.runner</span> <span class="kn">import</span> <span class="n">Runner</span>
+<span class="kn">from</span> <span class="nn">shaclapi.output</span> <span class="kn">import</span> <span class="n">Output</span>
+<span class="kn">from</span> <span class="nn">shaclapi.query</span> <span class="kn">import</span> <span class="n">Query</span>
+<span class="kn">from</span> <span class="nn">shaclapi.reduction</span> <span class="kn">import</span> <span class="n">prepare_validation</span>
+<span class="kn">from</span> <span class="nn">shaclapi.reduction.ValidationResultTransmitter</span> <span class="kn">import</span> <span class="n">ValidationResultTransmitter</span>
+<span class="kn">from</span> <span class="nn">shaclapi.statsCalculation</span> <span class="kn">import</span> <span class="n">StatsCalculation</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># This seems to load some pyparsing stuff and will speed up the execution of the first task by 1 second.</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="o">.</span><span class="n">prepare_query</span><span class="p">(</span><span class="s1">&#39;PREFIX test1:&lt;http://example.org/testGraph1#&gt;</span><span class="se">\n</span><span class="s1">SELECT DISTINCT ?x WHERE {</span><span class="se">\n</span><span class="s1">?x a test1:classE.</span><span class="se">\n</span><span class="s1">?x test1:has ?lit.</span><span class="se">\n</span><span class="s1">}&#39;</span><span class="p">)</span>
+<span class="n">query</span><span class="o">.</span><span class="n">namespace_manager</span><span class="o">.</span><span class="n">namespaces</span><span class="p">()</span>
+
+<span class="c1"># Building Multiprocessing Chain using Runners and Queries</span>
+<span class="c1"># Validation ––&gt; \              </span>
+<span class="c1">#                 XJoin ––&gt; PostProcessing ––&gt; Output Generation</span>
+<span class="c1"># Query      ––&gt; /</span>
+
+<span class="c1"># Dataprocessing Queues/Pipes --&gt; &#39;EOF&#39; is written by the runner class after function to execute finished</span>
+
+<span class="c1"># Name                      | Sender - Threads          | Receiver - Threads        | Queue/Pipe    | Description</span>
+<span class="c1"># ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––</span>
+<span class="c1"># val_queue                 | VALIDATION_RUNNER         | XJOIN_RUNNER              | Pipe          | Queue with validation results</span>
+<span class="c1"># transformed_query_queue   | CONTACT_SOURCE_RUNNER     | XJOIN_RUNNER              | Pipe          | Query results in a joinable format </span>
+<span class="c1"># joined_results_queue      | XJOIN_RUNNER              | POST_PROCESSING_RUNNER    | Pipe          | Joined results (literals/non-shape uris missing, and still need to collect bindings with similar id)</span>
+<span class="c1"># final_result_queue        | POST_PROCESSING_RUNNER    | OUTPUT_COMPLETION_RUNNER  | Pipe          | Collected results</span>
+<span class="c1"># result_queue              | OUTPUT_COMPLETION_RUNNER  | -                         | Pipe          | Formatted results</span>
+
+<span class="c1"># Queues to collect statistics: --&gt; {&#39;topic&#39;:...., &#39;&#39;:....}</span>
+<span class="c1"># stats_out_queue           | ALL_RUNNER                | Main Thread               | Queue         | one time statistics per run --&gt; known number of statistics (also contains exception notifications in case a runner catches an exception)</span>
+<span class="c1"># timestamp_queue           | POST_PROCESSING_RUNNER    | Main Thread               | Pipe          | variable number of result timestamps per run --&gt; close with &#39;EOF&#39; by queue_output_to_table</span>
+
+<span class="n">VALIDATION_RUNNER</span> <span class="o">=</span> <span class="n">Runner</span><span class="p">(</span><span class="n">mp_validate</span><span class="p">,</span> <span class="n">number_of_out_queues</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">CONTACT_SOURCE_RUNNER</span> <span class="o">=</span> <span class="n">Runner</span><span class="p">(</span><span class="n">contactSource</span><span class="p">,</span> <span class="n">number_of_out_queues</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">XJOIN_RUNNER</span> <span class="o">=</span> <span class="n">Runner</span><span class="p">(</span><span class="n">mp_xjoin</span><span class="p">,</span> <span class="n">number_of_out_queues</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">POST_PROCESSING_RUNNER</span> <span class="o">=</span> <span class="n">Runner</span><span class="p">(</span><span class="n">mp_post_processing</span><span class="p">,</span> <span class="n">number_of_out_queues</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">OUTPUT_COMPLETION_RUNNER</span> <span class="o">=</span> <span class="n">Runner</span><span class="p">(</span><span class="n">mp_output_completion</span><span class="p">,</span> <span class="n">number_of_out_queues</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Starting the processes of the runners</span>
+<span class="n">VALIDATION_RUNNER</span><span class="o">.</span><span class="n">start_process</span><span class="p">()</span>
+<span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">start_process</span><span class="p">()</span>
+<span class="n">XJOIN_RUNNER</span><span class="o">.</span><span class="n">start_process</span><span class="p">()</span>
+<span class="n">POST_PROCESSING_RUNNER</span><span class="o">.</span><span class="n">start_process</span><span class="p">()</span>
+<span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">start_process</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="get_result_queue"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.get_result_queue">[docs]</a><span class="k">def</span> <span class="nf">get_result_queue</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Convenience function to get a multiprocessing queue object, which can be used as a result_queue in :func:`shaclapi.api.run_multiprocessing`.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    python.multiprocessing.Queue</span>
+<span class="sd">        A queue usable in :func:`shaclapi.api.run_multiprocessing`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">use_pipes</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="run_multiprocessing"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.run_multiprocessing">[docs]</a><span class="k">def</span> <span class="nf">run_multiprocessing</span><span class="p">(</span><span class="n">pre_config</span><span class="p">,</span> <span class="n">result_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main function of the shaclAPI: Given a dictionary of configuration keys (properties in :py:mod:`shaclapi.config`) with the configured values, the shaclAPI starts the parallel execution of the SHACL validation during SPARQL query execution, while applying the activated heuristics.</span>
+
+<span class="sd">    The following directed graph demonstrates the principal procedure. (Nodes represent tasks/processes and edges represent queues for colaboration):</span>
+<span class="sd">    </span>
+<span class="sd">    .. image:: procedure.png</span>
+<span class="sd">       :align: center</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parse Config from POST Request and Config File</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_request_form</span><span class="p">(</span><span class="n">pre_config</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;To reproduce this call to the API run: run_config.py -c &#39;&quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_dict</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">save_outputs</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^\w\-_\. ]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Check if query is given</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Setup Stats Calculation</span>
+    <span class="n">statsCalc</span> <span class="o">=</span> <span class="n">StatsCalculation</span><span class="p">(</span><span class="n">test_identifier</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">,</span> <span class="n">approach_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">statsCalc</span><span class="o">.</span><span class="n">globalCalculationStart</span><span class="p">()</span>
+
+    <span class="c1"># Set up the multiprocessing queue, which will give the final output.</span>
+    <span class="k">if</span> <span class="n">result_queue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">QUEUE_OUTPUT</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result_queue</span> <span class="o">=</span> <span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">QUEUE_OUTPUT</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># Preparing the multiprocessing queues</span>
+    <span class="c1"># 1. Create new queues for the given request</span>
+    <span class="n">stats_out_queue</span> <span class="o">=</span> <span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">get_new_queue</span><span class="p">()</span>
+    <span class="n">contact_source_out_queues</span> <span class="o">=</span> <span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
+    <span class="n">validation_out_queues</span> <span class="o">=</span> <span class="n">VALIDATION_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
+    <span class="n">xjoin_out_queues</span> <span class="o">=</span> <span class="n">XJOIN_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
+    <span class="n">post_processing_out_queues</span> <span class="o">=</span> <span class="n">POST_PROCESSING_RUNNER</span><span class="o">.</span><span class="n">get_new_out_queues</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">use_pipes</span><span class="p">)</span>
+    <span class="n">output_completion_out_queues</span> <span class="o">=</span> <span class="p">(</span><span class="n">result_queue</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="c1"># 2. Extract Out Queues</span>
+    <span class="n">transformed_query_queue</span> <span class="o">=</span> <span class="n">contact_source_out_queues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+    <span class="n">val_queue</span> <span class="o">=</span> <span class="n">validation_out_queues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+    <span class="n">joined_results_queue</span> <span class="o">=</span> <span class="n">xjoin_out_queues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">final_result_queue</span><span class="p">,</span> <span class="n">timestamp_queue</span> <span class="o">=</span> <span class="n">post_processing_out_queues</span>  <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+
+    <span class="c1"># 3. Collect the sender parts of the queues.</span>
+    <span class="n">contact_source_out_connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">queue_adapter</span><span class="o">.</span><span class="n">sender</span> <span class="k">for</span> <span class="n">queue_adapter</span> <span class="ow">in</span> <span class="n">contact_source_out_queues</span><span class="p">))</span>
+    <span class="n">validation_out_connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">queue_adapter</span><span class="o">.</span><span class="n">sender</span> <span class="k">for</span> <span class="n">queue_adapter</span> <span class="ow">in</span> <span class="n">validation_out_queues</span><span class="p">))</span>
+    <span class="n">xjoin_out_connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">queue_adapter</span><span class="o">.</span><span class="n">sender</span> <span class="k">for</span> <span class="n">queue_adapter</span> <span class="ow">in</span> <span class="n">xjoin_out_queues</span><span class="p">))</span>
+    <span class="n">post_processing_out_connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">queue_adapter</span><span class="o">.</span><span class="n">sender</span> <span class="k">for</span> <span class="n">queue_adapter</span> <span class="ow">in</span> <span class="n">post_processing_out_queues</span><span class="p">))</span>
+    <span class="n">output_completion_out_connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">queue_adapter</span><span class="o">.</span><span class="n">sender</span> <span class="k">for</span> <span class="n">queue_adapter</span> <span class="ow">in</span> <span class="n">output_completion_out_queues</span><span class="p">))</span>
+
+    <span class="c1"># 4. Collect the receiver parts of the queues.</span>
+    <span class="n">contact_source_in_connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+    <span class="n">validation_in_connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+    <span class="n">xjoin_in_connections</span> <span class="o">=</span> <span class="p">(</span><span class="n">transformed_query_queue</span><span class="o">.</span><span class="n">receiver</span><span class="p">,</span> <span class="n">val_queue</span><span class="o">.</span><span class="n">receiver</span><span class="p">)</span>
+    <span class="n">post_processing_in_connections</span> <span class="o">=</span> <span class="p">(</span><span class="n">joined_results_queue</span><span class="o">.</span><span class="n">receiver</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">output_completion_in_connections</span> <span class="o">=</span> <span class="p">(</span><span class="n">final_result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="c1"># Setup of the validation result transmitting strategy (SHACL engine --&gt; API).</span>
+    <span class="c1"># This allows to process SHACL validation results as soon as they arrive.</span>
+    <span class="n">result_transmitter</span> <span class="o">=</span> <span class="n">ValidationResultTransmitter</span><span class="p">(</span><span class="n">output_queue</span><span class="o">=</span><span class="n">val_queue</span><span class="o">.</span><span class="n">sender</span><span class="p">,</span> <span class="n">first_val_time_queue</span><span class="o">=</span><span class="n">stats_out_queue</span><span class="p">)</span>
+
+    <span class="c1"># Parse query_string into a corresponding Query Object</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="o">.</span><span class="n">prepare_query</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">query_starshaped</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">make_starshaped</span><span class="p">()</span>
+
+    <span class="n">collect_all_validation_results</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">collect_all_validation_results</span>
+
+    <span class="c1"># Sanitizing the input  </span>
+    <span class="k">if</span> <span class="n">query_starshaped</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">collect_all_validation_results</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">collect_all_validation_results</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running in blocking mode as the target variable(s) could not be identified!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only replace target query if query is star-shaped!&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query_starshaped</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">collect_all_validation_results</span><span class="p">:</span>
+            <span class="n">collect_all_validation_results</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Running in blocking mode as the target shape is not given!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">replace_target_query</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only replace target query if target shape is given!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">prune_shape_network</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">prune_shape_network</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only prune shape schema if target shape is given!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Can only start with target shape if target shape is given!&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>  <span class="c1"># Unify target shape -&gt; {?var: list of shapes}</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="o">=</span> <span class="n">unify_target_shape</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query_starshaped</span><span class="p">)</span>
+
+    <span class="c1"># The information we need depends on the output format:</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">reasoning</span><span class="p">):</span>
+        <span class="n">query_to_be_executed</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">query_to_be_executed</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">as_result_query</span><span class="p">()</span>
+
+    <span class="n">statsCalc</span><span class="o">.</span><span class="n">taskCalculationStart</span><span class="p">()</span>
+
+    <span class="c1"># Start Processing Pipeline e.g. assigning each process a new task.</span>
+    <span class="c1"># 1. Get the Data</span>
+    <span class="n">contact_source_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">external_endpoint</span><span class="p">,</span> <span class="n">query_to_be_executed</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">CONTACT_SOURCE_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">contact_source_in_connections</span><span class="p">,</span> <span class="n">contact_source_out_connections</span><span class="p">,</span> <span class="n">contact_source_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
+
+    <span class="n">validation_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query_to_be_executed</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">result_transmitter</span><span class="p">)</span>
+    <span class="n">VALIDATION_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">validation_in_connections</span><span class="p">,</span> <span class="n">validation_out_connections</span><span class="p">,</span> <span class="n">validation_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
+
+    <span class="c1"># 2. Join the Data</span>
+    <span class="n">xjoin_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="p">,)</span>
+    <span class="n">XJOIN_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">xjoin_in_connections</span><span class="p">,</span> <span class="n">xjoin_out_connections</span><span class="p">,</span> <span class="n">xjoin_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
+
+    <span class="c1"># 3. Post-Processing: Restore missing vars (these one which could not find a join partner (literals etc.))</span>
+    <span class="n">post_processing_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">query_to_be_executed</span><span class="o">.</span><span class="n">PV</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query_to_be_executed</span><span class="o">.</span><span class="n">target_var</span><span class="p">,</span> <span class="n">collect_all_validation_results</span><span class="p">)</span>
+    <span class="n">POST_PROCESSING_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">post_processing_in_connections</span><span class="p">,</span> <span class="n">post_processing_out_connections</span><span class="p">,</span> <span class="n">post_processing_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
+
+    <span class="c1"># 4. Transform to Outputformat</span>
+    <span class="n">output_completion_task_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+    <span class="n">OUTPUT_COMPLETION_RUNNER</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span><span class="n">output_completion_in_connections</span><span class="p">,</span> <span class="n">output_completion_out_connections</span><span class="p">,</span> <span class="n">output_completion_task_description</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">run_in_serial</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">write_stats</span><span class="p">:</span>
+        <span class="c1"># matrix_file = os.path.join(os.path.abspath(config.output_directory), &#39;matrix.csv&#39;)</span>
+        <span class="c1"># trace_file = os.path.join(os.path.abspath(config.output_directory), &#39;trace.csv&#39;)</span>
+        <span class="n">stats_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="s1">&#39;stats.csv&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># matrix_file = None</span>
+        <span class="c1"># trace_file = None</span>
+        <span class="n">stats_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># statsCalc.receive_and_write_trace(trace_file, timestamp_queue.receiver)</span>
+        <span class="n">statsCalc</span><span class="o">.</span><span class="n">receive_global_stats</span><span class="p">(</span><span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">using_output_completion_runner</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">statsCalc</span><span class="o">.</span><span class="n">write_matrix_and_stats_files</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">stats_file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">sys</span>
+        <span class="kn">import</span> <span class="nn">traceback</span>
+        <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+        <span class="n">emsg</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">emsg</span><span class="p">))</span>
+        <span class="n">result_queue</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;EOF&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">emsg</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUEUE_OUTPUT</span><span class="p">:</span>
+        <span class="n">next_result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">next_result</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">next_result</span>
+                <span class="n">next_result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;validTargets&#39;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;invalidTargets&#39;</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">next_result</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">+=</span> <span class="p">[</span><span class="n">next_result</span><span class="p">]</span>
+                <span class="n">next_result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Finished collecting results!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="k">def</span> <span class="nf">_make_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a list from the object passed.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="unify_target_shape"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.unify_target_shape">[docs]</a><span class="k">def</span> <span class="nf">unify_target_shape</span><span class="p">(</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a target shape configuration (see :py:attr:`shaclapi.config.target_shape`) and a SPARQL query :class:`shaclapi.query.Query` a reformatted version of the target shape configuration is returned. The format is {?var: list of target shapes}, where ?var is a variable occuring in the query.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target_shape : dict, list or string</span>
+<span class="sd">        A target shape configuration (see :py:attr:`shaclapi.config.target_shape`)</span>
+
+<span class="sd">    query : shaclapi.query.Query</span>
+<span class="sd">        The SPARQL query.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_shape</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">_make_list</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">target_shape</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">elif</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="n">query</span><span class="o">.</span><span class="n">target_var</span><span class="p">:</span> <span class="n">_make_list</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target_shape</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;UNDEF&#39;</span><span class="p">:</span> <span class="n">_make_list</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)}</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unified target shape: </span><span class="si">{</span><span class="n">target_shape</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target_shape</span></div>
+
+
+<div class="viewcode-block" id="only_reduce_shape_schema"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.only_reduce_shape_schema">[docs]</a><span class="k">def</span> <span class="nf">only_reduce_shape_schema</span><span class="p">(</span><span class="n">pre_config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Only reduces the given SHACL shape schema based on the provided target shape.</span>
+
+<span class="sd">    The given SHACL shape schema is reduced to all shapes that are reachable from</span>
+<span class="sd">    the provided target shape, i.e., they need to be validated in order to form</span>
+<span class="sd">    a decision on the satisfaction of the instances of the target shape.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list with the names of the shapes in the reduced shape schema.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ReducedShapeParser</span> <span class="kn">import</span> <span class="n">ReducedShapeParser</span>
+    <span class="kn">from</span> <span class="nn">TravSHACL.core.GraphTraversal</span> <span class="kn">import</span> <span class="n">GraphTraversal</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_request_form</span><span class="p">(</span><span class="n">pre_config</span><span class="p">)</span>
+    <span class="n">shape_parser</span> <span class="o">=</span> <span class="n">ReducedShapeParser</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">GraphTraversal</span><span class="o">.</span><span class="n">DFS</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">node_order</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">shape_parser</span><span class="o">.</span><span class="n">parse_shapes_from_dir</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">schema_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_format</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">node_order</span></div>
+
+
+<div class="viewcode-block" id="overlap_reduced_schemas"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.overlap_reduced_schemas">[docs]</a><span class="k">def</span> <span class="nf">overlap_reduced_schemas</span><span class="p">(</span><span class="n">pre_config</span><span class="p">,</span> <span class="n">shape_one</span><span class="p">,</span> <span class="n">shape_two</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the percentage of overlap for two reduced shape schemas.</span>
+
+<span class="sd">    First, for both sets of shapes, the reduced shape schema is generated.</span>
+<span class="sd">    Afterwards, the intersection of both shape schemas is computed.</span>
+<span class="sd">    The percentage of overlap is the number of shapes in the intersection</span>
+<span class="sd">    divided by the number of shapes in the smaller of the input shape schemas.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The percentage of overlap in both reduced shape schemas based on</span>
+<span class="sd">        the minimal number of shapes in the input shape schemas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config_one</span> <span class="o">=</span> <span class="n">pre_config</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_one</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">shape_one</span> <span class="o">=</span> <span class="p">[</span><span class="n">shape_one</span><span class="p">]</span>
+    <span class="n">reduced_schema_one</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">shape_one</span><span class="p">:</span>
+        <span class="n">config_one</span><span class="p">[</span><span class="s1">&#39;target_shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="p">[</span><span class="n">reduced_schema_one</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">only_reduce_shape_schema</span><span class="p">(</span><span class="n">config_one</span><span class="p">)]</span>
+
+    <span class="n">config_two</span> <span class="o">=</span> <span class="n">pre_config</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_two</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">shape_two</span> <span class="o">=</span> <span class="p">[</span><span class="n">shape_two</span><span class="p">]</span>
+    <span class="n">reduced_schema_two</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">shape_two</span><span class="p">:</span>
+        <span class="n">config_two</span><span class="p">[</span><span class="s1">&#39;target_shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="p">[</span><span class="n">reduced_schema_two</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">only_reduce_shape_schema</span><span class="p">(</span><span class="n">config_two</span><span class="p">)]</span>
+
+    <span class="c1"># max_size = max(len(reduced_schema_one), len(reduced_schema_two))</span>
+    <span class="n">min_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reduced_schema_one</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">reduced_schema_two</span><span class="p">))</span>
+    <span class="n">intersection</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">reduced_schema_one</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">reduced_schema_two</span><span class="p">))</span>
+    <span class="n">inter_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersection</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">inter_size</span> <span class="o">/</span> <span class="n">min_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">min_size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="validation_and_statistics"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.validation_and_statistics">[docs]</a><span class="k">def</span> <span class="nf">validation_and_statistics</span><span class="p">(</span><span class="n">pre_config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Validates a SHACL shape schema and provides additional statistics.</span>
+
+<span class="sd">    The SHACL shape schema is validated based on the provided configuration.</span>
+<span class="sd">    That includes the path of the SHACL shape schema as well as the heuristics</span>
+<span class="sd">    used to optimize the validation performance.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        JSON structure:</span>
+<span class="sd">        {shape1:</span>
+<span class="sd">            {valid: #valid instances,</span>
+<span class="sd">            invalid: #invalid instances,</span>
+<span class="sd">            columns: [column name 1, column name 2, ...],</span>
+<span class="sd">            results: [[instance 1 data 1,instance 1 data 2, ...], [instance 2 data 1,instance 2 data 2, ...], ...]</span>
+<span class="sd">            }</span>
+<span class="sd">        shape2: {...}</span>
+<span class="sd">        ...</span>
+<span class="sd">        }</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">       The result includes per-shape counts of the valid and invalid instances as</span>
+<span class="sd">       well as a Boolean per instance of the shape stating its satisfaction of the</span>
+<span class="sd">       shape&#39;s constraints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Queue</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_request_form</span><span class="p">(</span><span class="n">pre_config</span><span class="p">)</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+    <span class="n">result_transmitter</span> <span class="o">=</span> <span class="n">ValidationResultTransmitter</span><span class="p">(</span><span class="n">output_queue</span><span class="o">=</span><span class="n">queue</span><span class="p">)</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">query</span>
+    <span class="k">if</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="o">.</span><span class="n">prepare_query</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">query_starshaped</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">make_starshaped</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="o">=</span> <span class="n">unify_target_shape</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query_starshaped</span><span class="p">)</span>
+
+    <span class="n">shape_schema</span> <span class="o">=</span> <span class="n">prepare_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Query</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="k">if</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">)</span>
+    <span class="n">shape_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">start_with_target_shape</span><span class="p">)</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;EOF&#39;</span><span class="p">)</span>
+
+    <span class="n">val_results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">item</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;instance&#39;</span><span class="p">]</span>
+        <span class="n">val_shape</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">val_res</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;validation&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">val_shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">val_results</span><span class="p">:</span>
+            <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;results&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="s1">&#39;Validation&#39;</span><span class="p">]</span>
+        <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;valid&#39;</span> <span class="k">if</span> <span class="n">val_res</span> <span class="k">else</span> <span class="s1">&#39;invalid&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">val_results</span><span class="p">[</span><span class="n">val_shape</span><span class="p">][</span><span class="s1">&#39;results&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;Valid&#39;</span> <span class="k">if</span> <span class="n">val_res</span> <span class="k">else</span> <span class="s1">&#39;Invalid&#39;</span><span class="p">])</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">cancel_join_thread</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">val_results</span></div>
+</pre></div>
+
+              </article>
+              
+
+              
+              <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              </footer>
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright 2022, Julian Gercke, Philipp D. Rohde, Fabian Johannsen.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

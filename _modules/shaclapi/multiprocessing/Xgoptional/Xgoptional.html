@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>shaclapi.multiprocessing.Xgoptional.Xgoptional &#8212; shaclAPI  documentation</title>
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">shaclAPI  documentation</p>
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../modules.html">
+  shaclapi
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for shaclapi.multiprocessing.Xgoptional.Xgoptional</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Jul 10, 2011</span>
+
+<span class="sd">Implements the Xgoptional operator.</span>
+<span class="sd">The intermediate results are represented as queues.</span>
+
+<span class="sd">@author: Maribel Acosta Deibe</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Queue</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">remove</span>
+<span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Empty</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">NamedTemporaryFile</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="kn">from</span> <span class="nn">.OperatorStructures</span> <span class="kn">import</span> <span class="n">Record</span><span class="p">,</span> <span class="n">RJTTail</span><span class="p">,</span> <span class="n">FileDescriptor</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Xgoptional"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional">[docs]</a><span class="k">class</span> <span class="nc">Xgoptional</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vars_left</span><span class="p">,</span> <span class="n">vars_right</span><span class="p">,</span> <span class="n">memory_size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qresults</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bag</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># used to store results, which not have found a join partner, such that the result can be added in stage 3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars_left</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">vars_left</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars_right</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">vars_right</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars_left</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_right</span><span class="p">)</span>
+
+        <span class="c1"># Second stage settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">secondStagesTS</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastSecondStageTS</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;-inf&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeoutSecondStage</span> <span class="o">=</span> <span class="mi">100000000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sourcesBlocked</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Main memory settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memorySize</span> <span class="o">=</span> <span class="n">memory_size</span>  <span class="c1"># represents the main memory size (# tuples)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_left</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_right</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">leftcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rightcount</span> <span class="o">=</span> <span class="mi">0</span>
+    
+<div class="viewcode-block" id="Xgoptional.add_to_bag"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.add_to_bag">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_bag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">json_enc</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bag</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">json_enc</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="Xgoptional.remove_from_bag"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.remove_from_bag">[docs]</a>    <span class="k">def</span> <span class="nf">remove_from_bag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">json_enc</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bag</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">json_enc</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="Xgoptional.iterate_bag"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.iterate_bag">[docs]</a>    <span class="k">def</span> <span class="nf">iterate_bag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bag</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Xgoptional.instantiate"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.instantiate">[docs]</a>    <span class="k">def</span> <span class="nf">instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">newvars_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_left</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">newvars_right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_right</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">Xgoptional</span><span class="p">(</span><span class="n">newvars_left</span><span class="p">,</span> <span class="n">newvars_right</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memorySize</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Xgoptional.instantiateFilter"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.instantiateFilter">[docs]</a>    <span class="k">def</span> <span class="nf">instantiateFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instantiated_vars</span><span class="p">,</span> <span class="n">filter_str</span><span class="p">):</span>
+        <span class="n">newvars_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_left</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">instantiated_vars</span><span class="p">)</span>
+        <span class="n">newvars_right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_right</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">instantiated_vars</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Xgoptional</span><span class="p">(</span><span class="n">newvars_left</span><span class="p">,</span> <span class="n">newvars_right</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memorySize</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Xgoptional.execute"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">processqueue</span><span class="o">=</span><span class="n">Queue</span><span class="p">()):</span>
+        <span class="c1"># Executes the Xgoptional.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qresults</span> <span class="o">=</span> <span class="n">out</span>
+
+        <span class="c1"># Initialize tuples.</span>
+        <span class="n">tuple1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">tuple2</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Create alarm to go to stage 2.</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage2</span><span class="p">)</span>
+
+        <span class="c1"># Get the tuples from the queues.</span>
+        <span class="k">while</span> <span class="ow">not</span><span class="p">(</span><span class="n">tuple1</span> <span class="o">==</span> <span class="s1">&#39;EOF&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span><span class="p">(</span><span class="n">tuple2</span> <span class="o">==</span> <span class="s1">&#39;EOF&#39;</span><span class="p">):</span>
+
+            <span class="c1"># Try to get and process tuple from left queue.</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">tuple1</span> <span class="o">==</span> <span class="s1">&#39;EOF&#39;</span><span class="p">):</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">tuple1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">tuple1</span> <span class="o">==</span> <span class="s1">&#39;EOF&#39;</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_bag</span><span class="p">(</span><span class="n">tuple1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">leftcount</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeoutSecondStage</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stage1</span><span class="p">(</span><span class="n">tuple1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_right</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">memory_right</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1"># print(&#39;bag after stage 1:&#39;, self.bag)</span>
+                <span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
+                    <span class="c1"># Empty: in tuple1 = self.left.get(False), when the queue is empty.</span>
+                    <span class="k">pass</span>
+                <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">te</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;TypeError: in resource = resource + tuple[var]&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">te</span><span class="p">))</span>
+                    <span class="c1"># TypeError: in resource = resource + tuple[var], when the tuple is &#39;EOF&#39;.</span>
+                    <span class="k">pass</span>
+                <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                    <span class="c1"># IOError: when a tuple is received, but the alarm is fired.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sourcesBlocked</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">pass</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">tuple2</span> <span class="o">==</span> <span class="s1">&#39;EOF&#39;</span><span class="p">):</span>  <span class="c1"># Try to get and process tuple from right queue.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">tuple2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rightcount</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeoutSecondStage</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stage1</span><span class="p">(</span><span class="n">tuple2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_left</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">memory_left</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
+                    <span class="c1"># Empty: in tuple2 = self.right.get(False), when the queue is empty.</span>
+                    <span class="k">pass</span>
+                <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">te</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;TypeError: in resource = resource + tuple[var]&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">te</span><span class="p">))</span>
+                    <span class="c1"># TypeError: in resource = resource + tuple[var], when the tuple is &#39;EOF&#39;.</span>
+                    <span class="k">pass</span>
+                <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                    <span class="c1"># IOError: when a tuple is received, but the alarm is fired.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sourcesBlocked</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">pass</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">memorySize</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flushRJT</span><span class="p">()</span>
+
+        <span class="c1"># Turn off alarm to stage 2.</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># print(&#39;Perform the last probes.&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage3</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Xgoptional.stage1"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.stage1">[docs]</a>    <span class="k">def</span> <span class="nf">stage1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">tuple_rjttable</span><span class="p">,</span> <span class="n">other_rjttable</span><span class="p">,</span> <span class="nb">vars</span><span class="p">):</span>
+        <span class="c1"># Stage 1: While one of the sources is sending data.</span>
+        <span class="c1"># print(&#39;stage 1&#39;)</span>
+        <span class="c1"># Get the resource associated to the tuples.</span>
+        <span class="k">if</span> <span class="nb">tuple</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;^^&lt;&#39;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="p">[:</span><span class="n">val</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;^^&lt;&#39;</span><span class="p">)]</span>
+                <span class="n">resource</span> <span class="o">=</span> <span class="n">resource</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="c1"># print(&#39;probe&#39;)</span>
+            <span class="c1"># Probe the tuple against its RJT table.</span>
+            <span class="n">probeTS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">tuple_rjttable</span><span class="p">,</span> <span class="nb">vars</span><span class="p">)</span>
+            <span class="c1"># print(&#39;creating record&#39;)</span>
+            <span class="c1"># Create the records.</span>
+            <span class="n">record</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">probeTS</span><span class="p">,</span> <span class="n">time</span><span class="p">(),</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">))</span>
+            <span class="c1"># print(&#39;Stage 1&#39;)</span>
+            <span class="c1"># Insert the record in the other RJT table.</span>
+            <span class="c1"># TODO: use RJTTail. Check ProbeTS</span>
+            <span class="k">if</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">other_rjttable</span><span class="p">:</span>
+                <span class="n">other_rjttable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="o">.</span><span class="n">updateRecords</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+                <span class="n">other_rjttable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="o">.</span><span class="n">setRJTProbeTS</span><span class="p">(</span><span class="n">probeTS</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tail</span> <span class="o">=</span> <span class="n">RJTTail</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">probeTS</span><span class="p">)</span>
+                <span class="n">other_rjttable</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span> <span class="o">=</span> <span class="n">tail</span></div>
+
+<div class="viewcode-block" id="Xgoptional.stage2"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.stage2">[docs]</a>    <span class="k">def</span> <span class="nf">stage2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="c1"># print(&#39;Stage 2: When both sources become blocked.&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sourcesBlocked</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Get common resources.</span>
+        <span class="n">resources1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">resources2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Iterate while there are common resources and both sources are blocked.</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">resources1</span> <span class="ow">or</span> <span class="n">resources2</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sourcesBlocked</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resources1</span><span class="p">:</span>
+                <span class="n">resource</span> <span class="o">=</span> <span class="n">resources1</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">rjts1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">records</span>
+                <span class="k">for</span> <span class="n">rjt1</span> <span class="ow">in</span> <span class="n">rjts1</span><span class="p">:</span>
+                    <span class="n">probed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probeFile</span><span class="p">(</span><span class="n">rjt1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">probed</span><span class="p">:</span>
+                        <span class="n">rjt1</span><span class="o">.</span><span class="n">probeTS</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">resources2</span><span class="p">:</span>
+                <span class="n">resource</span> <span class="o">=</span> <span class="n">resources2</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">rjts1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">records</span>
+                <span class="k">for</span> <span class="n">rjt1</span> <span class="ow">in</span> <span class="n">rjts1</span><span class="p">:</span>
+                    <span class="n">probed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probeFile</span><span class="p">(</span><span class="n">rjt1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">probed</span><span class="p">:</span>
+                        <span class="n">rjt1</span><span class="o">.</span><span class="n">probeTS</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># End of second stage.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastSecondStageTS</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">secondStagesTS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lastSecondStageTS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Xgoptional.stage3"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.stage3">[docs]</a>    <span class="k">def</span> <span class="nf">stage3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Stage 3: When both sources sent all the data.</span>
+        <span class="c1"># print(&#39;stage 3&#39;)</span>
+        <span class="c1"># This is the optional: Produce tuples that haven&#39;t matched already.</span>
+        <span class="c1"># print(&#39;Length of data in xgoptional():&#39;, len(self.bag))</span>
+
+        <span class="c1"># RJTs in main (left) memory are probed against RJTs in secondary (right) memory.</span>
+        <span class="n">common_resources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">common_resources</span><span class="p">:</span>
+            <span class="n">rjts1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">records</span>
+            <span class="k">for</span> <span class="n">rjt1</span> <span class="ow">in</span> <span class="n">rjts1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">probeFile</span><span class="p">(</span><span class="n">rjt1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># RJTs in main (right) memory are probed against RJTs in secondary (left) memory.</span>
+        <span class="n">common_resources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">common_resources</span><span class="p">:</span>
+            <span class="n">rjts1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">records</span>
+            <span class="k">for</span> <span class="n">rjt1</span> <span class="ow">in</span> <span class="n">rjts1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">probeFile</span><span class="p">(</span><span class="n">rjt1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># RJTs in secondary memory are probed to produce new results.</span>
+        <span class="n">common_resources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">common_resources</span><span class="p">:</span>
+            <span class="n">file1</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">rjts1</span> <span class="o">=</span> <span class="n">file1</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">rjt1</span> <span class="ow">in</span> <span class="n">rjts1</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">tuple1</span><span class="p">,</span> <span class="n">probeTS1</span><span class="p">,</span> <span class="n">insertTS1</span><span class="p">,</span> <span class="n">flushTS1</span><span class="p">)</span> <span class="o">=</span> <span class="n">rjt1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">probeFile</span><span class="p">(</span><span class="n">Record</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">tuple1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">probeTS1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">insertTS1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">flushTS1</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">file1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">common_resources</span><span class="p">:</span>
+            <span class="n">file1</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">rjts1</span> <span class="o">=</span> <span class="n">file1</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">rjt1</span> <span class="ow">in</span> <span class="n">rjts1</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">tuple1</span><span class="p">,</span> <span class="n">probeTS1</span><span class="p">,</span> <span class="n">insertTS1</span><span class="p">,</span> <span class="n">flushTS1</span><span class="p">)</span> <span class="o">=</span> <span class="n">rjt1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">probeFile</span><span class="p">(</span><span class="n">Record</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">tuple1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">probeTS1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">insertTS1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">flushTS1</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">file1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Delete files from secondary memory.</span>
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="p">:</span>
+            <span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="p">:</span>
+            <span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="nb">tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterate_bag</span><span class="p">():</span>
+            <span class="n">vars_to_add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars_right</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">tuple</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_to_add</span><span class="p">:</span>
+                <span class="nb">tuple</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">var</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qresults</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+
+        <span class="c1"># Put EOF in queue and exit.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qresults</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;EOF&#39;</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Xgoptional.probe"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.probe">[docs]</a>    <span class="k">def</span> <span class="nf">probe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">rjttable</span><span class="p">,</span> <span class="nb">vars</span><span class="p">):</span>
+        <span class="n">probeTS</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="c1"># If the resource is in table, produce results.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">rjttable</span><span class="p">:</span>
+                <span class="n">rjttable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="o">.</span><span class="n">setRJTProbeTS</span><span class="p">(</span><span class="n">probeTS</span><span class="p">)</span>
+                <span class="n">list_records</span> <span class="o">=</span> <span class="n">rjttable</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">records</span>
+                <span class="c1"># Delete tuple from bag.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remove_from_bag</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">list_records</span><span class="p">:</span>
+                    <span class="c1"># print(&#39;record:&#39;, type(record.tuple), record.tuple)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">tuple</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">res</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">tuple</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="n">res</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">qresults</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+                        <span class="c1"># Delete tuple from bag.</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">remove_from_bag</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">tuple</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">probeTS</span></div>
+
+<div class="viewcode-block" id="Xgoptional.probeFile"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.probeFile">[docs]</a>    <span class="k">def</span> <span class="nf">probeFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rjt1</span><span class="p">,</span> <span class="n">filedescriptor2</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">stage</span><span class="p">):</span>
+        <span class="c1"># Probe an RJT against its corresponding partition in secondary memory.</span>
+        <span class="n">file2</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filedescriptor2</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">rjts2</span> <span class="o">=</span> <span class="n">file2</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">probed</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">rjt2</span> <span class="ow">in</span> <span class="n">rjts2</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">tuple2</span><span class="p">,</span> <span class="n">probeTS2</span><span class="p">,</span> <span class="n">insertTS2</span><span class="p">,</span> <span class="n">flushTS2</span><span class="p">)</span> <span class="o">=</span> <span class="n">rjt2</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)</span>
+            <span class="n">probedStage1</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">probedStage2</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Checking Property 2: Probed in stage 2.</span>
+            <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">secondStagesTS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">flushTS2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">rjt1</span><span class="o">.</span><span class="n">insertTS</span> <span class="o">&lt;</span> <span class="n">ss</span> <span class="o">&lt;</span> <span class="n">rjt1</span><span class="o">.</span><span class="n">flushTS</span><span class="p">:</span>
+                    <span class="n">probedStage2</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># Checking Property 1: Probed in stage 1.</span>
+            <span class="k">if</span> <span class="n">rjt1</span><span class="o">.</span><span class="n">probeTS</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">flushTS2</span><span class="p">):</span>
+                <span class="n">probedStage1</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># Produce result if it has not been produced.</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">probedStage1</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">probedStage2</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">rjt1</span><span class="o">.</span><span class="n">tuple</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tuple2_evaluated</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">tuple2</span><span class="p">)</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tuple2_evaluated</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">qresults</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+                <span class="c1"># Delete tuple from bag.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remove_from_bag</span><span class="p">(</span><span class="n">rjt1</span><span class="o">.</span><span class="n">tuple</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remove_from_bag</span><span class="p">(</span><span class="n">tuple2_evaluated</span><span class="p">)</span>
+
+                <span class="n">probed</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># Update probeTS of tuple2.</span>
+            <span class="n">stprobeTS</span>  <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.40r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">())</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">st</span> <span class="o">+</span> <span class="n">tuple2</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">stprobeTS</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">insertTS2</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">flushTS2</span>
+
+        <span class="n">file2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Update file2 if in stage 2.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">stage</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">probed</span><span class="p">:</span>
+            <span class="n">file2</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filedescriptor2</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">file2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+            <span class="n">file2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">probed</span></div>
+
+<div class="viewcode-block" id="Xgoptional.flushRJT"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.flushRJT">[docs]</a>    <span class="k">def</span> <span class="nf">flushRJT</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Flush an RJT to secondary memory.</span>
+
+        <span class="c1"># Choose a victim from each partition (table).</span>
+        <span class="p">(</span><span class="n">resource_to_flush1</span><span class="p">,</span> <span class="n">tail_to_flush1</span><span class="p">,</span> <span class="n">least_ts1</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVictim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_table</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">resource_to_flush2</span><span class="p">,</span> <span class="n">tail_to_flush2</span><span class="p">,</span> <span class="n">least_ts2</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVictim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_table</span><span class="p">)</span>
+
+        <span class="c1"># Flush resource from left table.</span>
+        <span class="k">if</span> <span class="n">least_ts1</span> <span class="o">&lt;=</span> <span class="n">least_ts2</span><span class="p">:</span>
+            <span class="n">file_descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span>
+            <span class="n">resource_to_flush</span> <span class="o">=</span> <span class="n">resource_to_flush1</span>
+            <span class="n">tail_to_flush</span> <span class="o">=</span> <span class="n">tail_to_flush1</span>
+
+        <span class="c1"># Flush resource from right table.</span>
+        <span class="k">if</span> <span class="n">least_ts2</span> <span class="o">&lt;</span> <span class="n">least_ts1</span><span class="p">:</span>
+            <span class="n">file_descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span>
+            <span class="n">resource_to_flush</span> <span class="o">=</span> <span class="n">resource_to_flush2</span>
+            <span class="n">tail_to_flush</span> <span class="o">=</span> <span class="n">tail_to_flush2</span>
+
+        <span class="c1"># Create flush timestamp.</span>
+        <span class="n">flushTS</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Update file descriptor</span>
+        <span class="k">if</span> <span class="n">resource_to_flush</span> <span class="ow">in</span> <span class="n">file_descriptor</span><span class="p">:</span>
+            <span class="n">lentail</span> <span class="o">=</span> <span class="n">file_descriptor</span><span class="p">[</span><span class="n">resource_to_flush</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">[</span><span class="n">resource_to_flush</span><span class="p">]</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span>
+            <span class="n">file_descriptor</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">resource_to_flush</span><span class="p">:</span> <span class="n">FileDescriptor</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tail_to_flush</span><span class="o">.</span><span class="n">records</span><span class="p">)</span> <span class="o">+</span> <span class="n">lentail</span><span class="p">,</span> <span class="n">flushTS</span><span class="p">)})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.rjt&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">file_descriptor</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">resource_to_flush</span><span class="p">:</span> <span class="n">FileDescriptor</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tail_to_flush</span><span class="o">.</span><span class="n">records</span><span class="p">),</span> <span class="n">flushTS</span><span class="p">)})</span>
+
+        <span class="c1"># Flush tail in file.</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">tail_to_flush</span><span class="o">.</span><span class="n">records</span><span class="p">:</span>
+            <span class="n">sttuple</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">tuple</span><span class="p">)</span>
+            <span class="n">stprobeTS</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.40r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">probeTS</span><span class="p">)</span>
+            <span class="n">stinsertTS</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.40r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">insertTS</span><span class="p">)</span>
+            <span class="n">stflushTS</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.40r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">flushTS</span><span class="p">)</span>
+
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sttuple</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stprobeTS</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stinsertTS</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stflushTS</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Delete resource from main memory.</span>
+        <span class="k">del</span> <span class="n">table</span><span class="p">[</span><span class="n">resource_to_flush</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Xgoptional.getVictim"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.getVictim">[docs]</a>    <span class="k">def</span> <span class="nf">getVictim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+        <span class="c1"># Selects a victim from a partition in main memory to flush.</span>
+
+        <span class="n">resource_to_flush</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">tail_to_flush</span> <span class="o">=</span> <span class="n">RJTTail</span><span class="p">([],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">least_ts</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">resource</span><span class="p">,</span> <span class="n">tail</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">resource_ts</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">rjtProbeTS</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">resource_ts</span> <span class="o">&lt;</span> <span class="n">least_ts</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">resource_ts</span> <span class="o">==</span> <span class="n">least_ts</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">tail</span><span class="o">.</span><span class="n">records</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">tail_to_flush</span><span class="o">.</span><span class="n">records</span><span class="p">)):</span>
+                <span class="n">resource_to_flush</span> <span class="o">=</span> <span class="n">resource</span>
+                <span class="n">tail_to_flush</span> <span class="o">=</span> <span class="n">tail</span>
+                <span class="n">least_ts</span> <span class="o">=</span> <span class="n">resource_ts</span>
+
+        <span class="c1"># print(&#39;Victim chosen:&#39;, resource_to_flush, &#39;TS:&#39;, least_ts, &#39;LEN:&#39;, len(tail_to_flush.records))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">resource_to_flush</span><span class="p">,</span> <span class="n">tail_to_flush</span><span class="p">,</span> <span class="n">least_ts</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Xgoptional.getLargestRJTs"><a class="viewcode-back" href="../../../../shaclapi.multiprocessing.Xgoptional.Xgoptional.html#shaclapi.multiprocessing.Xgoptional.Xgoptional.Xgoptional.getLargestRJTs">[docs]</a>    <span class="k">def</span> <span class="nf">getLargestRJTs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="c1"># Selects the i-th largest RJT stored in secondary memory.</span>
+
+        <span class="n">sizes1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">FileDescriptor</span><span class="o">.</span><span class="n">getSize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">sizes2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">FileDescriptor</span><span class="o">.</span><span class="n">getSize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="n">sizes1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sizes1</span><span class="p">)</span>
+        <span class="n">sizes2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sizes2</span><span class="p">)</span>
+
+        <span class="n">sizes1</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">sizes2</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">sizes1</span> <span class="ow">and</span> <span class="n">sizes2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sizes1</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">sizes2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+                <span class="n">file_descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span>
+                <span class="n">max_len</span> <span class="o">=</span> <span class="n">sizes1</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes1</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span>
+                <span class="n">max_len</span> <span class="o">=</span> <span class="n">sizes2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes2</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span>
+        <span class="k">elif</span> <span class="n">sizes1</span><span class="p">:</span>
+            <span class="n">file_descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_left</span>
+            <span class="n">max_len</span> <span class="o">=</span> <span class="n">sizes1</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes1</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_table</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileDescriptor_right</span>
+            <span class="n">max_len</span> <span class="o">=</span> <span class="n">sizes2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes2</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_table</span>
+
+        <span class="n">largestRJTs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">resource</span><span class="p">,</span> <span class="n">fd</span> <span class="ow">in</span> <span class="n">file_descriptor</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">fd</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">max_len</span><span class="p">:</span>
+                <span class="n">largestRJTs</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span> <span class="o">=</span> <span class="n">fd</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">largestRJTs</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span></div></div>
+</pre></div>
+
+              </article>
+              
+
+              
+              <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              </footer>
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright 2022, Julian Gercke, Philipp D. Rohde, Fabian Johannsen.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>
