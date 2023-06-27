@@ -225,7 +225,7 @@ def run_multiprocessing(pre_config, result_queue=None):
             while next_result != 'EOF':
                 output = next_result
                 next_result = result_queue.receiver.get()
-                print(len(output['validTargets']), len(output['invalidTargets']))
+                logger.info(len(output['validTargets']), len(output['invalidTargets']))
         else:
             while next_result != 'EOF':
                 output += [next_result]
