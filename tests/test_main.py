@@ -73,6 +73,30 @@ def test_multiprocessing(file, config_file):
     test_api('multi', params, solution, log_file_path)
 
 
+def test_config_as_dict():
+    """Test to pass a dictionary as config instead of a config file path."""
+    file = get_all_files()[0]
+    config_file = {  # same values as in 'tests/configs/lubm_config.json'
+        "external_endpoint": "http://0.0.0.0:9000/sparql",
+        "outputDirectory": "./output/",
+        "shapeFormat": "JSON",
+        "workInParallel": False,
+        "useSelectiveQueries": True,
+        "maxSplit": 256,
+        "ORDERBYinQueries": True,
+        "SHACL2SPARQLorder": False,
+        "outputs": False,
+        "backend": "travshacl",
+        "remove_constraints": True,
+        "output_format": "test",
+        "run_in_serial": True,
+        "write_stats": True
+    }
+    params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
+    params['test_identifier'] = file
+    params['external_endpoint'] = EXTERNAL_ENDPOINT_DOCKER
+    test_api('multi', params, solution, log_file_path)
+
 @pytest.mark.parametrize('file', get_all_files())
 @pytest.mark.parametrize('backend', ['travshacl', 's2spy'])
 @pytest.mark.parametrize('prune_shape_network', [True, False])

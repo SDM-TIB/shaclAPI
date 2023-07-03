@@ -11,8 +11,11 @@ class Config:
     def from_request_form(request_params):
         config_file_path = request_params.get('config')
         if config_file_path is not None:
-            with open(config_file_path) as config_file:
-                final_config = json.load(config_file)
+            if isinstance(config_file_path, dict):
+                final_config = config_file_path
+            else:
+                with open(config_file_path, 'r', encoding='utf8') as config_file:
+                    final_config = json.load(config_file)
             final_config.update(request_params)
         else:
             final_config = dict()
@@ -65,7 +68,7 @@ class Config:
         """
         The directory containing the shape files (.ttl or .json)
         """
-        if 'schemaDir' in self.config_dict:        
+        if 'schemaDir' in self.config_dict:
             return self.config_dict['schemaDir']
         elif 'schema_directory' in self.config_dict:
             return self.config_dict['schema_directory']
@@ -193,7 +196,7 @@ class Config:
             return self.config_dict.get('traversalStrategy')
         elif 'traversal_strategy' in self.config_dict:
             return self.config_dict.get('traversal_strategy')
-        else: 
+        else:
             return 'DFS'
 
     @property
@@ -283,34 +286,34 @@ class Config:
         """
         return self.config_dict.get('test_identifier', str(uuid.uuid1()))
 
-    @property    
+    @property
     def run_in_serial(self):
         """
         This option can be turned on to force the steps of the shaclAPI to be executed in serial.
         """
         return self.entry_to_bool(self.config_dict.get('run_in_serial', False))
-    
+
     @property
     def reasoning(self):
         """
         This option will turn reasoning in terms of extended output on and off.
         """
         return self.entry_to_bool(self.config_dict.get('reasoning', True))
-    
+
     @property
     def use_pipes(self):
         """
         Whether to use pipes during the multiprocessing. Otherwise, the shaclAPI will use queues.
         """
         return self.entry_to_bool(self.config_dict.get('use_pipes', False))
-    
+
     @property
     def collect_all_validation_results(self):
         """
         Whether to collect all validation results for each mapping. Otherwise, at least one validation result is collected for each given target_shape.  Collecting all results will make the approach blocking.
         """
         return self.entry_to_bool(self.config_dict.get('collect_all_validation_results', False))
-    
+
     @property
     def write_stats(self):
         """
