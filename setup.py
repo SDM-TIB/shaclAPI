@@ -2,7 +2,7 @@
 from distutils.core import setup
 from setuptools import find_packages
 
-VERSION = '0.9.7'
+VERSION = '0.9.8'
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
@@ -21,7 +21,7 @@ setup(
     packages=find_packages(exclude='tests'),
     install_requires=[
         'SPARQLWrapper>=2.0.0',
-        'requests>=2.27.1',
+        'requests>=2.31.0',
         'SHACL2SPARQLpy>=1.1.1',
         'TravSHACL>=1.3.0',
         'multiprocessing_logging>=0.3.1',
@@ -37,6 +37,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
         'Intended Audience :: Science/Research'
