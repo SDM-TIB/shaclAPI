@@ -209,7 +209,7 @@ def test_setup_from_file(file, config, route):
     log_file_path = os.path.join(RESULT_DIR, log_file_name)
     if os.path.isfile(log_file_path):
         os.remove(log_file_path)
-    test, solution = readTest(file)
+    test, solution = read_test(file)
     params = test
     params['config'] = config
     if 'test_type' in params:
@@ -219,9 +219,9 @@ def test_setup_from_file(file, config, route):
 
 
 @pytest.mark.skip
-def readTest(file):
+def read_test(file):
     with open(file, 'r') as f:
         result = json.load(f)
     solution = result['result']
     del result['result']
-    return (result, solution)
+    return result, solution
