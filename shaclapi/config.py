@@ -13,10 +13,12 @@ class Config:
         if config_file_path is not None:
             if isinstance(config_file_path, dict):
                 final_config = config_file_path
+                final_config.update(request_params)
+                final_config['config'] = str(config_file_path)
             else:
                 with open(config_file_path, 'r', encoding='utf8') as config_file:
                     final_config = json.load(config_file)
-            final_config.update(request_params)
+                    final_config.update(request_params)
         else:
             final_config = dict()
             final_config.update(request_params)

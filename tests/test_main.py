@@ -39,6 +39,23 @@ DEFAULT_PARAMS = {
     'config': 'tests/configs/lubm_config.json'
 }
 
+LUBM_CONFIG_DICT = {  # same values as in 'tests/configs/lubm_config.json'
+    "external_endpoint": EXTERNAL_ENDPOINT_LOCALHOST,
+    "outputDirectory": "./output/",
+    "shapeFormat": "JSON",
+    "workInParallel": False,
+    "useSelectiveQueries": True,
+    "maxSplit": 256,
+    "ORDERBYinQueries": True,
+    "SHACL2SPARQLorder": False,
+    "outputs": False,
+    "backend": "travshacl",
+    "remove_constraints": True,
+    "output_format": "test",
+    "run_in_serial": True,
+    "write_stats": True
+}
+
 Path(RESULT_DIR).mkdir(parents=True, exist_ok=True)
 
 
@@ -93,6 +110,26 @@ def test_trav(file):
         eval_shape_schema(namespace)
     except Exception as e:
         raise Exception(e)
+
+
+@pytest.mark.parametrize('config_file', [LUBM_CONFIG_DICT, 'tests/configs/lubm_config.json'])
+def test_library(config_file):
+    """Tests the shaclAPI as a Python library instead of a remote Web API.
+
+    Parameters
+    ----------
+    config_file : str | dict
+        The path to the configuration of the shaclAPI or the actual configuration as a dictionry.
+    """
+    from shaclapi.api import run_multiprocessing
+
+    file = get_all_files()[0]
+    params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
+    params['test_identifier'] = file
+
+    json_response = run_multiprocessing(params, None).output
+    if solution:
+        compare_results(json_response, solution, log_file_path)
 
 
 @pytest.mark.parametrize('file', get_all_files())
@@ -173,26 +210,28 @@ def test_api(route, params, solution, log_file_path):
     json_response = response.json()
     print(json_response)
     if solution:
-        try:
-            for key in ['validTargets', 'invalidTargets']:
-                json_set_of_tuples = sorted([(item[0], item[1]) for item in json_response[key]], key=lambda x: x[0])
-                test_set_of_tuples = sorted([(item[0], item[1]) for item in solution[key]], key=lambda x: x[0])
+        compare_results(json_response, solution, log_file_path)
 
-                if len(json_set_of_tuples) != 0 and len(test_set_of_tuples) != 0:
-                    json_set_of_targets, json_set_of_shapes = zip(*json_set_of_tuples)
-                    test_set_of_targets, test_set_of_shapes = zip(*test_set_of_tuples)
-                    assert json_set_of_targets == test_set_of_targets, 'Reported instances differ from expected result for: {}'.format(key)
-                    # if json_set_of_shapes != test_set_of_shapes:
-                    #     differing_shapes = [t for i, t in enumerate(test_set_of_tuples) if t[1] != json_set_of_tuples[i][1]]
-                    #     warnings.warn('\nShapes are not equal: {}'.format(differing_shapes), UserWarning)
-                assert len(json_set_of_tuples) == len(test_set_of_tuples), 'Reported instances differ from expected result for: {}'.format(key)
-        except Exception as identifier:
-            with open(log_file_path, 'w') as outputfile:
-                outputfile.write(str(identifier))
-            raise Exception(str(identifier))
-        finally:
-            with open(log_file_path, 'a') as outputfile:
-                outputfile.write(json.dumps(json_response, indent=4))
+
+@pytest.mark.skip
+def compare_results(json_response, solution, log_file_path):
+    try:
+        for key in ['validTargets', 'invalidTargets']:
+            json_set_of_tuples = sorted([(item[0], item[1]) for item in json_response[key]], key=lambda x: x[0])
+            test_set_of_tuples = sorted([(item[0], item[1]) for item in solution[key]], key=lambda x: x[0])
+
+            if len(json_set_of_tuples) != 0 and len(test_set_of_tuples) != 0:
+                json_set_of_targets, json_set_of_shapes = zip(*json_set_of_tuples)
+                test_set_of_targets, test_set_of_shapes = zip(*test_set_of_tuples)
+                assert json_set_of_targets == test_set_of_targets, 'Reported instances differ from expected result for: {}'.format(key)
+            assert len(json_set_of_tuples) == len(test_set_of_tuples), 'Reported instances differ from expected result for: {}'.format(key)
+    except Exception as identifier:
+        with open(log_file_path, 'w') as outputfile:
+            outputfile.write(str(identifier))
+        raise Exception(str(identifier))
+    finally:
+        with open(log_file_path, 'a') as outputfile:
+            outputfile.write(json.dumps(json_response, indent=4))
 
 
 @pytest.mark.skip
