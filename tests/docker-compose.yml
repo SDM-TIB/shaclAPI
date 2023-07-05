@@ -5,7 +5,7 @@ services:
     image: prohde/virtuoso-opensource-7:7.2.7
     container_name: shaclapi_testdata
     volumes:
-      - './setup/TestData:/database/toLoad'
+      - './setup/test_data:/database/toLoad'
     ports:
       - '9000:8890'
     networks:
