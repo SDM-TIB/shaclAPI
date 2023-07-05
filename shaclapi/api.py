@@ -84,7 +84,7 @@ def run_multiprocessing(pre_config, result_queue=None):
     logger.info("To reproduce this call to the API run: run_config.py -c '" + json.dumps(config.config_dict) + "'")
     os.makedirs(os.path.abspath(config.output_directory), exist_ok=True)
     if config.save_outputs:
-        os.makedirs(os.path.join(config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier)), exist_ok=True)
+        os.makedirs(os.path.join(config.output_directory, config.backend, re.sub(r'[^\w\-_.]', '_', config.test_identifier)), exist_ok=True)
 
     # Check if query is given
     if config.query is None:

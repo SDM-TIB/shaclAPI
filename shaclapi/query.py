@@ -307,7 +307,7 @@ class Query:
         for short_list, long_list in zip(self.get_triples(replace_prefixes=False), self.get_triples(replace_prefixes=True)):
             short_s, short_p, short_o = short_list
             long_s, long_p, long_o = long_list
-            short_triple = f'{re.escape(short_s)}\s+{re.escape(short_p)}\s+{re.escape(short_o)}'
+            short_triple = fr'{re.escape(short_s)}\s+{re.escape(short_p)}\s+{re.escape(short_o)}'
             long_triple = f'{long_s} {long_p} {long_o}'
             query = re.sub(short_triple, long_triple, query)
 

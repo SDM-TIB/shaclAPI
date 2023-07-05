@@ -39,7 +39,7 @@ class ReducedShapeSchema(ShapeSchema):
     def from_config(config, query_object, result_transmitter):
         if config.save_outputs:
             output_dir = os.path.join(
-                config.output_directory, config.backend, re.sub('[^\w\-_\. ]', '_', config.test_identifier), ''
+                config.output_directory, config.backend, re.sub(r'[^\w\-_.]', '_', config.test_identifier), ''
             )
         else:
             output_dir = None
