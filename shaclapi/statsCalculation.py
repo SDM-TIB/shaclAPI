@@ -7,7 +7,7 @@ class StatsCalculation:
 
     def __init__(self, test_identifier, approach_name):
         self.test_name = test_identifier
-        self.approach_name = approach_name.rsplit('.json', 1)[0]
+        self.approach_name = approach_name
 
         self.first_result_timestamp = None
         self.last_result_timestamp = None

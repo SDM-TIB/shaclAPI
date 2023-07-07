@@ -115,7 +115,7 @@ class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and
         return ReturnShapeSchema(
             schema_dir=config.schema_directory,
             schema_format=config.schema_format,
-            endpoint_url=config.external_endpoint,
+            endpoint=config.external_endpoint,
             graph_traversal=GraphTraversal[config.traversal_strategy],
             heuristics=parse_heuristics(config.heuristic),
             use_selective_queries=config.use_selective_queries,
@@ -139,7 +139,7 @@ class ReturnShapeSchema(ShapeSchema):  # Here the normal ShapeSchema is used and
         target_shape_predicates = [s.get_id() for s in target_shapes]
 
         return Validation(
-            self.endpointURL,
+            self.endpoint,
             node_order,
             self.shapesDict,
             target_shape_predicates,

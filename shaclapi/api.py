@@ -91,7 +91,7 @@ def run_multiprocessing(pre_config, result_queue=None):
         raise Exception('The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.')
 
     # Setup Stats Calculation
-    statsCalc = StatsCalculation(test_identifier=config.test_identifier, approach_name=os.path.basename(config.config))
+    statsCalc = StatsCalculation(test_identifier=config.test_identifier, approach_name=os.path.basename(config.config) if '{' not in config.config else 'dict_passed_to_shaclAPI')
     statsCalc.globalCalculationStart()
 
     # Set up the multiprocessing queue, which will give the final output.
