@@ -15,7 +15,7 @@ class Reduction:
         involvedShapes = set()
         for target_shape in target_shape_list:
             shapeIds = list(self.parser.graph_traversal.traverse_graph(
-                *self.parser.computeReducedEdges(shapes), target_shape))
+                *self.parser.computeReducedEdges(shapes), target_shape, True))
             self.involvedShapesPerTarget[target_shape] = shapeIds
             involvedShapes = involvedShapes.union(shapeIds)
         logger.debug('Involved Shapes:' + str(self.involvedShapesPerTarget))
