@@ -14,7 +14,7 @@ class ReducedShapeParser(ShapeParser):
     def __init__(self, query, graph_traversal, config):
         super().__init__()
         self.query = query
-        self.targetShapes = config.target_shape if isinstance(config.target_shape, dict) else {'UNDEF': config.target_shape}
+        self.targetShapes = config.target_shape if isinstance(config.target_shape, dict) else {'UNDEF': [config.target_shape]}
         self.targetShapeList = [shape for shape in reduce(lambda a, b: a + b, self.targetShapes.values()) if shape is not None]
         self.currentShape = None
         self.removed_constraints = {}
@@ -80,7 +80,7 @@ class ReducedShapeParser(ShapeParser):
                 return super().parseConstraint(varGenerator, obj, id, targetDef)
             else:
                 self.removed_constraints[self.currentShape] += [obj.get('path')]
-                return None
+                return []
         return super().parseConstraint(varGenerator, obj, id, targetDef)
 
     def shapeReferences(self, constraints):
