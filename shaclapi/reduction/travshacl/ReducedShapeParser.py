@@ -113,11 +113,4 @@ class ReducedShapeParser(ShapeParser):
             if refs:
                 name = s.get_id()
                 dependencies[name] = refs
-                # Reverse Dependencies are needed if we have local semantics, in that case
-                # there might be an inverse path in the query pointing to a shape which isn't reachable otherwise.
-                # So we have to include all inverse dependencies from the target shape. (TODO: Is that really the case? Find example)
-                if self.config.remove_constraints:
-                    for ref in refs:
-                        if ref in self.targetShapeList:
-                            reverse_dependencies[ref].append(name)
         return dependencies, reverse_dependencies
