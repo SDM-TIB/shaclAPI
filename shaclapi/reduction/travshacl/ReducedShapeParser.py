@@ -1,4 +1,5 @@
 import logging
+import re
 from functools import reduce
 
 from TravSHACL.core.ShapeParser import ShapeParser
@@ -6,6 +7,7 @@ from TravSHACL.core.ShapeParser import ShapeParser
 from shaclapi.reduction.Reduction import Reduction
 
 logger = logging.getLogger(__name__)
+re_https = re.compile("https?://")
 
 
 # Note the internal structure of ShapeParser:
@@ -76,11 +78,16 @@ class ReducedShapeParser(ShapeParser):
             - subject or object belong to the targetShape AND the predicate is part of the query
               (-> inverted paths can be treated equally to normal paths)
 
-        Other constraints are not relevant and result in a None.
+        Other constraints are not relevant and result in an empty list.
         """
         if self.query is not None and self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
             path = obj['path'][obj['path'].startswith('^'):]
-            if path in self.query.get_predicates(replace_prefixes=False):
+            if re_https.match(path):
+                path = '<' + path + '>'
+                query_predicates = self.query.get_predicates(replace_prefixes=True)
+            else:
+                query_predicates = self.query.get_predicates(replace_prefixes=False)
+            if path in query_predicates:
                 return super().parse_constraint(varGenerator, obj, id, targetDef)
             else:
                 self.removed_constraints[self.currentShape] += [obj.get('path')]
