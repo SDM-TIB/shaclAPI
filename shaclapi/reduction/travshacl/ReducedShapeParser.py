@@ -60,12 +60,14 @@ class ReducedShapeParser(ShapeParser):
         return shape.get_id()
    
     def parse_constraints(self, array, targetDef, constraintsId):
-        """
-        parseConstraint can return None, which need to be filtered.
-        """
         self.currentShape = constraintsId[:-3]
         self.removed_constraints[self.currentShape] = []
         return [c for c in super().parse_constraints(array, targetDef, constraintsId) if c]
+
+    def parse_constraints_ttl(self, array, target_def, constraints_id):
+        self.currentShape = '<' + constraints_id[:-3] + '>'
+        self.removed_constraints[self.currentShape] = []
+        return [c for c in super().parse_constraints_ttl(array, target_def, constraints_id) if c]
 
     def parse_constraint(self, varGenerator, obj, id, targetDef):
         """
