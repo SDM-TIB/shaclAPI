@@ -1,0 +1,14 @@
+@prefix : <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix test2: <http://example.org/testGraph2#> .
+
+:ShapeB a sh:NodeShape ;
+  sh:targetClass test2:classB ;
+  sh:targetQuery "SELECT ?x WHERE {VALUES ?x { test2:nodeB_1 test2:nodeB_0 } }" ;
+  sh:property [
+    sh:path test2:refersTo ;
+    sh:qualifiedValueShape [
+      sh:node :ShapeC
+    ] ;
+    sh:qualifiedMinCount 1
+  ] .

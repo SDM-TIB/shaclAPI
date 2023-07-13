@@ -1,0 +1,10 @@
+@prefix : <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix test2: <http://example.org/testGraph2#> .
+
+:ShapeD a sh:NodeShape ;
+  sh:targetClass test2:classD ;
+  sh:property [
+    sh:path test2:hasLiteral ;
+    sh:minCount 1
+  ] .

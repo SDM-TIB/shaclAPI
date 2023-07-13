@@ -1,0 +1,13 @@
+@prefix : <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix test2: <http://example.org/testGraph2#> .
+
+:ShapeC a sh:NodeShape ;
+  sh:targetClass test2:classC ;
+  sh:property [
+    sh:path test2:refersTo ;
+    sh:qualifiedValueShape [
+      sh:node :ShapeD
+    ] ;
+    sh:qualifiedMinCount 1
+  ] .

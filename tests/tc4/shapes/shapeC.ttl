@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix test4: <http://example.org/testGraph4#> .
+
+:ShapeC a sh:NodeShape ;
+  sh:targetClass test4:classC .

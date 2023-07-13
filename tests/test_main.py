@@ -39,10 +39,10 @@ DEFAULT_PARAMS = {
     'config': 'tests/configs/lubm_config.json'
 }
 
-LUBM_CONFIG_DICT = {  # same values as in 'tests/configs/lubm_config.json'
+LUBM_CONFIG_DICT = {  # same values as in 'tests/configs/lubm_config.json' apart from the shape format
     "external_endpoint": EXTERNAL_ENDPOINT_LOCALHOST,
     "outputDirectory": "./output/",
-    "shapeFormat": "JSON",
+    "shapeFormat": "SHACL",
     "workInParallel": False,
     "useSelectiveQueries": True,
     "maxSplit": 256,
@@ -97,7 +97,7 @@ def get_trav_args(params_file):
         's': 's' == task,
         't': 't' == task,
         'f': 'f' == task,
-        'json': True
+        'json': True if def_config['shapeFormat'] == 'JSON' else False
     }
     return Namespace(**args)
 
@@ -119,13 +119,16 @@ def test_library(config_file):
     Parameters
     ----------
     config_file : str | dict
-        The path to the configuration of the shaclAPI or the actual configuration as a dictionry.
+        The path to the configuration of the shaclAPI or the actual configuration as a dictionary.
     """
     from shaclapi.api import run_multiprocessing
 
     file = get_all_files()[0]
     params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
     params['test_identifier'] = file
+    if isinstance(config_file, dict):
+        # so far this is the only case evaluating the shapes expressed in TTL; target shape needs to be a URI then
+        params['targetShape'] = '<http://example.org/' + params['targetShape'] + '>'
 
     json_response = run_multiprocessing(params, None).output
     if solution:

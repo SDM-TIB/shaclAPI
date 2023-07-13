@@ -1,0 +1,54 @@
+@prefix : <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+:ProductCategory a sh:NodeShape ;
+  sh:targetClass <http://db.uwaterloo.ca/~galuc/wsdbm/ProductCategory> ;
+  sh:property [
+    sh:path <http://db.uwaterloo.ca/~galuc/wsdbm/hasGenre> ;
+    sh:qualifiedValueShape [
+      sh:node :Genre
+    ] ;
+    sh:qualifiedMinCount 1
+  ] ;
+  sh:property [
+    sh:path <http://ogp.me/ns#tag> ;
+    sh:minCount 2 ;
+    sh:maxCount 16
+  ] ;
+  sh:property [
+    sh:path <http://ogp.me/ns#title> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://purl.org/stuff/rev#hasReview> ;
+    sh:minCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/caption> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/contentRating> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/contentSize> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/keywords> ;
+    sh:minCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/text> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://xmlns.com/foaf/homepage> ;
+    sh:minCount 1
+  ] .

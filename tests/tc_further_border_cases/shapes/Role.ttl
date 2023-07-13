@@ -1,0 +1,69 @@
+@prefix : <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+:Role a sh:NodeShape ;
+  sh:targetClass <http://db.uwaterloo.ca/~galuc/wsdbm/Role> ;
+  sh:property [
+    sh:path <http://db.uwaterloo.ca/~galuc/wsdbm/follows> ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path <http://db.uwaterloo.ca/~galuc/wsdbm/friendOf> ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path <http://db.uwaterloo.ca/~galuc/wsdbm/gender> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path <http://db.uwaterloo.ca/~galuc/wsdbm/likes> ;
+    sh:qualifiedValueShape [
+      sh:node :ProductCategory
+    ] ;
+    sh:qualifiedMinCount 1
+  ] ;
+  sh:property [
+    sh:path <http://db.uwaterloo.ca/~galuc/wsdbm/makesPurchase> ;
+    sh:minCount 3 ;
+    sh:maxCount 15
+  ] ;
+  sh:property [
+    sh:path <http://db.uwaterloo.ca/~galuc/wsdbm/userId> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/email> ;
+    sh:minCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/jobTitle> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://schema.org/nationality> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://xmlns.com/foaf/age> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://xmlns.com/foaf/familyName> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://xmlns.com/foaf/givenName> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ]  ;
+  sh:property [
+    sh:path <http://xmlns.com/foaf/homepage> ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ] .
