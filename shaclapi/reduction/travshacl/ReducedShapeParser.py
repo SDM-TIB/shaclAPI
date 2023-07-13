@@ -66,12 +66,12 @@ class ReducedShapeParser(ShapeParser):
         self.removed_constraints[self.currentShape] = []
         return [c for c in super().parse_constraints(array, targetDef, constraintsId) if c]
 
-    def parse_constraints_ttl(self, array, target_def, constraints_id):
+    def parse_constraints_ttl(self, array, target_def, constraints_id, options, raw_or):
         self.currentShape = '<' + constraints_id[:-3] + '>'
         self.removed_constraints[self.currentShape] = []
-        return [c for c in super().parse_constraints_ttl(array, target_def, constraints_id) if c]
+        return [c for c in super().parse_constraints_ttl(array, target_def, constraints_id, options, raw_or) if c]
 
-    def parse_constraint(self, varGenerator, obj, id, targetDef):
+    def parse_constraint(self, varGenerator, obj, id, targetDef, options=None, raw_or=None):
         """
         Constraints are only relevant if:
             - subject and object do both NOT belong to the targetShape OR
