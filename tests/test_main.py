@@ -39,7 +39,7 @@ DEFAULT_PARAMS = {
     'config': 'tests/configs/lubm_config.json'
 }
 
-LUBM_CONFIG_DICT = {  # same values as in 'tests/configs/lubm_config.json' apart from the shape format
+LUBM_CONFIG_DICT = {  # same values as in 'tests/configs/lubm_config.json'
     "external_endpoint": EXTERNAL_ENDPOINT_LOCALHOST,
     "outputDirectory": "./output/",
     "shapeFormat": "SHACL",
@@ -97,7 +97,7 @@ def get_trav_args(params_file):
         's': 's' == task,
         't': 't' == task,
         'f': 'f' == task,
-        'json': True if def_config['shapeFormat'] == 'JSON' else False
+        'json': False
     }
     return Namespace(**args)
 
@@ -126,9 +126,6 @@ def test_library(config_file):
     file = get_all_files()[0]
     params, solution, log_file_path = test_setup_from_file(file, config_file, 'multi')
     params['test_identifier'] = file
-    if isinstance(config_file, dict):
-        # so far this is the only case evaluating the shapes expressed in TTL; target shape needs to be a URI then
-        params['targetShape'] = '<http://example.org/' + params['targetShape'] + '>'
 
     json_response = run_multiprocessing(params, None).output
     if solution:
@@ -211,7 +208,6 @@ def test_api(route, params, solution, log_file_path):
     response = requests.post(FLASK_ENDPOINT + route + 'processing', data=params)
     assert response.status_code == 200, 'Server-sided error, check server output for details'
     json_response = response.json()
-    print(json_response)
     if solution:
         compare_results(json_response, solution, log_file_path)
 

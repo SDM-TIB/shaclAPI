@@ -1,7 +1,7 @@
 {
     "external_endpoint": "http://0.0.0.0:9000/sparql",
     "outputDirectory": "./output/",
-    "shapeFormat": "JSON",
+    "shapeFormat": "SHACL",
     "workInParallel": false,
     "useSelectiveQueries": true,
     "maxSplit": 256,

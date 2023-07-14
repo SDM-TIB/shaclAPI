@@ -1,7 +1,7 @@
 {
     "external_endpoint": "http://0.0.0.0:9000/sparql",
     "outputDirectory": "./output/",
-    "shapeFormat": "JSON",
+    "shapeFormat": "SHACL",
     "output_format": "test",
     "run_in_serial": false,
     "reasoning": false,

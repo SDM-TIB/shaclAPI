@@ -4,7 +4,7 @@
     "schemaDir": "./tests/tc4/shapes",
     "heuristic": "TARGET IN BIG",
     "query": "PREFIX test4:<http://example.org/testGraph4#>\nSELECT ?x WHERE {\n?x a test4:classA.\n}",
-    "targetShape": "ShapeA",
+    "targetShape": "<http://example.org/ShapeA>",
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [

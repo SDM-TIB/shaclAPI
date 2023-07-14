@@ -4,7 +4,7 @@
     "schemaDir": "./tests/tc5/shapes",
     "heuristic": "TARGET IN BIG",
     "query": "PREFIX test5:<http://example.org/testGraph5#>\nSELECT DISTINCT ?x WHERE {\n?x a test5:classA. \nOptional{?x test5:a ?a}. \nOptional{?x test5:b ?b.} \n ?x test5:c ?c. \nOptional{?x test5:d ?d.}}",
-    "targetShape": "ShapeA",
+    "targetShape": "<http://example.org/ShapeA>",
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [
