@@ -4,7 +4,7 @@
 
 :ShapeB a sh:NodeShape ;
   sh:targetClass test2:classB ;
-  sh:targetQuery "SELECT ?x WHERE {VALUES ?x { test2:nodeB_1 test2:nodeB_0 } }" ;
+  sh:targetQuery "SELECT ?x WHERE { VALUES ?x { <http://example.org/testGraph2#nodeB_1> <http://example.org/testGraph2#nodeB_0> } }" ;
   sh:property [
     sh:path test2:refersTo ;
     sh:qualifiedValueShape [
