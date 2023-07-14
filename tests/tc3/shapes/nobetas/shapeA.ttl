@@ -7,7 +7,7 @@
   sh:property [
     sh:path test3:alpha ;
     sh:qualifiedValueShape [
-      sh:node :ShapeD
+      sh:node :ShapeC
     ] ;
     sh:qualifiedMinCount 1
   ] .
