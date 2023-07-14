@@ -4,7 +4,7 @@
     "schemaDir": "./tests/tc_further_border_cases/shapes",
     "heuristic": "TARGET IN BIG",
     "query": "SELECT ?v0 ?v2 WHERE {\n?v0 <http://ogp.me/ns#tag> <http://db.uwaterloo.ca/~galuc/wsdbm/Topic93> .\n?v0 <http://schema.org/caption> ?v2 .\n}",
-    "targetShape": "<http://db.uwaterloo.ca/~galuc/wsdbm/ProductCategory>",
+    "targetShape": "<http://example.org/ProductCategory>",
     "config": "tests/configs/lubm_config.json",
     "result": {
         "validTargets": [],
