@@ -3,7 +3,7 @@
     "traversalStrategie": "DFS",
     "schemaDir": "./tests/tc1/shapes/test5_11",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classE.\n?x ^test1:belongsTo ?y.\n?x test1:has ?z}",
+    "query": "PREFIX test1: <http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classE .\n?x ^test1:belongsTo ?y .\n?x test1:has ?z\n}",
     "targetShape": "<http://example.org/ShapeEaverage>",
     "config": "tests/configs/lubm_config.json",
     "result": {

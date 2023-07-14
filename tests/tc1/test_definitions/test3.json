@@ -3,7 +3,7 @@
     "traversalStrategie": "DFS",
     "schemaDir": "./tests/tc1/shapes/test1_2_3",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test1:<http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classA. \n?x test1:has ?lit. \n?x test1:belongsTo ?y. \n?x test1:age ?age. \nFILTER(?age = '18')\n}",
+    "query": "PREFIX test1: <http://example.org/testGraph1#>\nSELECT ?x WHERE {\n?x a test1:classA .\n?x test1:has ?lit .\n?x test1:belongsTo ?y .\n?x test1:age ?age .\nFILTER(?age = '18')\n}",
     "targetShape": "<http://example.org/ShapeA>",
     "config": "tests/configs/lubm_config.json",
     "result": {

@@ -3,7 +3,7 @@
     "traversalStrategie": "DFS",
     "schemaDir": "./tests/tc2/shapes",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test2:<http://example.org/testGraph2#>\nSELECT ?targ, ?lit WHERE {\n?targ a test2:classA.\n?targ test2:hasLiteral ?lit.\n?targ test2:refersToB ?y_1.\n?targ test2:refersToD ?y_2.\n}",
+    "query": "PREFIX test2: <http://example.org/testGraph2#>\nSELECT ?targ ?lit WHERE {\n?targ a test2:classA .\n?targ test2:hasLiteral ?lit .\n?targ test2:refersToB ?y_1 .\n?targ test2:refersToD ?y_2 .\n}",
     "targetShape": "<http://example.org/ShapeA>",
     "config": "tests/configs/lubm_config.json",
     "result": {

@@ -3,7 +3,7 @@
     "traversalStrategie": "DFS",
     "schemaDir": "./tests/tc3/shapes/nobetaA",
     "heuristic": "TARGET IN BIG",
-    "query": "PREFIX test3:<http://example.org/testGraph3#>\nSELECT ?x WHERE {\n?x a test3:classD.\n?x test3:alpha ?y.\n}",
+    "query": "PREFIX test3: <http://example.org/testGraph3#>\nSELECT ?x WHERE {\n?x a test3:classD .\n?x test3:alpha ?y\n}",
     "targetShape": "<http://example.org/ShapeD>",
     "config": "tests/configs/lubm_config.json",
     "result": {
