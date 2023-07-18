@@ -88,7 +88,7 @@ class ReducedShapeParser(ShapeParser):
             else:
                 query_predicates = self.query.get_predicates(replace_prefixes=False)
             if path in query_predicates:
-                return super().parse_constraint(varGenerator, obj, id, targetDef)
+                return super().parse_constraint(varGenerator, obj, id, targetDef, options, raw_or)
             else:
                 self.removed_constraints[self.currentShape] += [obj.get('path')]
                 return []
