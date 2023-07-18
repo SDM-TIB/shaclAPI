@@ -80,14 +80,28 @@ class ReducedShapeParser(ShapeParser):
 
         Other constraints are not relevant and result in an empty list.
         """
-        if self.query is not None and self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
-            path = obj['path'][obj['path'].startswith('^'):]
-            if re_https.match(path):
+        if self.query is not None and self.config.remove_constraints and (
+                self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
+            path = obj.get('path')
+            if path is not None and str(path).startswith('^'):
+                is_inverse_path = True
+                path = str(path)[1:]
+            else:
+                is_inverse_path = False
+            if path is not None and re_https.match(path):
                 path = '<' + path + '>'
+                path = '^' + path if is_inverse_path else path
                 query_predicates = self.query.get_predicates(replace_prefixes=True)
             else:
                 query_predicates = self.query.get_predicates(replace_prefixes=False)
-            if path in query_predicates:
+            print("QueryPreds:", query_predicates)
+            if path is None or path in query_predicates:
+                if path is None:
+                    if not options:
+                        return []
+                    elif len(options) == 1:
+                        print("THERE IS ONLY ONE CONSTRAINT LEFT")
+                        return options
                 return super().parse_constraint(varGenerator, obj, id, targetDef, options, raw_or)
             else:
                 self.removed_constraints[self.currentShape] += [obj.get('path')]
