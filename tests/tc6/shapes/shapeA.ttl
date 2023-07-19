@@ -1,0 +1,31 @@
+@prefix : <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix test6: <http://example.org/testGraph6#> .
+
+:ShapeA a sh:NodeShape ;
+  sh:targetClass test6:classA ;
+  sh:or (
+    [
+      sh:path test6:property0 ;
+      sh:minCount 1
+    ]
+    [
+      sh:path test6:property1 ;
+      sh:minCount 3
+    ]
+    [
+      sh:path [ sh:inversePath test6:property2 ] ;
+      sh:maxCount 0
+    ]
+  ) ;
+  sh:property [
+    sh:path test6:property3 ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path test6:belongsTo ;
+    sh:qualifiedValueShape [
+      sh:node :ShapeB
+    ] ;
+    sh:qualifiedMinCount 1
+  ] .

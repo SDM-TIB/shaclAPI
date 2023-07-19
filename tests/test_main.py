@@ -56,6 +56,18 @@ LUBM_CONFIG_DICT = {  # same values as in 'tests/configs/lubm_config.json'
     "write_stats": True
 }
 
+PARAMS_TC6 = {
+    'task': 'a',
+    'traversalStrategie': 'DFS',
+    'schemaDir': './tests/tc6/shapes',
+    'heuristic': 'TARGET IN BIG',
+    'targetShape': '<http://example.org/ShapeA>',
+    'config': LUBM_CONFIG_DICT,
+    'external_endpoint': EXTERNAL_ENDPOINT_DOCKER,
+    'prune_shape_network': True,
+    'remove_constraints': True
+}
+
 Path(RESULT_DIR).mkdir(parents=True, exist_ok=True)
 
 
@@ -263,3 +275,123 @@ def read_test(file):
     solution = result['result']
     del result['result']
     return result, solution
+
+
+@pytest.mark.parametrize('params', [PARAMS_TC6.copy()])
+def test_tc6_remove_one(params):
+    query = "PREFIX test6: <http://example.org/testGraph6#>\nSELECT DISTINCT ?x WHERE {\n?x test6:property0 ?p0 .\n?x ^test6:property2 ?p2 .\n?x test6:property3 ?p3 .\n?x test6:belongsTo ?y.\n}"
+    params['query'] = query
+    params['log_file'] = 'output/test_results/multi_tests_tc6_remove_one.json'
+    params['test_identifier'] = './tests/tc6/test_definitions/remove_one'
+
+    from shaclapi.config import Config
+    from shaclapi.reduction import prepare_validation
+    from shaclapi.query import Query
+    from TravSHACL.constraints.MinOnlyConstraint import MinOnlyConstraint
+    from TravSHACL.constraints.MaxOnlyConstraint import MaxOnlyConstraint
+
+    shape_schema = prepare_validation(Config.from_request_form(params), Query(query), None)
+    assert len(shape_schema.shapes) == 2
+    constraints = shape_schema.shapes[0].constraints
+    assert len(constraints) == 3
+    for i, c in enumerate(constraints):
+        if i == 0:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path == '<http://example.org/testGraph6#property3>'
+            assert c.options is None
+            assert c.min == 1
+        elif i == 1:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path == '<http://example.org/testGraph6#belongsTo>'
+            assert c.options is None
+            assert c.min == 1
+            assert c.shapeRef == '<http://example.org/ShapeB>'
+        else:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path is None
+            assert isinstance(c.options, list)
+            assert len(c.options) == 2
+            for j, orc in enumerate(c.options):
+                if j == 0:
+                    assert isinstance(orc, MinOnlyConstraint)
+                    assert orc.path == '<http://example.org/testGraph6#property0>'
+                    assert orc.min == 1
+                else:
+                    assert isinstance(orc, MaxOnlyConstraint)
+                    assert orc.path == '^<http://example.org/testGraph6#property2>'
+                    assert orc.max == 0
+
+
+@pytest.mark.parametrize('params', [PARAMS_TC6.copy()])
+def test_remove_down_to_one(params):
+    query = "PREFIX test6: <http://example.org/testGraph6#>\nSELECT DISTINCT ?x WHERE {\n?x test6:property1 ?p1 .\n?x test6:property3 ?p3 .\n}"
+    params['query'] = query
+    params['log_file'] = 'output/test_results/multi_tests_tc6_remove_down_to_one.json'
+    params['test_identifier'] = './tests/tc6/test_definitions/remove_down_to_one'
+
+    from shaclapi.config import Config
+    from shaclapi.reduction import prepare_validation
+    from shaclapi.query import Query
+    from TravSHACL.constraints.MinOnlyConstraint import MinOnlyConstraint
+
+    shape_schema = prepare_validation(Config.from_request_form(params), Query(query), None)
+    assert len(shape_schema.shapes) == 1
+    constraints = shape_schema.shapes[0].constraints
+    assert len(constraints) == 2
+    for i, c in enumerate(constraints):
+        if i == 0:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path == '<http://example.org/testGraph6#property3>'
+            assert c.options is None
+            assert c.min == 1
+        else:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path == '<http://example.org/testGraph6#property1>'
+            assert c.options is None
+            assert c.min == 3
+
+
+@pytest.mark.parametrize('params', [PARAMS_TC6.copy()])
+def test_remove_all_or_constraints(params):
+    query = "PREFIX test6: <http://example.org/testGraph6#>\nSELECT DISTINCT ?x WHERE {\n?x test6:property3 ?p3 .\n}"
+    params['query'] = query
+    params['log_file'] = 'output/test_results/multi_tests_tc6_remove_all_or_constraints.json'
+    params['test_identifier'] = './tests/tc6/test_definitions/remove_all_or_constraints'
+
+    from shaclapi.config import Config
+    from shaclapi.reduction import prepare_validation
+    from shaclapi.query import Query
+    from TravSHACL.constraints.MinOnlyConstraint import MinOnlyConstraint
+
+    shape_schema = prepare_validation(Config.from_request_form(params), Query(query), None)
+    assert len(shape_schema.shapes) == 1
+    constraints = shape_schema.shapes[0].constraints
+    assert len(constraints) == 1
+    c = constraints[0]
+    assert isinstance(c, MinOnlyConstraint)
+    assert c.path == '<http://example.org/testGraph6#property3>'
+    assert c.options is None
+    assert c.min == 1
+
+
+@pytest.mark.parametrize('params', [PARAMS_TC6.copy()])
+def test_remove_all_but_one_from_or_constraint(params):
+    query = "PREFIX test6: <http://example.org/testGraph6#>\nSELECT DISTINCT ?x WHERE {\n?x ^test6:property2 ?p2 .\n}"
+    params['query'] = query
+    params['log_file'] = 'output/test_results/multi_tests_tc6_remove_all_but_one_from_or_constraint.json'
+    params['test_identifier'] = './tests/tc6/test_definitions/remove_all_but_one_from_or_constraint'
+
+    from shaclapi.config import Config
+    from shaclapi.reduction import prepare_validation
+    from shaclapi.query import Query
+    from TravSHACL.constraints.MaxOnlyConstraint import MaxOnlyConstraint
+
+    shape_schema = prepare_validation(Config.from_request_form(params), Query(query), None)
+    assert len(shape_schema.shapes) == 1
+    constraints = shape_schema.shapes[0].constraints
+    assert len(constraints) == 1
+    c = constraints[0]
+    assert isinstance(c, MaxOnlyConstraint)
+    assert c.path == '^<http://example.org/testGraph6#property2>'
+    assert c.options is None
+    assert c.max == 0
