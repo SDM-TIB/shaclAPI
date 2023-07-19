@@ -71,7 +71,7 @@ class ReducedShapeParser(ShapeParser):
         self.removed_constraints[self.currentShape] = []
         return [c for c in super().parse_constraints_ttl(array, target_def, constraints_id) if c]
 
-    def parse_constraint(self, varGenerator, obj, id, targetDef, options=None, raw_or=None):
+    def parse_constraint(self, varGenerator, obj, id, targetDef, options=None):
         """
         Constraints are only relevant if:
             - subject and object do both NOT belong to the targetShape OR
@@ -100,11 +100,11 @@ class ReducedShapeParser(ShapeParser):
                     elif len(options) == 1:
                         print("THERE IS ONLY ONE CONSTRAINT LEFT")
                         return options
-                return super().parse_constraint(varGenerator, obj, id, targetDef, options, raw_or)
+                return super().parse_constraint(varGenerator, obj, id, targetDef, options)
             else:
                 self.removed_constraints[self.currentShape] += [obj.get('path')]
                 return []
-        return super().parse_constraint(varGenerator, obj, id, targetDef, options, raw_or)
+        return super().parse_constraint(varGenerator, obj, id, targetDef, options)
 
     def shape_references(self, constraints):
         """
