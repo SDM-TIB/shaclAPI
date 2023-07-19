@@ -98,7 +98,6 @@ class ReducedShapeParser(ShapeParser):
                     if not options:
                         return []
                     elif len(options) == 1:
-                        print("THERE IS ONLY ONE CONSTRAINT LEFT")
                         return options
                 return super().parse_constraint(varGenerator, obj, id, targetDef, options)
             else:
