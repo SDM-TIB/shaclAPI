@@ -79,12 +79,18 @@ class ReducedShapeParser(ShapeParser):
         Other constraints are not relevant and result in an empty list.
         """
         if self.query is not None and self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
-            path = obj['path'][obj['path'].startswith('^'):]
+            path = obj['path']
+            if str(path).startswith('^'):
+                path = path[1:]
+                is_inverse_path = True
+            else:
+                is_inverse_path = False
             if re_https.match(path):
                 path = '<' + path + '>'
-                query_predicates = self.query.get_predicates(replace_prefixes=True)
+                path = '^' + path if is_inverse_path else path
+                query_predicates = self.query.get_predicates(replace_prefixes=True, ignore_inv=False)
             else:
-                query_predicates = self.query.get_predicates(replace_prefixes=False)
+                query_predicates = self.query.get_predicates(replace_prefixes=False, ignore_inv=False)
             if path in query_predicates:
                 return super().parseConstraint(varGenerator, obj, id, targetDef)
             else:

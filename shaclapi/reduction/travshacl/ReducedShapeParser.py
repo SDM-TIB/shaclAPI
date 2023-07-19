@@ -80,8 +80,7 @@ class ReducedShapeParser(ShapeParser):
 
         Other constraints are not relevant and result in an empty list.
         """
-        if self.query is not None and self.config.remove_constraints and (
-                self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
+        if self.query is not None and self.config.remove_constraints and (self.currentShape in self.targetShapeList or obj.get('shape') in self.targetShapeList):
             path = obj.get('path')
             if path is not None and str(path).startswith('^'):
                 is_inverse_path = True
@@ -91,10 +90,9 @@ class ReducedShapeParser(ShapeParser):
             if path is not None and re_https.match(path):
                 path = '<' + path + '>'
                 path = '^' + path if is_inverse_path else path
-                query_predicates = self.query.get_predicates(replace_prefixes=True)
+                query_predicates = self.query.get_predicates(replace_prefixes=True, ignore_inv=False)
             else:
-                query_predicates = self.query.get_predicates(replace_prefixes=False)
-            print("QueryPreds:", query_predicates)
+                query_predicates = self.query.get_predicates(replace_prefixes=False, ignore_inv=False)
             if path is None or path in query_predicates:
                 if path is None:
                     if not options:
