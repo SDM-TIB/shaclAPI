@@ -277,6 +277,11 @@ def read_test(file):
     return result, solution
 
 
+@pytest.mark.skip
+def sort_constraints_by_path(list_):
+    return sorted(list_, key=lambda c: c.path if c.path is not None else '')
+
+
 @pytest.mark.parametrize('params', [PARAMS_TC6.copy()])
 def test_tc6_remove_one(params):
     query = "PREFIX test6: <http://example.org/testGraph6#>\nSELECT DISTINCT ?x WHERE {\n?x test6:property0 ?p0 .\n?x ^test6:property2 ?p2 .\n?x test6:property3 ?p3 .\n?x test6:belongsTo ?y.\n}"
@@ -292,26 +297,15 @@ def test_tc6_remove_one(params):
 
     shape_schema = prepare_validation(Config.from_request_form(params), Query(query), None)
     assert len(shape_schema.shapes) == 2
-    constraints = shape_schema.shapes[0].constraints
+    constraints = sort_constraints_by_path(shape_schema.shapesDict['<http://example.org/ShapeA>'].constraints)
     assert len(constraints) == 3
     for i, c in enumerate(constraints):
         if i == 0:
             assert isinstance(c, MinOnlyConstraint)
-            assert c.path == '<http://example.org/testGraph6#property3>'
-            assert c.options is None
-            assert c.min == 1
-        elif i == 1:
-            assert isinstance(c, MinOnlyConstraint)
-            assert c.path == '<http://example.org/testGraph6#belongsTo>'
-            assert c.options is None
-            assert c.min == 1
-            assert c.shapeRef == '<http://example.org/ShapeB>'
-        else:
-            assert isinstance(c, MinOnlyConstraint)
             assert c.path is None
             assert isinstance(c.options, list)
             assert len(c.options) == 2
-            for j, orc in enumerate(c.options):
+            for j, orc in enumerate(sort_constraints_by_path(c.options)):
                 if j == 0:
                     assert isinstance(orc, MinOnlyConstraint)
                     assert orc.path == '<http://example.org/testGraph6#property0>'
@@ -320,6 +314,17 @@ def test_tc6_remove_one(params):
                     assert isinstance(orc, MaxOnlyConstraint)
                     assert orc.path == '^<http://example.org/testGraph6#property2>'
                     assert orc.max == 0
+        elif i == 1:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path == '<http://example.org/testGraph6#belongsTo>'
+            assert c.options is None
+            assert c.min == 1
+            assert c.shapeRef == '<http://example.org/ShapeB>'
+        else:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path == '<http://example.org/testGraph6#property3>'
+            assert c.options is None
+            assert c.min == 1
 
 
 @pytest.mark.parametrize('params', [PARAMS_TC6.copy()])
@@ -336,19 +341,19 @@ def test_remove_down_to_one(params):
 
     shape_schema = prepare_validation(Config.from_request_form(params), Query(query), None)
     assert len(shape_schema.shapes) == 1
-    constraints = shape_schema.shapes[0].constraints
+    constraints = sort_constraints_by_path(shape_schema.shapes[0].constraints)
     assert len(constraints) == 2
     for i, c in enumerate(constraints):
         if i == 0:
             assert isinstance(c, MinOnlyConstraint)
-            assert c.path == '<http://example.org/testGraph6#property3>'
-            assert c.options is None
-            assert c.min == 1
-        else:
-            assert isinstance(c, MinOnlyConstraint)
             assert c.path == '<http://example.org/testGraph6#property1>'
             assert c.options is None
             assert c.min == 3
+        else:
+            assert isinstance(c, MinOnlyConstraint)
+            assert c.path == '<http://example.org/testGraph6#property3>'
+            assert c.options is None
+            assert c.min == 1
 
 
 @pytest.mark.parametrize('params', [PARAMS_TC6.copy()])
