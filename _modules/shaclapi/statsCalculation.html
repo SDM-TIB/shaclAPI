@@ -155,7 +155,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_identifier</span><span class="p">,</span> <span class="n">approach_name</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span> <span class="o">=</span> <span class="n">test_identifier</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span> <span class="o">=</span> <span class="n">approach_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">approach_name</span> <span class="o">=</span> <span class="n">approach_name</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">first_result_timestamp</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_result_timestamp</span> <span class="o">=</span> <span class="kc">None</span>
@@ -189,7 +189,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">task_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="StatsCalculation.receive_and_write_trace"><a class="viewcode-back" href="../../shaclapi.statsCalculation.html#shaclapi.statsCalculation.StatsCalculation.receive_and_write_trace">[docs]</a>    <span class="k">def</span> <span class="nf">receive_and_write_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace_file</span><span class="p">,</span> <span class="n">timestamp_queue</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This assigns the timestamp of the first and the last result; writes the trace file and counts the number of results.</span>
 <span class="sd">        This is done using the path of the trace_file and the timestamp_queue (information from the post-processing step)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -225,7 +225,7 @@
         <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">writer</span>
 
 <div class="viewcode-block" id="StatsCalculation.receive_global_stats"><a class="viewcode-back" href="../../shaclapi.statsCalculation.html#shaclapi.statsCalculation.StatsCalculation.receive_global_stats">[docs]</a>    <span class="k">def</span> <span class="nf">receive_global_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stats_out_queue</span><span class="p">,</span> <span class="n">using_output_completion_runner</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Receiving start and stop times of the different steps and also the time  of the first validation result.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">needed_stats</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mp_validate&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>

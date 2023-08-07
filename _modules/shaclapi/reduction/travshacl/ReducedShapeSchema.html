@@ -187,7 +187,7 @@
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query_object</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">save_outputs</span><span class="p">:</span>
             <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^\w\-_\. ]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">),</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^\w\-_.]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">),</span> <span class="s1">&#39;&#39;</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output_dir</span> <span class="o">=</span> <span class="kc">None</span>
@@ -209,7 +209,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ReducedShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_with_target_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span><span class="o">.</span><span class="n">start_shape_for_validation</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting with Shape set in Configuration&#39;</span><span class="p">)</span>
@@ -250,7 +250,7 @@
 
 
 <div class="viewcode-block" id="ReturnShapeSchema"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema">[docs]</a><span class="k">class</span> <span class="nc">ReturnShapeSchema</span><span class="p">(</span><span class="n">ShapeSchema</span><span class="p">):</span>  <span class="c1"># Here the normal ShapeSchema is used and not the reduced one!</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    schema = ReturnShapeSchema(</span>
@@ -263,7 +263,7 @@
         <span class="k">return</span> <span class="n">ReturnShapeSchema</span><span class="p">(</span>
             <span class="n">schema_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">schema_directory</span><span class="p">,</span>
             <span class="n">schema_format</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">schema_format</span><span class="p">,</span>
-            <span class="n">endpoint_url</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">external_endpoint</span><span class="p">,</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">external_endpoint</span><span class="p">,</span>
             <span class="n">graph_traversal</span><span class="o">=</span><span class="n">GraphTraversal</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">traversal_strategy</span><span class="p">],</span>
             <span class="n">heuristics</span><span class="o">=</span><span class="n">parse_heuristics</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">heuristic</span><span class="p">),</span>
             <span class="n">use_selective_queries</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_selective_queries</span><span class="p">,</span>
@@ -275,7 +275,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ReturnShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_starting_point</span><span class="p">()</span>
         <span class="n">node_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphTraversal</span><span class="o">.</span><span class="n">traverse_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_dependencies</span><span class="p">,</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># TODO: deal with more than one possible starting point</span>
 
@@ -287,7 +287,7 @@
         <span class="n">target_shape_predicates</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">target_shapes</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">Validation</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">endpointURL</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span>
             <span class="n">node_order</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">shapesDict</span><span class="p">,</span>
             <span class="n">target_shape_predicates</span><span class="p">,</span>

@@ -394,8 +394,12 @@ reachable from shapes occurring in the query. The remaining shapes can be remove
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraints">
 <span class="sig-name descname"><span class="pre">parseConstraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapeName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetDef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraintsId</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.parseConstraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraints" title="Permalink to this definition">#</a></dt>
-<dd><p>parseConstraint can return None, which need to be filtered.</p>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parse_constraints_ttl">
+<span class="sig-name descname"><span class="pre">parse_constraints_ttl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_def</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.parse_constraints_ttl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parse_constraints_ttl" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.parseConstraint">
@@ -408,7 +412,7 @@ reachable from shapes occurring in the query. The remaining shapes can be remove
 </ul>
 </dd>
 </dl>
-<p>Other constraints are not relevant and result in a None.</p>
+<p>Other constraints are not relevant and result in an empty list.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -425,8 +429,7 @@ It then returns ONE path of a constraint referencing to that shape (The other on
 <dt class="sig sig-object py" id="shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.computeReducedEdges">
 <span class="sig-name descname"><span class="pre">computeReducedEdges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shaclapi/reduction/s2spy/ReducedShapeParser.html#ReducedShapeParser.computeReducedEdges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shaclapi.reduction.s2spy.ReducedShapeParser.ReducedShapeParser.computeReducedEdges" title="Permalink to this definition">#</a></dt>
 <dd><p>Computes the edges in the network.</p>
-<p>Returns unidirectional dependencies with a single exception:
-Reversed dependencies are included, if they aim at the targetShape.</p>
+<p>Returns unidirectional dependencies of the shapes in the network.</p>
 </dd></dl>
 
 </dd></dl>

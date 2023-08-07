@@ -168,7 +168,7 @@
 
 
 <div class="viewcode-block" id="mp_post_processing"><a class="viewcode-back" href="../../../shaclapi.multiprocessing.functions.html#shaclapi.multiprocessing.functions.mp_post_processing">[docs]</a><span class="k">def</span> <span class="nf">mp_post_processing</span><span class="p">(</span><span class="n">joined_result_queue</span><span class="p">,</span> <span class="n">output_queue</span><span class="p">,</span> <span class="n">timestamp_queue</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">target_shape</span><span class="p">,</span> <span class="n">target_var</span><span class="p">,</span> <span class="n">collect_all_results</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The post-processing collects all the bindings belonging to a SPARQL result mapping.</span>
 
 <span class="sd">    Example:</span>
@@ -240,7 +240,7 @@
 
 
 <div class="viewcode-block" id="mp_validate"><a class="viewcode-back" href="../../../shaclapi.multiprocessing.functions.html#shaclapi.multiprocessing.functions.mp_validate">[docs]</a><span class="k">def</span> <span class="nf">mp_validate</span><span class="p">(</span><span class="n">out_queue</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to be executed with Runner to run the validation process of the backend.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">schema</span> <span class="o">=</span> <span class="n">prepare_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">)</span>
@@ -248,7 +248,7 @@
 
 
 <div class="viewcode-block" id="mp_xjoin"><a class="viewcode-back" href="../../../shaclapi.multiprocessing.functions.html#shaclapi.multiprocessing.functions.mp_xjoin">[docs]</a><span class="k">def</span> <span class="nf">mp_xjoin</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">out_queue</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to be executed with Runner to join the instances of the left with the right queue.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">join_instance</span> <span class="o">=</span> <span class="n">Xgoptional</span><span class="p">([</span><span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;instance&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;instance&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">],</span> <span class="n">config</span><span class="o">.</span><span class="n">memory_size</span><span class="p">)</span>

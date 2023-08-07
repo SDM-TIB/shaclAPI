@@ -208,7 +208,7 @@
 
 
 <div class="viewcode-block" id="get_result_queue"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.get_result_queue">[docs]</a><span class="k">def</span> <span class="nf">get_result_queue</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Convenience function to get a multiprocessing queue object, which can be used as a result_queue in :func:`shaclapi.api.run_multiprocessing`.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function to get a multiprocessing queue object, which can be used as a result_queue in :func:`shaclapi.api.run_multiprocessing`.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -219,7 +219,7 @@
 
 
 <div class="viewcode-block" id="run_multiprocessing"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.run_multiprocessing">[docs]</a><span class="k">def</span> <span class="nf">run_multiprocessing</span><span class="p">(</span><span class="n">pre_config</span><span class="p">,</span> <span class="n">result_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Main function of the shaclAPI: Given a dictionary of configuration keys (properties in :py:mod:`shaclapi.config`) with the configured values, the shaclAPI starts the parallel execution of the SHACL validation during SPARQL query execution, while applying the activated heuristics.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main function of the shaclAPI: Given a dictionary of configuration keys (properties in :py:mod:`shaclapi.config`) with the configured values, the shaclAPI starts the parallel execution of the SHACL validation during SPARQL query execution, while applying the activated heuristics.</span>
 
 <span class="sd">    The following directed graph demonstrates the principal procedure. (Nodes represent tasks/processes and edges represent queues for colaboration):</span>
 <span class="sd">    </span>
@@ -232,14 +232,14 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;To reproduce this call to the API run: run_config.py -c &#39;&quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_dict</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">save_outputs</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^\w\-_\. ]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^\w\-_.]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Check if query is given</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The query to be executed over the SPARQL endpoint needs to be provided to the shaclAPI using the option query.&#39;</span><span class="p">)</span>
 
     <span class="c1"># Setup Stats Calculation</span>
-    <span class="n">statsCalc</span> <span class="o">=</span> <span class="n">StatsCalculation</span><span class="p">(</span><span class="n">test_identifier</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">,</span> <span class="n">approach_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">statsCalc</span> <span class="o">=</span> <span class="n">StatsCalculation</span><span class="p">(</span><span class="n">test_identifier</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">,</span> <span class="n">approach_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;{&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="s1">&#39;dict_passed_to_shaclAPI&#39;</span><span class="p">)</span>
     <span class="n">statsCalc</span><span class="o">.</span><span class="n">globalCalculationStart</span><span class="p">()</span>
 
     <span class="c1"># Set up the multiprocessing queue, which will give the final output.</span>
@@ -373,7 +373,7 @@
             <span class="k">while</span> <span class="n">next_result</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
                 <span class="n">output</span> <span class="o">=</span> <span class="n">next_result</span>
                 <span class="n">next_result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">receiver</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-                <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;validTargets&#39;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;invalidTargets&#39;</span><span class="p">]))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;validTargets&#39;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;invalidTargets&#39;</span><span class="p">]))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">while</span> <span class="n">next_result</span> <span class="o">!=</span> <span class="s1">&#39;EOF&#39;</span><span class="p">:</span>
                 <span class="n">output</span> <span class="o">+=</span> <span class="p">[</span><span class="n">next_result</span><span class="p">]</span>
@@ -385,12 +385,12 @@
 
 
 <span class="k">def</span> <span class="nf">_make_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates a list from the object passed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a list from the object passed.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="unify_target_shape"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.unify_target_shape">[docs]</a><span class="k">def</span> <span class="nf">unify_target_shape</span><span class="p">(</span><span class="n">target_shape</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Given a target shape configuration (see :py:attr:`shaclapi.config.target_shape`) and a SPARQL query :class:`shaclapi.query.Query` a reformatted version of the target shape configuration is returned. The format is {?var: list of target shapes}, where ?var is a variable occuring in the query.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a target shape configuration (see :py:attr:`shaclapi.config.target_shape`) and a SPARQL query :class:`shaclapi.query.Query` a reformatted version of the target shape configuration is returned. The format is {?var: list of target shapes}, where ?var is a variable occuring in the query.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -411,7 +411,7 @@
 
 
 <div class="viewcode-block" id="only_reduce_shape_schema"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.only_reduce_shape_schema">[docs]</a><span class="k">def</span> <span class="nf">only_reduce_shape_schema</span><span class="p">(</span><span class="n">pre_config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Only reduces the given SHACL shape schema based on the provided target shape.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Only reduces the given SHACL shape schema based on the provided target shape.</span>
 
 <span class="sd">    The given SHACL shape schema is reduced to all shapes that are reachable from</span>
 <span class="sd">    the provided target shape, i.e., they need to be validated in order to form</span>
@@ -432,7 +432,7 @@
 
 
 <div class="viewcode-block" id="overlap_reduced_schemas"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.overlap_reduced_schemas">[docs]</a><span class="k">def</span> <span class="nf">overlap_reduced_schemas</span><span class="p">(</span><span class="n">pre_config</span><span class="p">,</span> <span class="n">shape_one</span><span class="p">,</span> <span class="n">shape_two</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Computes the percentage of overlap for two reduced shape schemas.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the percentage of overlap for two reduced shape schemas.</span>
 
 <span class="sd">    First, for both sets of shapes, the reduced shape schema is generated.</span>
 <span class="sd">    Afterwards, the intersection of both shape schemas is computed.</span>
@@ -470,7 +470,7 @@
 
 
 <div class="viewcode-block" id="validation_and_statistics"><a class="viewcode-back" href="../../shaclapi.api.html#shaclapi.api.validation_and_statistics">[docs]</a><span class="k">def</span> <span class="nf">validation_and_statistics</span><span class="p">(</span><span class="n">pre_config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Validates a SHACL shape schema and provides additional statistics.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validates a SHACL shape schema and provides additional statistics.</span>
 
 <span class="sd">    The SHACL shape schema is validated based on the provided configuration.</span>
 <span class="sd">    That includes the path of the SHACL shape schema as well as the heuristics</span>
