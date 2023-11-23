@@ -150,6 +150,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 
+<span class="kn">import</span> <span class="nn">rdflib</span>
 <span class="kn">from</span> <span class="nn">TravSHACL.core.ShapeParser</span> <span class="kn">import</span> <span class="n">ShapeParser</span>
 
 <span class="kn">from</span> <span class="nn">shaclapi.reduction.Reduction</span> <span class="kn">import</span> <span class="n">Reduction</span>
@@ -172,12 +173,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_traversal</span> <span class="o">=</span> <span class="n">graph_traversal</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
 
-<div class="viewcode-block" id="ReducedShapeParser.parse_shapes_from_dir"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_shapes_from_dir">[docs]</a>    <span class="k">def</span> <span class="nf">parse_shapes_from_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">shapeFormat</span><span class="p">,</span> <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">):</span>
+<div class="viewcode-block" id="ReducedShapeParser.parse_shapes"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeParser.html#shaclapi.reduction.travshacl.ReducedShapeParser.ReducedShapeParser.parse_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">parse_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">shapeFormat</span><span class="p">,</span> <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parses shapes from a directory. However, shapes are only relevant if they occur in the query or are</span>
-<span class="sd">        reachable from shapes occurring in the query. The remaining shapes can be removed.</span>
+<span class="sd">        Parses shapes from a directory or RDFlib graph. However, shapes are only relevant if they occur in the query</span>
+<span class="sd">        or are reachable from shapes occurring in the query. The remaining shapes can be removed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">all_shapes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_shapes_from_dir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">shapeFormat</span><span class="p">,</span> <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">rdflib</span><span class="o">.</span><span class="n">Graph</span><span class="p">):</span>
+            <span class="n">all_shapes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_ttl</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_shapes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_shapes_from_dir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">shapeFormat</span><span class="p">,</span> <span class="n">useSelectiveQueries</span><span class="p">,</span> <span class="n">maxSplitSize</span><span class="p">,</span> <span class="n">ORDERBYinQueries</span><span class="p">)</span>
         <span class="n">reducer</span> <span class="o">=</span> <span class="n">Reduction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># Step 1: Prune not reachable shapes</span>
