@@ -6,6 +6,7 @@ from TravSHACL.TravSHACL import parse_heuristics
 from TravSHACL.core.GraphTraversal import GraphTraversal
 from TravSHACL.core.ShapeSchema import ShapeSchema
 from TravSHACL.rule_based_validation.Validation import Validation
+from TravSHACL.sparql.SPARQLEndpoint import SPARQLEndpoint
 
 from shaclapi.reduction.travshacl.ReducedShapeParser import ReducedShapeParser
 from shaclapi.reduction.travshacl.ValidationResultStreaming import ValidationResultStreaming
@@ -23,7 +24,7 @@ class ReducedShapeSchema(ShapeSchema):
             schema_dir, schema_format, use_selective_queries, max_split_size, order_by_in_queries)
         self.schema_dir = schema_dir
         self.shapesDict = {shape.get_id(): shape for shape in self.shapes}
-        self.endpointURL = endpoint_url
+        self.endpoint = SPARQLEndpoint(endpoint_url, None, None)
         self.graphTraversal = graph_traversal
         self.parallel = work_in_parallel
         self.dependencies, self.reverse_dependencies = self.compute_edges()
@@ -89,7 +90,7 @@ class ReducedShapeSchema(ShapeSchema):
         target_shape_predicates = [s.get_id() for s in target_shapes]
         
         return ValidationResultStreaming(
-            self.endpointURL,
+            self.endpoint,
             node_order,
             self.shapesDict,
             target_shape_predicates,
