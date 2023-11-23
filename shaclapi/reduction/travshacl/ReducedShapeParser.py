@@ -2,6 +2,7 @@ import logging
 import re
 from functools import reduce
 
+import rdflib
 from TravSHACL.core.ShapeParser import ShapeParser
 
 from shaclapi.reduction.Reduction import Reduction
@@ -24,12 +25,15 @@ class ReducedShapeParser(ShapeParser):
         self.graph_traversal = graph_traversal
         self.config = config
 
-    def parse_shapes_from_dir(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
+    def parse_shapes(self, path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries):
         """
-        Parses shapes from a directory. However, shapes are only relevant if they occur in the query or are
-        reachable from shapes occurring in the query. The remaining shapes can be removed.
+        Parses shapes from a directory or RDFlib graph. However, shapes are only relevant if they occur in the query
+        or are reachable from shapes occurring in the query. The remaining shapes can be removed.
         """
-        all_shapes = super().parse_shapes_from_dir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
+        if isinstance(path, rdflib.Graph):
+            all_shapes = super().parse_ttl(path, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
+        else:
+            all_shapes = super().parse_shapes_from_dir(path, shapeFormat, useSelectiveQueries, maxSplitSize, ORDERBYinQueries)
         reducer = Reduction(self)
 
         # Step 1: Prune not reachable shapes

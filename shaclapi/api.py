@@ -278,7 +278,7 @@ def only_reduce_shape_schema(pre_config):
     from TravSHACL.core.GraphTraversal import GraphTraversal
     config = Config.from_request_form(pre_config)
     shape_parser = ReducedShapeParser(None, GraphTraversal.DFS, config)
-    _, node_order, _ = shape_parser.parse_shapes_from_dir(
+    _, node_order, _ = shape_parser.parse_shapes(
         config.schema_directory, config.schema_format, True, 256, False)
     return node_order
 
