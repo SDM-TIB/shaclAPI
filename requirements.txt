@@ -1,6 +1,6 @@
 Flask==3.0.3
 multiprocessing_logging==0.3.4
-rdflib==6.2.0
+rdflib==6.3.2
 regex==2024.7.24
 requests==2.32.3
 SPARQLWrapper==2.0.0
