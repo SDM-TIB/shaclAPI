@@ -1,3 +1,6 @@
+# v0.11.1 - 03 Sep 2024
+- update dependencies
+
 # v0.11.0 - 23 Nov 2023
 - require a newer version of Trav-SHACL (>= 1.7.0)
 - fix endpoint creation due to changes in Trav-SHACL v1.6.0
