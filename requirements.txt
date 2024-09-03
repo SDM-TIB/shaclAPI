@@ -1,5 +1,5 @@
 Flask==3.0.3
-multiprocessing_logging==0.3.3
+multiprocessing_logging==0.3.4
 rdflib==6.2.0
 regex==2024.7.24
 requests==2.32.3
