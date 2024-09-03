@@ -1,4 +1,4 @@
-Flask==2.3.2
+Flask==3.0.3
 multiprocessing_logging==0.3.3
 rdflib==6.2.0
 regex==2022.7.25
