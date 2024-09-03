@@ -330,21 +330,29 @@ def validation_and_statistics(pre_config):
 
     Returns
     -------
-        JSON structure:
-        {shape1:
-            {valid: #valid instances,
-            invalid: #invalid instances,
-            columns: [column name 1, column name 2, ...],
-            results: [[instance 1 data 1,instance 1 data 2, ...], [instance 2 data 1,instance 2 data 2, ...], ...]
-            }
-        shape2: {...}
-        ...
-        }
-    -------
     dict
        The result includes per-shape counts of the valid and invalid instances as
        well as a Boolean per instance of the shape stating its satisfaction of the
        shape's constraints.
+       JSON structure:
+
+       .. code-block:: none
+
+          {
+              shape1: {
+                  valid: #valid instances,
+                  invalid: #invalid instances,
+                  columns: [column name 1, column name 2, ...],
+                  results: [
+                      [instance 1 data 1,instance 1 data 2, ...],
+                      [instance 2 data 1,instance 2 data 2, ...],
+                      ...
+                  ]
+              },
+              shape2: {...},
+              ...
+          }
+
     """
     from multiprocessing import Queue
     config = Config.from_request_form(pre_config)
