@@ -10,6 +10,13 @@ services:
       - '9000:8890'
     networks:
       - shaclapi_test
+    environment:
+      VIRT_PARAMETERS_NUMBEROFBUFFERS: 340000
+      VIRT_PARAMETERS_MAXDIRTYBUFFERS: 250000
+      VIRT_PARAMETERS_MAXQUERYMEM: 2G
+      VIRT_SPARQL_MAXQUERYCOSTESTIMATIONTIME: 0
+      VIRT_SPARQL_MAXQUERYEXECUTIONTIME: 0
+
   shaclapi:
     build: ..
     container_name: shaclapi
