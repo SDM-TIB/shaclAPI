@@ -1,4 +1,4 @@
-FROM python:3.8.13-slim-bullseye
+FROM python:3.9.20-slim-bookworm
 
 # install dependencies
 COPY requirements.txt /shaclAPI/requirements.txt
