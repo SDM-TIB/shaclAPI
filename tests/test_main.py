@@ -109,7 +109,8 @@ def get_trav_args(params_file):
         's': 's' == task,
         't': 't' == task,
         'f': 'f' == task,
-        'json': False
+        'json': False,
+        'force': False
     }
     return Namespace(**args)
 
