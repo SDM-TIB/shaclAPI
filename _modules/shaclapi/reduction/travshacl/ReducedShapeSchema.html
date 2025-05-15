@@ -13,27 +13,30 @@
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
-<link href="../../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-  
-  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
-
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
-<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
-  <script src="../../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=b3ba4146"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
@@ -43,6 +46,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -50,32 +54,16 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../../../../search.html"
       method="get">
@@ -83,7 +71,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search the docs ..."
          aria-label="Search the docs ..."
          autocomplete="off"
@@ -91,20 +78,27 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
-  </label>
+  </button>
   
   
   <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
+  
+    
   
 
 <a class="navbar-brand logo" href="../../../../index.html">
@@ -125,21 +119,15 @@
     <div class="me-auto navbar-header-items__center">
       
         <div class="navbar-item">
-<nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
+<nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../../modules.html">
-                        shaclapi
-                      </a>
-                    </li>
-                
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../modules.html">
+    shaclapi
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -151,29 +139,21 @@
         <div class="navbar-item navbar-persistent--container">
           
 
- <script>
- document.write(`
-   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
         </div>
       
       
         <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
       
     </div>
     
@@ -182,27 +162,29 @@ document.write(`
   
     <div class="navbar-persistent--mobile">
 
- <script>
- document.write(`
-   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
     </div>
   
 
   
 </div>
 
-    </nav>
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
-      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -211,24 +193,21 @@ document.write(`
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item">
-<nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
+          
+          
+            <div class="navbar-item">
+<nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../../modules.html">
-                        shaclapi
-                      </a>
-                    </li>
-                
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../modules.html">
+    shaclapi
+  </a>
+</li>
+
   </ul>
 </nav></div>
+          
         
       </div>
     
@@ -238,15 +217,11 @@ document.write(`
         
           <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
         
       </div>
     
@@ -254,29 +229,32 @@ document.write(`
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
       
         <div class="header-article-item">
 
-
-
-<nav aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
@@ -290,7 +268,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../../reduction.html" class="nav-link">shaclapi.reduction</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">shaclapi.red...</li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">shaclapi.reduction.travshacl.ReducedShapeSchema</span></li>
   </ul>
 </nav>
 </div>
@@ -305,27 +283,27 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <h1>Source code for shaclapi.reduction.travshacl.ReducedShapeSchema</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
-<span class="kn">from</span> <span class="nn">TravSHACL.TravSHACL</span> <span class="kn">import</span> <span class="n">parse_heuristics</span>
-<span class="kn">from</span> <span class="nn">TravSHACL.core.GraphTraversal</span> <span class="kn">import</span> <span class="n">GraphTraversal</span>
-<span class="kn">from</span> <span class="nn">TravSHACL.core.ShapeSchema</span> <span class="kn">import</span> <span class="n">ShapeSchema</span>
-<span class="kn">from</span> <span class="nn">TravSHACL.rule_based_validation.Validation</span> <span class="kn">import</span> <span class="n">Validation</span>
-<span class="kn">from</span> <span class="nn">TravSHACL.sparql.SPARQLEndpoint</span> <span class="kn">import</span> <span class="n">SPARQLEndpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">TravSHACL.TravSHACL</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_heuristics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">TravSHACL.core.GraphTraversal</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphTraversal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">TravSHACL.core.ShapeSchema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShapeSchema</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">TravSHACL.rule_based_validation.Validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Validation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">TravSHACL.sparql.SPARQLEndpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPARQLEndpoint</span>
 
-<span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ReducedShapeParser</span> <span class="kn">import</span> <span class="n">ReducedShapeParser</span>
-<span class="kn">from</span> <span class="nn">shaclapi.reduction.travshacl.ValidationResultStreaming</span> <span class="kn">import</span> <span class="n">ValidationResultStreaming</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shaclapi.reduction.travshacl.ReducedShapeParser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReducedShapeParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shaclapi.reduction.travshacl.ValidationResultStreaming</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationResultStreaming</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ReducedShapeSchema"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema">[docs]</a><span class="k">class</span> <span class="nc">ReducedShapeSchema</span><span class="p">(</span><span class="n">ShapeSchema</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema_dir</span><span class="p">,</span> <span class="n">schema_format</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">graph_traversal</span><span class="p">,</span> <span class="n">heuristics</span><span class="p">,</span>
+<div class="viewcode-block" id="ReducedShapeSchema"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ReducedShapeSchema</span><span class="p">(</span><span class="n">ShapeSchema</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema_dir</span><span class="p">,</span> <span class="n">schema_format</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">graph_traversal</span><span class="p">,</span> <span class="n">heuristics</span><span class="p">,</span>
                  <span class="n">use_selective_queries</span><span class="p">,</span> <span class="n">max_split_size</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">order_by_in_queries</span><span class="p">,</span>
                  <span class="n">save_outputs</span><span class="p">,</span> <span class="n">work_in_parallel</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span> <span class="o">=</span> <span class="n">config</span>
@@ -347,7 +325,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">result_transmitter</span> <span class="o">=</span> <span class="n">result_transmitter</span>
 
 <div class="viewcode-block" id="ReducedShapeSchema.from_config"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema.from_config">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query_object</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">query_object</span><span class="p">,</span> <span class="n">result_transmitter</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">save_outputs</span><span class="p">:</span>
             <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^\w\-_.]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">test_identifier</span><span class="p">),</span> <span class="s1">&#39;&#39;</span>
@@ -371,7 +349,7 @@ document.write(`
             <span class="n">result_transmitter</span><span class="o">=</span><span class="n">result_transmitter</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ReducedShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_with_target_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="ReducedShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReducedShapeSchema.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_with_target_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shaclAPIConfig</span><span class="o">.</span><span class="n">start_shape_for_validation</span><span class="p">:</span>
@@ -412,7 +390,7 @@ document.write(`
         <span class="p">)</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="ReturnShapeSchema"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema">[docs]</a><span class="k">class</span> <span class="nc">ReturnShapeSchema</span><span class="p">(</span><span class="n">ShapeSchema</span><span class="p">):</span>  <span class="c1"># Here the normal ShapeSchema is used and not the reduced one!</span>
+<div class="viewcode-block" id="ReturnShapeSchema"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ReturnShapeSchema</span><span class="p">(</span><span class="n">ShapeSchema</span><span class="p">):</span>  <span class="c1"># Here the normal ShapeSchema is used and not the reduced one!</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -422,7 +400,7 @@ document.write(`
 <span class="sd">        config[&#39;ORDERBYinQueries&#39;], config[&#39;outputs&#39;], config[&#39;workInParallel&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ReturnShapeSchema.from_config"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema.from_config">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ReturnShapeSchema</span><span class="p">(</span>
             <span class="n">schema_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">schema_directory</span><span class="p">,</span>
             <span class="n">schema_format</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">schema_format</span><span class="p">,</span>
@@ -437,7 +415,7 @@ document.write(`
             <span class="n">work_in_parallel</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">work_in_parallel</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ReturnShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ReturnShapeSchema.validate"><a class="viewcode-back" href="../../../../shaclapi.reduction.travshacl.ReducedShapeSchema.html#shaclapi.reduction.travshacl.ReducedShapeSchema.ReturnShapeSchema.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the validation of the shape network.&quot;&quot;&quot;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_starting_point</span><span class="p">()</span>
         <span class="n">node_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphTraversal</span><span class="o">.</span><span class="n">traverse_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_dependencies</span><span class="p">,</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># TODO: deal with more than one possible starting point</span>
@@ -467,7 +445,7 @@ document.write(`
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
 </div>
@@ -488,8 +466,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
-<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -522,7 +500,8 @@ document.write(`
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.4.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>
