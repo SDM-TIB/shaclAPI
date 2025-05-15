@@ -1,4 +1,4 @@
-FROM python:3.9.20-slim-bookworm
+FROM python:3.9.22-slim-bookworm
 
 # install dependencies
 COPY requirements.txt /shaclAPI/requirements.txt
