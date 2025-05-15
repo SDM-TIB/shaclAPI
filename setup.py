@@ -23,7 +23,7 @@ setup(
         'SPARQLWrapper>=2.0.0',
         'requests>=2.32.0',
         'SHACL2SPARQLpy>=1.3.0',
-        'TravSHACL>=1.7.0',
+        'TravSHACL>=1.9.0',
         'multiprocessing_logging>=0.3.1',
         'regex>=2022.3.15'
     ],
