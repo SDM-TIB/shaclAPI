@@ -2,7 +2,7 @@ FROM python:3.12.13-slim-trixie
 
 # install dependencies
 COPY requirements.txt /shaclAPI/requirements.txt
-RUN python -m pip install --upgrade --no-cache-dir pip==25.1.* gunicorn==23.0.* && \
+RUN python -m pip install --upgrade --no-cache-dir pip==26.1.* gunicorn==23.0.* && \
     python -m pip install --no-cache-dir -r /shaclAPI/requirements.txt
 
 # copy the source code into the container
