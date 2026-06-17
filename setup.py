@@ -21,7 +21,7 @@ setup(
     packages=find_packages(exclude='tests'),
     install_requires=[
         'SPARQLWrapper>=2.0.0',
-        'requests>=2.32.0',
+        'requests>=2.33.0',
         'SHACL2SPARQLpy>=1.3.0',
         'TravSHACL>=1.9.0',
         'multiprocessing_logging>=0.3.1',
