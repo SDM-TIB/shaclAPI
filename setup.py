@@ -2,7 +2,7 @@
 from distutils.core import setup
 from setuptools import find_packages
 
-VERSION = '0.12.0'
+VERSION = '0.13.0'
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
@@ -28,7 +28,7 @@ setup(
         'regex>=2022.3.15'
     ],
     include_package_data=True,
-    python_requires='>=3.9',
+    python_requires='>=3.10',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python',

@@ -1,4 +1,8 @@
-# v0.12.0 - 15 May 2925
+# v0.13.0 - 17 June 2026
+- update dependencies
+- drop Python 3.9 support
+
+# v0.12.0 - 15 May 2025
 - update dependencies
 - drop Python 3.8 support
 
