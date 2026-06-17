@@ -30,7 +30,7 @@ jobs:
       matrix:
         python-version: [ '3.10', '3.11', '3.12' ]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Start the Docker container with the test data
       run: |
         cd tests
